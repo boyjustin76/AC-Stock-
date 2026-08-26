@@ -32,6 +32,21 @@ function keyframe(list, t, fallback) {
   return list[list.length - 1].v;
 }
 
+/** 씬에서 쓰는 이미지를 모두 미리 로드한다 (첫 프레임에 빠지지 않게) */
+async function preloadImages(scene) {
+  const srcs = [...new Set((scene.layers ?? []).filter((l) => l.type === 'image' && l.src).map((l) => l.src))];
+  const out = {};
+  await Promise.all(
+    srcs.map(async (src) => {
+      const img = new Image();
+      img.src = encodeURI(src);
+      await img.decode();
+      out[src] = img;
+    }),
+  );
+  return out;
+}
+
 export class SceneRuntime {
   constructor(canvas, scene, project) {
     this.canvas = canvas;
@@ -65,6 +80,7 @@ export class SceneRuntime {
       },
     });
     this.totalFrames = Math.round(scene.duration * this.fps);
+    this.images = {};
   }
 
   /** 프레임 하나 그리기. frame 은 0-based */
@@ -74,6 +90,20 @@ export class SceneRuntime {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, this.w, this.h);
     ctx.globalAlpha = 1;
+
+    // 카메라 흔들림. 난수를 쓰지 않아 같은 프레임은 항상 같은 결과가 나온다.
+    const shake = keyframe(this.scene.camera?.shake, t, 0);
+    if (shake > 0) {
+      const a = Math.sin(t * 47.3) * shake * 14;
+      const b = Math.cos(t * 61.7) * shake * 10;
+      const cx = this.w / 2;
+      const cy = this.h / 2;
+      const z = 1 + shake * 0.02;
+      ctx.translate(cx, cy);
+      ctx.scale(z, z);
+      ctx.translate(-cx, -cy);
+      ctx.translate(a, b);
+    }
 
     const c = this.chartCfg;
     const reveal = clamp(
@@ -109,6 +139,7 @@ export class SceneRuntime {
       reveal,
       bars: this.bars,
       scene: this.scene,
+      images: this.images,
     };
 
     for (const layer of this.scene.layers ?? []) {
@@ -150,12 +181,14 @@ export async function boot() {
   canvas.width = project.width;
   canvas.height = project.height;
   const runtime = new SceneRuntime(canvas, scene, project);
+  runtime.images = await preloadImages(scene);
 
   window.__scene = {
     id: scene.id,
     name: scene.name,
     duration: scene.duration,
     fps: project.fps,
+    fpsExpr: project.fpsExpr ?? null,
     totalFrames: runtime.totalFrames,
     width: project.width,
     height: project.height,

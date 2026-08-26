@@ -90,6 +90,7 @@ export async function renderScene(stage, opts) {
   const enc = startEncoder({
     format,
     fps: meta.fps,
+    fpsExpr: meta.fpsExpr,
     outFile,
     width: meta.width,
     height: meta.height,

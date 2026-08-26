@@ -138,9 +138,14 @@ export class Chart {
       ctx.clearRect(0, 0, this.w, this.h);
       return;
     }
+    if (theme.flat || !theme.bgGradient) {
+      ctx.fillStyle = theme.bg;
+      ctx.fillRect(0, 0, this.w, this.h);
+      return;
+    }
     const g = ctx.createLinearGradient(0, 0, this.w * 0.35, this.h);
-    g.addColorStop(0, theme.bgGradient?.[0] ?? theme.bg);
-    g.addColorStop(1, theme.bgGradient?.[1] ?? theme.bg);
+    g.addColorStop(0, theme.bgGradient[0]);
+    g.addColorStop(1, theme.bgGradient[1]);
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, this.w, this.h);
 
@@ -254,7 +259,7 @@ export class Chart {
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     for (const ov of this.overlays) {
-      ctx.strokeStyle = ov.color ?? 'rgba(120,170,255,0.75)';
+      ctx.strokeStyle = ov.color ?? this.theme.ma ?? 'rgba(120,170,255,0.75)';
       ctx.lineWidth = ov.width ?? 3;
       ctx.beginPath();
       let started = false;
@@ -312,8 +317,8 @@ export class Chart {
       ctx.fillStyle = bull ? theme.upFill : theme.downFill;
       ctx.fillRect(Math.round(x - w / 2), Math.round(top), Math.round(w), Math.round(bh));
 
-      // 형성 중인 캔들은 살짝 발광
-      if (bar.forming) {
+      // 형성 중인 캔들은 살짝 발광 (밝은 테마에서는 지저분해지므로 생략)
+      if (bar.forming && !theme.flat) {
         ctx.save();
         ctx.shadowColor = color;
         ctx.shadowBlur = 26;
@@ -322,6 +327,24 @@ export class Chart {
       }
     }
     ctx.restore();
+  }
+
+  /** 마지막(형성 중인) 캔들의 현재가 정보. 그리지는 않는다. */
+  lastInfo(s, reveal) {
+    const idx = Math.min(this.bars.length - 1, Math.floor(reveal));
+    const raw = this.bars[idx];
+    if (!raw) return null;
+    const p = clamp(reveal - idx, 0, 1);
+    const bar = p < 1 ? formingBar(raw, p) : raw;
+    const bull = bar.c >= bar.o;
+    return {
+      price: bar.c,
+      y: s.y(bar.c),
+      x: s.x(idx),
+      color: bull ? this.theme.up : this.theme.down,
+      bar,
+      index: idx,
+    };
   }
 
   /** 현재가 점선 + 오른쪽 가격 태그 */
@@ -380,8 +403,8 @@ export class Chart {
     if (showGrid) this.drawGrid(s, alpha * 1);
     this.drawMAs(s, reveal, alpha);
     this.drawCandles(s, reveal, alpha);
-    let last = null;
-    if (showLast) last = this.drawLastPrice(s, reveal, alpha);
+    let last = this.lastInfo(s, reveal);
+    if (showLast) last = this.drawLastPrice(s, reveal, alpha) ?? last;
     if (showAxes) this.drawAxes(s, reveal, alpha);
     return { scale: s, viewport: vp, last };
   }

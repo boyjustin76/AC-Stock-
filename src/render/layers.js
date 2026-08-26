@@ -78,6 +78,43 @@ function riseText(ctx, text, x, y, p, opt = {}) {
 /* 레이어 구현                                                          */
 /* ------------------------------------------------------------------ */
 
+
+/* ------------------------------------------------------------------ */
+/* 차트명가 스타일 헬퍼                                                 */
+/* ------------------------------------------------------------------ */
+
+/** 흰 글씨 + 검정 외곽선. 이 채널 라벨의 기본 표기법 */
+function strokeText(ctx, text, x, y, opt = {}) {
+  ctx.save();
+  ctx.lineJoin = 'round';
+  ctx.miterLimit = 2;
+  ctx.strokeStyle = opt.stroke ?? '#000000';
+  ctx.lineWidth = opt.strokeWidth ?? 9;
+  ctx.strokeText(text, x, y);
+  ctx.fillStyle = opt.fill ?? '#FFFFFF';
+  ctx.fillText(text, x, y);
+  ctx.restore();
+}
+
+/** 오른쪽을 가리키는 화살표 모양 라벨 (매수 / 매도 태그) */
+function arrowTagPath(ctx, tipX, cy, w, h, dir = 1) {
+  const head = h * 0.62;
+  const x0 = tipX - dir * w;
+  const x1 = tipX - dir * head;
+  const t = cy - h / 2;
+  const b = cy + h / 2;
+  const r = 6;
+  ctx.beginPath();
+  ctx.moveTo(tipX, cy);
+  ctx.lineTo(x1, t);
+  ctx.lineTo(x0 + dir * r, t);
+  ctx.quadraticCurveTo(x0, t, x0, t + r);
+  ctx.lineTo(x0, b - r);
+  ctx.quadraticCurveTo(x0, b, x0 + dir * r, b);
+  ctx.lineTo(x1, b);
+  ctx.closePath();
+}
+
 const LAYERS = {
   /** 화면 전체 타이틀 카드 (인트로/챕터 전환) */
   titleCard(ctx, L, env) {
@@ -594,6 +631,318 @@ const LAYERS = {
         h: 52, padX: 22, align: L.align ?? 'center',
       });
       ctx.restore();
+    });
+  },
+
+
+  /**
+   * 손으로 그린 듯한 원 강조. 프리셋의 "원 효과(색연필)" 를 코드로 대체한 것.
+   * 각도를 따라 조금씩 흔들리며 한 바퀴를 살짝 넘겨 그린다.
+   */
+  cmgCircle(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const { theme, scale } = env;
+    const cx = L.bar != null ? scale.x(L.bar) + (L.dx ?? 0) : L.x;
+    const cy = L.price != null ? scale.y(resolvePrice(L.price, env)) + (L.dy ?? 0) : L.y;
+    const rx = L.rx ?? 150;
+    const ry = L.ry ?? 110;
+    const draw = span(env.t, L.in[0], L.in[0] + (L.drawDur ?? 0.7), Ease.outCubic);
+    const turns = (L.turns ?? 1.12) * draw;
+    const color = L.color ?? theme.accent;
+
+    withAlpha(ctx, v, () => {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = L.width ?? 11;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      const steps = Math.max(2, Math.round(turns * 90));
+      const start = L.startAngle ?? -Math.PI * 0.62;
+      for (let i = 0; i <= steps; i++) {
+        const a = start + (i / 90) * Math.PI * 2;
+        // 손그림 느낌을 내는 미세한 반지름 흔들림
+        const w = 1 + Math.sin(a * 3.1 + 0.7) * 0.028 + Math.sin(a * 5.3) * 0.018;
+        const x = cx + Math.cos(a) * rx * w;
+        const y = cy + Math.sin(a) * ry * w;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    });
+  },
+
+  /**
+   * 평가손익 영역. 진입가와 현재가 사이를 칠한다.
+   * 수익이면 초록, 손실이면 빨강. pulse 를 주면 불안하게 떨린다.
+   */
+  cmgProfit(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001 || !env.last) return;
+    const { theme, scale, chart } = env;
+    const entry = resolvePrice(L.entry, env);
+    const now = env.last.price;
+    const up = now >= entry;
+    const yE = scale.y(entry);
+    let yN = scale.y(now);
+
+    // 불안하게 흔들리는 연출 — 수익 영역 위쪽 경계가 진입선 쪽으로 당겨졌다 돌아온다
+    if (L.pulse) {
+      const k = (Math.sin((env.t - (L.pulseFrom ?? L.in[0])) * (L.pulseSpeed ?? 7.5)) + 1) / 2;
+      yN = lerp(yN, yE, k * (L.pulseAmount ?? 0.45));
+    }
+
+    const x0 = L.fromBar != null ? scale.x(L.fromBar) : chart.plot.x;
+    const x1 = L.toBar != null ? scale.x(L.toBar) : chart.plot.right;
+
+    withAlpha(ctx, v, () => {
+      ctx.save();
+      chart.clipPlot(ctx);
+      ctx.fillStyle = L.color ?? (up ? theme.tpFill : theme.slFill);
+      ctx.globalAlpha *= L.opacity ?? 0.6;
+      ctx.fillRect(x0, Math.min(yE, yN), x1 - x0, Math.abs(yN - yE));
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = L.entryColor ?? 'rgba(0,0,0,0.75)';
+      ctx.lineWidth = L.entryWidth ?? 5;
+      ctx.setLineDash(L.entryDash ?? [18, 12]);
+      ctx.beginPath();
+      ctx.moveTo(x0, Math.round(yE) + 0.5);
+      ctx.lineTo(x1, Math.round(yE) + 0.5);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    });
+  },
+
+  /**
+   * 익절 / 손절 수평선. 캔들보다 확실히 굵고, 왼쪽 끝에 컬러 라벨이 붙는다.
+   * fillTo 를 주면 두 가격 사이를 옅은 색으로 채운다.
+   */
+  cmgLevel(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const { theme, scale, chart } = env;
+    const price = resolvePrice(L.price, env);
+    const y = scale.y(price);
+    const p = chart.plot;
+    const grow = span(env.t, L.in[0], L.in[0] + (L.growDur ?? 0.45), Ease.outExpo);
+    const color = L.color ?? theme.tp;
+    const x0 = L.fromBar != null ? scale.x(L.fromBar) : (L.fromX ?? p.x);
+    const w = (p.right - x0) * grow;
+
+    withAlpha(ctx, v, () => {
+      ctx.save();
+      chart.clipPlot(ctx);
+      if (L.fillTo != null) {
+        const y2 = scale.y(resolvePrice(L.fillTo, env));
+        ctx.fillStyle = L.fill ?? theme.tpFill;
+        ctx.globalAlpha *= L.fillOpacity ?? 0.55;
+        ctx.fillRect(x0, Math.min(y, y2), w, Math.abs(y2 - y));
+        ctx.globalAlpha = 1;
+      }
+      ctx.fillStyle = color;
+      const th = L.thickness ?? 13;
+      ctx.fillRect(x0, y - th / 2, w, th);
+      ctx.restore();
+
+      if (L.label) {
+        const lp = span(env.t, L.in[0] + (L.labelDelay ?? 0.12), L.in[0] + (L.labelDelay ?? 0.12) + 0.35, Ease.outBack);
+        ctx.save();
+        ctx.globalAlpha *= clamp(lp);
+        const size = L.labelSize ?? 62;
+        ctx.font = `700 ${size}px ${theme.font}`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        const tw = ctx.measureText(L.label).width;
+        const padX = size * 0.28;
+        const bw = tw + padX * 2;
+        const bh = size * 1.22;
+        const bx = L.labelX ?? x0 + 40;
+        ctx.fillStyle = color;
+        roundRect(ctx, bx, y - bh / 2, bw, bh, 8);
+        ctx.fill();
+        strokeText(ctx, L.label, bx + padX, y + 2, { strokeWidth: size * 0.14 });
+        ctx.restore();
+      }
+    });
+  },
+
+  /** 매수 / 매도 화살표 태그. 캔들을 오른쪽으로 가리킨다. */
+  cmgArrow(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const { theme, scale } = env;
+    const bar = env.chart.bars[L.bar];
+    if (!bar) return;
+    const price = L.price != null ? resolvePrice(L.price, env) : bar.c;
+    const dirRight = L.point !== 'left'; // 기본은 오른쪽을 가리킴
+    const tipX = scale.x(L.bar) - (dirRight ? 1 : -1) * (L.gap ?? 14);
+    const cy = scale.y(price);
+    const buy = (L.dir ?? 'buy') === 'buy';
+    const color = L.color ?? (buy ? theme.buy : theme.sell);
+    const pop = span(env.t, L.in[0], L.in[0] + 0.4, Ease.outBack);
+
+    withAlpha(ctx, v, () => {
+      const size = L.size ?? 58;
+      ctx.font = `700 ${size}px ${theme.font}`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      const label = L.label ?? (buy ? '매수' : '매도');
+      const tw = ctx.measureText(label).width;
+      const h = size * 1.34;
+      const w = (tw + size * 0.95) * pop;
+      const d = dirRight ? 1 : -1;
+
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 5;
+      arrowTagPath(ctx, tipX, cy, w, h, d);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      if (pop > 0.5) {
+        ctx.save();
+        ctx.globalAlpha *= clamp((pop - 0.5) * 3);
+        const tx = dirRight ? tipX - w + size * 0.3 : tipX + w - size * 0.3 - tw;
+        strokeText(ctx, label, tx, cy + 2, { strokeWidth: size * 0.13 });
+        ctx.restore();
+      }
+    });
+  },
+
+  /** 브랜드 배지 (손익비, 종목·타임프레임 등) */
+  cmgBadge(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const { theme } = env;
+    const color = L.color ?? theme.accent;
+    const size = L.size ?? 46;
+    const pop = span(env.t, L.in[0], L.in[0] + 0.35, Ease.outBack);
+
+    withAlpha(ctx, v, () => {
+      ctx.font = `700 ${size}px ${theme.font}`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      const tw = ctx.measureText(L.text).width;
+      const padX = size * 0.5;
+      const bw = tw + padX * 2;
+      const bh = size * 1.5;
+      const align = L.align ?? 'left';
+      const bx = align === 'right' ? L.x - bw : align === 'center' ? L.x - bw / 2 : L.x;
+      const by = L.y - bh / 2;
+      ctx.save();
+      ctx.translate(bx + bw / 2, L.y);
+      ctx.scale(pop, pop);
+      ctx.translate(-(bx + bw / 2), -L.y);
+      ctx.fillStyle = color;
+      roundRect(ctx, bx, by, bw, bh, L.radius ?? 10);
+      ctx.fill();
+      if (L.border !== false) {
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+      }
+      strokeText(ctx, L.text, bx + padX, L.y + 2, { strokeWidth: size * 0.15 });
+      ctx.restore();
+    });
+  },
+
+  /** 차트 위 짧은 주석 (외곽선 글씨 + 선택적 지시선) */
+  cmgNote(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const { theme, scale } = env;
+    const size = L.size ?? 56;
+    const rise = span(env.t, L.in[0], L.in[0] + 0.45, Ease.outCubic);
+    const x = L.bar != null ? scale.x(L.bar) + (L.dx ?? 0) : L.x;
+    const y = (L.price != null ? scale.y(resolvePrice(L.price, env)) : L.y) + (L.dy ?? 0);
+
+    withAlpha(ctx, v, () => {
+      ctx.translate(0, (1 - rise) * 18);
+      ctx.font = `700 ${size}px ${theme.font}`;
+      ctx.textAlign = L.align ?? 'center';
+      ctx.textBaseline = 'middle';
+      strokeText(ctx, L.text, x, y, {
+        fill: L.color ?? '#FFFFFF',
+        stroke: L.stroke ?? '#000000',
+        strokeWidth: L.strokeWidth ?? size * 0.16,
+      });
+    });
+  },
+
+  /**
+   * "놓친 구간" 강조 — 두 가격 사이를 빗금으로 채우고 위로 향하는 화살표를 얹는다.
+   */
+  cmgMissed(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const { theme, scale, chart } = env;
+    const yFrom = scale.y(resolvePrice(L.from, env));
+    const yTo = scale.y(resolvePrice(L.to, env));
+    const x0 = L.fromBar != null ? scale.x(L.fromBar) : chart.plot.x;
+    const x1 = L.toBar != null ? scale.x(L.toBar) : chart.plot.right;
+    const grow = span(env.t, L.in[0], L.in[0] + (L.growDur ?? 0.8), Ease.outExpo);
+    const top = Math.min(yFrom, yTo);
+    const h = Math.abs(yTo - yFrom) * grow;
+    const yBase = Math.max(yFrom, yTo);
+    const color = L.color ?? theme.accent;
+
+    withAlpha(ctx, v, () => {
+      ctx.save();
+      chart.clipPlot(ctx);
+      ctx.beginPath();
+      ctx.rect(x0, yBase - h, x1 - x0, h);
+      ctx.clip();
+      ctx.fillStyle = hexA(color, 0.1);
+      ctx.fillRect(x0, yBase - h, x1 - x0, h);
+      // 빗금
+      ctx.strokeStyle = hexA(color, 0.28);
+      ctx.lineWidth = 6;
+      const step = 42;
+      for (let x = x0 - h; x < x1 + h; x += step) {
+        ctx.beginPath();
+        ctx.moveTo(x, yBase);
+        ctx.lineTo(x + h, yBase - h);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // 위로 향하는 화살표
+      const ax = L.arrowX ?? x0 + (x1 - x0) * (L.arrowFrac ?? 0.12);
+      const aTop = yBase - h;
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 12;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(ax, yBase - 8);
+      ctx.lineTo(ax, aTop + 34);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(ax, aTop);
+      ctx.lineTo(ax - 26, aTop + 42);
+      ctx.lineTo(ax + 26, aTop + 42);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    });
+  },
+
+  /** 이미지 (로고 등). engine 이 미리 로드해 env.images 에 넣어 둔다. */
+  image(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const img = env.images?.[L.src];
+    if (!img) return;
+    const w = L.width ?? img.naturalWidth;
+    const h = L.height ?? (img.naturalHeight * w) / img.naturalWidth;
+    const align = L.align ?? 'left';
+    const x = align === 'right' ? L.x - w : align === 'center' ? L.x - w / 2 : L.x;
+    withAlpha(ctx, v * (L.opacity ?? 1), () => {
+      ctx.drawImage(img, x, L.y, w, h);
     });
   },
 

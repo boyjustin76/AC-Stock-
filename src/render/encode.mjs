@@ -16,7 +16,7 @@ export const FORMATS = {
     args: (fps) => [
       '-c:v', 'libx264', '-preset', 'slow', '-crf', '12',
       '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-level', '4.2',
-      '-x264-params', `keyint=${fps}:min-keyint=${fps / 2}`,
+      '-x264-params', `keyint=${Math.round(fps)}:min-keyint=${Math.round(fps / 2)}`,
       '-movflags', '+faststart',
       '-color_primaries', 'bt709', '-color_trc', 'bt709', '-colorspace', 'bt709',
     ],
@@ -38,15 +38,17 @@ export const FORMATS = {
   },
 };
 
-export function startEncoder({ format, fps, outFile, width, height, onLog }) {
+export function startEncoder({ format, fps, fpsExpr, outFile, width, height, onLog }) {
   const f = FORMATS[format];
   if (!f) throw new Error(`알 수 없는 포맷: ${format}`);
+  // 29.97 / 59.94 처럼 유리수 프레임레이트는 '60000/1001' 형태로 넘겨야 정확하다
+  const rate = fpsExpr ?? String(fps);
   const args = [
     '-y',
     '-hide_banner', '-loglevel', 'error', '-stats',
-    '-f', 'image2pipe', '-vcodec', 'png', '-framerate', String(fps),
+    '-f', 'image2pipe', '-vcodec', 'png', '-framerate', rate,
     '-i', 'pipe:0',
-    '-r', String(fps),
+    '-r', rate,
     '-s', `${width}x${height}`,
     ...f.args(fps),
     outFile,
