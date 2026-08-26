@@ -46,7 +46,15 @@ npm run render -- --all   # 전 컷 렌더 (out/ 에 저장)
 | `png` | PNG 시퀀스 | 애프터이펙트 반입 |
 
 투명 배경으로 뽑으려면 씬(또는 프로젝트) `theme` 에 `transparent: true` 를 넣고
-`--format alpha` 로 렌더합니다.
+`--format alpha` 로 렌더합니다. `scenes/nq-overlay.scenes.js` 가 그렇게 잡혀 있습니다.
+
+```bash
+npm run render -- --config scenes/nq-overlay.scenes.js --all --format alpha
+```
+
+`alpha`(QuickTime RLE)는 무손실이라 용량이 큽니다 — 1080p 60fps 5초에 20~40MB.
+편집에는 이쪽이 좋고, 파일을 주고받아야 할 때만 `--format webm`(VP9 알파, 1/10 크기)을 쓰세요.
+참고로 ProRes 4444 는 같은 클립이 150MB 넘게 나와서 알파 용도로는 오히려 손해입니다.
 
 ---
 
