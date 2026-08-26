@@ -88,17 +88,27 @@ function strokeText(ctx, text, x, y, opt = {}) {
   ctx.save();
   ctx.lineJoin = 'round';
   ctx.miterLimit = 2;
-  ctx.strokeStyle = opt.stroke ?? '#000000';
-  ctx.lineWidth = opt.strokeWidth ?? 9;
-  ctx.strokeText(text, x, y);
+  if (opt.shadow) {
+    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+    ctx.shadowBlur = opt.shadow === true ? 10 : opt.shadow;
+    ctx.shadowOffsetY = 4;
+  }
+  if ((opt.strokeWidth ?? 9) > 0) {
+    ctx.strokeStyle = opt.stroke ?? '#000000';
+    ctx.lineWidth = opt.strokeWidth ?? 9;
+    ctx.strokeText(text, x, y);
+  }
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
   ctx.fillStyle = opt.fill ?? '#FFFFFF';
   ctx.fillText(text, x, y);
   ctx.restore();
 }
 
 /** 오른쪽을 가리키는 화살표 모양 라벨 (매수 / 매도 태그) */
-function arrowTagPath(ctx, tipX, cy, w, h, dir = 1) {
-  const head = h * 0.62;
+function arrowTagPath(ctx, tipX, cy, w, h, dir = 1, headRatio = 0.86) {
+  const head = h * headRatio;
   const x0 = tipX - dir * w;
   const x1 = tipX - dir * head;
   const t = cy - h / 2;
@@ -635,6 +645,37 @@ const LAYERS = {
   },
 
 
+  /** 손으로 그린 듯한 빨간 밑줄. 최종본 아웃트로에서 강조에 쓰는 표시. */
+  cmgUnderline(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const { theme } = env;
+    const { scale } = env;
+    const draw = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.5), Ease.outCubic);
+    const w = (L.width ?? 300) * draw;
+    const cx = L.bar != null ? scale.x(L.bar) + (L.dx ?? 0) : L.x;
+    const cy = (L.price != null ? scale.y(resolvePrice(L.price, env)) : L.y) + (L.dy ?? 0);
+    const x = cx - (L.align === 'center' ? (L.width ?? 300) / 2 : 0);
+
+    withAlpha(ctx, v, () => {
+      ctx.strokeStyle = L.color ?? '#C0272D';
+      ctx.lineWidth = L.thickness ?? 12;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      const steps = Math.max(2, Math.round(w / 8));
+      for (let i = 0; i <= steps; i++) {
+        const p = i / steps;
+        const xx = x + w * p;
+        // 손으로 그은 듯 아주 살짝 흔들리게
+        const yy = cy + Math.sin(p * 7.3 + 1.1) * 3.2 + Math.sin(p * 2.1) * 2.4;
+        if (i === 0) ctx.moveTo(xx, yy);
+        else ctx.lineTo(xx, yy);
+      }
+      ctx.stroke();
+    });
+  },
+
   /**
    * 손으로 그린 듯한 원 강조. 프리셋의 "원 효과(색연필)" 를 코드로 대체한 것.
    * 각도를 따라 조금씩 흔들리며 한 바퀴를 살짝 넘겨 그린다.
@@ -745,6 +786,23 @@ const LAYERS = {
       ctx.fillRect(x0, y - th / 2, w, th);
       ctx.restore();
 
+      // 최종본 스타일: 영역 한가운데에 흰 글씨 + 얇은 검정 외곽선. 알약 박스를 쓰지 않는다.
+      if (L.label && L.labelStyle === 'inzone' && L.fillTo != null) {
+        const lp = span(env.t, (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.12), (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.12) + 0.4, Ease.outCubic);
+        const y2 = scale.y(resolvePrice(L.fillTo, env));
+        const size = L.labelSize ?? 64;
+        ctx.save();
+        ctx.globalAlpha *= clamp(lp);
+        ctx.font = `700 ${size}px ${theme.font}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        strokeText(ctx, L.label, x0 + w * (L.labelFrac ?? 0.55), (y + y2) / 2, {
+          strokeWidth: size * 0.075,
+          shadow: 10,
+        });
+        ctx.restore();
+        return;
+      }
       if (L.label) {
         const lp = span(env.t, (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.12), (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.12) + 0.35, Ease.outBack);
         ctx.save();
@@ -786,30 +844,33 @@ const LAYERS = {
     const pop = popDur <= 0 ? 1 : span(env.t, L.in?.[0] ?? 0, (L.in?.[0] ?? 0) + popDur, Ease.outBack);
 
     withAlpha(ctx, v, () => {
-      const size = L.size ?? 58;
+      const size = L.size ?? 36;
       ctx.font = `700 ${size}px ${theme.font}`;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
       const label = L.label ?? (buy ? '매수' : '매도');
       const tw = ctx.measureText(label).width;
       const h = size * 1.34;
-      const w = (tw + size * 0.95) * pop;
+      const w = (tw + size * 1.15) * pop;
       const d = dirRight ? 1 : -1;
 
       ctx.save();
+      arrowTagPath(ctx, tipX, cy, w, h, d, L.headRatio ?? 0.86);
+      // 최종본은 검정 외곽선 없이, 흰 여백만 살짝 두르는 형태다
+      if (L.halo !== false) {
+        ctx.strokeStyle = L.halo ?? '#FFFFFF';
+        ctx.lineWidth = L.haloWidth ?? Math.max(3, size * 0.12);
+        ctx.stroke();
+      }
       ctx.fillStyle = color;
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 5;
-      arrowTagPath(ctx, tipX, cy, w, h, d);
       ctx.fill();
-      ctx.stroke();
       ctx.restore();
 
       if (pop > 0.5) {
         ctx.save();
         ctx.globalAlpha *= clamp((pop - 0.5) * 3);
-        const tx = dirRight ? tipX - w + size * 0.3 : tipX + w - size * 0.3 - tw;
-        strokeText(ctx, label, tx, cy + 2, { strokeWidth: size * 0.13 });
+        const tx = dirRight ? tipX - w + size * 0.26 : tipX + w - size * 0.26 - tw;
+        strokeText(ctx, label, tx, cy + 2, { strokeWidth: L.textStroke ?? 0 });
         ctx.restore();
       }
     });
@@ -912,6 +973,7 @@ const LAYERS = {
       }
       ctx.restore();
 
+      if (L.arrow === false) return;
       // 위로 향하는 화살표
       const ax = L.arrowX ?? x0 + (x1 - x0) * (L.arrowFrac ?? 0.12);
       const aTop = yBase - h;
