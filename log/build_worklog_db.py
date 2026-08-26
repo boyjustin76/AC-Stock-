@@ -155,6 +155,108 @@ CREATE TABLE commit_log (
   deletions     INTEGER
 );
 
+
+-- 저장소 파일 지도
+CREATE TABLE repo_file (
+  id            INTEGER PRIMARY KEY,
+  path          TEXT NOT NULL UNIQUE,
+  role          TEXT NOT NULL,
+  note          TEXT
+);
+
+-- 실행 절차
+CREATE TABLE runbook (
+  id            INTEGER PRIMARY KEY,
+  seq           INTEGER NOT NULL,
+  topic         TEXT NOT NULL,
+  purpose       TEXT NOT NULL,
+  command       TEXT NOT NULL,
+  note          TEXT
+);
+
+-- 환경과 도구 (컨테이너가 날아가면 이걸 보고 다시 깐다)
+CREATE TABLE env_tool (
+  id            INTEGER PRIMARY KEY,
+  name          TEXT NOT NULL,
+  version       TEXT,
+  location      TEXT,
+  install       TEXT NOT NULL,
+  note          TEXT
+);
+
+-- 구글 드라이브 폴더/파일 지도
+CREATE TABLE drive_map (
+  id            INTEGER PRIMARY KEY,
+  kind          TEXT NOT NULL,
+  name          TEXT NOT NULL,
+  drive_id      TEXT NOT NULL,
+  parent        TEXT,
+  note          TEXT
+);
+
+-- 오버레이 레이어 카탈로그 (새 컷을 짤 때 쓰는 재료)
+CREATE TABLE layer_catalog (
+  id            INTEGER PRIMARY KEY,
+  name          TEXT NOT NULL UNIQUE,
+  family        TEXT NOT NULL,
+  purpose       TEXT NOT NULL,
+  key_options   TEXT NOT NULL
+);
+
+-- 씬 설정 키
+CREATE TABLE scene_option (
+  id            INTEGER PRIMARY KEY,
+  grp           TEXT NOT NULL,
+  key           TEXT NOT NULL,
+  meaning       TEXT NOT NULL,
+  example       TEXT
+);
+
+-- 컷에 쓴 매매 시나리오 수치
+CREATE TABLE trade_setup (
+  id            INTEGER PRIMARY KEY,
+  config        TEXT NOT NULL,
+  instrument    TEXT NOT NULL,
+  seed          INTEGER NOT NULL,
+  bars          INTEGER NOT NULL,
+  entry         REAL NOT NULL,
+  stop          REAL NOT NULL,
+  target        REAL NOT NULL,
+  rr            TEXT NOT NULL,
+  entry_bar     INTEGER,
+  tp_bar        INTEGER,
+  run_high      REAL,
+  run_r         TEXT,
+  note          TEXT
+);
+
+-- 환경이 거는 제약
+CREATE TABLE constraint_note (
+  id            INTEGER PRIMARY KEY,
+  topic         TEXT NOT NULL,
+  limit_value   TEXT NOT NULL,
+  workaround    TEXT NOT NULL
+);
+
+-- 다음에 할 일
+CREATE TABLE next_step (
+  id            INTEGER PRIMARY KEY,
+  seq           INTEGER NOT NULL,
+  item          TEXT NOT NULL,
+  detail        TEXT NOT NULL,
+  blocked_by    TEXT
+);
+
+-- 처음 여는 사람이 순서대로 읽을 것
+CREATE VIEW v_start_here AS
+SELECT 1 AS ord, '무엇을 하는 저장소인가' AS step, goal AS detail FROM session
+UNION ALL SELECT 2, '어디에 무엇이 있나', 'repo_file 테이블 / brand/STYLE.md / log/WORKLOG.md'
+UNION ALL SELECT 3, '환경 다시 깔기', 'env_tool 테이블의 install 열을 순서대로'
+UNION ALL SELECT 4, '렌더 돌리기', 'runbook 테이블'
+UNION ALL SELECT 5, '새 대본 받으면', 'next_step 테이블 1번'
+UNION ALL SELECT 6, '원본 자료 위치', 'drive_map 테이블'
+ORDER BY ord;
+
 -- 컷과 대본 싱크 한눈에
 CREATE VIEW v_cut_sync AS
 SELECT s.seq, s.scene_id, s.name,
@@ -387,6 +489,157 @@ DECISIONS = [
 ]
 
 
+REPO_FILES = {
+    "README.md": ("문서", "렌더러 사용법 · 포맷 선택 기준 · 씬 설정 레퍼런스"),
+    "brand/STYLE.md": ("문서", "차트명가 브랜드 스펙. 색·레이아웃·폰트·스크립트 6단 구조"),
+    "log/WORKLOG.md": ("문서", "이 DB 에서 뽑은 작업 로그"),
+    "log/worklog.db": ("데이터", "작업 로그 원본 (SQLite)"),
+    "log/worklog.html": ("문서", "브라우저로 보는 작업 로그"),
+    "log/build_worklog_db.py": ("스크립트", "로그 DB 생성. 내용을 고칠 때 여기만 고친다"),
+    "log/build_worklog_page.py": ("스크립트", "DB → HTML 페이지"),
+    "package.json": ("설정", "의존성과 npm 스크립트"),
+    "scenes/nq-basic.scenes.js": ("씬", "다크 테마 NQ 6컷 (첫 버전, 브랜드 적용 전)"),
+    "scenes/nq-overlay.scenes.js": ("씬", "투명 배경 오버레이 3컷"),
+    "scenes/cmg-20ma-runner.scenes.js": ("씬", "차트명가 20일선 4컷. 새 대본은 이 파일을 본떠 만든다"),
+    "src/cli.mjs": ("코어", "렌더 CLI. --all --scene --format --stills --reel"),
+    "src/market/candles.js": ("코어", "시드 고정 캔들 생성기. 추세/박스권/돌파/눌림/급등락"),
+    "src/render/anim.js": ("코어", "이징·타임라인·cue. in 을 생략하면 처음부터 떠 있는 것으로 본다"),
+    "src/render/chart.js": ("코어", "캔들·이평선·축·그리드 캔버스 드로잉, 뷰포트 계산"),
+    "src/render/layers.js": ("코어", "오버레이 레이어 22종. 레이어를 추가하려면 여기"),
+    "src/render/theme.js": ("코어", "테마 프리셋. dark / chartmyeongga"),
+    "src/render/engine.js": ("코어", "씬 런타임. 프레임 번호를 받아 그린다"),
+    "src/render/scene.html": ("코어", "렌더 스테이지. @font-face 선언이 여기 있다"),
+    "src/render/capture.mjs": ("코어", "Playwright 프레임 캡처, 크로미움 경로 탐색"),
+    "src/render/encode.mjs": ("코어", "ffmpeg 인코딩. mp4/mov/alpha/webm/png"),
+    "src/render/server.mjs": ("코어", "렌더용 정적 서버"),
+    "src/tools/install-fonts.mjs": ("스크립트", "폰트를 시스템에 등록"),
+    "brand/fonts": ("애셋", "Gmarket Sans / S-Core Dream / 나눔고딕 / 경기천년제목"),
+    "brand/logo": ("애셋", "차트명가 로고 7종"),
+    "brand/texture": ("애셋", "종이 배경, 모눈종이·땡땡이 패턴, 점선"),
+    "brand/ui": ("애셋", "매수·매도 버튼, 시네마스코프, 댓글 유도"),
+    "brand/sfx": ("애셋", "효과음 2종"),
+    "brand/premiere": ("애셋", "차트명가_메인프리셋(24버전).prproj"),
+    "brand/reference": ("애셋", "레퍼런스 영상 캡처 4장. 색을 실측한 원본"),
+}
+
+RUNBOOK = [
+    (1, "설치", "저장소를 새로 받았을 때", "npm install && npm run setup:fonts", "setup:fonts 는 리눅스만 필요"),
+    (2, "씬 목록", "어떤 컷이 있는지 확인", "node src/cli.mjs --config scenes/cmg-20ma-runner.scenes.js", None),
+    (3, "구도 확인", "전체 렌더 전에 스틸컷만 빠르게", "node src/cli.mjs --config scenes/cmg-20ma-runner.scenes.js --all --stills 5", "컷당 몇 초. 여기서 겹침을 먼저 잡는다"),
+    (4, "전체 렌더", "컷 전부 + 이어붙인 릴", "node src/cli.mjs --config scenes/cmg-20ma-runner.scenes.js --all --format mp4 --out out/cmg --reel", "1080p 4컷에 약 1분 30초"),
+    (5, "한 컷만", "고친 컷만 다시", "node src/cli.mjs --config <config> --scene cut4-early-exit --format mp4 --out out/cmg", None),
+    (6, "알파 오버레이", "촬영본 위에 차트만 얹을 때", "node src/cli.mjs --config scenes/nq-overlay.scenes.js --all --format alpha", "theme.transparent 가 true 여야 한다"),
+    (7, "프레임 수 확인", "타임코드와 맞는지 검증", "ffmpeg -i <file> -map 0:v:0 -f null - 2>&1 | tail -3", "ffmpeg 는 node -e \"console.log(require('ffmpeg-static'))\" 경로"),
+    (8, "드라이브 폴더 목록", "공유 폴더 안을 보기 (인증 없이 됨)", "curl -sSL 'https://drive.google.com/embeddedfolderview?id=<FOLDER_ID>#list'", "flip-entry 클래스에서 파일 id 와 이름을 뽑는다"),
+    (9, "드라이브 파일 받기", "공유 링크 파일을 컨테이너로", "curl -sSL -o out.bin 'https://drive.usercontent.google.com/download?id=<FILE_ID>&export=download&confirm=t'", "대용량도 confirm=t 로 한 번에 받아진다"),
+    (10, "로그 갱신", "작업 로그 다시 뽑기", "python3 log/build_worklog_db.py --md && python3 log/build_worklog_page.py", "DB 가 원본이다"),
+]
+
+ENV_TOOLS = [
+    ("Node.js", "22.x", "/opt/node22/bin/node", "컨테이너 기본 제공", None),
+    ("Playwright", "^1.56", "node_modules/playwright", "npm install", "브라우저는 내려받지 않는다"),
+    ("Chromium", "1194 빌드", "/opt/pw-browsers/chromium", "사전 설치본 사용", "capture.mjs 의 resolveChromium() 이 환경변수 CHROMIUM_PATH → 이 경로 → 기본값 순으로 찾는다"),
+    ("ffmpeg-static", "7.0.2", "node_modules/ffmpeg-static/ffmpeg", "npm install", "libx264/prores/qtrle/libvpx-vp9 포함. Playwright 번들 ffmpeg 는 webm 만 되므로 쓰지 않는다"),
+    ("Pretendard", "1.3.9", "node_modules/pretendard", "npm install", "다크 테마용"),
+    ("JetBrains Mono", "5.x", "node_modules/@fontsource/jetbrains-mono", "npm install", "숫자 표기용"),
+    ("브랜드 폰트", "-", "brand/fonts", "저장소에 포함", "Gmarket Sans / S-Core Dream / 나눔고딕 / 경기천년제목"),
+    ("SQLite", "3.45", "파이썬 내장 sqlite3", "설치 불필요", "로그 DB"),
+]
+
+DRIVE_MAP = [
+    ("폴더", "02_차트명가(최종본)", "1HOplrH8GowSLJPrbxIVvVTCDEL6sUPac", None, "소유 krtradingfactory@gmail.com. 완성본 영상"),
+    ("폴더", "└ 롱폼_매매기법(차트명가)", "11eZrZdLgp4MLABX0dNR8dKF1lfMCZmSz", "02_차트명가(최종본)", "차명#1~#10 최종본 mp4. 디자인 실측 원본"),
+    ("폴더", "└ 숏츠_영상(차트명가)", "1El3msCDwc3JM4toYMrVYvDQ15V2NC8RN", "02_차트명가(최종본)", "숏츠 60여 편"),
+    ("폴더", "차명 회차 소스 루트", "1hqkgml4CV9cZDyD-mJiE-aRTzAX49b3A", None, "회차별 원본·프리미어·기획서"),
+    ("폴더", "└ [컷편집]기본 프리셋+가이드", "14V0_LG6eakNf0H7_8WT7O4DAGO0sVTj0", "차명 회차 소스 루트", "컷편집 기준 프리셋"),
+    ("폴더", "└ 차명00_중간 광고+아웃트로", "1kU0Oa5iGPgNbHL67wwA0QZryjDw_w8_g", "차명 회차 소스 루트", None),
+    ("폴더", "└ 차명01_쿠리마기_지수 이평선", "1r95SHLu_l-X-IcQIkldAEMl0zgqOEIOr", "차명 회차 소스 루트", None),
+    ("폴더", "└ 차명06_지지와 저항", "1L-mB1A4G7CQcqzv4XtL_VCJBTL4FERjB", "차명 회차 소스 루트", None),
+    ("폴더", "└ 차명11_20일선의 비밀", "1AMis7v5zu0l0oxYpSN6v5knLGOUYa2q1", "차명 회차 소스 루트", "지금 작업 중인 회차"),
+    ("폴더", "  └ 소스", "180LPp4FBAmbTo3Vl9DG56PUstPh3QEGU", "차명11_20일선의 비밀", None),
+    ("폴더", "  └ 원본", "1Iw6D1rQ5ONIxP4cJa7H1alS6eneW_EjK", "차명11_20일선의 비밀", None),
+    ("폴더", "  └ [차명11_최종]프리미어 프로", "1mFChRJUIUAFSc1Ceo2BZajwtsok9z9fp", "차명11_20일선의 비밀", None),
+    ("폴더", "  └ [차명11_컷편집]프리미어 프로", "1Th5RFpxrQR8dN1huZFhOr5Nz5ZhzQCkH", "차명11_20일선의 비밀", None),
+    ("문서", "[차11_20일선의 비밀] 기획서+스크립트 docx", "1vMJf7EYysVMFv3Sa8bhS8iu7eZ0GX-hj", "차명11_20일선의 비밀", "이번 대본 4줄의 출처. 전략1·2 전문 포함"),
+    ("문서", "[차11_20일선의 비밀] 기획서+스크립트 pdf", "16zA0W88DaAfBO1h4j_73__5Jd9Cf21JP", "차명11_20일선의 비밀", None),
+    ("문서", "[차XX_기본폼] 롱폼 기획서+스크립트 docx", "1y7rP69dRYtM1IotFjmyAREiSIB689130", "차명 회차 소스 루트", "스크립트 6단 구조 원본"),
+    ("파일", "차트명가_메인프리셋(24버전).prproj", "1Udh6JHEBXO-XkfyJGtpFT_bAzoZEdmyD", "차명 회차 소스 루트", "brand/premiere 에 사본 있음"),
+    ("압축", "00_메인 프리셋(차트명가) 422MB", "1bfxw8NubZr42brF5kIuRUcsYL-S0mJ4f", None, "해제 765MB/76파일. 가벼운 것만 brand/ 로 커밋"),
+    ("영상", "차명#1_쿠리마기_EMA+박스권(최종)", "1Fuhxm4hwSCULvf8wAFlHHZBFZyBf5vcb", "롱폼_매매기법(차트명가)", "매수 태그·익절손절 영역 실측에 쓴 영상"),
+    ("영상", "차명#6_지지와 저항(최종)", "18WxhXSFxdjM5foQ4PuqmhiQ-Gq_wu1BN", "롱폼_매매기법(차트명가)", None),
+    ("영상", "260711_[SL_차11_#3] 20일선이 중요한 이유", "1_wTyqenNmieugt3zEOXaoMKLO9LxCcEy", "숏츠_영상(차트명가)", "숏츠 룩 참고"),
+    ("영상", "260703_[SL_차11_#1] 20일선 120%활용법", "11XeXHXJdfGqqAeG4vCPMZIApex65yc_m", "숏츠_영상(차트명가)", None),
+]
+
+LAYERS = [
+    ("titleCard", "공통", "전체 화면 타이틀 카드", "kicker, title(배열이면 여러 줄), subtitle, size, in, out"),
+    ("caption", "공통", "하단 자막 · 로어서드", "title, text, accent, in, out"),
+    ("hud", "공통", "좌상단 종목 / 현재가 / 등락", "symbol, name, tf, basePrice"),
+    ("hline", "공통", "수평 가격선 + 라벨", "price, label, color, priceTag, dash, growDur"),
+    ("zone", "공통", "가격 밴드", "from, to, label, color, opacity"),
+    ("marker", "공통", "삼각형 진입 마커 + 펄스", "bar, dir, price, label, pulse"),
+    ("tradeBox", "공통", "손절·익절 박스와 손익비", "entry, tp, sl, fromBar, toBar, showRR"),
+    ("counter", "공통", "숫자 카운트업 패널", "label, from, to, prefix, suffix, signed, panel, align"),
+    ("statCard", "공통", "결과 요약 카드", "title, badge, rows[{k,v,tone}]"),
+    ("label", "공통", "지시선 달린 자유 라벨", "bar, price, text, dx, dy"),
+    ("cmgProfit", "차트명가", "진입가와 현재가 사이 평가손익 영역", "entry, fromBar, pulse, pulseSpeed, pulseAmount"),
+    ("cmgLevel", "차트명가", "익절·손절 굵은 선 + 컬러 박스 라벨", "price, fillTo, fill, color, label, labelSize, thickness, fromBar, labelStyle('inzone' 은 변형)"),
+    ("cmgArrow", "차트명가", "매수·매도 화살표 태그", "bar, price, dir('buy'|'sell'), label, size(기본 36), gap, popDur(0이면 등장 연출 없음), halo"),
+    ("cmgBadge", "차트명가", "브랜드 배지 (손익비·종목 등)", "text, x, y, size, color, align, border"),
+    ("cmgNote", "차트명가", "차트 위 외곽선 주석", "text, bar, price, x, y, size, color"),
+    ("cmgCircle", "차트명가", "손그림 색연필 원 강조", "bar, price, rx, ry, width, drawDur, turns"),
+    ("cmgUnderline", "차트명가", "손그림 빨간 밑줄", "bar, price, dy, width, align, thickness, drawDur"),
+    ("cmgMissed", "차트명가", "놓친 구간 빗금 + 화살표", "from, to, fromBar, color, arrow(false 로 화살표 끔), arrowFrac"),
+    ("image", "공통", "이미지 (로고 등). engine 이 미리 로드", "src, x, y, width, align, opacity"),
+    ("flash", "공통", "컷 전환용 플래시", "at, dur, strength, color"),
+    ("watermark", "공통", "채널명 워터마크", "text, x, y, opacity, align"),
+    ("letterbox", "공통", "상하 시네마 레터박스", "height, color"),
+]
+
+SCENE_OPTIONS = [
+    ("scene", "duration", "컷 길이(초). 프레임 수 / fps 로 넣는다", "f(250) = 250*1001/60000"),
+    ("scene", "fadeIn / fadeOut", "컷 안에서의 페이드. 이어지는 컷에는 쓰지 않는다", "0.3"),
+    ("scene", "camera.shake", "화면 흔들림 키프레임. 난수를 안 써서 다시 렌더해도 같다", "[{t:0,v:0},{t:0.3,v:1}]"),
+    ("chart", "reveal", "몇 번째 캔들까지 그릴지. 키프레임을 주면 그려지는 애니메이션", "[{t:0,v:34},{t:2.6,v:43,ease:'inOutCubic'}]"),
+    ("chart", "zoom", "보이는 캔들 수 배율. 1보다 작으면 더 넓게 보인다", "[{t:0,v:1},{t:5,v:0.5}]"),
+    ("chart", "priceOffset", "세로 이동", "[{t:0,v:0},{t:1.2,v:30}]"),
+    ("chart", "visibleBars", "한 화면에 보이는 캔들 수", "40"),
+    ("chart", "include", "화면에 반드시 들어와야 하는 가격들", "[23665]"),
+    ("chart", "layout.rightGap", "마지막 캔들 오른쪽으로 비워 둘 칸 수", "6"),
+    ("chart", "ma", "이동평균선", "[{type:'ema',period:20,width:5}]"),
+    ("chart", "showGrid / showAxes / showLast", "그리드·축·현재가 표시 여부. 차트명가는 전부 false", "false"),
+    ("layer", "in", "[시작초, 등장시간]. 생략하면 처음부터 떠 있는 것으로 본다", "[1.5, 0.4]"),
+    ("layer", "out", "[시작초, 퇴장시간]", "[3.45, 0.5]"),
+    ("project", "fps / fpsExpr", "유리수 프레임레이트는 fpsExpr 로 정확히 넘긴다", "60000/1001 · '60000/1001'"),
+    ("market", "seed / segments", "가격 이야기. seed 를 바꾸면 같은 구조의 다른 캔들", "trend / range / breakout / pullback / spike"),
+]
+
+TRADE_SETUPS = [
+    ("cmg-20ma-runner", "일봉 (종목 표기 없음)", 11, 95, 23795, 23665, 24055, "1 : 2", 42, 53, 24977.5, "9.1R",
+     "20일선 눌림목 진입 → 1:2 조기 익절 → 이후 추세는 9.1R 까지. 손절폭 130pt"),
+    ("nq-basic", "NQ 5분봉", 42, 82, 24688.75, 24614.75, 24836.75, "1 : 2", 68, 80, 24871.5, "2.4R",
+     "박스권 가짜 이탈 후 되돌림 롱. NQ 1계약 = 1포인트당 $20 → 148pt = $2,960"),
+]
+
+CONSTRAINTS = [
+    ("채팅 첨부", "파일당 30MB", "무손실 알파는 VP9 알파 webm 으로 압축해 보내고, 무손실본은 로컬에서 재생성"),
+    ("GitHub 파일 크기", "파일당 100MB 하드 리젝트", "대용량 소스는 저장소에 넣지 않고 드라이브에 둔다"),
+    ("GitHub API", "api.github.com 은 프록시 차단", "MCP github 도구와 git push/pull 만 사용"),
+    ("비공개 저장소", "릴리스 에셋을 curl 로 못 받음", "드라이브 공유 링크 사용"),
+    ("컨테이너", "세션이 끝나면 디스크가 사라짐", "남길 것은 반드시 커밋. 원본 자료는 drive_map 을 보고 다시 받는다"),
+    ("Playwright 브라우저", "패키지가 기대하는 빌드 번호와 사전 설치본이 다를 수 있음", "resolveChromium() 이 경로를 찾아 준다. playwright install 을 돌리지 않는다"),
+    ("최종본 규격", "채널 롱폼 최종본은 1280x720 / 30fps", "컷씬 소스는 1080p / 59.94fps 로 납품. 축소는 손해가 없다"),
+]
+
+NEXT_STEPS = [
+    (1, "새 대본 받으면", "타임코드를 프레임으로 환산(같은 분 안이면 드롭프레임 보정 불필요) → scenes/cmg-20ma-runner.scenes.js 를 본떠 새 config 를 만들고 layers 를 채운다 → --stills 로 구도 확인 → --all --reel", None),
+    (2, "전략 1 컷 (아직 안 만듦)", "기획서의 익절 기준이 '종가가 20일선을 하방 이탈하는 음봉, 아래꼬리조차 20일선에 닿지 않는 완전 이격 캔들'. 이 조건을 그대로 그리는 컷이 뒤에 필요하다", "대본"),
+    (3, "전략 2 컷 (아직 안 만듦)", "박스권 횡보장 스위칭. 이평선이 눕는 것 확인 → 직전 고점 윗꼬리·저점 아랫꼬리로 라인 → 하단 지지에서 매수, 상단 저항에서 익절", "대본"),
+    (4, "규격 통일 여부", "채널 최종본은 720p/30fps. 1080p/59.94 유지 중인데 다른 소스와 맞출지 결정 필요", "사용자 판단"),
+    (5, "로고 워터마크", "지금은 렌더에 넣지 않음(프리미어 프리셋과 중복). 필요하면 image 레이어로 brand/logo 사용", None),
+]
+
+
 def git_commits():
     try:
         out = subprocess.run(
@@ -452,6 +705,33 @@ def build():
         " VALUES (?,?,?,?,?,?,?)", ISSUES)
     con.executemany(
         "INSERT INTO decision (seq,topic,choice,rationale,revisit_when) VALUES (?,?,?,?,?)", DECISIONS)
+
+    # -z 를 써야 공백·한글이 든 경로가 쪼개지지 않는다
+    raw = subprocess.run(["git", "ls-files", "-z"], cwd=ROOT, capture_output=True, text=True).stdout
+    files = [f for f in raw.split("\0") if f]
+    seen = set()
+    for path in files:
+        for key, (role, note) in REPO_FILES.items():
+            if path == key or path.startswith(key + "/"):
+                target = key
+                break
+        else:
+            target, role, note = path, "기타", None
+        if target in seen:
+            continue
+        seen.add(target)
+        con.execute("INSERT INTO repo_file (path,role,note) VALUES (?,?,?)", (target, role, note))
+
+    con.executemany("INSERT INTO runbook (seq,topic,purpose,command,note) VALUES (?,?,?,?,?)", RUNBOOK)
+    con.executemany("INSERT INTO env_tool (name,version,location,install,note) VALUES (?,?,?,?,?)", ENV_TOOLS)
+    con.executemany("INSERT INTO drive_map (kind,name,drive_id,parent,note) VALUES (?,?,?,?,?)", DRIVE_MAP)
+    con.executemany("INSERT INTO layer_catalog (name,family,purpose,key_options) VALUES (?,?,?,?)", LAYERS)
+    con.executemany("INSERT INTO scene_option (grp,key,meaning,example) VALUES (?,?,?,?)", SCENE_OPTIONS)
+    con.executemany(
+        "INSERT INTO trade_setup (config,instrument,seed,bars,entry,stop,target,rr,entry_bar,tp_bar,run_high,run_r,note)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", TRADE_SETUPS)
+    con.executemany("INSERT INTO constraint_note (topic,limit_value,workaround) VALUES (?,?,?)", CONSTRAINTS)
+    con.executemany("INSERT INTO next_step (seq,item,detail,blocked_by) VALUES (?,?,?,?)", NEXT_STEPS)
     con.executemany(
         "INSERT INTO commit_log (seq,sha,authored,subject,files_changed,insertions,deletions)"
         " VALUES (?,?,?,?,?,?,?)", git_commits())
@@ -492,6 +772,76 @@ def export_md(con):
     w(f"- 목표: {ses[4]}")
     w(f"- 환경: {ses[5]}\n")
     w("> 이 문서는 `log/worklog.db` 에서 뽑아냅니다. 고칠 때는 `log/build_worklog_db.py` 를 고치고 다시 실행하세요.\n")
+
+    w("## 처음 여는 사람에게\n")
+    for ordn, step, detail in q("SELECT ord, step, detail FROM v_start_here"):
+        w(f"{ordn}. **{step}** — {detail}")
+    w("")
+
+    w("### 환경 다시 깔기\n")
+    w("| 도구 | 버전 | 위치 | 설치 | 비고 |")
+    w("|---|---|---|---|---|")
+    for name, ver, loc, inst, note in q("SELECT name,version,location,install,note FROM env_tool ORDER BY id"):
+        w(f"| {name} | {ver or ''} | `{loc or ''}` | {inst} | {note or ''} |")
+    w("")
+
+    w("### 명령어\n")
+    for seq, topic, purpose, cmd, note in q("SELECT seq,topic,purpose,command,note FROM runbook ORDER BY seq"):
+        w(f"**{seq}. {topic}** — {purpose}")
+        w(f"```\n{cmd}\n```")
+        if note:
+            w(f"{note}\n")
+    w("")
+
+    w("### 파일 지도\n")
+    w("| 경로 | 역할 | 설명 |")
+    w("|---|---|---|")
+    for path, role, note in q("SELECT path,role,note FROM repo_file ORDER BY role, path"):
+        w(f"| `{path}` | {role} | {note or ''} |")
+    w("")
+
+    w("## 원본 자료 (구글 드라이브)\n")
+    w("폴더 목록: `curl -sSL 'https://drive.google.com/embeddedfolderview?id=<ID>#list'`  \n")
+    w("파일 받기: `curl -sSL -o out 'https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t'`\n")
+    w("| 종류 | 이름 | Drive ID | 비고 |")
+    w("|---|---|---|---|")
+    for kind, name, did, note in q("SELECT kind,name,drive_id,note FROM drive_map ORDER BY id"):
+        w(f"| {kind} | {name} | `{did}` | {note or ''} |")
+    w("")
+
+    w("## 컷을 짤 때 쓰는 재료\n")
+    w("### 레이어 22종\n")
+    w("| 이름 | 계열 | 쓰임 | 주요 옵션 |")
+    w("|---|---|---|---|")
+    for name, fam, purpose, opts in q("SELECT name,family,purpose,key_options FROM layer_catalog ORDER BY id"):
+        w(f"| `{name}` | {fam} | {purpose} | {opts} |")
+    w("")
+    w("### 씬 설정 키\n")
+    w("| 그룹 | 키 | 뜻 | 예 |")
+    w("|---|---|---|---|")
+    for grp, key, meaning, ex in q("SELECT grp,key,meaning,example FROM scene_option ORDER BY id"):
+        w(f"| {grp} | `{key}` | {meaning} | `{ex or ''}` |")
+    w("")
+    w("### 컷에 쓴 매매 수치\n")
+    w("| 설정 | 종목 | seed | 캔들 | 진입 | 손절 | 익절 | 손익비 | 이후 고점 | 비고 |")
+    w("|---|---|---|---|---|---|---|---|---|---|")
+    for cfg, inst, seed, bars, en, st, tg, rr, hi, rrun, note in q(
+            "SELECT config,instrument,seed,bars,entry,stop,target,rr,run_high,run_r,note FROM trade_setup ORDER BY id"):
+        w(f"| `{cfg}` | {inst} | {seed} | {bars} | {en:,.2f} | {st:,.2f} | {tg:,.2f} | {rr} | {hi:,.1f} ({rrun}) | {note} |")
+    w("")
+
+    w("## 환경이 거는 제약\n")
+    w("| 항목 | 한계 | 대응 |")
+    w("|---|---|---|")
+    for topic, lim, wa in q("SELECT topic,limit_value,workaround FROM constraint_note ORDER BY id"):
+        w(f"| {topic} | {lim} | {wa} |")
+    w("")
+
+    w("## 다음에 할 일\n")
+    for seq, item, detail, blocked in q("SELECT seq,item,detail,blocked_by FROM next_step ORDER BY seq"):
+        tail = f"  _(대기: {blocked})_" if blocked else ""
+        w(f"{seq}. **{item}** — {detail}{tail}")
+    w("")
 
     w("## 대본과 컷 싱크\n")
     w("타임코드는 29.97 드롭프레임. 59.94fps 로 렌더해서 프레임 수가 정확히 2배가 됩니다.\n")

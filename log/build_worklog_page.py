@@ -107,6 +107,49 @@ def build():
             f"<li><code class='sha'>{sha[:7]}</code><span class='subj'>{e(subj)}</span>"
             f"<span class='stat mono'>{f}<i>f</i> <b class='plus'>+{i}</b> <b class='minus'>−{d}</b></span></li>")
 
+
+    # ── 시작하기 / 환경 / 명령어 ────────────────────────────────
+    start = "".join(
+        f"<li><b>{e(step)}</b><span>{e(detail)}</span></li>"
+        for _, step, detail in q("SELECT ord,step,detail FROM v_start_here"))
+    envs = "".join(
+        f"<tr><td><b>{e(n)}</b></td><td class='mono'>{e(v)}</td><td class='mono sub'>{e(loc)}</td>"
+        f"<td>{e(inst)}</td><td class='sub'>{e(note)}</td></tr>"
+        for n, v, loc, inst, note in q("SELECT name,version,location,install,note FROM env_tool ORDER BY id"))
+    runs = "".join(
+        f"<article class='run'><h3><span class='seq'>{seq}</span>{e(topic)}</h3>"
+        f"<p class='purpose'>{e(purpose)}</p><pre><code>{e(cmd)}</code></pre>"
+        + (f"<p class='note'>{e(note)}</p>" if note else "") + "</article>"
+        for seq, topic, purpose, cmd, note in q("SELECT seq,topic,purpose,command,note FROM runbook ORDER BY seq"))
+    tree = "".join(
+        f"<tr><td><code>{e(path)}</code></td><td class='cat'>{e(role)}</td><td class='sub'>{e(note)}</td></tr>"
+        for path, role, note in q("SELECT path,role,note FROM repo_file ORDER BY role, path"))
+    drive = "".join(
+        f"<tr><td class='cat'>{e(kind)}</td><td class='dm'>{e(name)}</td>"
+        f"<td class='mono sub nowrap'>{e(did)}</td><td class='sub'>{e(note)}</td></tr>"
+        for kind, name, did, note in q("SELECT kind,name,drive_id,note FROM drive_map ORDER BY id"))
+    layers = "".join(
+        f"<tr><td><code>{e(n)}</code></td><td class='cat'>{e(f)}</td><td>{e(p)}</td>"
+        f"<td class='sub mono'>{e(o)}</td></tr>"
+        for n, f, p, o in q("SELECT name,family,purpose,key_options FROM layer_catalog ORDER BY family DESC, id"))
+    opts = "".join(
+        f"<tr><td class='cat'>{e(g)}</td><td><code>{e(k)}</code></td><td>{e(m)}</td>"
+        f"<td class='sub mono'>{e(x)}</td></tr>"
+        for g, k, m, x in q("SELECT grp,key,meaning,example FROM scene_option ORDER BY id"))
+    setups = "".join(
+        f"<tr><td><code>{e(c)}</code><span class='sub'>{e(i)}</span></td><td class='mono r'>{en:,.2f}</td>"
+        f"<td class='mono r'>{st:,.2f}</td><td class='mono r'>{tg:,.2f}</td><td class='mono'>{e(rr)}</td>"
+        f"<td class='mono r'>{hi:,.1f}<span class='sub'>{e(rrun)}</span></td><td class='sub'>{e(note)}</td></tr>"
+        for c, i, en, st, tg, rr, hi, rrun, note in q(
+            "SELECT config,instrument,entry,stop,target,rr,run_high,run_r,note FROM trade_setup ORDER BY id"))
+    cons = "".join(
+        f"<tr><td><b>{e(t)}</b></td><td class='mono'>{e(l)}</td><td>{e(wk)}</td></tr>"
+        for t, l, wk in q("SELECT topic,limit_value,workaround FROM constraint_note ORDER BY id"))
+    nexts = "".join(
+        f"<li><b>{e(item)}</b>" + (f"<span class='blk'>대기 · {e(bl)}</span>" if bl else "")
+        + f"<span>{e(detail)}</span></li>"
+        for _, item, detail, bl in q("SELECT seq,item,detail,blocked_by FROM next_step ORDER BY seq"))
+
     counts = {n: con.execute(f"SELECT COUNT(*) FROM {n}").fetchone()[0]
               for (n,) in q("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")}
     con.close()
@@ -121,6 +164,9 @@ def build():
         "__SWATCHES__": "".join(swatches), "__SPEC__": "".join(spec),
         "__RENDERS__": "".join(renders), "__PHASES__": "".join(phases),
         "__ASSETS__": "".join(assets), "__COMMITS__": "".join(commits),
+        "__START__": start, "__ENVS__": envs, "__RUNS__": runs, "__TREE__": tree,
+        "__DRIVE__": drive, "__LAYERS__": layers, "__OPTS__": opts, "__SETUPS__": setups,
+        "__CONS__": cons, "__NEXTS__": nexts,
         "__NSCENE__": str(counts.get("scene", 0)), "__NISSUE__": str(counts.get("issue", 0)),
         "__NTOKEN__": str(counts.get("brand_token", 0)), "__NRENDER__": str(counts.get("render", 0)),
     }.items():
@@ -282,6 +328,55 @@ ul.commits li{display:flex;gap:14px;align-items:baseline;padding:9px 4px;
 .plus{color:var(--accent-ink);font-weight:500}
 .minus{color:var(--alert);font-weight:500}
 
+
+/* ── 내비 ─────────────────────────────────── */
+nav.toc{position:sticky;top:0;z-index:9;background:color-mix(in srgb,var(--bg) 92%,transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);margin-bottom:-1px}
+nav.toc ol{list-style:none;margin:0;padding:11px 0;display:flex;gap:4px;overflow-x:auto;
+  font-family:var(--fm);font-size:.76rem}
+nav.toc a{display:block;padding:4px 11px;border-radius:999px;color:var(--ink-3);text-decoration:none;
+  white-space:nowrap;border:1px solid transparent}
+nav.toc a:hover{color:var(--accent-ink);border-color:var(--rule-2);background:var(--surface)}
+section{scroll-margin-top:56px}
+
+/* ── 시작하기 ─────────────────────────────── */
+ol.start{list-style:none;counter-reset:s;margin:0 0 30px;padding:0;display:grid;gap:2px}
+ol.start li{counter-increment:s;display:grid;grid-template-columns:2rem 13rem 1fr;gap:14px;
+  padding:11px 4px;border-bottom:1px solid var(--rule);align-items:baseline}
+ol.start li::before{content:counter(s);font-family:var(--fd);font-size:1rem;font-weight:700;
+  color:var(--accent-ink)}
+ol.start b{font-weight:600;font-size:.94rem}
+ol.start span{color:var(--ink-2);font-size:.88rem}
+@media (max-width:720px){ol.start li{grid-template-columns:2rem 1fr}ol.start span{grid-column:2}}
+
+h3.sub-h{font-family:var(--fm);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;margin:34px 0 12px}
+
+/* ── 명령어 ───────────────────────────────── */
+.runs{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+.run{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;
+  box-shadow:var(--shadow)}
+.run h3{display:flex;align-items:center;gap:9px;margin:0 0 4px;font-size:.98rem;font-weight:600}
+.run .seq{font-family:var(--fm);font-size:.74rem;color:var(--ink-3);
+  border:1px solid var(--rule-2);border-radius:5px;padding:1px 6px}
+.run .purpose{margin:0 0 10px;font-size:.86rem;color:var(--ink-2)}
+.run pre{margin:0;background:var(--inset);border:1px solid var(--rule);border-radius:8px;
+  padding:11px 13px;overflow-x:auto}
+.run pre code{background:none;padding:0;font-size:.78rem;line-height:1.6;white-space:pre}
+.run .note{margin:9px 0 0;font-size:.8rem;color:var(--ink-3)}
+td.dm{font-variant-numeric:tabular-nums;white-space:pre}
+
+/* ── 다음 할 일 ───────────────────────────── */
+ol.next{list-style:none;counter-reset:n;margin:0;padding:0;display:grid;gap:2px}
+ol.next li{counter-increment:n;display:grid;grid-template-columns:2rem 1fr;gap:14px;
+  padding:13px 4px;border-bottom:1px solid var(--rule)}
+ol.next li::before{content:counter(n);font-family:var(--fd);font-size:1rem;font-weight:700;
+  color:var(--accent-ink)}
+ol.next b{font-weight:600;font-size:.96rem;grid-column:2}
+ol.next .blk{grid-column:2;font-family:var(--fm);font-size:.72rem;color:var(--mark);
+  background:var(--mark-soft);border-radius:999px;padding:1px 9px;justify-self:start;margin:5px 0 3px}
+ol.next span:last-child{grid-column:2;color:var(--ink-2);font-size:.88rem;margin-top:3px}
+
 footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
   color:var(--ink-3);font-size:.82rem}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
@@ -307,7 +402,42 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
   </div>
 </header>
 
-<section>
+<nav class="toc"><ol>
+  <li><a href="#start">시작하기</a></li>
+  <li><a href="#sync">대본 싱크</a></li>
+  <li><a href="#build">컷 짜는 법</a></li>
+  <li><a href="#brand">브랜드 스펙</a></li>
+  <li><a href="#issues">문제와 해결</a></li>
+  <li><a href="#decisions">판단</a></li>
+  <li><a href="#drive">원본 자료</a></li>
+  <li><a href="#outputs">산출물</a></li>
+  <li><a href="#limits">제약</a></li>
+  <li><a href="#next">다음 할 일</a></li>
+  <li><a href="#history">진행·커밋</a></li>
+</ol></nav>
+
+<section id="start">
+  <h2>시작하기</h2>
+  <p class="lede">컨테이너는 세션이 끝나면 사라집니다. 새로 열었을 때 이 순서대로 보면 됩니다.</p>
+  <ol class="start">__START__</ol>
+
+  <h3 class="sub-h">환경 다시 깔기</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>도구</th><th>버전</th><th>위치</th><th>설치</th><th>비고</th></tr></thead>
+    <tbody>__ENVS__</tbody>
+  </table></div>
+
+  <h3 class="sub-h">명령어</h3>
+  <div class="runs">__RUNS__</div>
+
+  <h3 class="sub-h">파일 지도</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>경로</th><th>역할</th><th>설명</th></tr></thead>
+    <tbody>__TREE__</tbody>
+  </table></div>
+</section>
+
+<section id="sync">
   <h2>대본과 컷 싱크</h2>
   <p class="lede">타임코드는 29.97 드롭프레임입니다. 59.94fps(=29.97×2)로 렌더해서
      프레임 수가 정확히 두 배가 되고, 프리미어 29.97 시퀀스에 프레임 단위로 얹힙니다.
@@ -320,19 +450,43 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
   </table></div>
 </section>
 
-<section>
+<section id="build">
+  <h2>컷 짜는 법</h2>
+  <p class="lede">새 대본이 오면 <code>scenes/cmg-20ma-runner.scenes.js</code> 를 본떠 만듭니다.
+     아래가 그때 쓰는 재료 전부입니다.</p>
+
+  <h3 class="sub-h">레이어 22종</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>이름</th><th>계열</th><th>쓰임</th><th>주요 옵션</th></tr></thead>
+    <tbody>__LAYERS__</tbody>
+  </table></div>
+
+  <h3 class="sub-h">씬 설정 키</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>그룹</th><th>키</th><th>뜻</th><th>예</th></tr></thead>
+    <tbody>__OPTS__</tbody>
+  </table></div>
+
+  <h3 class="sub-h">컷에 쓴 매매 수치</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>설정</th><th>진입</th><th>손절</th><th>익절</th><th>손익비</th><th>이후 고점</th><th>비고</th></tr></thead>
+    <tbody>__SETUPS__</tbody>
+  </table></div>
+</section>
+
+<section id="issues">
   <h2>문제와 해결</h2>
   <p class="lede">증상에서 원인까지 내려가 고친 것들. 확인란은 고쳤다고 말할 근거입니다.</p>
   <div class="issues">__ISSUES__</div>
 </section>
 
-<section>
+<section id="decisions">
   <h2>판단과 근거</h2>
   <p class="lede">되돌릴 수 있게 이유를 남겨 둡니다.</p>
   <div class="decs">__DECISIONS__</div>
 </section>
 
-<section>
+<section id="brand">
   <h2>브랜드 스펙</h2>
   <p class="lede">전부 레퍼런스 영상 프레임에서 픽셀 단위로 잰 값입니다. 짐작한 값은 없습니다.</p>
   <div class="sws">__SWATCHES__</div>
@@ -342,11 +496,22 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
   </table></div>
 </section>
 
-<section>
+<section id="outputs">
   <h2>산출물</h2>
   <div class="scroll"><table>
     <thead><tr><th>파일</th><th>포맷</th><th>프레임</th><th>MB</th><th>비고</th></tr></thead>
     <tbody>__RENDERS__</tbody>
+  </table></div>
+</section>
+
+<section id="drive">
+  <h2>원본 자료 — 구글 드라이브</h2>
+  <p class="lede">공유 폴더는 인증 없이 목록을 볼 수 있습니다.
+     폴더 목록 <code>drive.google.com/embeddedfolderview?id=&lt;ID&gt;#list</code> ·
+     파일 받기 <code>drive.usercontent.google.com/download?id=&lt;ID&gt;&amp;export=download&amp;confirm=t</code></p>
+  <div class="scroll"><table>
+    <thead><tr><th>종류</th><th>이름</th><th>Drive ID</th><th>비고</th></tr></thead>
+    <tbody>__DRIVE__</tbody>
   </table></div>
 </section>
 
@@ -358,7 +523,21 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
   </table></div>
 </section>
 
-<section>
+<section id="limits">
+  <h2>환경이 거는 제약</h2>
+  <p class="lede">한 번씩 부딪혀 본 것들입니다. 같은 벽에 다시 부딪히지 않으려고 적어 둡니다.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>항목</th><th>한계</th><th>대응</th></tr></thead>
+    <tbody>__CONS__</tbody>
+  </table></div>
+</section>
+
+<section id="next">
+  <h2>다음에 할 일</h2>
+  <ol class="next">__NEXTS__</ol>
+</section>
+
+<section id="history">
   <h2>진행</h2>
   <ol class="phases">__PHASES__</ol>
 </section>
