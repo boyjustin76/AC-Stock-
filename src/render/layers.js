@@ -807,20 +807,29 @@ const LAYERS = {
         const lp = span(env.t, (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.12), (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.12) + 0.35, Ease.outBack);
         ctx.save();
         ctx.globalAlpha *= clamp(lp);
+        // 기본 프리셋 실측(1920x1080): 익절 박스 173x84, 선 두께 23px,
+        // 각진 모서리, 흰 글씨에 외곽선 없음, 박스는 선 시작점 왼쪽에 딱 붙는다.
         const size = L.labelSize ?? 62;
         ctx.font = `700 ${size}px ${theme.font}`;
-        ctx.textAlign = 'left';
+        ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         const tw = ctx.measureText(L.label).width;
-        const padX = size * 0.28;
+        const padX = L.labelPadX ?? 24;
         const bw = tw + padX * 2;
-        const bh = size * 1.22;
-        const bx = L.labelX ?? x0 + 40;
+        const bh = L.labelHeight ?? size * 1.35;
+        const anchor = L.labelX ?? x0;
+        const bx = L.labelSide === 'right' ? anchor : anchor - bw;
         ctx.fillStyle = color;
-        roundRect(ctx, bx, y - bh / 2, bw, bh, 8);
-        ctx.fill();
-        strokeText(ctx, L.label, bx + padX, y + 2, { strokeWidth: size * 0.14 });
+        ctx.fillRect(bx, y - bh / 2, bw, bh);
+        ctx.fillStyle = L.labelColor ?? '#FFFFFF';
+        ctx.fillText(L.label, bx + bw / 2, y + 2);
         ctx.restore();
+      }
+      if (L.priceTag) {
+        ctx.font = `600 25px ${theme.mono}`;
+        textBox(ctx, price.toFixed(2), p.right + 8, y, {
+          bg: color, color: '#08101A', h: 40, padX: 15, align: 'left',
+        });
       }
     });
   },
