@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>컷씬 렌더 스테이지</title>
+<style>
+  @font-face { font-family: 'Pretendard'; font-weight: 400;
+    src: url('/node_modules/pretendard/dist/public/static/Pretendard-Regular.otf') format('opentype'); }
+  @font-face { font-family: 'Pretendard'; font-weight: 500;
+    src: url('/node_modules/pretendard/dist/public/static/Pretendard-Medium.otf') format('opentype'); }
+  @font-face { font-family: 'Pretendard'; font-weight: 600;
+    src: url('/node_modules/pretendard/dist/public/static/Pretendard-SemiBold.otf') format('opentype'); }
+  @font-face { font-family: 'Pretendard'; font-weight: 700;
+    src: url('/node_modules/pretendard/dist/public/static/Pretendard-Bold.otf') format('opentype'); }
+  @font-face { font-family: 'Pretendard'; font-weight: 800;
+    src: url('/node_modules/pretendard/dist/public/static/Pretendard-ExtraBold.otf') format('opentype'); }
+  @font-face { font-family: 'JetBrains Mono'; font-weight: 400;
+    src: url('/node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'JetBrains Mono'; font-weight: 500;
+    src: url('/node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'JetBrains Mono'; font-weight: 600;
+    src: url('/node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-600-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'JetBrains Mono'; font-weight: 700;
+    src: url('/node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-700-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'JetBrains Mono'; font-weight: 800;
+    src: url('/node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-800-normal.woff2') format('woff2'); }
+
+  html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
+  #stage { display: block; }
+  /* 폰트를 미리 물려 두어 첫 프레임에서 폴백 폰트가 잡히지 않게 한다 */
+  #preload { position: absolute; left: -9999px; top: -9999px; }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<div id="preload" aria-hidden="true">
+  <span style="font-family:Pretendard;font-weight:400">가나다 0123</span>
+  <span style="font-family:Pretendard;font-weight:500">가나다 0123</span>
+  <span style="font-family:Pretendard;font-weight:600">가나다 0123</span>
+  <span style="font-family:Pretendard;font-weight:700">가나다 0123</span>
+  <span style="font-family:Pretendard;font-weight:800">가나다 0123</span>
+  <span style="font-family:'JetBrains Mono';font-weight:400">0123</span>
+  <span style="font-family:'JetBrains Mono';font-weight:600">0123</span>
+  <span style="font-family:'JetBrains Mono';font-weight:700">0123</span>
+  <span style="font-family:'JetBrains Mono';font-weight:800">0123</span>
+</div>
+<script type="module">
+  import { boot } from '/src/render/engine.js';
+  boot().catch((e) => {
+    window.__error = String(e && e.stack || e);
+    document.title = 'ERROR';
+    console.error(e);
+  });
+</script>
+</body>
+</html>
