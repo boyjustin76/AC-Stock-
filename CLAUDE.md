@@ -20,6 +20,10 @@ SELECT * FROM next_step;       -- 다음에 할 일
 SELECT * FROM layer_catalog;   -- 컷을 짤 때 쓰는 레이어 22종
 SELECT * FROM constraint_note; -- 이미 부딪혀 본 벽
 SELECT * FROM v_cut_sync;      -- 대본과 컷 싱크
+SELECT * FROM workflow_step;   -- 대본 받고 납품까지의 순서
+SELECT * FROM benchmark;       -- 렌더에 걸리는 시간 (실측)
+SELECT * FROM external_tool;   -- 외부 도구 도입/보류 근거
+SELECT * FROM prproj_fact;     -- .prproj 를 프리미어 없이 읽는 법
 ```
 
 ## 기억할 것
@@ -30,6 +34,10 @@ SELECT * FROM v_cut_sync;      -- 대본과 컷 싱크
 - **브랜드 값은 기본 프리셋이 기준**이다. 최종본 영상마다 변형이 있는데, 그걸 표준으로 착각한 적이 있다.
 - 렌더 전에 `--stills` 로 구도를 먼저 본다. 겹침은 거기서 잡는다.
 - 새 대본은 `scenes/cmg-20ma-runner.scenes.js` 를 본떠 만든다.
+- **`.prproj` 는 gzip 압축된 XML 이다.** 프리미어 없이 `gunzip -c` 로 열어서 시퀀스·이펙트·키프레임·
+  애셋 경로를 전부 읽을 수 있다. 레퍼런스 확인은 영상 프레임을 찍지 말고 이걸로 한다.
+- **렌더는 컷별로 쪼개 동시에 돌린다.** 결과물이 순차 렌더와 md5 까지 같다. 4코어에서 93초 → 45초.
+- 프리미어 MCP 는 어시스턴트·서버·커넥터·프리미어가 같은 PC 에 있어야 해서 이 컨테이너에선 못 쓴다.
 
 ## 작업 브랜치
 

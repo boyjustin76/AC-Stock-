@@ -39,6 +39,45 @@ def build():
             f"<td class='mono r'>{f30}</td><td class='mono r'>{f60}</td>"
             f"<td class='mono r'>{secs:.3f}</td><td class='line'>{e(text)}</td></tr>")
 
+    # ── 작업 방식 ─────────────────────────────────────────────
+    flow_rows = []
+    for seq, step, how, who, st, note in q(
+            "SELECT seq,step,how,who,status,note FROM workflow_step ORDER BY seq"):
+        label = {"ready": "준비됨", "partial": "일부", "todo": "미구현"}[st]
+        sub_note = f"<span class='sub'>{e(note)}</span>" if note else ""
+        flow_rows.append(
+            f"<tr><td class='num'>{seq}</td><td><b>{e(step)}</b>{sub_note}</td>"
+            f"<td>{e(how)}</td><td class='nowrap'>{e(who)}</td>"
+            f"<td class='nowrap'><span class='pill p-{st}'>{label}</span></td></tr>")
+    flow = "".join(flow_rows)
+
+    bench = "".join(
+        f"<tr><td class='nowrap'>{e('순차' if mode=='serial' else '병렬')}</td>"
+        f"<td class='mono r'>{cores}</td><td class='mono r'>{frames}</td>"
+        f"<td class='mono r'>{sv:.2f}s</td><td class='mono r'><b>{ws:.0f}s</b></td>"
+        f"<td class='mono r'>{fc:.1f}</td><td>{e(note)}</td></tr>"
+        for mode, cores, frames, sv, ws, fc, note in q(
+            "SELECT mode,cores,frames,seconds_video,wall_seconds,fps_capture,note FROM benchmark ORDER BY id"))
+
+    VERDICT = {"adopt": ("fixed", "도입"), "local-only": ("worked-around", "로컬 전용"),
+               "rejected": ("open", "보류"), "pending": ("open", "검토중")}
+    tool_cards = []
+    for n, src, pur, req, v, rea in q(
+            "SELECT name,source,purpose,requirement,verdict,reason FROM external_tool ORDER BY id"):
+        cls, label = VERDICT[v]
+        src_row = f"<dt>출처</dt><dd class='ver'>{e(src)}</dd>" if src else ""
+        tool_cards.append(
+            f"<article class='issue st-{cls}'><h3>{e(n)}<span class='tag'>{label}</span></h3>"
+            f"<dl><dt>용도</dt><dd>{e(pur)}</dd>"
+            f"<dt>요구</dt><dd>{e(req or '없음')}</dd>"
+            f"<dt>판단</dt><dd>{e(rea)}</dd>{src_row}</dl></article>")
+    tools = "".join(tool_cards)
+
+    prproj = "".join(
+        f"<tr><td class='nowrap'><b>{e(t)}</b></td><td>{e(f)}</td>"
+        f"<td class='sub'>{e(m or '')}</td></tr>"
+        for t, f, m in q("SELECT topic,finding,method FROM prproj_fact ORDER BY id"))
+
     # ── 문제와 해결 ────────────────────────────────────────────
     issues = []
     for seq, t, sym, cause, fix, ver, st in q(
@@ -167,6 +206,7 @@ def build():
         "__START__": start, "__ENVS__": envs, "__RUNS__": runs, "__TREE__": tree,
         "__DRIVE__": drive, "__LAYERS__": layers, "__OPTS__": opts, "__SETUPS__": setups,
         "__CONS__": cons, "__NEXTS__": nexts,
+        "__FLOW__": flow, "__BENCH__": bench, "__TOOLS__": tools, "__PRPROJ__": prproj,
         "__NSCENE__": str(counts.get("scene", 0)), "__NISSUE__": str(counts.get("issue", 0)),
         "__NTOKEN__": str(counts.get("brand_token", 0)), "__NRENDER__": str(counts.get("render", 0)),
     }.items():
@@ -283,6 +323,10 @@ code{background:var(--surface-2);border-radius:4px;padding:1px 5px;font-size:.85
   background:var(--accent-soft);color:var(--accent-ink);white-space:nowrap}
 .issue.st-worked-around .tag{background:var(--mark-soft);color:var(--mark)}
 .issue.st-open .tag{background:var(--alert-soft);color:var(--alert)}
+.pill{font-size:.72rem;font-family:var(--fm);padding:2px 9px;border-radius:999px;white-space:nowrap;
+  background:var(--accent-soft);color:var(--accent-ink)}
+.pill.p-partial{background:var(--mark-soft);color:var(--mark)}
+.pill.p-todo{background:var(--alert-soft);color:var(--alert)}
 .issue dl{display:grid;grid-template-columns:3.6rem 1fr;gap:7px 14px;margin:0;font-size:.9rem}
 .issue dt{font-family:var(--fm);font-size:.74rem;color:var(--ink-3);padding-top:3px}
 .issue dd{margin:0;color:var(--ink-2)}
@@ -405,6 +449,7 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
 <nav class="toc"><ol>
   <li><a href="#start">시작하기</a></li>
   <li><a href="#sync">대본 싱크</a></li>
+  <li><a href="#flow">작업 방식</a></li>
   <li><a href="#build">컷 짜는 법</a></li>
   <li><a href="#brand">브랜드 스펙</a></li>
   <li><a href="#issues">문제와 해결</a></li>
@@ -448,6 +493,35 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
     <thead><tr><th>#</th><th>컷</th><th>타임코드</th><th>29.97</th><th>59.94</th><th>초</th><th>대사</th></tr></thead>
     <tbody>__CUTROWS__</tbody>
   </table></div>
+</section>
+
+<section id="flow">
+  <h2>작업 방식</h2>
+  <p class="lede">대본 한 편을 받아 컷을 납품하기까지의 순서입니다.
+     9단계 중 8단계까지가 코드로 돌아가고, 마지막 프리미어 반입만 아직 손으로 합니다.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>#</th><th>단계</th><th>방법</th><th>담당</th><th>상태</th></tr></thead>
+    <tbody>__FLOW__</tbody>
+  </table></div>
+
+  <h3 class="sub-h">렌더에 걸리는 시간</h3>
+  <p class="lede">2026-08-26 실측. 컷 4개 956프레임(15.95초) 기준이고,
+     병렬 결과물은 순차와 md5 까지 같습니다. 렌더가 결정론적이라 쪼개도 결과가 흔들리지 않습니다.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>방식</th><th>코어</th><th>프레임</th><th>영상 길이</th><th>실제 소요</th><th>캡처 fps</th><th>비고</th></tr></thead>
+    <tbody>__BENCH__</tbody>
+  </table></div>
+
+  <h3 class="sub-h">레퍼런스 확인 — .prproj 는 그냥 읽힙니다</h3>
+  <p class="lede">프로젝트 파일이 gzip 으로 압축된 XML 이라 프리미어도 MCP 도 없이 표준 도구로 열립니다.
+     영상 프레임을 찍어 색을 재는 것보다 빠르고, 값이 렌더링을 거치지 않은 원본이라 더 정확합니다.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>항목</th><th>확인한 것</th><th>방법</th></tr></thead>
+    <tbody>__PRPROJ__</tbody>
+  </table></div>
+
+  <h3 class="sub-h">외부 도구 검토</h3>
+  <div class="decs">__TOOLS__</div>
 </section>
 
 <section id="build">

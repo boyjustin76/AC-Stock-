@@ -247,6 +247,51 @@ CREATE TABLE next_step (
   blocked_by    TEXT
 );
 
+-- 렌더 속도 실측 ("프리셋 고정 후 순수 클립만 뽑는 시간")
+CREATE TABLE benchmark (
+  id            INTEGER PRIMARY KEY,
+  measured_on   TEXT NOT NULL,
+  config        TEXT NOT NULL,
+  mode          TEXT NOT NULL,
+  cores         INTEGER,
+  frames        INTEGER NOT NULL,
+  seconds_video REAL,
+  wall_seconds  REAL NOT NULL,
+  fps_capture   REAL,
+  note          TEXT
+);
+
+-- 대본 수령부터 납품까지의 표준 작업 순서
+CREATE TABLE workflow_step (
+  id            INTEGER PRIMARY KEY,
+  seq           INTEGER NOT NULL,
+  step          TEXT NOT NULL,
+  how           TEXT NOT NULL,
+  who           TEXT NOT NULL CHECK (who IN ('사용자','클로드','자동')),
+  status        TEXT NOT NULL CHECK (status IN ('ready','partial','todo')),
+  note          TEXT
+);
+
+-- 외부 도구 검토 결과 (도입 / 보류 근거)
+CREATE TABLE external_tool (
+  id            INTEGER PRIMARY KEY,
+  name          TEXT NOT NULL,
+  source        TEXT,
+  purpose       TEXT NOT NULL,
+  requirement   TEXT,
+  verdict       TEXT NOT NULL CHECK (verdict IN ('adopt','local-only','rejected','pending')),
+  reason        TEXT NOT NULL
+);
+
+-- .prproj 를 프리미어 없이 직접 뜯어서 확인한 사실
+CREATE TABLE prproj_fact (
+  id            INTEGER PRIMARY KEY,
+  file          TEXT NOT NULL,
+  topic         TEXT NOT NULL,
+  finding       TEXT NOT NULL,
+  method        TEXT
+);
+
 -- 처음 여는 사람이 순서대로 읽을 것
 CREATE VIEW v_start_here AS
 SELECT 1 AS ord, '무엇을 하는 저장소인가' AS step, goal AS detail FROM session
@@ -255,6 +300,8 @@ UNION ALL SELECT 3, '환경 다시 깔기', 'env_tool 테이블의 install 열�
 UNION ALL SELECT 4, '렌더 돌리기', 'runbook 테이블'
 UNION ALL SELECT 5, '새 대본 받으면', 'next_step 테이블 1번'
 UNION ALL SELECT 6, '원본 자료 위치', 'drive_map 테이블'
+UNION ALL SELECT 7, '대본 받고 납품까지 순서', 'workflow_step 테이블'
+UNION ALL SELECT 8, '렌더에 걸리는 시간', 'benchmark 테이블'
 ORDER BY ord;
 
 -- 컷과 대본 싱크 한눈에
@@ -319,6 +366,17 @@ REQUESTS = [
     (10, "지금까지 로그를 정리하고 .db 로 저장.",
      "SQLite 한 파일로 스키마를 짜서 세션 전체를 넣었다.",
      "log/worklog.db"),
+    (11, "매번 Opus 높은 노력으로 뽑으면 느리지 않나. Sonnet 여러 개로 팀을 쪼갤까, Opus 노력 최저로 갈까.",
+     "렌더는 모델이 아니라 Playwright+ffmpeg 의 CPU 작업이라 모델 선택과 무관함을 실측으로 보였다. "
+     "실제 지연은 판단 실패(익절/손절 회귀, layers.js 중복 정의, 매수 태그 깜빡임)에서 나왔고 병렬화로 줄지 않는다. "
+     "Opus 유지 + 노력 중간, 대신 컷별 병렬 렌더와 검증 자동화를 권했다.",
+     "benchmark 테이블에 순차 93초 / 병렬 45초 기록"),
+    (12, "작업 방식 확정: .srt 대본 → 키워드 정리 → 작업물 폴더 검색 → 레퍼런스 확정 → 확인. "
+     "확인 단계가 빡세니 프리미어 MCP(antipaster / leancoderkavy)를 받아 .prproj 를 직접 보게 하자.",
+     "두 MCP 를 클론해 요구사항을 확인했다. 어시스턴트·서버·CEP 커넥터·프리미어가 모두 같은 PC 에 있어야 한다. "
+     "이 컨테이너는 리눅스에 프리미어가 없어 붙을 대상이 없다. "
+     "대신 .prproj 가 gzip 압축 XML 이라는 것을 확인하고 직접 파싱해서 29.97·이펙트 구성·회사 드라이브 실제 경로를 뽑아냈다.",
+     "workflow_step / external_tool / prproj_fact 신설"),
 ]
 
 PHASES = [
@@ -486,6 +544,19 @@ DECISIONS = [
      "GitHub 는 파일당 100MB 를 거부하고, 대용량 바이너리는 히스토리에 영구히 남는다", None),
     (7, "로그 저장 형식", "SQLite 단일 파일",
      ".db 한 파일로 끝나고 서버가 필요 없다. PostgreSQL/MySQL 은 서버 프로세스가 있어야 해서 요구와 맞지 않는다", None),
+    (8, "모델 운용", "Opus 유지, 노력은 중간. 서브에이전트로 쪼개지 않는다",
+     "렌더는 CPU 작업이라 모델과 무관하다. 실제 지연은 브랜드 판단·버그 진단에서 났고 그건 병렬화로 줄지 않는다. "
+     "여러 에이전트가 브랜드를 각자 해석하면 익절/손절 회귀 같은 실수가 병렬로 늘어난다",
+     "기계적 확인(스틸 겹침 검사 등)만 따로 떼어낼 때"),
+    (9, "렌더 병렬화", "컷별로 프로세스를 나눠 코어 수만큼 동시 실행",
+     "순차 93초가 45초로 줄고 결과물은 md5 까지 동일하다. 렌더가 결정론적이라 쪼개도 안전하다", None),
+    (10, "레퍼런스 확인 방법", ".prproj 를 gunzip 해서 XML 을 직접 읽는다",
+     "프로젝트 파일이 gzip XML 이라 프리미어도 MCP 도 필요 없다. 영상 프레임을 찍어 색을 재는 것보다 빠르고, "
+     "값이 렌더링을 거치지 않은 원본이라 더 정확하다", None),
+    (11, "프리미어 MCP", "이 세션에는 설치하지 않는다. 사용자 PC 용으로 보류",
+     "어시스턴트·서버·CEP 커넥터·프리미어가 같은 PC 에 있어야 하는데 이 컨테이너는 리눅스에 프리미어가 없다. "
+     "클립을 타임라인에 자동 반입하는 단계가 필요해지면 사용자 윈도우 PC + Claude Desktop 에 깐다",
+     "컷 납품 자동화를 시작할 때"),
 ]
 
 
@@ -523,6 +594,14 @@ REPO_FILES = {
 }
 
 RUNBOOK = [
+    (0, "레퍼런스 .prproj 확인", "프리미어 없이 편집 구성을 읽는다",
+     "gunzip -c 'brand/premiere/차트명가_메인프리셋(24버전).prproj' > /tmp/preset.xml"
+     " && grep -o '<DisplayName>[^<]*' /tmp/preset.xml | sort | uniq -c | sort -rn",
+     "미디어 경로는 <ActualMediaFilePath>, 프레임레이트는 <FrameRate> 를 254016000000 으로 나눈다"),
+    (0, "컷별 병렬 렌더", "코어 수만큼 동시에 돌려 시간을 반으로 줄인다",
+     "for c in cut1-pullback-entry cut2-profit-runs cut3-fear cut4-early-exit; do"
+     " node src/cli.mjs --config scenes/cmg-20ma-runner.scenes.js --scene $c --out out/cmg & done; wait",
+     "결과물이 순차 렌더와 md5 까지 같다"),
     (1, "설치", "저장소를 새로 받았을 때", "npm install && npm run setup:fonts", "setup:fonts 는 리눅스만 필요"),
     (2, "씬 목록", "어떤 컷이 있는지 확인", "node src/cli.mjs --config scenes/cmg-20ma-runner.scenes.js", None),
     (3, "구도 확인", "전체 렌더 전에 스틸컷만 빠르게", "node src/cli.mjs --config scenes/cmg-20ma-runner.scenes.js --all --stills 5", "컷당 몇 초. 여기서 겹침을 먼저 잡는다"),
@@ -628,6 +707,11 @@ CONSTRAINTS = [
     ("비공개 저장소", "릴리스 에셋을 curl 로 못 받음", "드라이브 공유 링크 사용"),
     ("컨테이너", "세션이 끝나면 디스크가 사라짐", "남길 것은 반드시 커밋. 원본 자료는 drive_map 을 보고 다시 받는다"),
     ("Playwright 브라우저", "패키지가 기대하는 빌드 번호와 사전 설치본이 다를 수 있음", "resolveChromium() 이 경로를 찾아 준다. playwright install 을 돌리지 않는다"),
+    ("프리미어 MCP", "어시스턴트·서버·CEP 커넥터·프리미어가 모두 같은 PC 에 있어야 함",
+     "원격 리눅스 컨테이너에서는 쓸 수 없다. 레퍼런스 확인은 .prproj 직접 파싱으로 대체하고, "
+     "타임라인 자동 반입이 필요해지면 사용자 윈도우 PC 에 설치한다"),
+    ("렌더 병렬화", "코어 수만큼만 빨라짐 (4코어에서 2.07배)",
+     "컷 수보다 코어가 적으면 가장 긴 컷이 하한이 된다"),
     ("최종본 규격", "채널 롱폼 최종본은 1280x720 / 30fps", "컷씬 소스는 1080p / 59.94fps 로 납품. 축소는 손해가 없다"),
 ]
 
@@ -636,7 +720,86 @@ NEXT_STEPS = [
     (2, "전략 1 컷 (아직 안 만듦)", "기획서의 익절 기준이 '종가가 20일선을 하방 이탈하는 음봉, 아래꼬리조차 20일선에 닿지 않는 완전 이격 캔들'. 이 조건을 그대로 그리는 컷이 뒤에 필요하다", "대본"),
     (3, "전략 2 컷 (아직 안 만듦)", "박스권 횡보장 스위칭. 이평선이 눕는 것 확인 → 직전 고점 윗꼬리·저점 아랫꼬리로 라인 → 하단 지지에서 매수, 상단 저항에서 익절", "대본"),
     (4, "규격 통일 여부", "채널 최종본은 720p/30fps. 1080p/59.94 유지 중인데 다른 소스와 맞출지 결정 필요", "사용자 판단"),
+    (6, "컷별 병렬 렌더 스크립트", "지금은 셸에서 손으로 백그라운드를 띄운다. "
+     "npm run render:par 로 코어 수만큼 자동 샤딩하게 만들면 매번 절반 시간에 끝난다", "사용자 승인"),
+    (7, "알파(.mov) 렌더 시간 미측정", "mp4 는 956프레임에 순차 93초/병렬 45초로 쟀는데 "
+     "무손실 알파(qtrle)는 파일이 커서 I/O 가 더 붙는다. 필요해지면 따로 측정한다", None),
     (5, "로고 워터마크", "지금은 렌더에 넣지 않음(프리미어 프리셋과 중복). 필요하면 image 레이어로 brand/logo 사용", None),
+]
+
+
+BENCHMARKS = [
+    (1, "2026-08-26", "scenes/cmg-20ma-runner.scenes.js", "serial", 4, 956, 15.95, 93.0, 10.3,
+     "컷 4개를 --all 로 차례로. 컷별 250f/23.4s, 234f/19.6s, 152f/14.6s, 320f/26.9s"),
+    (2, "2026-08-26", "scenes/cmg-20ma-runner.scenes.js", "parallel", 4, 956, 15.95, 45.0, 21.2,
+     "컷별 프로세스 4개 동시. 순차 대비 2.07배. 결과물이 순차와 md5 까지 동일해 렌더가 결정론적임을 확인"),
+]
+
+# 사용자가 정한 표준 작업 순서 (2026-08-26)
+WORKFLOW_STEPS = [
+    (1, "대본 수령", "타임코드가 붙은 .srt 를 받는다", "사용자", "ready", None),
+    (2, "주제·소재·키워드 정리", "대본에서 검색어가 될 키워드를 뽑는다", "클로드", "ready", None),
+    (3, "작업물 폴더 검색",
+     "drive_map 의 차명 루트(1hqkgml4CV9cZDyD-mJiE-aRTzAX49b3A)를 embeddedfolderview 로 훑어 "
+     "대본 파일(.docx/.txt)에서 키워드를 찾는다. .docx 는 unzip 해서 word/document.xml 을 읽는다",
+     "클로드", "ready", "pypdf 는 이 환경에서 깨져 있으니 .docx 경로를 쓴다"),
+    (4, "레퍼런스 확정", "키워드 일치율이 가장 높은 회차를 레퍼런스로 잡는다", "클로드", "ready", None),
+    (5, "레퍼런스 확인",
+     "그 회차의 .prproj 를 gunzip 해서 XML 을 직접 읽는다. 시퀀스·이펙트·키프레임·애셋 경로가 모두 평문으로 들어 있다. "
+     "영상 프레임을 찍어 실측하는 것보다 빠르고 정확하다",
+     "클로드", "ready", "프리미어도 MCP 도 필요 없다. prproj_fact 참고"),
+    (6, "컷 설계 + scenes.js 작성",
+     "타임코드를 프레임으로 환산하고 cmg-20ma-runner.scenes.js 를 본떠 layers 를 채운다", "클로드", "ready", None),
+    (7, "구도 확인", "--stills 로 스틸컷을 먼저 본다. 겹침은 여기서 잡는다", "클로드", "ready", None),
+    (8, "렌더", "컷별 프로세스를 코어 수만큼 동시에 띄운다", "자동", "ready", "benchmark 2번 참고"),
+    (9, "프리미어 반입", "지금은 사용자가 직접 넣는다. 자동화하려면 사용자 PC 에 프리미어 MCP 설치 필요",
+     "사용자", "todo", "external_tool 1·2번 참고"),
+]
+
+EXTERNAL_TOOLS = [
+    (1, "Adobe-Premiere-Pro-MCP", "github.com/antipaster/Adobe-Premiere-Pro-MCP",
+     "프리미어를 원격 조작 (편집·이펙트·자막·익스포트 170여 도구)",
+     "Windows + Premiere Pro 2023+ / CEP 패널(WebSocket 포트 8097) / install.bat 로 미서명 확장 허용 / 프리미어와 같은 PC",
+     "local-only",
+     "이 컨테이너는 리눅스에 프리미어가 없어 서버를 띄워도 붙을 대상이 없다. "
+     "사용자 윈도우 PC 의 Claude Desktop 에 설치해야 동작한다. 저장소 크기 1.3MB"),
+    (2, "premiere-pro-mcp", "github.com/leancoderkavy/premiere-pro-mcp",
+     "같은 목적. 313개 도구 + UXP 패널 50개",
+     "Claude Desktop 확장 번들 + 별도 서명 커넥터 MCPBridgeCEP.zxp. README 원문: "
+     "\"Keep the assistant, server, connector, and Premiere on the same computer\"",
+     "local-only",
+     "동일한 이유로 이 세션에서는 못 쓴다. Node 없이 되는 Claude Desktop 경로가 있어 설치는 1번보다 쉽다. 저장소 크기 28MB"),
+    (3, ".prproj 직접 파싱", "표준 도구 (gunzip + XML)",
+     "레퍼런스 회차의 편집 구성을 확인",
+     "없음. gunzip 과 파이썬 표준 라이브러리면 된다",
+     "adopt",
+     "프로젝트 파일이 gzip 압축 XML 이라 그냥 읽힌다. 프리미어도 MCP 도 커넥터도 필요 없고, "
+     "영상 프레임을 찍어 색을 재는 것보다 훨씬 빠르며 값이 원본 그대로다"),
+]
+
+PRPROJ_FACTS = [
+    (1, "brand/premiere/차트명가_메인프리셋(24버전).prproj", "파일 형식",
+     "gzip 압축된 UTF-8 XML. 288KB → 압축 해제 3,696,594 바이트. 루트는 <PremiereData Version=\"3\">",
+     "file 로 gzip 확인 후 gunzip -c"),
+    (2, "brand/premiere/차트명가_메인프리셋(24버전).prproj", "프레임레이트",
+     "FrameRate 는 틱값이며 1초 = 254,016,000,000 틱. 8475667200 → 29.97(드롭프레임), 8467200000 → 30.0, "
+     "5292000 → 48000Hz, 5760000 → 44100Hz 오디오. 대본 타임코드가 29.97 인 근거가 프리셋에서 확인됨",
+     "정규식으로 <FrameRate> 값 집계 후 254016000000 으로 나눔"),
+    (3, "brand/premiere/차트명가_메인프리셋(24버전).prproj", "이펙트 구성",
+     "텍스트 55 / 모양 39 / 모션 33 / 교차 디졸브 16 / 그룹 15 / 자르기 11 / 불투명도 9 / 변형 8 / 마스크 5 / "
+     "벡터 모션 2 / 지우기 2 / 색조·시간 포스터화·파도 비틀기 각 1. 깜박임 제거 필터가 33곳에 걸려 있다",
+     "<DisplayName> 빈도 집계"),
+    (4, "brand/premiere/차트명가_메인프리셋(24버전).prproj", "회사 드라이브 실제 경로",
+     "D:\\01_구글 드라이브(파가드AC)\\트레이딩팩토리\\ 아래에 "
+     "02_영상_소스_롱폼\\차트명가(롱)\\차명_NN_* (회차별 원본·소스), "
+     "04_영상_에셋_디자인 작업물\\06_공용 소스\\00_메인 프리셋(차트명가)\\ (로고·배경·아웃트로·중간광고), "
+     "같은 곳 03_자주 쓰는 효과음+BGM\\01_효과음\\ 이 있다",
+     "<ActualMediaFilePath> 추출"),
+    (5, "brand/premiere/차트명가_메인프리셋(24버전).prproj", "공용 애셋 이름",
+     "매도 버튼(좌우).png, 차트명가_배경(종이).jpg, 종이 배경.jpg, 차트명가_배경(종이질감).mp4, "
+     "차트명가_우측 로고 타이틀.png, 차트명가_유튜브 댓글 유도.png, 차트명가_아웃트로(fix).mp4, "
+     "차 명가 bgm.wav, hyoushigi1.mp3, Nintendo Switch Snap Sound Effect",
+     "미디어 경로에서 파일명만 추출"),
 ]
 
 
@@ -732,6 +895,16 @@ def build():
         " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", TRADE_SETUPS)
     con.executemany("INSERT INTO constraint_note (topic,limit_value,workaround) VALUES (?,?,?)", CONSTRAINTS)
     con.executemany("INSERT INTO next_step (seq,item,detail,blocked_by) VALUES (?,?,?,?)", NEXT_STEPS)
+    con.executemany(
+        "INSERT INTO benchmark (id,measured_on,config,mode,cores,frames,seconds_video,wall_seconds,fps_capture,note)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?)", BENCHMARKS)
+    con.executemany(
+        "INSERT INTO workflow_step (seq,step,how,who,status,note) VALUES (?,?,?,?,?,?)", WORKFLOW_STEPS)
+    con.executemany(
+        "INSERT INTO external_tool (id,name,source,purpose,requirement,verdict,reason)"
+        " VALUES (?,?,?,?,?,?,?)", EXTERNAL_TOOLS)
+    con.executemany(
+        "INSERT INTO prproj_fact (id,file,topic,finding,method) VALUES (?,?,?,?,?)", PRPROJ_FACTS)
     con.executemany(
         "INSERT INTO commit_log (seq,sha,authored,subject,files_changed,insertions,deletions)"
         " VALUES (?,?,?,?,?,?,?)", git_commits())
