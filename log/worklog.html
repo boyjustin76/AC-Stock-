@@ -1,0 +1,244 @@
+<title>차트명가 컷씬 작업 로그</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F3F7F6; --surface:#FFFFFF; --surface-2:#E9F1EF; --inset:#F7FAF9;
+  --ink:#0E1918; --ink-2:#47605C; --ink-3:#7A928E;
+  --rule:#D9E6E3; --rule-2:#C4D6D2;
+  --accent:#0B8C7F; --accent-ink:#076B60; --accent-soft:#D6ECE8;
+  --alert:#C0201F; --alert-soft:#FADFDE;
+  --mark:#D1004B; --mark-soft:#FBDCE7;
+  --shadow:0 1px 2px rgba(14,25,24,.05), 0 8px 24px -12px rgba(14,25,24,.18);
+  --fd:"Gowun Batang", "Nanum Myeongjo", serif;
+  --fs:"IBM Plex Sans KR", "Apple SD Gothic Neo", system-ui, sans-serif;
+  --fm:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0B1312; --surface:#111B1A; --surface-2:#182422; --inset:#0E1817;
+  --ink:#E6EFED; --ink-2:#9FB6B2; --ink-3:#6C837F;
+  --rule:#22302E; --rule-2:#2E403D;
+  --accent:#3EC3B1; --accent-ink:#6FD9CA; --accent-soft:#10312D;
+  --alert:#FF7A73; --alert-soft:#361A1A;
+  --mark:#FF5E96; --mark-soft:#3A1526;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 8px 24px -12px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  --bg:#0B1312; --surface:#111B1A; --surface-2:#182422; --inset:#0E1817;
+  --ink:#E6EFED; --ink-2:#9FB6B2; --ink-3:#6C837F;
+  --rule:#22302E; --rule-2:#2E403D;
+  --accent:#3EC3B1; --accent-ink:#6FD9CA; --accent-soft:#10312D;
+  --alert:#FF7A73; --alert-soft:#361A1A;
+  --mark:#FF5E96; --mark-soft:#3A1526;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 8px 24px -12px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--fs);font-weight:400;
+  line-height:1.65;-webkit-font-smoothing:antialiased;margin:0}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(18px,4vw,44px) 96px}
+a{color:var(--accent-ink)}
+code,.mono{font-family:var(--fm);font-variant-numeric:tabular-nums}
+.mono{font-size:.92em}
+.r{text-align:right}.nowrap{white-space:nowrap}
+.sub{color:var(--ink-3);font-size:.86rem;line-height:1.45}
+
+/* ── 머리말 ───────────────────────────────── */
+header.top{padding:clamp(56px,9vw,104px) 0 40px;border-bottom:1px solid var(--rule)}
+.eyebrow{font-family:var(--fm);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--accent-ink);margin:0 0 18px}
+h1{font-family:var(--fd);font-weight:700;font-size:clamp(2.3rem,6vw,3.6rem);line-height:1.12;
+  letter-spacing:-.01em;margin:0 0 18px;text-wrap:balance}
+.goal{font-size:clamp(1rem,2.2vw,1.16rem);color:var(--ink-2);max-width:60ch;margin:0 0 28px}
+.meta{display:flex;flex-wrap:wrap;gap:10px 22px;font-family:var(--fm);font-size:.82rem;color:var(--ink-3)}
+.meta b{color:var(--ink-2);font-weight:500}
+.counts{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.counts span{background:var(--surface);border:1px solid var(--rule);border-radius:999px;
+  padding:5px 13px;font-size:.8rem;color:var(--ink-2);box-shadow:var(--shadow)}
+.counts b{font-family:var(--fm);color:var(--ink);font-weight:600}
+
+/* ── 섹션 ─────────────────────────────────── */
+section{padding-top:clamp(52px,7vw,76px)}
+h2{font-family:var(--fd);font-weight:700;font-size:clamp(1.5rem,3.4vw,2rem);margin:0 0 6px;
+  letter-spacing:-.01em}
+.lede{color:var(--ink-2);margin:0 0 26px;max-width:66ch}
+
+/* ── 타임라인 ─────────────────────────────── */
+.bar{display:flex;gap:3px;height:76px;margin-bottom:10px}
+.seg{border-radius:5px;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  gap:1px;color:#fff;min-width:0;overflow:hidden}
+.seg-1{background:#0B8C7F}.seg-2{background:#12A594}
+.seg-3{background:#C0201F}.seg-4{background:#D1004B}
+.seg-n{font-family:var(--fd);font-size:1.05rem;font-weight:700;line-height:1}
+.seg-f{font-family:var(--fm);font-size:.78rem;opacity:.95}
+.seg-p{font-family:var(--fm);font-size:.68rem;opacity:.72}
+.bar-foot{display:flex;justify-content:space-between;font-family:var(--fm);font-size:.78rem;
+  color:var(--ink-3);margin-bottom:30px}
+
+/* ── 표 ───────────────────────────────────── */
+.scroll{overflow-x:auto;border:1px solid var(--rule);border-radius:12px;background:var(--surface);
+  box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th{font-family:var(--fm);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);text-align:left;font-weight:500;padding:13px 14px;
+  border-bottom:1px solid var(--rule-2);white-space:nowrap;background:var(--inset)}
+td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td .sub{display:block;margin-top:2px}
+td.num{font-family:var(--fd);font-size:1.1rem;font-weight:700;color:var(--accent-ink);width:1%}
+td.cat{color:var(--ink-3);font-size:.82rem;white-space:nowrap}
+td.line{min-width:22rem}
+code{background:var(--surface-2);border-radius:4px;padding:1px 5px;font-size:.85em;color:var(--ink)}
+.fmt{font-family:var(--fm);font-size:.74rem;padding:2px 8px;border-radius:4px;
+  background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
+.f-qtrle,.f-vp9a{background:var(--accent-soft);color:var(--accent-ink)}
+
+/* ── 문제 카드 ────────────────────────────── */
+.issues{display:grid;gap:14px}
+.issue{background:var(--surface);border:1px solid var(--rule);border-radius:12px;
+  padding:20px 22px;box-shadow:var(--shadow)}
+.issue h3{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:1.02rem;
+  font-weight:600;letter-spacing:-.005em}
+.issue .seq{font-family:var(--fm);font-size:.78rem;color:var(--ink-3);
+  border:1px solid var(--rule-2);border-radius:5px;padding:1px 7px}
+.issue .tag{margin-left:auto;font-size:.72rem;font-family:var(--fm);padding:2px 9px;border-radius:999px;
+  background:var(--accent-soft);color:var(--accent-ink);white-space:nowrap}
+.issue.st-worked-around .tag{background:var(--mark-soft);color:var(--mark)}
+.issue.st-open .tag{background:var(--alert-soft);color:var(--alert)}
+.issue dl{display:grid;grid-template-columns:3.6rem 1fr;gap:7px 14px;margin:0;font-size:.9rem}
+.issue dt{font-family:var(--fm);font-size:.74rem;color:var(--ink-3);padding-top:3px}
+.issue dd{margin:0;color:var(--ink-2)}
+.issue dd.ver{color:var(--accent-ink)}
+
+/* ── 판단 ─────────────────────────────────── */
+.decs{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.dec{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;
+  box-shadow:var(--shadow)}
+.dec h3{margin:0 0 8px;font-size:.78rem;font-family:var(--fm);letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.dec .choice{margin:0 0 8px;font-weight:600;font-size:1rem;line-height:1.45;color:var(--ink)}
+.dec .why{margin:0;font-size:.88rem;color:var(--ink-2)}
+.dec .revisit{margin:10px 0 0;font-size:.8rem;color:var(--mark)}
+
+/* ── 색 견본 ──────────────────────────────── */
+.sws{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));margin-bottom:26px}
+.sw{margin:0;background:var(--surface);border:1px solid var(--rule);border-radius:10px;overflow:hidden;
+  box-shadow:var(--shadow)}
+.sw .chip{display:block;height:52px}
+.sw figcaption{padding:9px 11px;display:flex;flex-direction:column;gap:1px}
+.sw b{font-size:.82rem;font-weight:500}
+.sw code{background:none;padding:0;font-size:.76rem;color:var(--ink-3)}
+
+/* ── 진행 ─────────────────────────────────── */
+ol.phases{list-style:none;counter-reset:p;margin:0;padding:0;display:grid;gap:2px}
+ol.phases li{counter-increment:p;display:grid;grid-template-columns:2.2rem 11rem 1fr;gap:14px;
+  padding:11px 4px;border-bottom:1px solid var(--rule);align-items:baseline}
+ol.phases li::before{content:counter(p,decimal-leading-zero);font-family:var(--fm);font-size:.78rem;
+  color:var(--ink-3)}
+ol.phases b{font-weight:600;font-size:.94rem}
+ol.phases span{color:var(--ink-2);font-size:.88rem}
+@media (max-width:720px){ol.phases li{grid-template-columns:2.2rem 1fr}ol.phases span{grid-column:2}}
+
+/* ── 커밋 ─────────────────────────────────── */
+ul.commits{list-style:none;margin:0;padding:0}
+ul.commits li{display:flex;gap:14px;align-items:baseline;padding:9px 4px;
+  border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.sha{color:var(--accent-ink);background:none;padding:0}
+.subj{flex:1;min-width:14rem;font-size:.92rem}
+.stat{font-size:.76rem;color:var(--ink-3);white-space:nowrap}
+.stat i{font-style:normal;opacity:.6}
+.plus{color:var(--accent-ink);font-weight:500}
+.minus{color:var(--alert);font-weight:500}
+
+footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
+  color:var(--ink-3);font-size:.82rem}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">작업 로그 · 2026-08-26</p>
+  <h1>차트명가 컷씬 작업 로그</h1>
+  <p class="goal">해외선물 유튜브(차트명가) 영상용 차트 모션그래픽 소스 영상을 코드로 렌더한다</p>
+  <div class="meta">
+    <span><b>저장소</b> boyjustin76/AC-Stock-</span>
+    <span><b>브랜치</b> claude/futures-youtube-video-edit-fhio4s</span>
+    <span><b>원본 데이터</b> log/worklog.db</span>
+  </div>
+  <div class="counts">
+    <span>컷 <b>13</b></span>
+    <span>렌더 <b>16</b></span>
+    <span>브랜드 실측값 <b>21</b></span>
+    <span>문제 <b>9</b></span>
+  </div>
+</header>
+
+<section>
+  <h2>대본과 컷 싱크</h2>
+  <p class="lede">타임코드는 29.97 드롭프레임입니다. 59.94fps(=29.97×2)로 렌더해서
+     프레임 수가 정확히 두 배가 되고, 프리미어 29.97 시퀀스에 프레임 단위로 얹힙니다.
+     아래 막대의 너비가 실제 컷 길이 비율입니다.</p>
+  <div class="bar"><div class="seg seg-1" style="flex:125"><span class="seg-n">1</span><span class="seg-f">125f</span><span class="seg-p">26.2%</span></div><div class="seg seg-2" style="flex:117"><span class="seg-n">2</span><span class="seg-f">117f</span><span class="seg-p">24.5%</span></div><div class="seg seg-3" style="flex:76"><span class="seg-n">3</span><span class="seg-f">76f</span><span class="seg-p">15.9%</span></div><div class="seg seg-4" style="flex:160"><span class="seg-n">4</span><span class="seg-f">160f</span><span class="seg-p">33.5%</span></div></div>
+  <div class="bar-foot"><span>00;05;26;27 시작</span><span>합계 478프레임 · 15.949초</span></div>
+  <div class="scroll"><table>
+    <thead><tr><th>#</th><th>컷</th><th>타임코드</th><th>29.97</th><th>59.94</th><th>초</th><th>대사</th></tr></thead>
+    <tbody><tr><td class='num'>1</td><td><code>cut1-pullback-entry</code><span class='sub'>① 20일선 눌림목 진입</span></td><td class='mono nowrap'>00;05;26;27<br>00;05;31;02</td><td class='mono r'>125</td><td class='mono r'>250</td><td class='mono r'>4.171</td><td class='line'>다수의 트레이더는 20일선 눌림목에서 진입하는 것까지는 성공합니다.</td></tr><tr><td class='num'>2</td><td><code>cut2-profit-runs</code><span class='sub'>② 수익 발생</span></td><td class='mono nowrap'>00;05;31;02<br>00;05;34;29</td><td class='mono r'>117</td><td class='mono r'>234</td><td class='mono r'>3.904</td><td class='line'>하지만 막상 수익이 발생하면 추세를 끝까지 끌고 가지 못합니다.</td></tr><tr><td class='num'>3</td><td><code>cut3-fear</code><span class='sub'>③ 수익을 잃을까 두려움</span></td><td class='mono nowrap'>00;05;34;29<br>00;05;37;15</td><td class='mono r'>76</td><td class='mono r'>152</td><td class='mono r'>2.536</td><td class='line'>확보한 수익을 다시 잃을까 두려운 나머지,</td></tr><tr><td class='num'>4</td><td><code>cut4-early-exit</code><span class='sub'>④ 1:2 조기 익절 + 놓친 구간</span></td><td class='mono nowrap'>00;05;37;15<br>00;05;42;25</td><td class='mono r'>160</td><td class='mono r'>320</td><td class='mono r'>5.339</td><td class='line'>짧은 저항선이나 1:2 정도의 얕은 구간에서 기계적으로 이익을 실현해 버립니다.</td></tr></tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>문제와 해결</h2>
+  <p class="lede">증상에서 원인까지 내려가 고친 것들. 확인란은 고쳤다고 말할 근거입니다.</p>
+  <div class="issues"><article class='issue st-fixed'><h3><span class='seq'>1</span>Playwright 브라우저 빌드 불일치<span class='tag'>해결</span></h3><dl><dt>증상</dt><dd>설치한 playwright 가 chromium-1234 를 찾는데 컨테이너에는 1194 만 있음</dd><dt>원인</dt><dd>패키지 버전과 사전 설치 브라우저 빌드 번호가 다름</dd><dt>조치</dt><dd>환경변수 → 사전 설치 경로 → 기본값 순으로 찾는 resolveChromium() 추가</dd><dt>확인</dt><dd class='ver'>다운로드 없이 렌더 성공</dd></dl></article><article class='issue st-worked-around'><h3><span class='seq'>2</span>400MB 매뉴얼 전달 경로<span class='tag'>우회</span></h3><dl><dt>증상</dt><dd>채팅 첨부 30MB 한도라 올릴 수 없음</dd><dt>원인</dt><dd>전송 수단의 크기 제한</dd><dt>조치</dt><dd>Drive 공유 링크를 받아 컨테이너에서 직접 curl 다운로드</dd><dt>확인</dt><dd class='ver'>422MB 정상 수신</dd></dl></article><article class='issue st-worked-around'><h3><span class='seq'>3</span>GitHub Release 로는 못 받음<span class='tag'>우회</span></h3><dl><dt>증상</dt><dd>릴리스는 보이는데 에셋을 가져올 수 없음</dd><dt>원인</dt><dd>초안 상태 + 태그 없음 + 저장소 비공개, api.github.com 은 프록시 차단</dd><dt>조치</dt><dd>GitHub 경로를 폐기하고 Drive 로 전환. 공개 저장소 릴리스는 curl 로 받아짐을 테스트로 확인</dd><dt>확인</dt><dd class='ver'>원인 3가지 특정</dd></dl></article><article class='issue st-worked-around'><h3><span class='seq'>4</span>알파 무손실 파일 전송 실패<span class='tag'>우회</span></h3><dl><dt>증상</dt><dd>ov-chart.mov 38.5MB 가 30MB 한도 초과</dd><dt>원인</dt><dd>QuickTime RLE 무손실이라 용량이 큼</dd><dt>조치</dt><dd>VP9 알파 webm(3.4MB)으로 압축해 전달하고, 무손실 재생성 명령을 안내</dd><dt>확인</dt><dd class='ver'>ProRes 4444 는 155MB 로 더 나빠서 배제</dd></dl></article><article class='issue st-fixed'><h3><span class='seq'>5</span>매수 태그가 컷 경계마다 깜빡임<span class='tag'>해결</span></h3><dl><dt>증상</dt><dd>16초 동안 3번 사라졌다 다시 나타남. 다른 요소는 멀쩡</dd><dt>원인</dt><dd>4컷 전부에 들어가는 유일한 요소라 컷마다 등장 애니메이션이 재생됨. 등장 시각을 줘도 첫 프레임이 투명해짐</dd><dt>조치</dt><dd>cmgArrow 에 popDur 옵션 추가(0이면 처음부터 완성 크기), cue 가 in 생략을 &#x27;이미 떠 있음&#x27;으로 처리</dd><dt>확인</dt><dd class='ver'>릴 956프레임 전수 측정: 컷2~3 386프레임 중 누락 0, 경계 전후 태그 폭 41~42px 일정</dd></dl></article><article class='issue st-fixed'><h3><span class='seq'>6</span>색연필 원이 컷 경계에서 끊김<span class='tag'>해결</span></h3><dl><dt>증상</dt><dd>컷1 끝에 떠 있던 원이 컷2 첫 프레임에 사라짐</dd><dt>원인</dt><dd>컷1 에만 있는 레이어인데 퇴장 시각이 없었음</dd><dt>조치</dt><dd>컷 안에서 미리 페이드아웃하도록 out 시각 추가</dd><dt>확인</dt><dd class='ver'>경계 전후 연속 확인</dd></dl></article><article class='issue st-fixed'><h3><span class='seq'>7</span>익절·손절 표기 스타일 오판<span class='tag'>해결</span></h3><dl><dt>증상</dt><dd>영역 한가운데 큰 글씨로 바꿨더니 회사 스타일과 멀어짐</dd><dt>원인</dt><dd>최종본 한 영상의 변형을 표준으로 착각. 기본 프리셋의 컬러 박스가 표준</dd><dt>조치</dt><dd>프리셋 프레임을 픽셀 단위로 재서 복구(선 23px, 박스 173x84, 흰 글씨, 선 왼쪽에 붙임)</dd><dt>확인</dt><dd class='ver'>프리셋 프레임과 대조</dd></dl></article><article class='issue st-fixed'><h3><span class='seq'>8</span>layers.js 레이어 정의 중복<span class='tag'>해결</span></h3><dl><dt>증상</dt><dd>고친 코드가 렌더에 반영되지 않음</dd><dt>원인</dt><dd>객체 리터럴에 zone~cmgLevel 10종이 두 벌 들어가 뒤쪽(옛 코드)이 이김. 인덱스 기반 수정이 앞쪽에만 적용됨</dd><dt>조치</dt><dd>중복 536줄 제거</dd><dt>확인</dt><dd class='ver'>정의 32개 → 22개, 중복 0</dd></dl></article><article class='issue st-fixed'><h3><span class='seq'>9</span>라벨 겹침 다수<span class='tag'>해결</span></h3><dl><dt>증상</dt><dd>손익비 배지가 익절 라벨을, 익절 라벨이 매도 태그를 가림</dd><dt>원인</dt><dd>줌아웃하면서 요소 간 거리가 좁아짐</dd><dt>조치</dt><dd>배지를 좌하단으로, 라벨 박스를 선 왼쪽 바깥으로, 놓친 구간 화살표 제거</dd><dt>확인</dt><dd class='ver'>컷4 전 구간 스틸 확인</dd></dl></article></div>
+</section>
+
+<section>
+  <h2>판단과 근거</h2>
+  <p class="lede">되돌릴 수 있게 이유를 남겨 둡니다.</p>
+  <div class="decs"><article class='dec'><h3>렌더 방식</h3><p class='choice'>실시간 재생이 아니라 프레임 번호를 받아 그린다</p><p class='why'>느린 환경에서도 fps 가 정확하고, 같은 프레임을 다시 그려도 결과가 같다</p></article><article class='dec'><h3>캔들 데이터</h3><p class='choice'>실시세 대신 시드 고정 생성기</p><p class='why'>대본에 맞는 가격 이야기를 만들 수 있고, 컷을 나눠 뽑아도 앞뒤가 어긋나지 않는다</p><p class='revisit'>다시 볼 때 — 실제 차트를 그대로 써야 할 때</p></article><article class='dec'><h3>프레임레이트</h3><p class='choice'>59.94fps(=29.97x2)로 렌더</p><p class='why'>대본 타임코드가 드롭프레임이라 프레임 수가 정확히 2배가 되어 29.97 시퀀스에 프레임 단위로 맞는다</p></article><article class='dec'><h3>해상도</h3><p class='choice'>1080p 유지</p><p class='why'>최종본 롱폼은 720p 지만 축소는 손해가 없고 확대는 손해다</p><p class='revisit'>다시 볼 때 — 다른 소스와 규격을 통일하기로 할 때</p></article><article class='dec'><h3>자막·타이틀·로고</h3><p class='choice'>렌더에 넣지 않는다</p><p class='why'>프리미어 프리셋에 이미 있어 겹친다. 차트 위 라벨만 시각자료로 넣는다</p></article><article class='dec'><h3>저장소에 넣을 애셋</h3><p class='choice'>35MB 만 커밋</p><p class='why'>GitHub 는 파일당 100MB 를 거부하고, 대용량 바이너리는 히스토리에 영구히 남는다</p></article><article class='dec'><h3>로그 저장 형식</h3><p class='choice'>SQLite 단일 파일</p><p class='why'>.db 한 파일로 끝나고 서버가 필요 없다. PostgreSQL/MySQL 은 서버 프로세스가 있어야 해서 요구와 맞지 않는다</p></article></div>
+</section>
+
+<section>
+  <h2>브랜드 스펙</h2>
+  <p class="lede">전부 레퍼런스 영상 프레임에서 픽셀 단위로 잰 값입니다. 짐작한 값은 없습니다.</p>
+  <div class="sws"><figure class='sw'><span class='chip' style='background:#FFFFFF'></span><figcaption><b>배경</b><code>#FFFFFF</code></figcaption></figure><figure class='sw'><span class='chip' style='background:#0B8C7F'></span><figcaption><b>상승 캔들</b><code>#0B8C7F</code></figcaption></figure><figure class='sw'><span class='chip' style='background:#E80001'></span><figcaption><b>하락 캔들</b><code>#E80001</code></figcaption></figure><figure class='sw'><span class='chip' style='background:#F38808'></span><figcaption><b>20일 이동평균선</b><code>#F38808</code></figcaption></figure><figure class='sw'><span class='chip' style='background:#14FF35'></span><figcaption><b>익절 선</b><code>#14FF35</code></figcaption></figure><figure class='sw'><span class='chip' style='background:#BAFDC0'></span><figcaption><b>익절 영역</b><code>#BAFDC0</code></figcaption></figure><figure class='sw'><span class='chip' style='background:#9F0000'></span><figcaption><b>손절 선</b><code>#9F0000</code></figcaption></figure><figure class='sw'><span class='chip' style='background:#FEBABA'></span><figcaption><b>손절 영역</b><code>#FEBABA</code></figcaption></figure><figure class='sw'><span class='chip' style='background:#E80001'></span><figcaption><b>매수 태그</b><code>#E80001</code></figcaption></figure><figure class='sw'><span class='chip' style='background:#0200F3'></span><figcaption><b>매도 태그</b><code>#0200F3</code></figcaption></figure><figure class='sw'><span class='chip' style='background:#E90054'></span><figcaption><b>종목·타임프레임</b><code>#E90054</code></figcaption></figure><figure class='sw'><span class='chip' style='background:#8E8E8E'></span><figcaption><b>소제목</b><code>#8E8E8E</code></figcaption></figure><figure class='sw'><span class='chip' style='background:#C0272D'></span><figcaption><b>손그림 마크</b><code>#C0272D</code></figcaption></figure></div>
+  <div class="scroll"><table>
+    <thead><tr><th>분류</th><th>항목</th><th>값</th><th>출처</th><th>비고</th></tr></thead>
+    <tbody><tr><td class='cat'>차트</td><td>배경</td><td class='mono'>#FFFFFF</td><td class='sub'>레퍼런스 프레임 실측</td><td class='sub'>축·그리드 없이 화면을 꽉 채움</td></tr><tr><td class='cat'>차트</td><td>상승 캔들</td><td class='mono'>#0B8C7F</td><td class='sub'>레퍼런스 프레임 실측</td><td class='sub'>딥 틸</td></tr><tr><td class='cat'>차트</td><td>하락 캔들</td><td class='mono'>#E80001</td><td class='sub'>레퍼런스 프레임 실측</td><td class='sub'></td></tr><tr><td class='cat'>차트</td><td>20일 이동평균선</td><td class='mono'>#F38808</td><td class='sub'>레퍼런스 프레임 실측</td><td class='sub'>얇은 주황 실선</td></tr><tr><td class='cat'>매매</td><td>익절 선</td><td class='mono'>#14FF35 23px</td><td class='sub'>기본 프리셋 실측</td><td class='sub'>두께가 캔들보다 확실히 굵다</td></tr><tr><td class='cat'>매매</td><td>익절 영역</td><td class='mono'>#BAFDC0</td><td class='sub'>최종본 실측</td><td class='sub'></td></tr><tr><td class='cat'>매매</td><td>손절 선</td><td class='mono'>#9F0000 23px</td><td class='sub'>기본 프리셋 실측</td><td class='sub'></td></tr><tr><td class='cat'>매매</td><td>손절 영역</td><td class='mono'>#FEBABA</td><td class='sub'>최종본 실측</td><td class='sub'></td></tr><tr><td class='cat'>매매</td><td>익절·손절 라벨 박스</td><td class='mono'>173x84 px</td><td class='sub'>기본 프리셋 실측</td><td class='sub'>각진 사각형, 선과 같은 색, 선 시작점 왼쪽에 붙임</td></tr><tr><td class='cat'>매매</td><td>익절·손절 라벨 글씨</td><td class='mono'>#FFFFFF / 62px</td><td class='sub'>기본 프리셋 실측</td><td class='sub'>검정 외곽선 없음</td></tr><tr><td class='cat'>매매</td><td>매수 태그</td><td class='mono'>#E80001 116x48px</td><td class='sub'>최종본 실측</td><td class='sub'>흰 글씨, 검정 외곽선 없이 얇은 흰 헤일로</td></tr><tr><td class='cat'>매매</td><td>매도 태그</td><td class='mono'>#0200F3 116x48px</td><td class='sub'>최종본 실측</td><td class='sub'></td></tr><tr><td class='cat'>배지</td><td>종목·타임프레임</td><td class='mono'>#E90054</td><td class='sub'>레퍼런스 프레임 실측</td><td class='sub'>흰 글씨, 검정 테두리 없음</td></tr><tr><td class='cat'>배지</td><td>소제목</td><td class='mono'>#8E8E8E</td><td class='sub'>레퍼런스 프레임 실측</td><td class='sub'></td></tr><tr><td class='cat'>배지</td><td>타이틀 바</td><td class='mono'>#8C535D ~ #D76D83</td><td class='sub'>레퍼런스 프레임 실측</td><td class='sub'>질감 있는 자주 그라데이션, 이탤릭 흰 글씨</td></tr><tr><td class='cat'>강조</td><td>손그림 마크</td><td class='mono'>#C0272D 12px</td><td class='sub'>최종본 아웃트로</td><td class='sub'>원·밑줄·X. 색연필 질감</td></tr><tr><td class='cat'>자막</td><td>하단 자막</td><td class='mono'>검정 박스 + 흰 굵은 글씨</td><td class='sub'>최종본 실측</td><td class='sub'>편집에서 넣으므로 렌더에는 미포함</td></tr><tr><td class='cat'>폰트</td><td>제목·강조</td><td class='mono'>Gmarket Sans</td><td class='sub'>프리셋 폰트 폴더</td><td class='sub'></td></tr><tr><td class='cat'>폰트</td><td>본문</td><td class='mono'>S-Core Dream / 나눔고딕</td><td class='sub'>프리셋 폰트 폴더</td><td class='sub'></td></tr><tr><td class='cat'>폰트</td><td>제목 대체</td><td class='mono'>경기천년제목</td><td class='sub'>프리셋 폰트 폴더</td><td class='sub'></td></tr><tr><td class='cat'>출력</td><td>최종본 롱폼 규격</td><td class='mono'>1280x720 / 30fps</td><td class='sub'>최종본 파일 메타</td><td class='sub'>컷씬 소스는 1080p 로 납품 중</td></tr></tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>산출물</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>파일</th><th>포맷</th><th>프레임</th><th>MB</th><th>비고</th></tr></thead>
+    <tbody><tr><td><code>out/cmg/cut1-pullback-entry.mp4</code></td><td><span class='fmt f-mp4'>mp4</span></td><td class='mono r'>250</td><td class='mono r'>0.8</td><td class='sub'>29.97 기준 125f</td></tr><tr><td><code>out/cmg/cut2-profit-runs.mp4</code></td><td><span class='fmt f-mp4'>mp4</span></td><td class='mono r'>234</td><td class='mono r'>1.0</td><td class='sub'>29.97 기준 117f</td></tr><tr><td><code>out/cmg/cut3-fear.mp4</code></td><td><span class='fmt f-mp4'>mp4</span></td><td class='mono r'>152</td><td class='mono r'>1.1</td><td class='sub'>29.97 기준 76f</td></tr><tr><td><code>out/cmg/cut4-early-exit.mp4</code></td><td><span class='fmt f-mp4'>mp4</span></td><td class='mono r'>320</td><td class='mono r'>3.4</td><td class='sub'>29.97 기준 160f</td></tr><tr><td><code>out/cmg/_reel.mp4</code></td><td><span class='fmt f-mp4'>mp4</span></td><td class='mono r'>956</td><td class='mono r'>6.4</td><td class='sub'>4컷 이어붙임, 29.97 기준 478f</td></tr><tr><td><code>out/01-open.mp4</code></td><td><span class='fmt f-mp4'>mp4</span></td><td class='mono r'>420</td><td class='mono r'>4.4</td><td class='sub'></td></tr><tr><td><code>out/02-structure.mp4</code></td><td><span class='fmt f-mp4'>mp4</span></td><td class='mono r'>450</td><td class='mono r'>4.3</td><td class='sub'></td></tr><tr><td><code>out/03-breakdown.mp4</code></td><td><span class='fmt f-mp4'>mp4</span></td><td class='mono r'>420</td><td class='mono r'>4.9</td><td class='sub'></td></tr><tr><td><code>out/04-entry.mp4</code></td><td><span class='fmt f-mp4'>mp4</span></td><td class='mono r'>420</td><td class='mono r'>3.7</td><td class='sub'></td></tr><tr><td><code>out/05-tpsl.mp4</code></td><td><span class='fmt f-mp4'>mp4</span></td><td class='mono r'>450</td><td class='mono r'>3.6</td><td class='sub'></td></tr><tr><td><code>out/06-result.mp4</code></td><td><span class='fmt f-mp4'>mp4</span></td><td class='mono r'>540</td><td class='mono r'>4.8</td><td class='sub'></td></tr><tr><td><code>out/_reel.mp4</code></td><td><span class='fmt f-mp4'>mp4</span></td><td class='mono r'>2700</td><td class='mono r'>25.6</td><td class='sub'>다크 6컷 릴 45초</td></tr><tr><td><code>out/ov-chart.mov</code></td><td><span class='fmt f-qtrle'>qtrle</span></td><td class='mono r'>300</td><td class='mono r'>38.5</td><td class='sub'>무손실 알파. 30MB 초과라 채팅 전송 불가</td></tr><tr><td><code>out/ov-chart.webm</code></td><td><span class='fmt f-vp9a'>vp9a</span></td><td class='mono r'>300</td><td class='mono r'>3.2</td><td class='sub'>전송용 압축본</td></tr><tr><td><code>out/ov-tpsl.mov</code></td><td><span class='fmt f-qtrle'>qtrle</span></td><td class='mono r'>300</td><td class='mono r'>17.1</td><td class='sub'></td></tr><tr><td><code>out/ov-pnl.mov</code></td><td><span class='fmt f-qtrle'>qtrle</span></td><td class='mono r'>300</td><td class='mono r'>17.0</td><td class='sub'></td></tr></tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>받아 온 자료</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>종류</th><th>이름</th><th>크기</th><th>처리</th><th>비고</th></tr></thead>
+    <tbody><tr><td class='cat'>압축본</td><td>00_메인 프리셋(차트명가).zip</td><td class='mono r nowrap'>403 MB</td><td class='sub'>받아서 해제(765MB/76파일)</td><td class='sub'>기본 프리셋 일체</td></tr><tr><td class='cat'>폴더</td><td>02_차트명가(최종본)</td><td class='mono r nowrap'>—</td><td class='sub'>목록만 조회</td><td class='sub'>롱폼 10편 + 숏츠 60여 편</td></tr><tr><td class='cat'>폴더</td><td>차명01~15 소스</td><td class='mono r nowrap'>—</td><td class='sub'>목록만 조회</td><td class='sub'>회차별 원본·프리미어·기획서</td></tr><tr><td class='cat'>영상</td><td>차명#1_쿠리마기_EMA+박스권(최종).mp4</td><td class='mono r nowrap'>254 MB</td><td class='sub'>프레임 실측용</td><td class='sub'>1280x720/30fps, 7분15초</td></tr><tr><td class='cat'>영상</td><td>260711_[SL_차11_#3]20일선이 중요한 이유(최종).mp4</td><td class='mono r nowrap'>79 MB</td><td class='sub'>프레임 실측용</td><td class='sub'>숏츠 1080x1920</td></tr><tr><td class='cat'>영상</td><td>260703_[SL_차11_#1]20일선 120%활용법(최종).mp4</td><td class='mono r nowrap'>54 MB</td><td class='sub'>프레임 실측용</td><td class='sub'>숏츠</td></tr><tr><td class='cat'>문서</td><td>[차11_20일선의 비밀]_롱폼 기획서+스크립트.docx</td><td class='mono r nowrap'>0 MB</td><td class='sub'>본문 추출</td><td class='sub'>이번 대본 4줄의 출처</td></tr><tr><td class='cat'>저장소</td><td>brand/ (폰트·로고·패턴·prproj·레퍼런스)</td><td class='mono r nowrap'>35 MB</td><td class='sub'>커밋됨</td><td class='sub'>100MB 초과 3개와 BGM·인트로 영상은 제외</td></tr></tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>진행</h2>
+  <ol class="phases"><li><b>환경 구축</b><span>Chromium(사전설치본 사용), ffmpeg-static(libx264/prores/qtrle/vp9), Pretendard·JetBrains Mono 설치</span></li><li><b>렌더러 1차</b><span>프레임 번호를 받아 그리는 결정적 렌더링. 캔들 생성기·차트 드로잉·오버레이 레이어·캡처·인코딩</span></li><li><b>다크 테마 6컷</b><span>NQ 5분봉, 하락→박스권→가짜이탈→되돌림 롱→손익비→익절, 45초</span></li><li><b>알파 오버레이</b><span>QuickTime RLE 무손실 알파 3컷. 모서리 픽셀 RGBA(0,0,0,0) 확인</span></li><li><b>프리셋 입수</b><span>Drive 422MB 다운로드 → 765MB/76파일. 폰트·로고·패턴·prproj 만 추림</span></li><li><b>브랜드 분석</b><span>레퍼런스 프레임에서 색·레이아웃 실측 → brand/STYLE.md</span></li><li><b>차트명가 테마</b><span>흰 배경 라이트 테마, cmg* 레이어 8종 추가</span></li><li><b>20일선 4컷</b><span>대본 타임코드 478프레임에 맞춘 4컷 + 릴</span></li><li><b>최종본 대조</b><span>롱폼·숏츠 최종본 실측으로 태그 크기·영역 색·배지 보정</span></li><li><b>익절·손절 복구</b><span>기본 프리셋 실측값으로 되돌리고 layers.js 중복 536줄 제거</span></li><li><b>작업 로그 DB</b><span>SQLite 단일 파일로 세션 전체 정리</span></li></ol>
+</section>
+
+<section>
+  <h2>커밋</h2>
+  <ul class="commits"><li><code class='sha'>e49d17d</code><span class='subj'>익절/손절 라벨을 기본 프리셋 실측값으로 복구, layers.js 중복 정의 제거</span><span class='stat mono'>3<i>f</i> <b class='plus'>+28</b> <b class='minus'>−16</b></span></li><li><code class='sha'>2f39969</code><span class='subj'>색연필 원을 컷1 안에서 먼저 지워 컷 경계 끊김 제거</span><span class='stat mono'>1<i>f</i> <b class='plus'>+2</b> <b class='minus'>−0</b></span></li><li><code class='sha'>373a719</code><span class='subj'>최종본 레퍼런스에 맞춰 디자인 디테일 보정</span><span class='stat mono'>3<i>f</i> <b class='plus'>+157</b> <b class='minus'>−26</b></span></li><li><code class='sha'>699684f</code><span class='subj'>매수 태그가 컷 경계마다 다시 튀어나오던 문제 수정</span><span class='stat mono'>3<i>f</i> <b class='plus'>+56</b> <b class='minus'>−39</b></span></li><li><code class='sha'>4a368e3</code><span class='subj'>차트명가 테마와 20일선 눌림목 4컷 추가</span><span class='stat mono'>8<i>f</i> <b class='plus'>+780</b> <b class='minus'>−12</b></span></li><li><code class='sha'>b465602</code><span class='subj'>차트명가 브랜드 애셋과 스타일 정리 추가</span><span class='stat mono'>43<i>f</i> <b class='plus'>+114</b> <b class='minus'>−0</b></span></li><li><code class='sha'>b530143</code><span class='subj'>README — 알파 채널 출력 용량과 포맷 선택 기준 정리</span><span class='stat mono'>1<i>f</i> <b class='plus'>+9</b> <b class='minus'>−1</b></span></li><li><code class='sha'>ddc1652</code><span class='subj'>투명 배경 오버레이 씬 세트 추가</span><span class='stat mono'>1<i>f</i> <b class='plus'>+131</b> <b class='minus'>−0</b></span></li><li><code class='sha'>6604e0b</code><span class='subj'>차트 컷씬 렌더러 추가 — 해외선물 유튜브용 모션그래픽 소스 영상</span><span class='stat mono'>17<i>f</i> <b class='plus'>+2945</b> <b class='minus'>−0</b></span></li></ul>
+</section>
+
+<footer>
+  이 페이지는 <code>log/worklog.db</code> 에서 만들어집니다 —
+  <code>python3 log/build_worklog_db.py --md &amp;&amp; python3 log/build_worklog_page.py</code>
+</footer>
+
+</div>

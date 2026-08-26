@@ -3,3 +3,5 @@ out/
 .frames/
 *.tgz
 .DS_Store
+log/*.db-wal
+log/*.db-shm
