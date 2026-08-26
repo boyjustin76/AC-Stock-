@@ -78,6 +78,36 @@ def build():
         f"<td class='sub'>{e(m or '')}</td></tr>"
         for t, f, m in q("SELECT topic,finding,method FROM prproj_fact ORDER BY id"))
 
+    # ── 대본 인덱스 ───────────────────────────────────────────
+    doc_rows = []
+    for no, ep, chars, head, kw, st in q(
+            "SELECT ep_no,ep,chars,headline,keywords,status FROM script_doc ORDER BY ep_no, file"):
+        pill = "" if st == "작성됨" else "<span class='pill p-todo'>빈 템플릿</span>"
+        doc_rows.append(
+            f"<tr><td class='num'>{no:02d}</td>"
+            f"<td><b>{e(ep.split('_',1)[-1])}</b>{pill}"
+            f"<span class='sub'>{e(head or '')}</span></td>"
+            f"<td class='mono r'>{chars:,}</td>"
+            f"<td class='kw'>{''.join(f'<span>{e(k)}</span>' for k in kw.split(', ')[:7])}</td></tr>")
+    docs = "".join(doc_rows)
+
+    prj = "".join(
+        f"<tr><td class='nowrap'>{e(ep.split('_',1)[0])}</td><td>{e(nm)}</td>"
+        f"<td class='nowrap'><span class='pill{'' if k=='최종' else ' p-partial'}'>{e(k)}</span></td>"
+        f"<td class='mono sub'>{e(fid)}</td></tr>"
+        for ep, nm, k, fid in q(
+            "SELECT ep,name,kind,drive_id FROM episode_prproj ORDER BY ep, kind DESC"))
+
+    motion = "".join(
+        f"<tr><td><b>{e(nm)}</b><span class='sub'>{e(note or '')}</span></td>"
+        f"<td class='mono nowrap'>{e(par)}</td>"
+        f"<td class='mono nowrap'>{e(fv)} → {e(tv)}</td>"
+        f"<td class='mono r'>{fr:.0f}f</td><td class='mono r'>{sec:.3f}s</td>"
+        f"<td class='nowrap'>{e(ez or '')}</td></tr>"
+        for nm, par, fv, tv, fr, sec, ez, note in q(
+            "SELECT name,param,from_value,to_value,frames_2997,seconds,easing,note"
+            " FROM motion_preset ORDER BY id"))
+
     # ── 문제와 해결 ────────────────────────────────────────────
     issues = []
     for seq, t, sym, cause, fix, ver, st in q(
@@ -207,6 +237,7 @@ def build():
         "__DRIVE__": drive, "__LAYERS__": layers, "__OPTS__": opts, "__SETUPS__": setups,
         "__CONS__": cons, "__NEXTS__": nexts,
         "__FLOW__": flow, "__BENCH__": bench, "__TOOLS__": tools, "__PRPROJ__": prproj,
+        "__DOCS__": docs, "__PRJ__": prj, "__MOTION__": motion,
         "__NSCENE__": str(counts.get("scene", 0)), "__NISSUE__": str(counts.get("issue", 0)),
         "__NTOKEN__": str(counts.get("brand_token", 0)), "__NRENDER__": str(counts.get("render", 0)),
     }.items():
@@ -323,6 +354,8 @@ code{background:var(--surface-2);border-radius:4px;padding:1px 5px;font-size:.85
   background:var(--accent-soft);color:var(--accent-ink);white-space:nowrap}
 .issue.st-worked-around .tag{background:var(--mark-soft);color:var(--mark)}
 .issue.st-open .tag{background:var(--alert-soft);color:var(--alert)}
+.kw span{display:inline-block;font-size:.72rem;font-family:var(--fm);padding:1px 7px;margin:1px 3px 1px 0;
+  border:1px solid var(--rule-2);border-radius:4px;color:var(--ink-2)}
 .pill{font-size:.72rem;font-family:var(--fm);padding:2px 9px;border-radius:999px;white-space:nowrap;
   background:var(--accent-soft);color:var(--accent-ink)}
 .pill.p-partial{background:var(--mark-soft);color:var(--mark)}
@@ -450,6 +483,7 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
   <li><a href="#start">시작하기</a></li>
   <li><a href="#sync">대본 싱크</a></li>
   <li><a href="#flow">작업 방식</a></li>
+  <li><a href="#scripts">대본 인덱스</a></li>
   <li><a href="#build">컷 짜는 법</a></li>
   <li><a href="#brand">브랜드 스펙</a></li>
   <li><a href="#issues">문제와 해결</a></li>
@@ -522,6 +556,32 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
 
   <h3 class="sub-h">외부 도구 검토</h3>
   <div class="decs">__TOOLS__</div>
+</section>
+
+<section id="scripts">
+  <h2>대본 인덱스</h2>
+  <p class="lede">작업물 폴더 전체를 훑어 회차별 대본을 저장소 안에 넣었습니다.
+     이제 드라이브에 붙지 않아도 검색이 됩니다.
+     전문 검색은 <code>script_fts MATCH '키워드'</code>, 가중치는 <code>script_keyword</code> 입니다.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>#</th><th>회차</th><th>분량</th><th>키워드</th></tr></thead>
+    <tbody>__DOCS__</tbody>
+  </table></div>
+
+  <h3 class="sub-h">회차별 프리미어 프로젝트</h3>
+  <p class="lede">레퍼런스 확인 대상입니다. 자동 저장본은 제외했습니다.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>회차</th><th>파일</th><th>종류</th><th>드라이브 ID</th></tr></thead>
+    <tbody>__PRJ__</tbody>
+  </table></div>
+
+  <h3 class="sub-h">회사 모션 문법</h3>
+  <p class="lede">최종본 <code>.prproj</code> 의 키프레임을 디코드해서 뽑은 값입니다.
+     팀장님이 프리미어에서 손으로 만든 움직임이 프레임 단위로 그대로 나옵니다.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>모션</th><th>파라미터</th><th>값</th><th>29.97</th><th>초</th><th>보간</th></tr></thead>
+    <tbody>__MOTION__</tbody>
+  </table></div>
 </section>
 
 <section id="build">

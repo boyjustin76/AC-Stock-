@@ -16,6 +16,7 @@ PostgreSQL/MySQL 은 서버 프로세스가 필요해서 "파일 하나" 요구�
 렌더 결과 파일도 실제 디스크에서 크기를 읽는다. 나머지는 이 파일에 적어 둔 사실이다.
 """
 import os
+import json
 import sqlite3
 import subprocess
 import sys
@@ -292,6 +293,53 @@ CREATE TABLE prproj_fact (
   method        TEXT
 );
 
+-- 회차별 대본 인덱스 (log/data/scripts.json 에서 적재)
+CREATE TABLE script_doc (
+  id            INTEGER PRIMARY KEY,
+  ep_no         INTEGER NOT NULL,
+  ep            TEXT NOT NULL,
+  file          TEXT NOT NULL,
+  drive_id      TEXT NOT NULL,
+  chars         INTEGER NOT NULL,
+  headline      TEXT,
+  keywords      TEXT,
+  status        TEXT NOT NULL
+);
+
+-- 대본 전문 검색 (SELECT * FROM script_fts WHERE script_fts MATCH '눌림목')
+CREATE VIRTUAL TABLE script_fts USING fts5(ep, file, body, tokenize='unicode61');
+
+-- 키워드 → 회차 역인덱스
+CREATE TABLE script_keyword (
+  keyword       TEXT NOT NULL,
+  ep            TEXT NOT NULL,
+  hits          INTEGER NOT NULL,
+  PRIMARY KEY (keyword, ep)
+);
+
+-- 회차별 프리미어 프로젝트 파일 (레퍼런스 확인 대상)
+CREATE TABLE episode_prproj (
+  id            INTEGER PRIMARY KEY,
+  ep            TEXT NOT NULL,
+  name          TEXT NOT NULL,
+  drive_id      TEXT NOT NULL,
+  kind          TEXT NOT NULL
+);
+
+-- 프리셋·최종본에서 뽑아낸 회사 고유 모션 문법
+CREATE TABLE motion_preset (
+  id            INTEGER PRIMARY KEY,
+  name          TEXT NOT NULL,
+  param         TEXT NOT NULL,
+  from_value    TEXT NOT NULL,
+  to_value      TEXT NOT NULL,
+  frames_2997   REAL NOT NULL,
+  seconds       REAL NOT NULL,
+  easing        TEXT,
+  source        TEXT NOT NULL,
+  note          TEXT
+);
+
 -- 처음 여는 사람이 순서대로 읽을 것
 CREATE VIEW v_start_here AS
 SELECT 1 AS ord, '무엇을 하는 저장소인가' AS step, goal AS detail FROM session
@@ -302,6 +350,8 @@ UNION ALL SELECT 5, '새 대본 받으면', 'next_step 테이블 1번'
 UNION ALL SELECT 6, '원본 자료 위치', 'drive_map 테이블'
 UNION ALL SELECT 7, '대본 받고 납품까지 순서', 'workflow_step 테이블'
 UNION ALL SELECT 8, '렌더에 걸리는 시간', 'benchmark 테이블'
+UNION ALL SELECT 9, '지난 회차 대본 찾기', "script_fts MATCH '키워드' 또는 script_keyword"
+UNION ALL SELECT 10, '회사 모션 문법', 'motion_preset 테이블'
 ORDER BY ord;
 
 -- 컷과 대본 싱크 한눈에
@@ -594,6 +644,16 @@ REPO_FILES = {
 }
 
 RUNBOOK = [
+    (0, "대본 키워드 검색", "새 대본의 소재와 겹치는 지난 회차를 찾는다",
+     "python3 -c \"import sqlite3;c=sqlite3.connect('log/worklog.db');"
+     "print(*c.execute(\\\"SELECT ep,snippet(script_fts,2,'[',']','…',12) FROM script_fts "
+     "WHERE script_fts MATCH '눌림목 OR 20일선' LIMIT 10\\\"),sep=chr(10))\"",
+     "가중치를 보려면 script_keyword 테이블에서 keyword 로 조회한다"),
+    (0, "레퍼런스 회차의 .prproj 받기", "확인 대상 프로젝트 파일을 내려받는다",
+     "python3 -c \"import sqlite3;c=sqlite3.connect('log/worklog.db');"
+     "print(*c.execute(\\\"SELECT ep,name,drive_id FROM episode_prproj WHERE kind='최종'\\\"),sep=chr(10))\""
+     " # 그 다음 curl -sL 'https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t' -o ep.prproj",
+     "gunzip -c ep.prproj > ep.xml 로 열면 된다"),
     (0, "레퍼런스 .prproj 확인", "프리미어 없이 편집 구성을 읽는다",
      "gunzip -c 'brand/premiere/차트명가_메인프리셋(24버전).prproj' > /tmp/preset.xml"
      " && grep -o '<DisplayName>[^<]*' /tmp/preset.xml | sort | uniq -c | sort -rn",
@@ -722,6 +782,10 @@ NEXT_STEPS = [
     (4, "규격 통일 여부", "채널 최종본은 720p/30fps. 1080p/59.94 유지 중인데 다른 소스와 맞출지 결정 필요", "사용자 판단"),
     (6, "컷별 병렬 렌더 스크립트", "지금은 셸에서 손으로 백그라운드를 띄운다. "
      "npm run render:par 로 코어 수만큼 자동 샤딩하게 만들면 매번 절반 시간에 끝난다", "사용자 승인"),
+    (8, "차명14·15 대본 미작성", "두 회차 문서가 927자짜리 빈 템플릿이고 본문이 서로 완전히 동일하다. "
+     "레퍼런스로 쓸 수 없으니 대본이 채워지면 log/data/scripts.json 을 다시 만든다", "사용자"),
+    (9, "모션 문법 표본 부족", "motion_preset 3종은 차명11 최종본 하나에서만 뽑았다. "
+     "다른 회차 .prproj 도 같은 방식으로 훑으면 회사 표준 이징·지속시간이 더 정확해진다", None),
     (7, "알파(.mov) 렌더 시간 미측정", "mp4 는 956프레임에 순차 93초/병렬 45초로 쟀는데 "
      "무손실 알파(qtrle)는 파일이 커서 I/O 가 더 붙는다. 필요해지면 따로 측정한다", None),
     (5, "로고 워터마크", "지금은 렌더에 넣지 않음(프리미어 프리셋과 중복). 필요하면 image 레이어로 brand/logo 사용", None),
@@ -740,10 +804,11 @@ WORKFLOW_STEPS = [
     (1, "대본 수령", "타임코드가 붙은 .srt 를 받는다", "사용자", "ready", None),
     (2, "주제·소재·키워드 정리", "대본에서 검색어가 될 키워드를 뽑는다", "클로드", "ready", None),
     (3, "작업물 폴더 검색",
-     "drive_map 의 차명 루트(1hqkgml4CV9cZDyD-mJiE-aRTzAX49b3A)를 embeddedfolderview 로 훑어 "
-     "대본 파일(.docx/.txt)에서 키워드를 찾는다. .docx 는 unzip 해서 word/document.xml 을 읽는다",
-     "클로드", "ready", "pypdf 는 이 환경에서 깨져 있으니 .docx 경로를 쓴다"),
-    (4, "레퍼런스 확정", "키워드 일치율이 가장 높은 회차를 레퍼런스로 잡는다", "클로드", "ready", None),
+     "이제 드라이브에 붙지 않아도 된다. script_fts 전문 검색과 script_keyword 역인덱스가 "
+     "저장소 안에 있다 (2026-08-26 기준 16편). 새 회차가 생기면 log/data/scripts.json 을 갱신한다",
+     "클로드", "ready", "원본은 .docx. unzip 해서 word/document.xml 을 읽는다"),
+    (4, "레퍼런스 확정", "script_keyword 로 키워드 일치율이 가장 높은 회차를 고른다. "
+     "그 회차의 최종 .prproj 는 episode_prproj 테이블에 drive_id 로 들어 있다", "클로드", "ready", None),
     (5, "레퍼런스 확인",
      "그 회차의 .prproj 를 gunzip 해서 XML 을 직접 읽는다. 시퀀스·이펙트·키프레임·애셋 경로가 모두 평문으로 들어 있다. "
      "영상 프레임을 찍어 실측하는 것보다 빠르고 정확하다",
@@ -778,6 +843,29 @@ EXTERNAL_TOOLS = [
 ]
 
 PRPROJ_FACTS = [
+    (10, "차명11 최종본 (drive 1nSw16I1CrCpzBMdZsqmeZf_tjEAFkOCe)", "규모",
+     "607KB → 압축 해제 9.1MB. 텍스트 레이어 162개, 펜툴/도형 패스 96개, "
+     "애니메이션 파라미터 16개에 키프레임 209개. 교차 디졸브 90회",
+     "gunzip 후 태그 빈도 집계"),
+    (11, "임의의 .prproj", "펜툴/도형 패스 인코딩",
+     "'경로' 파라미터의 base64 = [int32 버전][int32 정점수] + 정점당 float32 7개 + 꼬리 1바이트(닫힘 여부). "
+     "정점 7개 = [코너 플래그][들어오는 핸들 x,y][기준점 x,y][나가는 핸들 x,y]. "
+     "핸들이 기준점과 같으면 직선 코너, 다르면 곡선. 메인프리셋 17/17개가 이 구조로 해석됨",
+     "base64 디코드 후 struct.unpack('<7f')"),
+    (12, "임의의 .prproj", "텍스트 레이어 인코딩",
+     "'소스 텍스트' 파라미터의 base64 안에 [int32 길이][UTF-8] 형태로 폰트명과 문구가 그대로 들어 있다. "
+     "프리셋에서 확인된 폰트: GmarketSansBold / GmarketSansTTFBold / GmarketSansTTFMedium / "
+     "GyeonggiBatangB / NanumGothicOTF / S-CoreDream-5Medium / 6Bold / 7ExtraBold",
+     "base64 디코드 후 길이 접두 문자열 스캔"),
+    (13, "메인프리셋", "프리셋이 자기 자신을 설명한다",
+     "프리셋 안에 색상 범례 슬라이드가 있다. 'ED7F89'·'EF2767' 같은 색상값 옆에 "
+     "'메인 타이틀 위주' / '서브 타이틀 위주' / '전체 배경 또는 일반 본문 텍스트' / "
+     "'부가 설명 자막, 배경 박스 테두리, 차트 UI 요소' 라는 용도 설명이 붙어 있다",
+     "'소스 텍스트' 문자열 추출"),
+    (14, "임의의 .prproj", "키프레임 인코딩",
+     "<Keyframes> 는 평문이다. '틱,값,보간타입,0,0,베지어X,베지어Y,베지어Z;' 가 세미콜론으로 이어진다. "
+     "1초 = 254,016,000,000틱. 보간타입 0=선형, 5=이즈",
+     "정규식으로 <Keyframes> 추출 후 254016000000 으로 나눔"),
     (1, "brand/premiere/차트명가_메인프리셋(24버전).prproj", "파일 형식",
      "gzip 압축된 UTF-8 XML. 288KB → 압축 해제 3,696,594 바이트. 루트는 <PremiereData Version=\"3\">",
      "file 로 gzip 확인 후 gunzip -c"),
@@ -801,6 +889,26 @@ PRPROJ_FACTS = [
      "차 명가 bgm.wav, hyoushigi1.mp3, Nintendo Switch Snap Sound Effect",
      "미디어 경로에서 파일명만 추출"),
 ]
+
+
+# 최종본(.prproj)에서 디코드한 회사 고유 모션. 프리미어 없이 XML 을 읽어서 뽑았다.
+MOTION_PRESETS = [
+    (1, "밑줄/강조바 그리기", "높이 비율 조정", "1%", "100%", 4.0, 0.133, "선형 → 이즈",
+     "차명11 최종본", "도형이 위에서 아래로 펼쳐지며 나타난다. 프리셋에도 같은 값이 있어 표준으로 보인다"),
+    (2, "아래에서 올라오기", "위치", "0.5 : 1.1148", "0.5 : 0.5", 7.0, 0.234, "선형 → 이즈",
+     "차명11 최종본", "화면 아래(높이의 111%)에서 중앙으로. 자막 박스 등장에 쓰인다"),
+    (3, "왼쪽에서 튀어 들어오기", "위치", "-0.2562 : 0.5", "0.5 : 0.5", 15.0, 0.500,
+     "이즈 4단 (오버슈트)", "차명11 최종본",
+     "-0.256 → 0.544 → 0.4766 → 0.5. 중앙을 지나쳤다가 되돌아오는 바운스. 키프레임 4개 전부 이즈"),
+]
+
+
+def load_scripts():
+    """log/data/scripts.json — 작업물 폴더에서 긁어온 회차별 대본 인덱스."""
+    f = ROOT / "log" / "data" / "scripts.json"
+    if not f.exists():
+        return None
+    return json.loads(f.read_text(encoding="utf-8"))
 
 
 def git_commits():
@@ -905,6 +1013,26 @@ def build():
         " VALUES (?,?,?,?,?,?,?)", EXTERNAL_TOOLS)
     con.executemany(
         "INSERT INTO prproj_fact (id,file,topic,finding,method) VALUES (?,?,?,?,?)", PRPROJ_FACTS)
+    con.executemany(
+        "INSERT INTO motion_preset (id,name,param,from_value,to_value,frames_2997,seconds,easing,source,note)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?)", MOTION_PRESETS)
+
+    sc = load_scripts()
+    if sc:
+        for d in sc["docs"]:
+            con.execute(
+                "INSERT INTO script_doc (ep_no,ep,file,drive_id,chars,headline,keywords,status)"
+                " VALUES (?,?,?,?,?,?,?,?)",
+                (d["ep_no"], d["ep"], d["file"], d["drive_id"], d["chars"],
+                 d["headline"], ", ".join(d["keywords"]), d["status"]))
+            con.execute("INSERT INTO script_fts (ep,file,body) VALUES (?,?,?)",
+                        (d["ep"], d["file"], d["text"]))
+            for kw, n in d["counts"].items():
+                con.execute(
+                    "INSERT OR REPLACE INTO script_keyword (keyword,ep,hits) VALUES (?,?,?)", (kw, d["ep"], n))
+        for r in sc["prproj"]:
+            con.execute("INSERT INTO episode_prproj (ep,name,drive_id,kind) VALUES (?,?,?,?)",
+                        (r["ep"], r["name"], r["drive_id"], r["kind"]))
     con.executemany(
         "INSERT INTO commit_log (seq,sha,authored,subject,files_changed,insertions,deletions)"
         " VALUES (?,?,?,?,?,?,?)", git_commits())

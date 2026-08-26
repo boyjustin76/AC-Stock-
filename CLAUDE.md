@@ -24,6 +24,14 @@ SELECT * FROM workflow_step;   -- 대본 받고 납품까지의 순서
 SELECT * FROM benchmark;       -- 렌더에 걸리는 시간 (실측)
 SELECT * FROM external_tool;   -- 외부 도구 도입/보류 근거
 SELECT * FROM prproj_fact;     -- .prproj 를 프리미어 없이 읽는 법
+SELECT * FROM script_doc;      -- 지난 회차 대본 15편 인덱스
+SELECT * FROM episode_prproj;  -- 회차별 프리미어 파일 (레퍼런스 확인용)
+SELECT * FROM motion_preset;   -- 회사 고유 모션 (프레임·이징)
+
+-- 새 대본이 오면 겹치는 회차부터 찾는다
+SELECT ep, snippet(script_fts, 2, '[', ']', '…', 12)
+  FROM script_fts WHERE script_fts MATCH '눌림목 OR 20일선';
+SELECT ep, hits FROM script_keyword WHERE keyword = '손익비' ORDER BY hits DESC;
 ```
 
 ## 기억할 것
@@ -38,6 +46,9 @@ SELECT * FROM prproj_fact;     -- .prproj 를 프리미어 없이 읽는 법
   애셋 경로를 전부 읽을 수 있다. 레퍼런스 확인은 영상 프레임을 찍지 말고 이걸로 한다.
 - **렌더는 컷별로 쪼개 동시에 돌린다.** 결과물이 순차 렌더와 md5 까지 같다. 4코어에서 93초 → 45초.
 - 프리미어 MCP 는 어시스턴트·서버·커넥터·프리미어가 같은 PC 에 있어야 해서 이 컨테이너에선 못 쓴다.
+- **대본은 이미 저장소 안에 있다** (`log/data/scripts.json`, 16편). 드라이브에 다시 붙지 않는다.
+  새 회차가 생겼을 때만 갱신한다.
+- **모션은 짐작하지 않는다.** 회차 `.prproj` 를 받아 `<Keyframes>` 를 읽으면 프레임 수와 이징이 나온다.
 
 ## 작업 브랜치
 

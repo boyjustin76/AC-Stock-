@@ -17,6 +17,8 @@
 6. **원본 자료 위치** — drive_map 테이블
 7. **대본 받고 납품까지 순서** — workflow_step 테이블
 8. **렌더에 걸리는 시간** — benchmark 테이블
+9. **지난 회차 대본 찾기** — script_fts MATCH '키워드' 또는 script_keyword
+10. **회사 모션 문법** — motion_preset 테이블
 
 ### 환경 다시 깔기
 
@@ -32,6 +34,18 @@
 | SQLite | 3.45 | `파이썬 내장 sqlite3` | 설치 불필요 | 로그 DB |
 
 ### 명령어
+
+**0. 대본 키워드 검색** — 새 대본의 소재와 겹치는 지난 회차를 찾는다
+```
+python3 -c "import sqlite3;c=sqlite3.connect('log/worklog.db');print(*c.execute(\"SELECT ep,snippet(script_fts,2,'[',']','…',12) FROM script_fts WHERE script_fts MATCH '눌림목 OR 20일선' LIMIT 10\"),sep=chr(10))"
+```
+가중치를 보려면 script_keyword 테이블에서 keyword 로 조회한다
+
+**0. 레퍼런스 회차의 .prproj 받기** — 확인 대상 프로젝트 파일을 내려받는다
+```
+python3 -c "import sqlite3;c=sqlite3.connect('log/worklog.db');print(*c.execute(\"SELECT ep,name,drive_id FROM episode_prproj WHERE kind='최종'\"),sep=chr(10))" # 그 다음 curl -sL 'https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t' -o ep.prproj
+```
+gunzip -c ep.prproj > ep.xml 로 열면 된다
 
 **0. 레퍼런스 .prproj 확인** — 프리미어 없이 편집 구성을 읽는다
 ```
@@ -250,6 +264,8 @@ DB 가 원본이다
 5. **로고 워터마크** — 지금은 렌더에 넣지 않음(프리미어 프리셋과 중복). 필요하면 image 레이어로 brand/logo 사용
 6. **컷별 병렬 렌더 스크립트** — 지금은 셸에서 손으로 백그라운드를 띄운다. npm run render:par 로 코어 수만큼 자동 샤딩하게 만들면 매번 절반 시간에 끝난다  _(대기: 사용자 승인)_
 7. **알파(.mov) 렌더 시간 미측정** — mp4 는 956프레임에 순차 93초/병렬 45초로 쟀는데 무손실 알파(qtrle)는 파일이 커서 I/O 가 더 붙는다. 필요해지면 따로 측정한다
+8. **차명14·15 대본 미작성** — 두 회차 문서가 927자짜리 빈 템플릿이고 본문이 서로 완전히 동일하다. 레퍼런스로 쓸 수 없으니 대본이 채워지면 log/data/scripts.json 을 다시 만든다  _(대기: 사용자)_
+9. **모션 문법 표본 부족** — motion_preset 3종은 차명11 최종본 하나에서만 뽑았다. 다른 회차 .prproj 도 같은 방식으로 훑으면 회사 표준 이징·지속시간이 더 정확해진다
 
 ## 대본과 컷 싱크
 
@@ -476,3 +492,4 @@ DB 가 원본이다
 | 9 | `e49d17d8` | 익절/손절 라벨을 기본 프리셋 실측값으로 복구, layers.js 중복 정의 제거 | 3파일 +28/-16 |
 | 10 | `a67d11f9` | 작업 로그를 SQLite 한 파일로 정리하고 읽는 형태 두 가지를 뽑음 | 6파일 +1427/-0 |
 | 11 | `00eaa635` | 로그에 복구용 정보 추가 — 환경·명령어·파일 지도·드라이브 ID·레이어 카탈로그 | 6파일 +937/-13 |
+| 12 | `dbc37cab` | 로그 DB에 작업 방식·렌더 실측·prproj 파싱 결과 기록 | 6파일 +332/-7 |
