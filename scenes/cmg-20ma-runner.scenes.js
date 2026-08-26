@@ -118,6 +118,8 @@ export default {
           width: 12,
           drawDur: 0.65,
           in: [1.75, 0.2],
+          // 컷2 로 넘어갈 때 뚝 끊기지 않게 컷 안에서 먼저 지워 준다
+          out: [3.45, 0.5],
         },
         buyArrowIntro,
       ],
