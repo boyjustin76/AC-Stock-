@@ -35,7 +35,15 @@ export function span(t, from, to, ease = Ease.outCubic) {
 export function cue(t, c = {}, opts = {}) {
   const inEase = opts.inEase ?? Ease.outCubic;
   const outEase = opts.outEase ?? Ease.inOutQuad;
-  const [is, id] = c.in ?? [0, 0.0001];
+  // in 을 생략하면 "처음부터 이미 떠 있는 것"으로 본다.
+  // 컷을 나눠 렌더할 때 이어지는 요소가 컷 경계에서 한 프레임 사라지는 걸 막는다.
+  if (!c.in) {
+    if (!c.out) return { v: 1, phase: 'hold' };
+    const [os0, od0] = c.out;
+    const exit0 = 1 - span(t, os0, os0 + od0, outEase);
+    return { v: exit0, phase: t >= os0 + od0 ? 'after' : t >= os0 ? 'out' : 'hold' };
+  }
+  const [is, id] = c.in;
   const enter = span(t, is, is + id, inEase);
   if (!c.out) return { v: enter, phase: enter >= 1 ? 'hold' : t < is ? 'before' : 'in' };
   const [os, od] = c.out;

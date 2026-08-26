@@ -40,16 +40,24 @@ const chartBase = {
   ma: [{ type: 'ema', period: 20, width: 5 }], // 색은 테마의 주황(#F38808)
 };
 
-/** 진입 화살표는 ②~④ 컷에서 계속 떠 있는다 */
-const buyArrow = {
+const buyArrowBase = {
   type: 'cmgArrow',
   bar: 42,
   price: LV.entry,
   dir: 'buy',
   label: '매수',
   size: 54,
-  in: [0, 0.01],
 };
+/** ① 컷에서 처음 등장할 때만 튀어나오는 연출을 준다 */
+const buyArrowIntro = { ...buyArrowBase, in: [2.9, 0.35] };
+/**
+ * ②~④ 컷에서는 이미 떠 있는 상태로 시작한다.
+ * in 을 주지 않고 popDur 을 0 으로 둬야 컷이 바뀔 때마다 다시 튀어나오지 않는다.
+ */
+const buyArrowHeld = { ...buyArrowBase, popDur: 0 };
+
+/** 평가손익 영역도 ②~③ 컷에 걸쳐 이어진다 */
+const profitZoneBase = { type: 'cmgProfit', entry: LV.entry, fromBar: 42 };
 
 export default {
   title: '차트명가 — 20일선 눌림목 / 조기 익절 4컷',
@@ -110,7 +118,7 @@ export default {
           drawDur: 0.65,
           in: [1.75, 0.2],
         },
-        { ...buyArrow, in: [2.9, 0.35] },
+        buyArrowIntro,
       ],
     },
 
@@ -127,8 +135,8 @@ export default {
         ],
       },
       layers: [
-        { type: 'cmgProfit', entry: LV.entry, fromBar: 42, in: [0, 0.2] },
-        buyArrow,
+        { ...profitZoneBase, in: [0, 0.2] },
+        buyArrowHeld,
       ],
     },
 
@@ -155,16 +163,14 @@ export default {
       },
       layers: [
         {
-          type: 'cmgProfit',
-          entry: LV.entry,
-          fromBar: 42,
+          // ② 컷에서 이어진다 — in 을 주지 않아 컷 경계에서 끊기지 않는다
+          ...profitZoneBase,
           pulse: true,
           pulseFrom: 0.25,
           pulseSpeed: 8.2,
           pulseAmount: 0.5,
-          in: [0, 0.01],
         },
-        buyArrow,
+        buyArrowHeld,
       ],
     },
 
@@ -223,7 +229,7 @@ export default {
           in: [0.05, 0.2],
           growDur: 0.4,
         },
-        buyArrow,
+        buyArrowHeld,
         {
           type: 'cmgBadge',
           text: '손익비  1 : 2',
