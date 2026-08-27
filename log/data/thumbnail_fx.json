@@ -1,0 +1,2424 @@
+[
+ {
+  "path": "/10~/#1 쿠라마기/타이틀/이동평균선 매매법",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5f9ae9",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5f9bcf",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5f9bd9",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5fbc23",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5fbc2d",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5fbc4b",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5fbc50",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5fbc55",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5fbc6e",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5fbc7d",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5fbcaa"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#1 쿠라마기/타이틀/3년만에 100배 수익",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5fbfc5",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5df491",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5df49b",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5df4dc",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5df4e1",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5df4ff",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5df504",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5df509",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5df522",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5df531",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5df563"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#2 마하세븐/타이틀/프랙탈 스캘핑",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e4986",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e4a4e",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e4a58",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e4a99",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e4a9e",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e4abc",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e4ac1",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e4ac6",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e4adf",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e4aee",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e4b1b"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#2 마하세븐/타이틀/단타의 핵심은 회복이다",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e5dc2",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e5e8a",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e5e94",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e5ed5",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e5eda",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e5ef8",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e5efd",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e5f02",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e5f1b",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e5f2a",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5e5f57"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#3 캐시리엔/타이틀/더블 볼린저밴드",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ec302",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ec3ca",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ec3d4",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ce419",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ce41e",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ce43c",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ce441",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ce446",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ce45f",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ce46e",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ce49b"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#3 캐시리엔/타이틀/볼밴의 한계를 극복하다",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ce73e",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d1c0a",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d1c14",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d1c55",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d1c5a",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d1c78",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d1c7d",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d1c82",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d1c9b",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d1caa",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d1cd7"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#4 TF시그널/타이틀/ZONE 매매법",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d6ceb",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d6db3",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d6dbd",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d6dfe",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d6e03",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d6e21",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d6e26",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d6e2b",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d6e44",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d6e53",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d6e80"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#4 TF시그널/타이틀/진입타점부터 목표가까지",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d9527",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d95ef",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d95f9",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d963a",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d963f",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d965d",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d9662",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d9667",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d9680",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d968f",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5d96bc"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#5 탐드마크/v2/매수 버튼(좌우)",
+  "kind": "pixel",
+  "effects": [
+   {
+    "type": "OuterGlow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5bf1d6",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 18.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5bf1e5",
+     "Ckmt": 72.0,
+     "blur": 10.0,
+     "Nose": 22.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#5 탐드마크/v2/그룹 3/익절",
+  "kind": "pixel",
+  "effects": [
+   {
+    "type": "ColorOverlay",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c1554",
+     "Clr": {
+      "Rd": 0.0038910505827516317,
+      "Grn": 255.0,
+      "Bl": 35.996110662817955
+     },
+     "Opct": 100.0
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#5 탐드마크/타이틀/하이킨아시 매매법",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c332f",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c33f7",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c5805",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c5846",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c584b",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c5869",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c586e",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c5873",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c588c",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c589b",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c58c8"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#5 탐드마크/타이틀/5분봉 단타 매매 끝판왕",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c5b70",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c8c3c",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c8c46",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c8c87",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c8c8c",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c8caa",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c8caf",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c8cb4",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c8ccd",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c8cdc",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5c8d09"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#6 지지와 저항/v2/매수 버튼(좌우)",
+  "kind": "pixel",
+  "effects": [
+   {
+    "type": "OuterGlow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5cbb43",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 18.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5cbb52",
+     "Ckmt": 72.0,
+     "blur": 10.0,
+     "Nose": 22.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#6 지지와 저항/v1/매수 버튼(좌우)",
+  "kind": "pixel",
+  "effects": [
+   {
+    "type": "OuterGlow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5af1ea",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 18.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5af1f9",
+     "Ckmt": 72.0,
+     "blur": 10.0,
+     "Nose": 22.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#6 지지와 저항/타이틀/볼린저+캔들 매매법",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b1545",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b160d",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b1617",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b1658",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b165d",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b167b",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b1680",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b1685",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b169e",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b16ad",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b16da"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#6 지지와 저항/타이틀/깨지지 않은 지지선? ",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b2981",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b2a49",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b2a53",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b2a94",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b2a99",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b2ab7",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b2abc",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b2ac1",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b2ada",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b2ae9",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b2b16"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#7 린다 라쉬케/v2/매수 버튼(좌우)",
+  "kind": "pixel",
+  "effects": [
+   {
+    "type": "OuterGlow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b9612",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 18.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5b9621",
+     "Ckmt": 72.0,
+     "blur": 10.0,
+     "Nose": 22.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#7 린다 라쉬케/v2/그룹 3/익절",
+  "kind": "pixel",
+  "effects": [
+   {
+    "type": "ColorOverlay",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5bb190",
+     "Clr": {
+      "Rd": 0.0038910505827516317,
+      "Grn": 255.0,
+      "Bl": 35.996110662817955
+     },
+     "Opct": 100.0
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#7 린다 라쉬케/타이틀/MACD 매매법",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5bcbca",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59f896",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59f8a0",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59f8e1",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59f8e6",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59f904",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59f909",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59f90e",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59f927",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59f936",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59f963"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#7 린다 라쉬케/타이틀/가짜 반등 잡아내는",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a2c0a",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a2cd2",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a2cdc",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a2d1d",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a2d22",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a2d40",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a2d45",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a2d4a",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a2d63",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a2d72",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a2d9f"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#7 린다 라쉬케/타이틀/매일 100만원 수익내는",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a6450",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a6518",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a6522",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a6563",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a6568",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a6586",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a658b",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a6590",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a65a9",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a65b8",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5a65e5"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#8 스토캐스틱/타이틀",
+  "kind": "group",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59152c",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 15.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 13.0,
+     "Ckmt": 0.0,
+     "blur": 40.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "OuterGlow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5915a9",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 10.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5915b8",
+     "Ckmt": 2.0,
+     "blur": 32.0,
+     "Nose": 0.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#8 스토캐스틱/타이틀/스텝 스토캐스틱",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ab864",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ab92c",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ab936",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ab977",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ab97c",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ab99a",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ab99f",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ab9a4",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ab9bd",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ab9cc",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5ab9f9"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#8 스토캐스틱/타이틀/가짜신호는 이제 그만",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58e8be",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58e986",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58e990",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58e9d1",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58e9d6",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58e9f4",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58e9f9",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58e9fe",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58ea17",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58ea26",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58ea53"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#8 스토캐스틱/#8-a(기존)/타이틀/스토캐스틱 매매법",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b595023",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5950eb",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5950f5",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b595136",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59513b",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b595159",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59515e",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b595163",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59517c",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59518b",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5951b8"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#8 스토캐스틱/#8-a(기존)/타이틀/RSI보다 한 박자 빠른 ",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59885f",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b598927",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b598931",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b598972",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b598977",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b598995",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59899a",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b59899f",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5989b8",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5989c7",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5989f4"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#9 RSI 위에 볼린저밴드/v2/그룹 6/화살표_글씨_4",
+  "kind": "pixel",
+  "effects": [
+   {
+    "type": "ColorOverlay",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b582478",
+     "Clr": {
+      "Rd": 73.00000324845314,
+      "Grn": 73.00000324845314,
+      "Bl": 73.00000324845314
+     },
+     "Opct": 100.0
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#9 RSI 위에 볼린저밴드/v2/그룹 6/화살표_글씨_4 복사",
+  "kind": "pixel",
+  "effects": [
+   {
+    "type": "ColorOverlay",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b582793",
+     "Clr": {
+      "Rd": 0.0038910505827516317,
+      "Grn": 156.01167887449265,
+      "Bl": 255.0
+     },
+     "Opct": 100.0
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#9 RSI 위에 볼린저밴드/타이틀/RSI안에 볼린저밴드!!",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b584311",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5843d9",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5843e3",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b585428",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58542d",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58544b",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b585450",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b585455",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58546e",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58547d",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5854aa"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#9 RSI 위에 볼린저밴드/타이틀/단일지표의 한계를 극복",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b585761",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58942d",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b589437",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b589478",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58947d",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b58949b",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5894a0",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5894a5",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5894be",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5894cd",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b5894fa"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#10 양방향 매매법/#10-a/타이틀/양방향 매매법",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b57cead",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b57cf75",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b57cf7f",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b57cfc0",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b57cfc5",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b57cfe3",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b57cfe8",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b57cfed",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b55e80a",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b55e819",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b55e846"
+    }
+   }
+  ]
+ },
+ {
+  "path": "/10~/#10 양방향 매매법/#10-a/타이틀/변동성 하나로 수익내는",
+  "kind": "type",
+  "effects": [
+   {
+    "type": "DropShadow",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b55eae9",
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "Opct": 76.0,
+     "uglg": true,
+     "lagl": 90.0,
+     "Dstn": 10.0,
+     "Ckmt": 11.0,
+     "blur": 18.0,
+     "Nose": 0.0,
+     "AntA": false,
+     "layerConceals": true
+    }
+   },
+   {
+    "type": "GradientOverlay",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b55ebb1",
+     "Opct": 100.0,
+     "Grad": {
+      "Nm": "Custom\u0000",
+      "GrdF": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b55ebbb",
+      "Intr": 4096.0,
+      "Clrs": "[{b'Clr ': {b'Rd  ': 255.0, b'Grn ': 250.96498131752014, b'B",
+      "Trns": "[{b'Opct': 100.0, b'Lctn': 0, b'Mdpn': 50}, {b'Opct': 100.0,"
+     },
+     "Angl": -90.0,
+     "Type": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b55ebfc",
+     "Rvrs": false,
+     "Dthr": false,
+     "gs99": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b562005",
+     "Algn": true,
+     "Scl": 100.0,
+     "Ofst": {
+      "Hrzn": 0.0,
+      "Vrtc": 0.0
+     }
+    }
+   },
+   {
+    "type": "Stroke",
+    "enabled": true,
+    "values": {
+     "enab": true,
+     "Styl": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b562023",
+     "PntT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b562028",
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b56202d",
+     "Opct": 100.0,
+     "Sz": 6.0,
+     "Clr": {
+      "Rd": 0.0,
+      "Grn": 0.0,
+      "Bl": 0.0
+     },
+     "overprint": false
+    }
+   },
+   {
+    "type": "InnerGlow",
+    "enabled": false,
+    "values": {
+     "enab": false,
+     "Md": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b562046",
+     "Clr": {
+      "Rd": 255.0,
+      "Grn": 255.0,
+      "Bl": 255.0
+     },
+     "Opct": 24.0,
+     "GlwT": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b562055",
+     "Ckmt": 18.0,
+     "blur": 13.0,
+     "Nose": 13.0,
+     "ShdN": 0.0,
+     "AntA": false,
+     "Inpr": 50.0,
+     "glwS": "<psd_tools.psd.descriptor.Enumerated object at 0x7fe6b562082"
+    }
+   }
+  ]
+ }
+]

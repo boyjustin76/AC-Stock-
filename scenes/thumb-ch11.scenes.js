@@ -65,7 +65,7 @@ export default {
           size: 62, gap: 26, popDur: 0 },
         // 익절 태그는 브랜드 연두(#14FF36). 파랑(매도)이 아니라 익절 색을 쓴다.
         { type: 'cmgArrow', bar: 87, price: LV.exit, dir: 'sell', label: '익절',
-          size: 62, gap: 26, popDur: 0, color: '#14FF36', textStroke: 5 },
+          size: 62, gap: 26, popDur: 0, color: '#00FF24', textStroke: 5 },
       ],
     },
     {

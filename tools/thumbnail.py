@@ -71,30 +71,64 @@ def _text_width(draw, text: str, font, tracking: float) -> int:
     return round(w + gap * (len(text) - 1))
 
 
-def draw_title(text: str, size: int, fill: str, stroke: int = 13,
-               shadow: int = 7) -> Image.Image:
-    """자간과 검정 외곽선을 넣어 한 줄을 그린다. 여백은 알파로 둔다."""
+# ── 타이틀 레이어 효과 ─────────────────────────────────────────────
+# 템플릿 텍스트 레이어의 fx 를 그대로 읽은 값. 켜져 있는 것은 두 개뿐이다.
+#   ● 획(Stroke)       크기 6px · 검정 · 100% · 바깥쪽
+#   ● 그림자(DropShadow) 검정 76% · 각도 90°(전역광) · 거리 10 · 스프레드 11 · 크기 18
+#   ○ 내부 광선 · ○ 그레이디언트 오버레이 — 꺼져 있다
+# 완성본 PNG 에서 노랑 글자 앞 검정 두께를 재 보니 정확히 6px 이었다.
+# 즉 레이어를 키워도 효과는 스케일되지 않는다.
+FX = {
+    "stroke": 6,
+    "shadow_opacity": 0.76,
+    "shadow_angle": 90,      # 전역광. 90° = 빛이 위, 그림자는 아래로
+    "shadow_distance": 10,
+    "shadow_spread": 0.11,
+    "shadow_size": 18,
+}
+
+
+def draw_title(text: str, size: int, fill: str) -> Image.Image:
+    """한 줄을 템플릿 효과 그대로 그린다 — 획 6px + 그림자."""
+    import math
+    from PIL import ImageFilter
+
     font = _load_font(size)
-    pad = stroke + shadow + 18
-    probe = Image.new("RGBA", (10, 10))
-    d0 = ImageDraw.Draw(probe)
-    w = _text_width(d0, text, font, TRACKING)
-    img = Image.new("RGBA", (w + pad * 2, round(size * 1.75) + pad * 2), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
+    st = FX["stroke"]
+    pad = st + FX["shadow_size"] + FX["shadow_distance"] + 12
+    probe = ImageDraw.Draw(Image.new("RGBA", (10, 10)))
+    w = _text_width(probe, text, font, TRACKING)
+    box = (w + pad * 2, round(size * 1.75) + pad * 2)
     gap = round(size * TRACKING)
 
-    def run(dx, dy, colour, sw):
-        x = pad + dx
+    def stamp(colour, sw):
+        img = Image.new("RGBA", box, (0, 0, 0, 0))
+        d = ImageDraw.Draw(img)
+        x = pad
         for ch in text:
-            d.text((x, pad + dy), ch, font=font, fill=colour,
+            d.text((x, pad), ch, font=font, fill=colour,
                    stroke_width=sw, stroke_fill=colour if sw else None)
             x += d.textlength(ch, font=font) + gap
+        return img
 
-    if shadow:
-        run(shadow, shadow, (0, 0, 0, 110), stroke)     # 그림자
-    run(0, 0, (0, 0, 0, 255), stroke)                   # 검정 외곽선
-    run(0, 0, fill, 0)                                  # 글자
-    return img.crop(img.getbbox())
+    body = stamp((0, 0, 0, 255), st)          # 획까지 포함한 실루엣
+
+    # 그림자 — 실루엣을 각도만큼 옮기고 흐린 뒤 스프레드로 진하게
+    rad = math.radians(FX["shadow_angle"])
+    dx = round(-FX["shadow_distance"] * math.cos(rad))
+    dy = round(FX["shadow_distance"] * math.sin(rad))
+    sh = Image.new("RGBA", box, (0, 0, 0, 0))
+    sh.paste(body, (dx, dy), body)
+    a = sh.split()[3].filter(ImageFilter.GaussianBlur(FX["shadow_size"] / 2))
+    if FX["shadow_spread"]:
+        a = a.point(lambda v: min(255, round(v / (1 - FX["shadow_spread"]))))
+    a = a.point(lambda v: round(v * FX["shadow_opacity"]))
+    shadow = Image.new("RGBA", box, (0, 0, 0, 0))
+    shadow.putalpha(a)
+
+    out = Image.alpha_composite(shadow, body)
+    out.alpha_composite(stamp(fill, 0))       # 글자 색
+    return out.crop(out.getbbox())
 
 
 def paper_background(asset_dir: Path) -> Image.Image:
