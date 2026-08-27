@@ -13,7 +13,10 @@ log/worklog.db 의 shortform_rule 테이블에 회차별로 남아 있다.
         그 회차 롱폼이 어떤 챕터로 나뉘어 있는지 본다.
 
     python3 tools/shortform.py check draft.txt
-        써 놓은 초안이 규칙에 맞는지 검사한다.  분량·훅·CTA·질문 마감.
+        써 놓은 초안이 규칙에 맞는지 검사한다.  분량·훅·CTA·질문 마감·파일 이름.
+
+    python3 tools/shortform.py name 11 --no 4 --title "20일선 추세추종 매매법"
+        회사 규칙대로 폴더·파일 이름을 만든다.  작업중이면 앞에 (중간) 이 붙는다.
 
 쓰지 않는 것: 일정표에서 '숏폼(포)' 로 표시된 편.  그건 롱폼 추출이 아니라
 외부 레퍼런스를 보고 따로 기획한 것이라 규칙이 다르다.
@@ -75,6 +78,63 @@ SKELETON = """[제목]
 저를 팔로우하고
 아래 영상을 주목해주세요
 """
+
+
+# ── 이름 짓기 ──────────────────────────────────────────────────────
+# 폴더  YYMMDD_[SL_차XX_#X]숏폼제목
+# 파일  [SL]숏폼제목[롱폼제목#X].txt
+# 아직 작업 중이면 둘 다 맨 앞에 (중간) 을 붙인다.
+#
+# 폴더 규칙은 나간 25편이 25/25 로 지켰다.  파일 규칙은 5/25 인데, 지킨 것이
+# 차09·차11 로 최근 편들이라 이쪽이 새로 정해진 표준이다.
+WIP = "(중간)"
+FOLDER_RE = re.compile(r"^(?:\(중간\))?(\d{6})_\[SL_차(\d{2})_#(\d)\](.+)$")
+FILE_RE = re.compile(r"^(?:\(중간\))?\[SL\](.+?)\[(.+?)#(\d)\]\.txt$")
+
+
+def long_title(ep: int) -> str:
+    """롱폼 제목. '차명11_20일선의 비밀' → '20일선의 비밀'."""
+    for d in LONG["docs"]:
+        if d["ep_no"] == ep:
+            return d["ep"].split("_", 1)[-1]
+    return f"차{ep:02d}"
+
+
+def folder_name(ep: int, no: int, title: str, date: str, wip: bool = True) -> str:
+    return f"{WIP if wip else ''}{date}_[SL_차{ep:02d}_#{no}]{title}"
+
+
+def file_name(ep: int, no: int, title: str, wip: bool = True) -> str:
+    return f"{WIP if wip else ''}[SL]{title}[{long_title(ep)}#{no}].txt"
+
+
+def cmd_name(a):
+    date = a.date or _today()
+    wip = not a.final
+    fo = folder_name(a.ep, a.no, a.title, date, wip)
+    fi = file_name(a.ep, a.no, a.title, wip)
+    print(f"\n  폴더  {fo}")
+    print(f"  파일  {fi}")
+    print(f"\n  scripts/shortform/{fo}/{fi}\n")
+    if wip:
+        print("  아직 작업 중이라 (중간) 이 붙었습니다. 확정되면 --final 로 다시 뽑으세요.")
+    print(f"  날짜는 {'지정한 값' if a.date else '오늘'}입니다."
+          " 나간 25편의 폴더 날짜는 방영일이니, 확정할 때 방영일로 바꾸세요.\n")
+
+
+def _today() -> str:
+    from datetime import datetime, timedelta, timezone
+    return datetime.now(timezone(timedelta(hours=9))).strftime("%y%m%d")
+
+
+def check_name(path: Path) -> list[str]:
+    """파일·폴더 이름이 규칙에 맞는지. 어긋난 것만 돌려준다."""
+    bad = []
+    if not FILE_RE.match(path.name):
+        bad.append(f"파일 이름 — [SL]숏폼제목[롱폼제목#N].txt 형태여야 합니다 (지금: {path.name})")
+    if not FOLDER_RE.match(path.parent.name):
+        bad.append(f"폴더 이름 — YYMMDD_[SL_차XX_#X]숏폼제목 형태여야 합니다 (지금: {path.parent.name})")
+    return bad
 
 
 # ── 롱폼 읽기 ──────────────────────────────────────────────────────
@@ -276,6 +336,10 @@ def cmd_check(a):
         missing.append("'포인트/포' 표기 — 편집에서 붙는 것이라 대본에 쓰지 않는다")
         print("    ·  필수   '포인트/포' 표기를 쓰지 않는다")
 
+    name_bad = check_name(Path(a.file))
+    print(f"    {'·' if name_bad else '○'}  필수   폴더·파일 이름이 회사 규칙에 맞는다   (폴더 25/25편)")
+    missing += name_bad
+
     print()
     if missing:
         print("  손볼 곳:")
@@ -306,6 +370,14 @@ def main():
     k = sub.add_parser("check", help="초안이 규칙에 맞는지 검사")
     k.add_argument("file")
     k.set_defaults(fn=cmd_check)
+
+    m = sub.add_parser("name", help="회사 규칙대로 폴더·파일 이름을 만든다")
+    m.add_argument("ep", type=int)
+    m.add_argument("--no", type=int, required=True)
+    m.add_argument("--title", required=True, help="숏폼 제목")
+    m.add_argument("--date", help="YYMMDD. 없으면 오늘(KST)")
+    m.add_argument("--final", action="store_true", help="확정본 — (중간) 을 붙이지 않는다")
+    m.set_defaults(fn=cmd_name)
 
     a = ap.parse_args()
     a.fn(a)

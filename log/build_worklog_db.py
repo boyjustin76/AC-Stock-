@@ -420,6 +420,16 @@ CREATE TABLE shortform_map (
   ep            INTEGER
 );
 
+-- 폴더·파일 이름 규칙 (회사 매뉴얼)
+CREATE TABLE naming_rule (
+  id            INTEGER PRIMARY KEY,
+  scope         TEXT NOT NULL,
+  pattern       TEXT NOT NULL,
+  example       TEXT NOT NULL,
+  conformance   TEXT,
+  note          TEXT
+);
+
 -- 세이브 슬롯 (git 태그 = 되돌릴 수 있는 시점)
 CREATE TABLE checkpoint (
   id            INTEGER PRIMARY KEY,
@@ -455,6 +465,7 @@ UNION ALL SELECT 9, '지난 회차 대본 찾기', "script_fts MATCH '키워드'
 UNION ALL SELECT 10, '회사 모션 문법', 'motion_preset 테이블'
 UNION ALL SELECT 11, '되돌릴 수 있는 시점', "checkpoint 테이블 / python3 log/save.py --list"
 UNION ALL SELECT 12, '숏폼 대본 만드는 법', 'shortform_rule / shortform_part / tools/shortform.py'
+UNION ALL SELECT 13, '파일·폴더 이름 규칙', 'naming_rule 테이블'
 ORDER BY ord;
 
 -- 컷과 대본 싱크 한눈에
@@ -757,6 +768,9 @@ RUNBOOK = [
     (0, "숏폼 — 작성 지시서", "챕터 하나로 숏폼을 쓰기 위한 지시서를 만든다",
      "python3 tools/shortform.py brief 11 --chapter '전략 1' --no 4",
      "챕터 원문 · 목표 분량 · 고정 문구 · 앞 편이 던진 질문까지 한 장에"),
+    (0, "숏폼 — 이름 짓기", "회사 규칙대로 폴더·파일 이름을 만든다",
+     "python3 tools/shortform.py name 11 --no 4 --title '20일선 추세추종 매매법'",
+     "작업 중이면 (중간) 이 붙는다. 확정본은 --final"),
     (0, "숏폼 — 초안 검사", "써 놓은 초안이 규칙에 맞는지 본다",
      "python3 tools/shortform.py check 'scripts/shortform/차11_#4_20일선 추세추종 매매법.txt'",
      "필수/권장/선택 등급으로 나온다. 권장·선택은 어겨도 된다"),
@@ -1164,9 +1178,37 @@ SHORTFORM_RULES = [
      "일정표 유형이 '숏폼(포)' 인 47건은 '추출 원본' 이 외부 유튜브 링크나 "
      "TF_ 레퍼런스다. 롱폼 추출이 아니라 따로 기획한 편이라 규칙이 다르다",
      None, None, "필수"),
+    (18, "이름", "폴더는 YYMMDD_[SL_차XX_#X]숏폼제목, 파일은 [SL]숏폼제목[롱폼제목#X].txt",
+     "폴더 규칙은 나간 25편이 25/25 로 지켰다. 파일 규칙은 5/25 인데 지킨 것이 "
+     "차09·차11 로 최근 편들이라 새 표준으로 본다. naming_rule 테이블 참고",
+     25, 25, "필수"),
+    (19, "이름", "작업 중에는 폴더·파일 맨 앞에 (중간) 을 붙인다",
+     "확정되면 뗀다. tools/shortform.py name --final",
+     None, None, "필수"),
     (17, "제외", "자막·타이틀·로고 문구는 대본에 쓰지 않는다",
      "숏폼 프리미어 기본 양식(숏츠 기본 양식.prproj)에 텍스트 레이어가 이미 들어 있다",
      None, None, "필수"),
+]
+
+NAMING_RULES = [
+    (1, "숏폼 폴더", "YYMMDD_[SL_차XX_#X]숏폼제목",
+     "260827_[SL_차11_#4]20일선 추세추종 매매법",
+     "나간 25편 중 25편",
+     "날짜는 방영일이다. 작업 중에는 오늘 날짜를 쓰고 확정할 때 방영일로 바꾼다"),
+    (2, "숏폼 파일", "[SL]숏폼제목[롱폼제목#X].txt",
+     "[SL]20일선 추세추종 매매법[20일선의 비밀#4].txt",
+     "나간 25편 중 5편",
+     "롱폼제목은 작업물 폴더 '차명11_20일선의 비밀' 에서 앞머리를 뗀 것. "
+     "지킨 5편이 차09·차11 로 최근 편들이라 이쪽이 새 표준이다"),
+    (3, "작업 중", "맨 앞에 (중간) 을 붙인다",
+     "(중간)260827_[SL_차11_#4]20일선 추세추종 매매법 / "
+     "(중간)[SL]20일선 추세추종 매매법[20일선의 비밀#4].txt",
+     None,
+     "폴더와 파일 둘 다 붙인다. 확정되면 뗀다 — tools/shortform.py name --final"),
+    (4, "만들기·검사", "tools/shortform.py 가 이름을 만들고 검사한다",
+     "python3 tools/shortform.py name 11 --no 4 --title '20일선 추세추종 매매법'",
+     None,
+     "check 명령도 파일·폴더 이름을 같이 본다"),
 ]
 
 SHORTFORM_PARTS = [
@@ -1333,6 +1375,9 @@ def build():
     con.executemany(
         "INSERT INTO shortform_part (id,seq,name,purpose,chars_min,chars_max,phrasing)"
         " VALUES (?,?,?,?,?,?,?)", SHORTFORM_PARTS)
+    con.executemany(
+        "INSERT INTO naming_rule (id,scope,pattern,example,conformance,note) VALUES (?,?,?,?,?,?)",
+        NAMING_RULES)
 
     sf = load_shortform()
     if sf:

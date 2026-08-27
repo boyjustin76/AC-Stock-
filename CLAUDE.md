@@ -49,6 +49,7 @@ SELECT * FROM shortform_rule;  -- 숏폼 대본 뽑는 규칙 17개 (근거 포�
 SELECT * FROM shortform_part;  -- 숏폼 뼈대와 목표 분량
 SELECT * FROM shortform_doc;   -- 나간 숏폼 25편
 SELECT * FROM shortform_map;   -- 일정표의 롱폼↔숏폼 대응 47건
+SELECT * FROM naming_rule;     -- 폴더·파일 이름 규칙
 
 -- 새 대본이 오면 겹치는 회차부터 찾는다
 SELECT ep, snippet(script_fts, 2, '[', ']', '…', 12)
@@ -89,6 +90,9 @@ git restore --source=<해시> -- .              # 실제로 되돌리기 (그 �
 - **숏폼 규칙은 경향이지 법이 아니다.** 기존 24편 중 5개 규칙을 다 지킨 건 2편뿐이다.
   `필수` 만 지키고 `권장`·`선택` 은 어겨도 된다. 다만 어겼으면 이유를 적어 둔다.
 - **`#N` 의 CTA 질문이 `#N+1` 의 주제다.** 숏폼은 사슬처럼 이어진다.
+- **이름은 매뉴얼대로 짓는다.** 폴더 `YYMMDD_[SL_차XX_#X]숏폼제목`,
+  파일 `[SL]숏폼제목[롱폼제목#X].txt`. **작업 중이면 둘 다 앞에 `(중간)`.**
+  손으로 짓지 말고 `python3 tools/shortform.py name <회차> --no N --title '제목'` 을 쓴다.
 
 ## 작업 브랜치
 

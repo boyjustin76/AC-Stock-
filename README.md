@@ -95,13 +95,27 @@ flowchart LR
 | 필수 | #N 의 CTA 질문이 곧 #N+1 의 주제다 | — |
 | 필수 | '포인트(포)' 편은 이 규칙이 아니다 | — |
 | 필수 | 자막·타이틀·로고 문구는 대본에 쓰지 않는다 | — |
+| 필수 | 폴더는 YYMMDD_[SL_차XX_#X]숏폼제목, 파일은 [SL]숏폼제목[롱폼제목#X].txt | 25/25편 |
+| 필수 | 작업 중에는 폴더·파일 맨 앞에 (중간) 을 붙인다 | — |
 
 등급은 기존 24편 중 몇 편이 지켰는지로 나눴습니다. 5개를 모두 지킨 편은 2편뿐이라 **경향에 가깝습니다 — 권장은 어겨도 됩니다.** 일정표에서 `숏폼(포)`로 표시된 편은 기획형이라 이 규칙 밖입니다.
+
+**폴더·파일 이름**도 매뉴얼이 있습니다. 작업 중에는 둘 다 앞에 `(중간)` 을 붙입니다.
+
+```
+숏폼 폴더    YYMMDD_[SL_차XX_#X]숏폼제목
+         예) 260827_[SL_차11_#4]20일선 추세추종 매매법
+숏폼 파일    [SL]숏폼제목[롱폼제목#X].txt
+         예) [SL]20일선 추세추종 매매법[20일선의 비밀#4].txt
+작업 중     맨 앞에 (중간) 을 붙인다
+         예) (중간)260827_[SL_차11_#4]20일선 추세추종 매매법 / (중간)[SL]20일선 추세추종 매매법[20일선의 비밀#4].txt
+```
 
 ```bash
 python3 tools/shortform.py chapters 11                      # 롱폼 챕터 보기
 python3 tools/shortform.py brief 11 --chapter '전략 1' --no 4  # 작성 지시서
-python3 tools/shortform.py check 초안.txt                    # 규칙 검사
+python3 tools/shortform.py name 11 --no 4 --title '제목'      # 이름 짓기
+python3 tools/shortform.py check 초안.txt                    # 규칙 + 이름 검사
 ```
 
 ---
@@ -229,6 +243,7 @@ git restore --source=<해시> -- .              # 되돌리기
 -- 10. 회사 모션 문법
 -- 11. 되돌릴 수 있는 시점
 -- 12. 숏폼 대본 만드는 법
+-- 13. 파일·폴더 이름 규칙
 SELECT * FROM v_start_here;   -- 이 순서대로
 SELECT * FROM v_scope;        -- 파이프라인 어디를 맡는가
 SELECT * FROM runbook;        -- 명령어

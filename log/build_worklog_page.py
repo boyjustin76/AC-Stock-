@@ -131,6 +131,14 @@ def build():
             "SELECT aired,ep,no,folder,chars,est_sec,long_window,ngram10 FROM shortform_doc"
             " WHERE rerun=0 ORDER BY ep,no"))
 
+    naming = "".join(
+        f"<tr><td class='nowrap'><b>{e(sc)}</b></td>"
+        f"<td class='mono'>{e(pat)}</td>"
+        f"<td class='mono sub'>{e(ex)}</td>"
+        f"<td class='nowrap sub'>{e(cf or '')}</td></tr>"
+        for sc, pat, ex, cf in q(
+            "SELECT scope,pattern,example,conformance FROM naming_rule ORDER BY id"))
+
     # ── 세이브 슬롯 ───────────────────────────────────────────
     slots = "".join(
         f"<tr><td class='mono nowrap'>{e(kst)}</td><td class='mono'>{e(tag)}</td>"
@@ -300,6 +308,7 @@ def build():
         "__DOCS__": docs, "__PRJ__": prj, "__MOTION__": motion, "__SLOTS__": slots,
         "__PIPELINE__": pipeline, "__FORMATS__": formats,
         "__SFRULES__": sfrules, "__SFPARTS__": sfparts, "__SFDOCS__": sfdocs,
+        "__NAMING__": naming,
         "__NSCENE__": str(counts.get("scene", 0)), "__NISSUE__": str(counts.get("issue", 0)),
         "__NTOKEN__": str(counts.get("brand_token", 0)), "__NRENDER__": str(counts.get("render", 0)),
     }.items():
@@ -694,6 +703,15 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
   <div class="scroll"><table>
     <thead><tr><th>단</th><th>하는 일</th><th>분량</th><th>길이</th><th>쓰는 말</th></tr></thead>
     <tbody>__SFPARTS__</tbody>
+  </table></div>
+
+  <h3 class="sub-h">폴더·파일 이름</h3>
+  <p class="lede">회사 매뉴얼입니다. 폴더 규칙은 나간 25편이 전부 지켰고,
+     파일 규칙은 5편만 지켰는데 그 5편이 차09·차11 로 최근 편이라 새 표준으로 봅니다.
+     작업 중에는 폴더·파일 둘 다 앞에 <code>(중간)</code> 을 붙입니다.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>대상</th><th>형태</th><th>예</th><th>기존</th></tr></thead>
+    <tbody>__NAMING__</tbody>
   </table></div>
 
   <h3 class="sub-h">나간 숏폼 25편</h3>
