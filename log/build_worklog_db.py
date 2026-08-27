@@ -927,9 +927,11 @@ def load_checkpoints():
         return []
     rows = json.loads(f.read_text(encoding="utf-8"))
     for r in rows:
-        out = subprocess.run(["git", "rev-list", "-n", "1", "--abbrev-commit", r["tag"]],
-                             cwd=ROOT, capture_output=True, text=True)
-        r["sha"] = out.stdout.strip() or None
+        # 태그는 푸시가 막혀 있어 새 컨테이너에는 없다. json 에 적힌 해시가 먼저다.
+        if not r.get("sha"):
+            out = subprocess.run(["git", "rev-list", "-n", "1", "--abbrev-commit", r["tag"]],
+                                 cwd=ROOT, capture_output=True, text=True)
+            r["sha"] = out.stdout.strip() or None
     return rows
 
 
