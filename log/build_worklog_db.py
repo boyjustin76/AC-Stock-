@@ -340,6 +340,16 @@ CREATE TABLE motion_preset (
   note          TEXT
 );
 
+-- 세이브 슬롯 (git 태그 = 되돌릴 수 있는 시점)
+CREATE TABLE checkpoint (
+  id            INTEGER PRIMARY KEY,
+  tag           TEXT NOT NULL UNIQUE,
+  kst           TEXT NOT NULL,
+  utc           TEXT NOT NULL,
+  sha           TEXT,
+  summary       TEXT NOT NULL
+);
+
 -- 처음 여는 사람이 순서대로 읽을 것
 CREATE VIEW v_start_here AS
 SELECT 1 AS ord, '무엇을 하는 저장소인가' AS step, goal AS detail FROM session
@@ -352,6 +362,7 @@ UNION ALL SELECT 7, '대본 받고 납품까지 순서', 'workflow_step 테이�
 UNION ALL SELECT 8, '렌더에 걸리는 시간', 'benchmark 테이블'
 UNION ALL SELECT 9, '지난 회차 대본 찾기', "script_fts MATCH '키워드' 또는 script_keyword"
 UNION ALL SELECT 10, '회사 모션 문법', 'motion_preset 테이블'
+UNION ALL SELECT 11, '되돌릴 수 있는 시점', "checkpoint 테이블 / python3 log/save.py --list"
 ORDER BY ord;
 
 -- 컷과 대본 싱크 한눈에
@@ -644,6 +655,12 @@ REPO_FILES = {
 }
 
 RUNBOOK = [
+    (0, "세이브", "지금 상태를 되돌릴 수 있는 시점으로 굳힌다",
+     "python3 log/save.py \"어디까지 했는지 한 줄\"",
+     "로그를 다시 만들고 커밋·태그·푸시까지 한 번에. 태그 이름은 save/YYYY-MM-DD-HHMM (KST)"),
+    (0, "슬롯 목록 / 되돌리기", "언제로 돌아갈 수 있는지 보고 되돌린다",
+     "python3 log/save.py --list   #  그 다음  git restore --source=save/<...> -- .",
+     "checkout 은 구경용, restore 는 실제로 되돌릴 때. restore 뒤에는 다시 save 를 한 번 한다"),
     (0, "대본 키워드 검색", "새 대본의 소재와 겹치는 지난 회차를 찾는다",
      "python3 -c \"import sqlite3;c=sqlite3.connect('log/worklog.db');"
      "print(*c.execute(\\\"SELECT ep,snippet(script_fts,2,'[',']','…',12) FROM script_fts "
@@ -903,6 +920,19 @@ MOTION_PRESETS = [
 ]
 
 
+def load_checkpoints():
+    """log/data/checkpoints.json — 세이브 슬롯. 커밋 해시는 태그에서 역으로 구한다."""
+    f = ROOT / "log" / "data" / "checkpoints.json"
+    if not f.exists():
+        return []
+    rows = json.loads(f.read_text(encoding="utf-8"))
+    for r in rows:
+        out = subprocess.run(["git", "rev-list", "-n", "1", "--abbrev-commit", r["tag"]],
+                             cwd=ROOT, capture_output=True, text=True)
+        r["sha"] = out.stdout.strip() or None
+    return rows
+
+
 def load_scripts():
     """log/data/scripts.json — 작업물 폴더에서 긁어온 회차별 대본 인덱스."""
     f = ROOT / "log" / "data" / "scripts.json"
@@ -1016,6 +1046,10 @@ def build():
     con.executemany(
         "INSERT INTO motion_preset (id,name,param,from_value,to_value,frames_2997,seconds,easing,source,note)"
         " VALUES (?,?,?,?,?,?,?,?,?,?)", MOTION_PRESETS)
+
+    for i, c in enumerate(load_checkpoints(), 1):
+        con.execute("INSERT INTO checkpoint (id,tag,kst,utc,sha,summary) VALUES (?,?,?,?,?,?)",
+                    (i, c["tag"], c["kst"], c["utc"], c.get("sha"), c["summary"]))
 
     sc = load_scripts()
     if sc:

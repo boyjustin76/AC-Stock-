@@ -19,6 +19,7 @@
 8. **렌더에 걸리는 시간** — benchmark 테이블
 9. **지난 회차 대본 찾기** — script_fts MATCH '키워드' 또는 script_keyword
 10. **회사 모션 문법** — motion_preset 테이블
+11. **되돌릴 수 있는 시점** — checkpoint 테이블 / python3 log/save.py --list
 
 ### 환경 다시 깔기
 
@@ -34,6 +35,18 @@
 | SQLite | 3.45 | `파이썬 내장 sqlite3` | 설치 불필요 | 로그 DB |
 
 ### 명령어
+
+**0. 세이브** — 지금 상태를 되돌릴 수 있는 시점으로 굳힌다
+```
+python3 log/save.py "어디까지 했는지 한 줄"
+```
+로그를 다시 만들고 커밋·태그·푸시까지 한 번에. 태그 이름은 save/YYYY-MM-DD-HHMM (KST)
+
+**0. 슬롯 목록 / 되돌리기** — 언제로 돌아갈 수 있는지 보고 되돌린다
+```
+python3 log/save.py --list   #  그 다음  git restore --source=save/<...> -- .
+```
+checkout 은 구경용, restore 는 실제로 되돌릴 때. restore 뒤에는 다시 save 를 한 번 한다
 
 **0. 대본 키워드 검색** — 새 대본의 소재와 겹치는 지난 회차를 찾는다
 ```
@@ -122,6 +135,7 @@ DB 가 원본이다
 |---|---|---|
 | `.gitignore` | 기타 |  |
 | `CLAUDE.md` | 기타 |  |
+| `log/data/scripts.json` | 기타 |  |
 | `package-lock.json` | 기타 |  |
 | `log/worklog.db` | 데이터 | 작업 로그 원본 (SQLite) |
 | `README.md` | 문서 | 렌더러 사용법 · 포맷 선택 기준 · 씬 설정 레퍼런스 |
@@ -493,3 +507,4 @@ DB 가 원본이다
 | 10 | `a67d11f9` | 작업 로그를 SQLite 한 파일로 정리하고 읽는 형태 두 가지를 뽑음 | 6파일 +1427/-0 |
 | 11 | `00eaa635` | 로그에 복구용 정보 추가 — 환경·명령어·파일 지도·드라이브 ID·레이어 카탈로그 | 6파일 +937/-13 |
 | 12 | `dbc37cab` | 로그 DB에 작업 방식·렌더 실측·prproj 파싱 결과 기록 | 6파일 +332/-7 |
+| 13 | `c6566ed5` | 회차별 대본 인덱스 구축, .prproj 바이너리 파라미터 디코드 | 7파일 +1540/-10 |
