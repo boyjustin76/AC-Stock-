@@ -39,7 +39,7 @@ def build() -> str:
 
     stages = q("SELECT p.format,p.seq,p.name,p.owner,p.in_repo,p.status,p.detail,p.note"
                " FROM pipeline_stage p JOIN format f ON f.name = p.format"
-               " ORDER BY f.id, p.id")
+               " ORDER BY f.id, CAST(p.seq AS REAL)")
     fmts = q("SELECT name,aspect,final_spec,source_spec,length,tone,status FROM format ORDER BY id")
 
     n_cut = one("SELECT COUNT(*) FROM scene WHERE config LIKE '%cmg%'")

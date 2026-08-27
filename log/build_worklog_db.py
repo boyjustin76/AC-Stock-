@@ -436,6 +436,15 @@ CREATE TABLE shortform_srt (
   rerun         INTEGER NOT NULL DEFAULT 0
 );
 
+-- 롱폼 썸네일 규격. 템플릿 .psd 와 완성본 11장에서 실측했다.
+CREATE TABLE thumbnail_rule (
+  id            INTEGER PRIMARY KEY,
+  part          TEXT NOT NULL,
+  spec          TEXT NOT NULL,
+  measured      TEXT,
+  note          TEXT
+);
+
 -- 폴더·파일 이름 규칙 (회사 매뉴얼)
 CREATE TABLE naming_rule (
   id            INTEGER PRIMARY KEY,
@@ -462,7 +471,7 @@ SELECT p.format, p.seq, p.name,
        CASE WHEN p.in_repo THEN '← 이 저장소' ELSE '' END AS here,
        p.owner, p.status
 FROM pipeline_stage p JOIN format f ON f.name = p.format
-ORDER BY f.id, p.id;
+ORDER BY f.id, CAST(p.seq AS REAL);
 
 -- 처음 여는 사람이 순서대로 읽을 것
 CREATE VIEW v_start_here AS
@@ -481,7 +490,7 @@ UNION ALL SELECT 9, '지난 회차 대본 찾기', "script_fts MATCH '키워드'
 UNION ALL SELECT 10, '회사 모션 문법', 'motion_preset 테이블'
 UNION ALL SELECT 11, '되돌릴 수 있는 시점', "checkpoint 테이블 / python3 log/save.py --list"
 UNION ALL SELECT 12, '숏폼 대본 만드는 법', 'shortform_rule / shortform_part / tools/shortform.py'
-UNION ALL SELECT 13, '파일·폴더 이름 규칙', 'naming_rule 테이블'
+UNION ALL SELECT 13, '파일·폴더 이름 규칙', 'naming_rule 테이블'\nUNION ALL SELECT 14, '썸네일 만드는 법', 'thumbnail_rule / tools/thumbnail.py'
 ORDER BY ord;
 
 -- 컷과 대본 싱크 한눈에
@@ -778,6 +787,11 @@ REPO_FILES = {
 }
 
 RUNBOOK = [
+    (0, "썸네일 만들기", "롱폼 썸네일을 템플릿 규격대로 조립해 .psd 로 쓴다",
+     "npm run render -- --config scenes/thumb-ch11.scenes.js --all --stills 1 --out out/thumb"
+     " && python3 tools/thumbnail.py '차명#11_...v1' --chart out/thumb/stills/thumb-a_t0.00s.png"
+     " --sub '손익비 1:5 만드는' --main '20일선 매매법'",
+     "타이틀 크기는 폭(윗줄 1120 · 아랫줄 1185)에 맞춰 자동으로 잡힌다"),
     (0, "숏폼 — 롱폼 챕터 보기", "어느 챕터를 숏폼으로 뽑을지 고른다",
      "python3 tools/shortform.py chapters 11",
      "이미 만든 숏폼과 일정표에 잡힌 편까지 같이 보여 준다"),
@@ -842,6 +856,17 @@ ENV_TOOLS = [
 ]
 
 DRIVE_MAP = [
+    ("폴더", "★ 회사 전체 드라이브 루트 (트레이딩팩토리)", "1JfQCjJgMwHzyq2mpSu-OoiDEIiBpyUXH", None,
+     "여기서 다 내려간다. 01_영상_최종 아웃풋 / 02_영상_소스_롱폼 / 03_영상_소스_숏츠 / "
+     "04_영상_에셋_디자인 작업물 / 05_문서_기획+스크립트 / 07_문서_채널 관리_일정+성과분석 / "
+     "08_문서_프로젝트_툴북(DB) / 11_기타_MT5 보조지표 등 14개"),
+    ("폴더", "05_썸네일 / 06_차트명가_주 1회", "1YWaxUBaVcmUE9PwzWrYULfLjO0vpHvH9", None,
+     "롱폼 썸네일. 04_영상_에셋_디자인 작업물 → 01_영상(유튜브) 관련 → 05_썸네일 아래. "
+     "완성본 .png 11장과 템플릿 .psd 3개가 있다. 차11 은 아직 없다"),
+    ("템플릿", "차트명가(롱)_하이라이트 - 복사본.psd", "1K9EkS57eVU58FtAn4dSLognffDxe8E-9",
+     "1YWaxUBaVcmUE9PwzWrYULfLjO0vpHvH9",
+     "180MB · 1920x1080. 회차별 그룹(#1~#10) 안에 v2(차트) + 타이틀(2줄)이 들어 있고 "
+     "'고정' 그룹에 틀과 로고가 있다. thumbnail_rule 이 여기서 나왔다"),
     ("폴더", "각 숏폼 폴더의 '소스+원본' (일부는 '소스'/'원본')",
      "1xpW_VHXA3XZQDvhURn2DthQCwP_gfwtR", None,
      "숏폼 루트 아래 각 26XXXX_[SL_...] 폴더 안에 있다. 자막 .srt 가 여기 들어 있고, "
@@ -1125,6 +1150,11 @@ PIPELINE = [
      "프리미어에서 녹음본에 맞춰 컷을 자르고 자막을 얹는다. 여기서 나온 타임코드(.srt)가 3단계 입력이 된다",
      "사람", 0, "미착수",
      "자막·타이틀·로고는 여기서 이미 들어가므로 3단계 렌더에는 넣지 않는다"),
+    (9, "롱폼", "2.5", "썸네일 제작",
+     "템플릿 .psd 규격대로 차트·타이틀 2줄·틀·로고를 얹어 만든다. 보통 2~3안을 뽑는다",
+     "사람 + 이 저장소", 1, "진행중",
+     "tools/thumbnail.py 가 조립하고 tools/psdwrite.py 가 레이어 살아 있는 .psd 로 쓴다. "
+     "텍스트는 래스터로 들어간다 — 글자를 다시 타이핑하려면 템플릿 텍스트 레이어를 복사해 온다"),
     (4, "롱폼", "3", "모션그래픽 및 소스 넣기",
      "타임코드가 붙은 대본을 받아 차트 컷씬을 프레임 단위로 렌더해 납품한다. 프리미어에 얹는 것은 사람이 한다",
      "이 저장소", 1, "진행중",
@@ -1222,6 +1252,32 @@ SHORTFORM_RULES = [
     (17, "제외", "자막·타이틀·로고 문구는 대본에 쓰지 않는다",
      "숏폼 프리미어 기본 양식(숏츠 기본 양식.prproj)에 텍스트 레이어가 이미 들어 있다",
      None, None, "필수"),
+]
+
+THUMBNAIL_RULES = [
+    (1, "캔버스", "1920x1080", "템플릿 아트보드", None),
+    (2, "틀", "핑크 #EF2767 테두리 26px, 모서리 각짐", "완성본 11장 실측",
+     "템플릿의 '틀' 은 도형 레이어라 그대로 뽑으면 안쪽 흰 면까지 딸려 온다. 실측값으로 다시 그린다"),
+    (3, "배경", "종이 텍스처 (거의 흰색)", "템플릿 '종이 배경' 레이어, 4,-84 에 배치", None),
+    (4, "타이틀 윗줄(서브)", "#FFFFFF · GmarketSansBold · 검정 외곽선 · 자간 -40",
+     "y≈84~111, 폭 979~1189 중앙값 1120",
+     "후킹 문구. 강조할 때는 #FF0000 (차07·차08·차10 이 그렇게 했다)"),
+    (5, "타이틀 아랫줄(메인)", "#FFFF00 · GmarketSansBold · 검정 외곽선 · 자간 -40",
+     "y≈229~268, 폭 981~1476 중앙값 1185",
+     "매매법 이름. 글자 수가 달라도 폭을 맞추므로 폰트 크기는 폭에서 역산한다"),
+    (6, "로고", "차트명가_로고(최종+핑크) 좌하단", "49, 977 · 209x52", None),
+    (7, "차트", "매매법의 핵심을 한 장으로. 한 차트로 대본 전체를 설명할 수 있어야 한다",
+     "우리 렌더러가 그린다 (scenes/thumb-*.scenes.js)",
+     "브랜드 색 그대로 — 상승 #0B8C7F · 하락 #E80001 · 이평선 #F38808"),
+    (8, "태그", "매수 #E80001 · 익절 #14FF36. 흰 글씨에 검정 외곽선",
+     "템플릿 태그 이미지 185~189 x 90", "cmgArrow 레이어로 그린다"),
+    (9, "인물", "[선택] 1순위는 유명 인물 + 그 인물을 소개하는 짧고 강렬한 텍스트",
+     "차01·02·03·05·07 은 실존 트레이더, 차10 은 익명 스케치",
+     "차11(20일선)은 특정 인물이 없는 회차라 넣지 않았다. 넣으려면 이미지를 받아야 한다"),
+    (10, "문구", "윗줄 = 이득·문제 후킹, 아랫줄 = 매매법 이름",
+     "'3년만에 100배 수익 / 이동평균선 매매법', '손절 없이 수익 내는 / 양방향 매매법', "
+     "'매일 100만원 수익내는 / MACD 매매법'",
+     "숫자와 손실 회피가 자주 쓰인다"),
 ]
 
 NAMING_RULES = [
@@ -1414,6 +1470,9 @@ def build():
     con.executemany(
         "INSERT INTO naming_rule (id,scope,pattern,example,conformance,note) VALUES (?,?,?,?,?,?)",
         NAMING_RULES)
+    con.executemany(
+        "INSERT INTO thumbnail_rule (id,part,spec,measured,note) VALUES (?,?,?,?,?)",
+        THUMBNAIL_RULES)
 
     sf = load_shortform()
     if sf:

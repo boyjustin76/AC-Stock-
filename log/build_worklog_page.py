@@ -83,7 +83,7 @@ def build():
     stage_rows = []
     for fmt, seq, name, owner, in_repo, st, detail in q(
             "SELECT p.format,p.seq,p.name,p.owner,p.in_repo,p.status,p.detail"
-            " FROM pipeline_stage p JOIN format f ON f.name=p.format ORDER BY f.id,p.id"):
+            " FROM pipeline_stage p JOIN format f ON f.name=p.format ORDER BY f.id,CAST(p.seq AS REAL)"):
         num = seq if "." in seq else f"{seq}."
         here = " st-here" if in_repo and st == "진행중" else ""
         stage_rows.append(
