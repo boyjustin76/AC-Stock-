@@ -52,7 +52,8 @@ export default {
   width: W,
   height: H,
   fps: 30,
-  theme: { preset: 'chartmyeongga' },
+  // 배경을 비워 두면 종이 텍스처 위에 그대로 얹을 수 있다
+  theme: { preset: 'chartmyeongga', transparent: true },
   market,
   scenes: [
     {
@@ -60,13 +61,9 @@ export default {
       name: 'A안 — 추세를 끝까지 (매수 → 익절)',
       duration: 0.5,
       chart: { ...chartBase },
-      layers: [
-        { type: 'cmgArrow', bar: 53, price: LV.entry, dir: 'buy', label: '매수',
-          size: 62, gap: 26, popDur: 0 },
-        // 익절 태그는 브랜드 연두(#14FF36). 파랑(매도)이 아니라 익절 색을 쓴다.
-        { type: 'cmgArrow', bar: 87, price: LV.exit, dir: 'sell', label: '익절',
-          size: 62, gap: 26, popDur: 0, color: '#00FF24', textStroke: 5 },
-      ],
+      // 태그는 여기서 그리지 않는다. 템플릿 .psd 에서 뜯어낸 진짜 버튼 픽셀을
+      // tools/thumbnail_png.py 가 이 차트 위에 얹는다. 직접 그리면 회사 것과 달라진다.
+      layers: [],
     },
     {
       id: 'thumb-b',
@@ -74,11 +71,23 @@ export default {
       duration: 0.5,
       chart: { ...chartBase },
       layers: [
-        // 박스권 상·하단. 전략 2 가 이 두 줄로 설명된다.
         { type: 'hline', price: LV.boxHi, color: '#8E8E8E', dash: [22, 14], growDur: 0 },
         { type: 'hline', price: LV.boxLo, color: '#8E8E8E', dash: [22, 14], growDur: 0 },
-        { type: 'cmgArrow', bar: 53, price: LV.entry, dir: 'buy', label: '매수',
-          size: 62, gap: 26, popDur: 0 },
+      ],
+    },
+    {
+      // 버튼을 얹을 좌표를 알아내려고 찍는 컷. 자홍/청록은 차트에 없는 색이라
+      // 렌더된 PNG 에서 그 색만 찾으면 (bar, price) 의 화면 좌표가 나온다.
+      // gap:0 이라 태그 꼭짓점이 정확히 그 캔들의 x 다.
+      id: 'probe',
+      name: '좌표 찍기 (버튼 위치용, 납품물 아님)',
+      duration: 0.5,
+      chart: { ...chartBase },
+      layers: [
+        { type: 'cmgArrow', bar: 53, price: LV.entry, dir: 'buy', label: '·',
+          size: 24, gap: 0, popDur: 0, color: '#FF00FF', halo: false },
+        { type: 'cmgArrow', bar: 87, price: LV.exit, dir: 'buy', label: '·',
+          size: 24, gap: 0, popDur: 0, color: '#00FFFF', halo: false },
       ],
     },
   ],
