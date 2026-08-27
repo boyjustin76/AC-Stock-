@@ -37,6 +37,10 @@
 | JetBrains Mono | 5.x | `node_modules/@fontsource/jetbrains-mono` | npm install | 숫자 표기용 |
 | 브랜드 폰트 | - | `brand/fonts` | 저장소에 포함 | Gmarket Sans / S-Core Dream / 나눔고딕 / 경기천년제목 |
 | SQLite | 3.45 | `파이썬 내장 sqlite3` | 설치 불필요 | 로그 DB |
+| Photoshop (로컬 PC) | 2026 / 27.9.1 | `C:/Program Files/Adobe/Adobe Photoshop 2026` | 이미 설치돼 있음 | COM ProgID 'Photoshop.Application' 의 DoJavaScriptFile 로 .jsx 를 실행한다. 썸네일은 여기서 편집한다 |
+| Node.js (로컬 PC) | 24.19.0 | `C:/Program Files/nodejs` | winget install OpenJS.NodeJS.LTS | 설치 후 PATH 갱신이 필요하다 |
+| Python (로컬 PC) | 3.11.9 | `-` | winget install Python.Python.3.11 | log/save.py · build_worklog_db.py 실행용. PYTHONUTF8=1 필요 |
+| Chromium (로컬 PC) | 151 headless shell | `%LOCALAPPDATA%/ms-playwright` | npx playwright install chromium | npm install 만으로는 브라우저가 안 받아진다 |
 
 ### 명령어
 
@@ -167,6 +171,18 @@ curl -sSL -o out.bin 'https://drive.usercontent.google.com/download?id=<FILE_ID>
 python3 log/build_worklog_db.py --md && python3 log/build_worklog_page.py
 ```
 DB 가 원본이다
+
+**11. 썸네일 (로컬 윈도우)** — 포토샵으로 템플릿 .psd 를 직접 편집
+```
+node src/cli.mjs --config scenes/thumb-ch11-A.scenes.js --all --stills 1 그 다음 PowerShell 에서 New-Object -ComObject Photoshop.Application 의 DoJavaScriptFile 로 .jsx 실행
+```
+포토샵이 있어야 한다. 리눅스 컨테이너에서는 tools/thumbnail_png.py 나 psdedit.py 를 쓴다
+
+**12. 로그 갱신 (윈도우)** — 윈도우에서 DB·MD·HTML 다시 뽑기
+```
+$env:PYTHONUTF8='1'; python log/build_worklog_db.py --md; python log/build_worklog_page.py; python log/build_readme.py
+```
+PYTHONUTF8 없이는 한글 경로에서 cp949 로 죽는다. --print 는 out/ 이 없으면 요약 단계에서 터지니 빼고 쓴다
 
 
 ### 파일 지도
@@ -386,6 +402,9 @@ DB 가 원본이다
 | 9 | 최종본 대조 | 롱폼·숏츠 최종본 실측으로 태그 크기·영역 색·배지 보정 |
 | 10 | 익절·손절 복구 | 기본 프리셋 실측값으로 되돌리고 layers.js 중복 536줄 제거 |
 | 11 | 작업 로그 DB | SQLite 단일 파일로 세션 전체 정리 |
+| 12 | 썸네일 방식 도출 | #1~#10 을 전부 솔로 렌더해 비교 + PSD 좌표 실측 → 고정 높이 타이틀·인물 판단·차트 핵심요소 규칙 확정 |
+| 13 | 차11 썸네일 3안 | Photoshop 2026 COM + ExtendScript 로 템플릿 직접 편집. A/B/C 각 .psd(11.5MB) + .png |
+| 14 | 버튼 브랜드 정합 | 매수·매도 버튼의 도형·효과·색·폰트를 brand/ui 원본과 #6·#7 fx 실측값에 맞춤 |
 
 ## 요청과 대응
 
@@ -449,6 +468,18 @@ DB 가 원본이다
 **20. 썸네일은 이제 로컬 클로드가 한다 (포토샵이 있어 .psd 를 직접 다룬다). 너는 썸네일에서 빠지고, 같은 저장소를 쓰니 충돌만 안 나게 해라.**
 → 병렬로 나눠 쓰는 대신 썸네일 전체를 넘겼다. 한쪽만 손대면 충돌이 애초에 없다. 넘길 자료가 저장소에 다 들어가 있는지 확인하고(규격·효과값·원본 픽셀·도구·씬), 저장소에 없는 것(템플릿 .psd, 완성본 레퍼런스 PNG)이 무엇인지 적어 두었다. (썸네일 소유권 이전 · 이 컨테이너는 롱폼 3단계와 숏폼 1단계만)
 
+**21. 템플릿 .psd 를 직접 편집해서 '#11 20일선의 비밀' 썸네일을 만들어 달라.**
+→ 여기는 포토샵이 있는 로컬 PC 다. 파이썬도 Node 도 없어서 psdedit.py 는 못 돌렸고, 대신 Photoshop 2026 을 COM(Photoshop.Application.DoJavaScriptFile)으로 띄워 ExtendScript 로 템플릿을 직접 편집했다. #1 쿠라마기 그룹을 복제해 타이틀 두 줄만 바꿨다. (PSD 195MB · 라이브 텍스트와 레이어 효과 그대로 보존)
+
+**22. #1 만 베끼니 카피캣이 됐다. #1~#10 전부 참고해서 방식만 뽑아라. 차트는 Node 를 설치해서 뽑아라.**
+→ 10회차를 전부 솔로 렌더해 눈으로 비교하고 PSD 에서 좌표를 실측했다. 타이틀은 폭이 아니라 글자 높이가 고정(윗줄 141px / 아랫줄 194px)이고 폭은 자유였다 — 앞서 적어 둔 '폭을 맞춘다' 는 틀렸다. 인물 유무는 '주인공 트레이더가 있는 회차인가' 로 갈린다. 베이스를 인물 없는 #6 으로 바꿨다. Node 24.19 + Playwright 를 깔아 차트는 레포 렌더러로 뽑았다. (타이틀 규격 교정 · 베이스 #6 · thumbnail_rule 4·5 수정)
+
+**23. A·B·C 를 차트와 노랑 타이틀까지 서로 다른 안으로. 그 다음 매수·매도 버튼 효과를 바꿔라(#6·#7 열어봐라).**
+→ A 추세추종 / B 박스권 / C 통합 세 안을 씬·타이틀·후킹 전부 다르게 만들었다. B 는 seed 41 로는 EMA20 이 그려지기도 전에 추세가 시작돼 순수 range 시장(seed 7, 72봉)을 새로 만들었다. 버튼은 #6·#7 의 lfx2 를 ActionManager 로 읽어 외부 광선 하나만 켜져 있는 것을 확인하고 그대로 옮겼다. 화살촉 0.86h → 0.49h, 흰 헤일로 제거, 글씨 검정 획 제거. (PSD 3개 각 11.5MB)
+
+**24. 버튼에 쓰는 폰트는 에스코어 드림 5 Medium 이다. SCDream1~9 다 있다.**
+→ cmgArrow·cmgBadge·cmgLevel 의 글씨를 Gmarket Sans Bold → S-Core Dream 500 으로 바꿨다. 폰트가 바뀌자 advance 기준 상수(h=1.34·size, w=tw+1.15·size)가 어긋나 글씨가 화살촉을 침범해서, 잉크 박스에서 브랜드 비율을 직접 계산하도록 고쳤다. SCDream1~3 도 레포에 넣어 1~9 를 다 쓴다. (조재희 팀장(파가드AC) 확인 — A·C 채택, B 는 내용이 많아 보류)
+
 ## 문제와 해결
 
 ### 1. Playwright 브라우저 빌드 불일치  `fixed`
@@ -505,6 +536,36 @@ DB 가 원본이다
 - 조치: 배지를 좌하단으로, 라벨 박스를 선 왼쪽 바깥으로, 놓친 구간 화살표 제거
 - 확인: 컷4 전 구간 스틸 확인
 
+### 10. 복제한 회차의 차트 색이 죽음  `fixed`
+- 증상: 렌더한 차트를 넣었더니 캔들과 태그가 전부 탁해졌다 (#00BF1B 가 #75947A 로)
+- 원인: 회차 그룹 안의 'Black & White 823' 조정 레이어(불투명도 214/255 = 83.9%)가 켜져 있었다. 합성값을 역산하니 정확히 회색 83.9% 혼합이었다
+- 조치: 복제 후 BLACKANDWHITE 조정 레이어를 끈다
+- 확인: #00FF24 가 그대로 나옴
+
+### 11. ExtendScript 에서 레이어 삭제가 막힘  `fixed`
+- 증상: '삭제 명령은 현재 사용할 수 없습니다' (오류 8800)
+- 원인: 템플릿 레이어에 lspf(레이어 잠금)가 걸려 있다
+- 조치: 복제한 그룹을 재귀적으로 allLocked/pixelsLocked/positionLocked = false 로 푼 뒤 삭제
+- 확인: 다른 회차 9개 제거 성공
+
+### 12. 썸네일 .psd 가 180MB  `fixed`
+- 증상: 회차 하나짜리 결과물인데 템플릿 크기 그대로였다
+- 원인: 10회차 그룹이 전부 들어 있다
+- 조치: 저장 전에 #11 을 뺀 나머지 '#' 그룹을 통째로 삭제 (psdedit.drop_group 과 같은 발상)
+- 확인: 195MB → 11.5MB
+
+### 13. 폰트를 바꾸자 버튼 여백이 어긋남  `fixed`
+- 증상: S-Core Dream 으로 바꾸니 글씨 잉크(122px)가 몸통(114px)을 넘어 화살촉을 침범했다
+- 원인: 버튼 크기가 advance width 기준 상수(h = 1.34·size, w = tw + 1.15·size)로 잡혀 있었다. 이 값은 Gmarket Sans 로 잰 것이라 폰트가 바뀌면 반드시 깨진다
+- 조치: actualBoundingBox 로 잉크를 재서 브랜드 비율(글씨h/버튼h = 0.761, (버튼w-글씨w)/버튼h = 0.659)로 역산
+- 확인: 버튼 189x90 — 컨테이너가 템플릿 픽셀에서 잰 189x90 과 같다
+
+### 14. 윈도우에서 log 도구가 안 돌아감  `fixed`
+- 증상: build_worklog_db.py 가 UnicodeDecodeError (cp949) 로 죽는다
+- 원인: git 출력은 UTF-8 인데 subprocess 의 text=True 가 윈도우 기본 로케일(cp949)로 읽는다. 한글 경로가 있는 저장소라 바로 터진다
+- 조치: git 을 부르는 subprocess.run 에 encoding='utf-8' 을 붙였다 (save.py 2곳, build_worklog_db.py 4곳). 파일 입출력은 PYTHONUTF8=1 로 덮는다
+- 확인: 윈도우에서 db·md·html·README 4개 다 생성됨
+
 ## 판단과 근거
 
 - **렌더 방식** — 실시간 재생이 아니라 프레임 번호를 받아 그린다
@@ -533,6 +594,21 @@ DB 가 원본이다
 - **프리미어 MCP** — 이 세션에는 설치하지 않는다. 사용자 PC 용으로 보류
   - 이유: 어시스턴트·서버·CEP 커넥터·프리미어가 같은 PC 에 있어야 하는데 이 컨테이너는 리눅스에 프리미어가 없다. 클립을 타임라인에 자동 반입하는 단계가 필요해지면 사용자 윈도우 PC + Claude Desktop 에 깐다
   - 다시 볼 때: 컷 납품 자동화를 시작할 때
+- **썸네일 편집 도구** — 포토샵이 있는 로컬 PC 에서는 psd-tools 대신 Photoshop 2026 을 COM 으로 띄워 ExtendScript 로 편집한다
+  - 이유: 컨테이너가 psd-tools 로 쓴 .psd 를 포토샵이 끝내 거부한 문제가 여기서는 아예 생기지 않는다. 포토샵이 직접 편집하면 텍스트·효과·그룹이 전부 네이티브로 다시 그려진다. 리눅스 컨테이너에는 포토샵이 없으므로 psdedit.py·thumbnail_png.py 도 그대로 둔다
+  - 다시 볼 때: 리눅스에서만 돌려야 할 때
+- **복제할 베이스 회차** — #1 쿠라마기가 아니라 인물 없는 #6 지지와 저항
+  - 이유: #1 하나만 참고하면 그 회차를 그대로 베낀 것이 된다. #1 은 타이틀이 가운데 정렬인 예외 회차이기도 하다. #2~#6 다섯 회차가 좌표까지 완전히 같은 표준이고, #11 은 주인공 인물이 없는 회차라 #6·#9 계열이다
+- **버튼 색** — 썸네일 버튼은 brand/ui 원본값 #FF0000/#0000FF, 영상 태그는 theme.js 의 #E80001/#0200F3 을 그대로 둔다
+  - 이유: STYLE.md 의 값은 영상 프레임에서 잰 것이고 썸네일 버튼은 브랜드 PNG 를 그대로 쓴다. 둘이 실제로 다르므로 theme 를 건드리지 않고 씬에서 지정한다
+- **버튼을 그릴 것인가 뜯어 쓸 것인가** — 렌더러(cmgArrow)가 그린다. 단 브랜드 실측 비율을 그대로 넣는다
+  - 이유: 컨테이너는 포토샵을 띄울 수 없어 brand/thumbnail/btn_*.png 를 뜯어 쓰는 쪽을 택했고 thumbnail_rule 8 에 '직접 그리지 않는다' 로 적었다. 그 방법은 픽셀이 정확한 대신 라벨이 매수·익절 두 개로 고정된다. 로컬 PC 는 포토샵이 있어 제약이 없고, 렌더러가 그리면 손절·중립 같은 다른 글자도 같은 모양으로 나오며 차트 좌표에 바로 붙는다. 실제로 그려 보니 189x90 · 화살촉 0.49h 로 템플릿 픽셀 실측값과 같았다. **썸네일은 로컬 쪽이 최신이다** — 컨테이너가 소유권을 넘겼다(request 20)
+  - 다시 볼 때: 브랜드 버튼 디자인이 바뀔 때
+- **버튼 크기 계산** — 폰트별 상수 대신 잉크 박스에서 브랜드 비율로 역산한다
+  - 이유: 폰트를 바꿀 때마다 여백이 깨지는 것을 한 번 겪었다. 비율(0.761 / 0.659)은 브랜드 실측이라 불변이고 잉크 폭·높이만 런타임에 재면 어떤 폰트에서도 같은 모양이 나온다
+- **차11 썸네일 채택안** — A(추세추종)와 C(통합) 채택, B(박스권)는 보류
+  - 이유: 조재희 팀장(파가드AC) 확인 — '1번과 3번이 가장 간결하게 잘 뽑혔다, 두번째는 조금 내용이 많아 보인다'. B 는 박스 상하단 점선 두 개 + 매수 + 익절 + 누운 이평선이 한 화면에 다 들어가 요소가 가장 많다
+  - 다시 볼 때: 박스권 단독 숏폼(#5) 썸네일이 따로 필요해질 때
 
 ## 브랜드 스펙 (실측)
 
@@ -559,27 +635,35 @@ DB 가 원본이다
 | 폰트 | 본문 | `S-Core Dream / 나눔고딕` |  | 프리셋 폰트 폴더 |  |
 | 폰트 | 제목 대체 | `경기천년제목` |  | 프리셋 폰트 폴더 |  |
 | 출력 | 최종본 롱폼 규격 | `1280x720 / 30fps` |  | 최종본 파일 메타 | 컷씬 소스는 1080p 로 납품 중 |
+| 썸네일 버튼 | 매수 | `#FF0000` | 186x88px | brand/ui/매수 버튼(좌우).png 실측 | 화살촉 43px · 모서리 r7 · 글씨 잉크 128x67 |
+| 썸네일 버튼 | 매도 | `#0000FF` | 186x88px | brand/ui/매도 버튼(좌우).png 실측 |  |
+| 썸네일 버튼 | 익절 | `#00FF24` | 185x90px | #7 익절 도형 solidFill rgb(0,255,36) | 같은 도형에 색상 오버레이만 얹은 것 |
+| 썸네일 버튼 | 글씨 | `S-Core Dream 5 Medium` |  | 브랜드 PNG · #7 익절 텍스트 레이어 | 흰색, 검정 외곽선 없음. 타이틀(Gmarket Sans Bold)과 다른 폰트다 |
+| 썸네일 버튼 | 효과 | `외부 광선 검정 18% · 스프레드 72 · 크기 10 · 노이즈 22` |  | #6·#7 lfx2 를 ActionManager 로 읽음 | 드롭섀도우·내부 그림자·획·그레이디언트는 전부 꺼져 있다 |
+| 썸네일 버튼 | 비율 | `글씨높이/버튼높이 0.761 · (버튼폭-글씨폭)/버튼높이 0.659` |  | brand/ui PNG 실측 | 글씨는 몸통 한가운데에서 화살촉 쪽으로 0.04·h. 폰트가 바뀌어도 이 비율로 역산한다 |
+| 썸네일 타이틀 | 윗줄 글자 높이 | `141px 고정` | 왼쪽 x=88 · 베이스라인 y=198 | #2~#6 실측 | 폭은 1017~1306 으로 자유 |
+| 썸네일 타이틀 | 아랫줄 글자 높이 | `194px 고정` | 왼쪽 x=74 · 베이스라인 y=395 | #2~#6 실측 | 폭은 1148~1583 으로 자유 |
 
 ## 렌더 산출물
 
 | 파일 | 포맷 | 프레임 | 크기 | 비고 |
 |---|---|---|---|---|
-| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | 0.8 MB | 29.97 기준 125f |
-| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | 1.0 MB | 29.97 기준 117f |
-| `out/cmg/cut3-fear.mp4` | mp4 | 152 | 1.1 MB | 29.97 기준 76f |
-| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | 3.4 MB | 29.97 기준 160f |
-| `out/cmg/_reel.mp4` | mp4 | 956 | 6.4 MB | 4컷 이어붙임, 29.97 기준 478f |
-| `out/01-open.mp4` | mp4 | 420 | 4.4 MB |  |
-| `out/02-structure.mp4` | mp4 | 450 | 4.3 MB |  |
-| `out/03-breakdown.mp4` | mp4 | 420 | 4.9 MB |  |
-| `out/04-entry.mp4` | mp4 | 420 | 3.7 MB |  |
-| `out/05-tpsl.mp4` | mp4 | 450 | 3.6 MB |  |
-| `out/06-result.mp4` | mp4 | 540 | 4.8 MB |  |
-| `out/_reel.mp4` | mp4 | 2700 | 25.6 MB | 다크 6컷 릴 45초 |
-| `out/ov-chart.mov` | qtrle | 300 | 38.5 MB | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
-| `out/ov-chart.webm` | vp9a | 300 | 3.2 MB | 전송용 압축본 |
-| `out/ov-tpsl.mov` | qtrle | 300 | 17.1 MB |  |
-| `out/ov-pnl.mov` | qtrle | 300 | 17.0 MB |  |
+| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | - | 29.97 기준 125f |
+| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | - | 29.97 기준 117f |
+| `out/cmg/cut3-fear.mp4` | mp4 | 152 | - | 29.97 기준 76f |
+| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | - | 29.97 기준 160f |
+| `out/cmg/_reel.mp4` | mp4 | 956 | - | 4컷 이어붙임, 29.97 기준 478f |
+| `out/01-open.mp4` | mp4 | 420 | - |  |
+| `out/02-structure.mp4` | mp4 | 450 | - |  |
+| `out/03-breakdown.mp4` | mp4 | 420 | - |  |
+| `out/04-entry.mp4` | mp4 | 420 | - |  |
+| `out/05-tpsl.mp4` | mp4 | 450 | - |  |
+| `out/06-result.mp4` | mp4 | 540 | - |  |
+| `out/_reel.mp4` | mp4 | 2700 | - | 다크 6컷 릴 45초 |
+| `out/ov-chart.mov` | qtrle | 300 | - | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
+| `out/ov-chart.webm` | vp9a | 300 | - | 전송용 압축본 |
+| `out/ov-tpsl.mov` | qtrle | 300 | - |  |
+| `out/ov-pnl.mov` | qtrle | 300 | - |  |
 
 ## 받아 온 자료
 
@@ -639,3 +723,4 @@ DB 가 원본이다
 | 39 | `eb6fa0b1` | 세이브 기록 save/2026-08-27-1546 | 5파일 +11/-3 |
 | 40 | `0dd9de20` | 썸네일(롱폼 2.5)을 로컬 클로드에게 넘김 | 10파일 +52/-44 |
 | 41 | `e7707db9` | 세이브 save/2026-08-27-1556 — 썸네일을 로컬 클로드에게 넘김 — 이 컨테이너는 롱폼 3단계·숏폼 1단계만 | 3파일 +2/-1 |
+| 42 | `0a156068` | 세이브 기록 save/2026-08-27-1556 | 5파일 +11/-3 |

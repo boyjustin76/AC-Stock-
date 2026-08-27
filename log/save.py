@@ -37,7 +37,7 @@ BRANCH = "claude/futures-youtube-video-edit-fhio4s"
 
 
 def git(*args: str, check: bool = True) -> str:
-    r = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True)
+    r = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
     if check and r.returncode:
         raise SystemExit(f"git {' '.join(args)} 실패\n{r.stderr.strip()}")
     return r.stdout.strip()
@@ -64,7 +64,7 @@ def rebuild() -> None:
         args = [sys.executable, str(ROOT / "log" / script)]
         if script.endswith("db.py"):
             args.append("--md")
-        r = subprocess.run(args, cwd=ROOT, capture_output=True, text=True)
+        r = subprocess.run(args, cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
         if r.returncode:
             raise SystemExit(f"{script} 실패\n{r.stdout}\n{r.stderr}")
         print("  " + r.stdout.strip().replace("\n", "\n  "))

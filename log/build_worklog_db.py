@@ -606,6 +606,28 @@ REQUESTS = [
      "넘길 자료가 저장소에 다 들어가 있는지 확인하고(규격·효과값·원본 픽셀·도구·씬), "
      "저장소에 없는 것(템플릿 .psd, 완성본 레퍼런스 PNG)이 무엇인지 적어 두었다.",
      "썸네일 소유권 이전 · 이 컨테이너는 롱폼 3단계와 숏폼 1단계만"),
+    (21, "템플릿 .psd 를 직접 편집해서 '#11 20일선의 비밀' 썸네일을 만들어 달라.",
+     "여기는 포토샵이 있는 로컬 PC 다. 파이썬도 Node 도 없어서 psdedit.py 는 못 돌렸고, "
+     "대신 Photoshop 2026 을 COM(Photoshop.Application.DoJavaScriptFile)으로 띄워 "
+     "ExtendScript 로 템플릿을 직접 편집했다. #1 쿠라마기 그룹을 복제해 타이틀 두 줄만 바꿨다.",
+     "PSD 195MB · 라이브 텍스트와 레이어 효과 그대로 보존"),
+    (22, "#1 만 베끼니 카피캣이 됐다. #1~#10 전부 참고해서 방식만 뽑아라. 차트는 Node 를 설치해서 뽑아라.",
+     "10회차를 전부 솔로 렌더해 눈으로 비교하고 PSD 에서 좌표를 실측했다. 타이틀은 폭이 아니라 "
+     "글자 높이가 고정(윗줄 141px / 아랫줄 194px)이고 폭은 자유였다 — 앞서 적어 둔 '폭을 맞춘다' 는 틀렸다. "
+     "인물 유무는 '주인공 트레이더가 있는 회차인가' 로 갈린다. 베이스를 인물 없는 #6 으로 바꿨다. "
+     "Node 24.19 + Playwright 를 깔아 차트는 레포 렌더러로 뽑았다.",
+     "타이틀 규격 교정 · 베이스 #6 · thumbnail_rule 4·5 수정"),
+    (23, "A·B·C 를 차트와 노랑 타이틀까지 서로 다른 안으로. 그 다음 매수·매도 버튼 효과를 바꿔라(#6·#7 열어봐라).",
+     "A 추세추종 / B 박스권 / C 통합 세 안을 씬·타이틀·후킹 전부 다르게 만들었다. B 는 seed 41 로는 "
+     "EMA20 이 그려지기도 전에 추세가 시작돼 순수 range 시장(seed 7, 72봉)을 새로 만들었다. "
+     "버튼은 #6·#7 의 lfx2 를 ActionManager 로 읽어 외부 광선 하나만 켜져 있는 것을 확인하고 그대로 옮겼다. "
+     "화살촉 0.86h → 0.49h, 흰 헤일로 제거, 글씨 검정 획 제거.",
+     "PSD 3개 각 11.5MB"),
+    (24, "버튼에 쓰는 폰트는 에스코어 드림 5 Medium 이다. SCDream1~9 다 있다.",
+     "cmgArrow·cmgBadge·cmgLevel 의 글씨를 Gmarket Sans Bold → S-Core Dream 500 으로 바꿨다. "
+     "폰트가 바뀌자 advance 기준 상수(h=1.34·size, w=tw+1.15·size)가 어긋나 글씨가 화살촉을 침범해서, "
+     "잉크 박스에서 브랜드 비율을 직접 계산하도록 고쳤다. SCDream1~3 도 레포에 넣어 1~9 를 다 쓴다.",
+     "조재희 팀장(파가드AC) 확인 — A·C 채택, B 는 내용이 많아 보류"),
 ]
 
 PHASES = [
@@ -620,6 +642,9 @@ PHASES = [
     (9, "최종본 대조", "롱폼·숏츠 최종본 실측으로 태그 크기·영역 색·배지 보정", "done"),
     (10, "익절·손절 복구", "기본 프리셋 실측값으로 되돌리고 layers.js 중복 536줄 제거", "done"),
     (11, "작업 로그 DB", "SQLite 단일 파일로 세션 전체 정리", "done"),
+    (12, "썸네일 방식 도출", "#1~#10 을 전부 솔로 렌더해 비교 + PSD 좌표 실측 → 고정 높이 타이틀·인물 판단·차트 핵심요소 규칙 확정", "done"),
+    (13, "차11 썸네일 3안", "Photoshop 2026 COM + ExtendScript 로 템플릿 직접 편집. A/B/C 각 .psd(11.5MB) + .png", "done"),
+    (14, "버튼 브랜드 정합", "매수·매도 버튼의 도형·효과·색·폰트를 brand/ui 원본과 #6·#7 fx 실측값에 맞춤", "done"),
 ]
 
 SCRIPT_LINES = [
@@ -697,6 +722,17 @@ BRAND = [
     ("폰트", "본문", "S-Core Dream / 나눔고딕", None, "프리셋 폰트 폴더", None),
     ("폰트", "제목 대체", "경기천년제목", None, "프리셋 폰트 폴더", None),
     ("출력", "최종본 롱폼 규격", "1280x720 / 30fps", None, "최종본 파일 메타", "컷씬 소스는 1080p 로 납품 중"),
+    ("썸네일 버튼", "매수", "#FF0000", "186x88px", "brand/ui/매수 버튼(좌우).png 실측", "화살촉 43px · 모서리 r7 · 글씨 잉크 128x67"),
+    ("썸네일 버튼", "매도", "#0000FF", "186x88px", "brand/ui/매도 버튼(좌우).png 실측", None),
+    ("썸네일 버튼", "익절", "#00FF24", "185x90px", "#7 익절 도형 solidFill rgb(0,255,36)", "같은 도형에 색상 오버레이만 얹은 것"),
+    ("썸네일 버튼", "글씨", "S-Core Dream 5 Medium", None, "브랜드 PNG · #7 익절 텍스트 레이어",
+     "흰색, 검정 외곽선 없음. 타이틀(Gmarket Sans Bold)과 다른 폰트다"),
+    ("썸네일 버튼", "효과", "외부 광선 검정 18% · 스프레드 72 · 크기 10 · 노이즈 22", None,
+     "#6·#7 lfx2 를 ActionManager 로 읽음", "드롭섀도우·내부 그림자·획·그레이디언트는 전부 꺼져 있다"),
+    ("썸네일 버튼", "비율", "글씨높이/버튼높이 0.761 · (버튼폭-글씨폭)/버튼높이 0.659", None, "brand/ui PNG 실측",
+     "글씨는 몸통 한가운데에서 화살촉 쪽으로 0.04·h. 폰트가 바뀌어도 이 비율로 역산한다"),
+    ("썸네일 타이틀", "윗줄 글자 높이", "141px 고정", "왼쪽 x=88 · 베이스라인 y=198", "#2~#6 실측", "폭은 1017~1306 으로 자유"),
+    ("썸네일 타이틀", "아랫줄 글자 높이", "194px 고정", "왼쪽 x=74 · 베이스라인 y=395", "#2~#6 실측", "폭은 1148~1583 으로 자유"),
 ]
 
 ASSETS = [
@@ -756,6 +792,35 @@ ISSUES = [
      "줌아웃하면서 요소 간 거리가 좁아짐",
      "배지를 좌하단으로, 라벨 박스를 선 왼쪽 바깥으로, 놓친 구간 화살표 제거",
      "컷4 전 구간 스틸 확인", "fixed"),
+    (10, "복제한 회차의 차트 색이 죽음",
+     "렌더한 차트를 넣었더니 캔들과 태그가 전부 탁해졌다 (#00BF1B 가 #75947A 로)",
+     "회차 그룹 안의 'Black & White 823' 조정 레이어(불투명도 214/255 = 83.9%)가 켜져 있었다. "
+     "합성값을 역산하니 정확히 회색 83.9% 혼합이었다",
+     "복제 후 BLACKANDWHITE 조정 레이어를 끈다",
+     "#00FF24 가 그대로 나옴", "fixed"),
+    (11, "ExtendScript 에서 레이어 삭제가 막힘",
+     "'삭제 명령은 현재 사용할 수 없습니다' (오류 8800)",
+     "템플릿 레이어에 lspf(레이어 잠금)가 걸려 있다",
+     "복제한 그룹을 재귀적으로 allLocked/pixelsLocked/positionLocked = false 로 푼 뒤 삭제",
+     "다른 회차 9개 제거 성공", "fixed"),
+    (12, "썸네일 .psd 가 180MB",
+     "회차 하나짜리 결과물인데 템플릿 크기 그대로였다",
+     "10회차 그룹이 전부 들어 있다",
+     "저장 전에 #11 을 뺀 나머지 '#' 그룹을 통째로 삭제 (psdedit.drop_group 과 같은 발상)",
+     "195MB → 11.5MB", "fixed"),
+    (13, "폰트를 바꾸자 버튼 여백이 어긋남",
+     "S-Core Dream 으로 바꾸니 글씨 잉크(122px)가 몸통(114px)을 넘어 화살촉을 침범했다",
+     "버튼 크기가 advance width 기준 상수(h = 1.34·size, w = tw + 1.15·size)로 잡혀 있었다. "
+     "이 값은 Gmarket Sans 로 잰 것이라 폰트가 바뀌면 반드시 깨진다",
+     "actualBoundingBox 로 잉크를 재서 브랜드 비율(글씨h/버튼h = 0.761, (버튼w-글씨w)/버튼h = 0.659)로 역산",
+     "버튼 189x90 — 컨테이너가 템플릿 픽셀에서 잰 189x90 과 같다", "fixed"),
+    (14, "윈도우에서 log 도구가 안 돌아감",
+     "build_worklog_db.py 가 UnicodeDecodeError (cp949) 로 죽는다",
+     "git 출력은 UTF-8 인데 subprocess 의 text=True 가 윈도우 기본 로케일(cp949)로 읽는다. "
+     "한글 경로가 있는 저장소라 바로 터진다",
+     "git 을 부르는 subprocess.run 에 encoding='utf-8' 을 붙였다 (save.py 2곳, build_worklog_db.py 4곳). "
+     "파일 입출력은 PYTHONUTF8=1 로 덮는다",
+     "윈도우에서 db·md·html·README 4개 다 생성됨", "fixed"),
 ]
 
 DECISIONS = [
@@ -786,6 +851,31 @@ DECISIONS = [
      "어시스턴트·서버·CEP 커넥터·프리미어가 같은 PC 에 있어야 하는데 이 컨테이너는 리눅스에 프리미어가 없다. "
      "클립을 타임라인에 자동 반입하는 단계가 필요해지면 사용자 윈도우 PC + Claude Desktop 에 깐다",
      "컷 납품 자동화를 시작할 때"),
+    (12, "썸네일 편집 도구", "포토샵이 있는 로컬 PC 에서는 psd-tools 대신 Photoshop 2026 을 COM 으로 띄워 ExtendScript 로 편집한다",
+     "컨테이너가 psd-tools 로 쓴 .psd 를 포토샵이 끝내 거부한 문제가 여기서는 아예 생기지 않는다. "
+     "포토샵이 직접 편집하면 텍스트·효과·그룹이 전부 네이티브로 다시 그려진다. "
+     "리눅스 컨테이너에는 포토샵이 없으므로 psdedit.py·thumbnail_png.py 도 그대로 둔다",
+     "리눅스에서만 돌려야 할 때"),
+    (13, "복제할 베이스 회차", "#1 쿠라마기가 아니라 인물 없는 #6 지지와 저항",
+     "#1 하나만 참고하면 그 회차를 그대로 베낀 것이 된다. #1 은 타이틀이 가운데 정렬인 예외 회차이기도 하다. "
+     "#2~#6 다섯 회차가 좌표까지 완전히 같은 표준이고, #11 은 주인공 인물이 없는 회차라 #6·#9 계열이다", None),
+    (14, "버튼 색", "썸네일 버튼은 brand/ui 원본값 #FF0000/#0000FF, 영상 태그는 theme.js 의 #E80001/#0200F3 을 그대로 둔다",
+     "STYLE.md 의 값은 영상 프레임에서 잰 것이고 썸네일 버튼은 브랜드 PNG 를 그대로 쓴다. "
+     "둘이 실제로 다르므로 theme 를 건드리지 않고 씬에서 지정한다", None),
+    (15, "버튼을 그릴 것인가 뜯어 쓸 것인가", "렌더러(cmgArrow)가 그린다. 단 브랜드 실측 비율을 그대로 넣는다",
+     "컨테이너는 포토샵을 띄울 수 없어 brand/thumbnail/btn_*.png 를 뜯어 쓰는 쪽을 택했고 "
+     "thumbnail_rule 8 에 '직접 그리지 않는다' 로 적었다. 그 방법은 픽셀이 정확한 대신 라벨이 "
+     "매수·익절 두 개로 고정된다. 로컬 PC 는 포토샵이 있어 제약이 없고, 렌더러가 그리면 손절·중립 같은 "
+     "다른 글자도 같은 모양으로 나오며 차트 좌표에 바로 붙는다. 실제로 그려 보니 189x90 · 화살촉 0.49h 로 "
+     "템플릿 픽셀 실측값과 같았다. **썸네일은 로컬 쪽이 최신이다** — 컨테이너가 소유권을 넘겼다(request 20)",
+     "브랜드 버튼 디자인이 바뀔 때"),
+    (16, "버튼 크기 계산", "폰트별 상수 대신 잉크 박스에서 브랜드 비율로 역산한다",
+     "폰트를 바꿀 때마다 여백이 깨지는 것을 한 번 겪었다. 비율(0.761 / 0.659)은 브랜드 실측이라 불변이고 "
+     "잉크 폭·높이만 런타임에 재면 어떤 폰트에서도 같은 모양이 나온다", None),
+    (17, "차11 썸네일 채택안", "A(추세추종)와 C(통합) 채택, B(박스권)는 보류",
+     "조재희 팀장(파가드AC) 확인 — '1번과 3번이 가장 간결하게 잘 뽑혔다, 두번째는 조금 내용이 많아 보인다'. "
+     "B 는 박스 상하단 점선 두 개 + 매수 + 익절 + 누운 이평선이 한 화면에 다 들어가 요소가 가장 많다",
+     "박스권 단독 숏폼(#5) 썸네일이 따로 필요해질 때"),
 ]
 
 
@@ -835,6 +925,9 @@ REPO_FILES = {
     "brand/sfx": ("애셋", "효과음 2종"),
     "brand/premiere": ("애셋", "차트명가_메인프리셋(24버전).prproj"),
     "brand/reference": ("애셋", "레퍼런스 영상 캡처 4장. 색을 실측한 원본"),
+    "scenes/thumb-ch11-A.scenes.js": ("씬", "차11 썸네일 A안 — 추세추종. 눌림목 매수 53번 → 완전 이격 음봉 익절 87번"),
+    "scenes/thumb-ch11-B.scenes.js": ("씬", "차11 썸네일 B안 — 박스권. 순수 range 시장(seed 7)으로 EMA20 이 화면 내내 눕는다"),
+    "scenes/thumb-ch11-C.scenes.js": ("씬", "차11 썸네일 C안 — 통합. 박스 점선 + 추세 진입/청산을 한 컷에"),
 }
 
 RUNBOOK = [
@@ -893,6 +986,13 @@ RUNBOOK = [
     (8, "드라이브 폴더 목록", "공유 폴더 안을 보기 (인증 없이 됨)", "curl -sSL 'https://drive.google.com/embeddedfolderview?id=<FOLDER_ID>#list'", "flip-entry 클래스에서 파일 id 와 이름을 뽑는다"),
     (9, "드라이브 파일 받기", "공유 링크 파일을 컨테이너로", "curl -sSL -o out.bin 'https://drive.usercontent.google.com/download?id=<FILE_ID>&export=download&confirm=t'", "대용량도 confirm=t 로 한 번에 받아진다"),
     (10, "로그 갱신", "작업 로그 다시 뽑기", "python3 log/build_worklog_db.py --md && python3 log/build_worklog_page.py", "DB 가 원본이다"),
+    (11, "썸네일 (로컬 윈도우)", "포토샵으로 템플릿 .psd 를 직접 편집",
+     "node src/cli.mjs --config scenes/thumb-ch11-A.scenes.js --all --stills 1"
+     " 그 다음 PowerShell 에서 New-Object -ComObject Photoshop.Application 의 DoJavaScriptFile 로 .jsx 실행",
+     "포토샵이 있어야 한다. 리눅스 컨테이너에서는 tools/thumbnail_png.py 나 psdedit.py 를 쓴다"),
+    (12, "로그 갱신 (윈도우)", "윈도우에서 DB·MD·HTML 다시 뽑기",
+     "$env:PYTHONUTF8='1'; python log/build_worklog_db.py --md; python log/build_worklog_page.py; python log/build_readme.py",
+     "PYTHONUTF8 없이는 한글 경로에서 cp949 로 죽는다. --print 는 out/ 이 없으면 요약 단계에서 터지니 빼고 쓴다"),
 ]
 
 ENV_TOOLS = [
@@ -904,6 +1004,12 @@ ENV_TOOLS = [
     ("JetBrains Mono", "5.x", "node_modules/@fontsource/jetbrains-mono", "npm install", "숫자 표기용"),
     ("브랜드 폰트", "-", "brand/fonts", "저장소에 포함", "Gmarket Sans / S-Core Dream / 나눔고딕 / 경기천년제목"),
     ("SQLite", "3.45", "파이썬 내장 sqlite3", "설치 불필요", "로그 DB"),
+    ("Photoshop (로컬 PC)", "2026 / 27.9.1", "C:/Program Files/Adobe/Adobe Photoshop 2026", "이미 설치돼 있음",
+     "COM ProgID 'Photoshop.Application' 의 DoJavaScriptFile 로 .jsx 를 실행한다. 썸네일은 여기서 편집한다"),
+    ("Node.js (로컬 PC)", "24.19.0", "C:/Program Files/nodejs", "winget install OpenJS.NodeJS.LTS", "설치 후 PATH 갱신이 필요하다"),
+    ("Python (로컬 PC)", "3.11.9", "-", "winget install Python.Python.3.11", "log/save.py · build_worklog_db.py 실행용. PYTHONUTF8=1 필요"),
+    ("Chromium (로컬 PC)", "151 headless shell", "%LOCALAPPDATA%/ms-playwright", "npx playwright install chromium",
+     "npm install 만으로는 브라우저가 안 받아진다"),
 ]
 
 DRIVE_MAP = [
@@ -1351,11 +1457,12 @@ THUMBNAIL_RULES = [
      "템플릿의 '틀' 은 도형 레이어라 그대로 뽑으면 안쪽 흰 면까지 딸려 온다. 실측값으로 다시 그린다"),
     (3, "배경", "종이 텍스처 (거의 흰색)", "템플릿 '종이 배경' 레이어, 4,-84 에 배치", None),
     (4, "타이틀 윗줄(서브)", "#FFFFFF · GmarketSansBold · 검정 외곽선 · 자간 -40",
-     "y≈84~111, 폭 979~1189 중앙값 1120",
-     "후킹 문구. 강조할 때는 #FF0000 (차07·차08·차10 이 그렇게 했다)"),
+     "글자 높이 141px 고정 · 왼쪽 x=88 · 베이스라인 y=198 · 폭은 1017~1306 으로 자유",
+     "후킹 문구. 강조할 때는 #FF0000 (차07·차08·차10 이 그렇게 했다). "
+     "예전에 '폭을 맞춘다' 고 적어 둔 것은 오해였다 — #2~#6 다섯 회차를 재 보니 글자 크기가 고정이고 폭이 변한다"),
     (5, "타이틀 아랫줄(메인)", "#FFFF00 · GmarketSansBold · 검정 외곽선 · 자간 -40",
-     "y≈229~268, 폭 981~1476 중앙값 1185",
-     "매매법 이름. 글자 수가 달라도 폭을 맞추므로 폰트 크기는 폭에서 역산한다"),
+     "글자 높이 194px 고정 · 왼쪽 x=74 · 베이스라인 y=395 · 폭은 1148~1583 으로 자유",
+     "매매법 이름. #1 쿠라마기만 가운데 정렬(anchor 642 / 683)인 예외이고 #2~#10 은 왼쪽 정렬이다"),
     (6, "로고", "차트명가_로고(최종+핑크) 좌하단", "49, 977 · 209x52", None),
     (7, "차트", "매매법의 핵심을 한 장으로. 한 차트로 대본 전체를 설명할 수 있어야 한다",
      "우리 렌더러가 그린다 (scenes/thumb-*.scenes.js)",
@@ -1365,7 +1472,11 @@ THUMBNAIL_RULES = [
      "왼쪽 모서리만 둥글다. 글자는 몸통 안에서 9px 여백",
      "**직접 그리지 않는다.** 템플릿 레이어를 topil() 로 뜯어 brand/thumbnail/btn_*.png 로 저장해 두었다. "
      "익절은 매수 버튼을 좌우 반전한 모양에 Color Overlay #00FF24 가 걸린 것이고, "
-     "흰 '익절' 글자는 그 위 별도 텍스트 레이어다"),
+     "흰 '익절' 글자는 그 위 별도 텍스트 레이어다. "
+     "**지금 기준은 렌더러(cmgArrow)가 그리는 쪽이다.** 차11 A·C 안이 그렇게 납품됐고 팀장 확인도 났다. "
+     "브랜드 비율을 그대로 넣으니 189x90 · 화살촉 0.49h 로 위 실측값과 같게 나오고, "
+     "라벨이 매수·익절 말고 다른 글자여도 같은 모양으로 붙는다(decision 15). "
+     "btn_*.png 는 포토샵을 못 쓰는 컨테이너에서 쓰는 대체 경로다"),
     (16, "종이 텍스처 겹치기", "흰 바탕 → 종이 배경 30% → 배경 지운 차트",
      "완성본 흰 부분 250.2 = 0.3x239(종이) + 0.7x255. 캔들은 254.7 로 안 눌린다",
      "템플릿은 차트를 두 장 쓴다 — 밑에 원본, 위에 배경을 지운 복사본. 그 사이에 종이(77/255)가 낀다. "
@@ -1394,6 +1505,21 @@ THUMBNAIL_RULES = [
      "'3년만에 100배 수익 / 이동평균선 매매법', '손절 없이 수익 내는 / 양방향 매매법', "
      "'매일 100만원 수익내는 / MACD 매매법'",
      "숫자와 손실 회피가 자주 쓰인다"),
+    (18, "버튼 글씨", "에스코어 드림 5 Medium (SCDream5.otf, weight 500) 흰색",
+     "브랜드 버튼 원본 픽셀 · #7 썸네일의 '익절' 텍스트 레이어가 S-CoreDream-5Medium 38px",
+     "타이틀(Gmarket Sans Bold)과 다른 폰트다. 검정 외곽선은 없다. "
+     "렌더러에서는 theme.fontTag / fontTagWeight 로 한 군데서 관리한다 — cmgArrow·cmgBadge·cmgLevel 이 쓴다. "
+     "주석(cmgNote)은 버튼이 아니라 GmarketSans 계열이다"),
+    (19, "인물 판단 기준", "주인공 트레이더가 있는 회차만 넣는다",
+     "10장 중 8장에 인물이 있다. 없는 것은 #9 RSI 위에 볼린저밴드, #6 지지와 저항 — 둘 다 지표가 주제인 회차다",
+     "인물이 있으면 차트가 좌측 2/3 로 밀리고, 없으면 차트가 화면 전체를 쓴다. 규칙 9 의 판단 기준이다"),
+    (20, "지표 이름 라벨", "지표가 둘 이상일 때만 붙인다",
+     "#9 는 (RSI)·(볼린저밴드) 두 개, #6 은 '지지선' 하나. GmarketSansMedium 36px 자간 -40",
+     "#11 은 선이 20일선 하나뿐이고 타이틀이 이미 이름을 말해서 붙이지 않았다. 붙여 보니 캔들과 겹치기만 했다"),
+    (21, "회차마다 반드시 바꾸는 것", "차트에 그 매매법의 핵심 시각 요소를 하나 심는다",
+     "#6 초록 지지선 + '지지선' 라벨 / #9 지시 화살표 + 괄호 라벨 / #10 매수①~매도⑥ 번호 화살표 / "
+     "#2 스토캐스틱 서브차트 + 가짜신호 X 표시",
+     "차트가 그냥 캔들 그림이면 어느 회차인지 알 수 없다. 규칙 7 을 회차 단위로 푼 것이다"),
 ]
 
 NAMING_RULES = [
@@ -1450,7 +1576,7 @@ def load_checkpoints():
         # 태그는 푸시가 막혀 있어 새 컨테이너에는 없다. json 에 적힌 해시가 먼저다.
         if not r.get("sha"):
             out = subprocess.run(["git", "rev-list", "-n", "1", "--abbrev-commit", r["tag"]],
-                                 cwd=ROOT, capture_output=True, text=True)
+                                 cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
             r["sha"] = out.stdout.strip() or None
     return rows
 
@@ -1467,7 +1593,7 @@ def git_commits():
     try:
         out = subprocess.run(
             ["git", "log", "--reverse", "--pretty=format:%H%x1f%aI%x1f%s"],
-            cwd=ROOT, capture_output=True, text=True, check=True).stdout
+            cwd=ROOT, capture_output=True, text=True, encoding="utf-8", check=True).stdout
     except Exception:
         return []
     rows = []
@@ -1475,7 +1601,7 @@ def git_commits():
         sha, authored, subject = line.split("\x1f")
         stat = subprocess.run(
             ["git", "show", "--shortstat", "--pretty=format:", sha],
-            cwd=ROOT, capture_output=True, text=True).stdout.strip()
+            cwd=ROOT, capture_output=True, text=True, encoding="utf-8").stdout.strip()
         files = ins = dele = None
         if stat:
             import re
@@ -1530,7 +1656,7 @@ def build():
         "INSERT INTO decision (seq,topic,choice,rationale,revisit_when) VALUES (?,?,?,?,?)", DECISIONS)
 
     # -z 를 써야 공백·한글이 든 경로가 쪼개지지 않는다
-    raw = subprocess.run(["git", "ls-files", "-z"], cwd=ROOT, capture_output=True, text=True).stdout
+    raw = subprocess.run(["git", "ls-files", "-z"], cwd=ROOT, capture_output=True, text=True, encoding="utf-8").stdout
     files = [f for f in raw.split("\0") if f]
     seen = set()
     for path in files:

@@ -88,6 +88,11 @@ export const CHARTMYEONGGA = {
 
   font: "'Gmarket Sans', 'S-Core Dream', Pretendard, sans-serif",
   fontBody: "'S-Core Dream', Pretendard, sans-serif",
+  // 매수·매도·익절·손절 버튼과 배지의 글씨.
+  // 브랜드 버튼 원본(brand/ui/*.png)과 #7 썸네일의 '익절' 텍스트 레이어가
+  // 둘 다 에스코어 드림 5 Medium 이다. 타이틀(Gmarket Sans Bold)과 다른 폰트다.
+  fontTag: "'S-Core Dream', Pretendard, sans-serif",
+  fontTagWeight: 500,
   mono: "'JetBrains Mono', 'SF Mono', Menlo, monospace",
 };
 

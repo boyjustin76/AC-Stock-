@@ -107,13 +107,13 @@ function strokeText(ctx, text, x, y, opt = {}) {
 }
 
 /** 오른쪽을 가리키는 화살표 모양 라벨 (매수 / 매도 태그) */
-function arrowTagPath(ctx, tipX, cy, w, h, dir = 1, headRatio = 0.86) {
+function arrowTagPath(ctx, tipX, cy, w, h, dir = 1, headRatio = 0.49, radius = null) {
   const head = h * headRatio;
   const x0 = tipX - dir * w;
   const x1 = tipX - dir * head;
   const t = cy - h / 2;
   const b = cy + h / 2;
-  const r = 6;
+  const r = radius ?? h * 0.08;
   ctx.beginPath();
   ctx.moveTo(tipX, cy);
   ctx.lineTo(x1, t);
@@ -793,7 +793,9 @@ const LAYERS = {
         const size = L.labelSize ?? 64;
         ctx.save();
         ctx.globalAlpha *= clamp(lp);
-        ctx.font = `700 ${size}px ${theme.font}`;
+        const tagFont = L.font ?? theme.fontTag ?? theme.fontBody ?? theme.font;
+        const tagWeight = L.fontWeight ?? theme.fontTagWeight ?? 700;
+        ctx.font = `${tagWeight} ${size}px ${tagFont}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         strokeText(ctx, L.label, x0 + w * (L.labelFrac ?? 0.55), (y + y2) / 2, {
@@ -810,7 +812,9 @@ const LAYERS = {
         // 기본 프리셋 실측(1920x1080): 익절 박스 173x84, 선 두께 23px,
         // 각진 모서리, 흰 글씨에 외곽선 없음, 박스는 선 시작점 왼쪽에 딱 붙는다.
         const size = L.labelSize ?? 62;
-        ctx.font = `700 ${size}px ${theme.font}`;
+        const tagFont = L.font ?? theme.fontTag ?? theme.fontBody ?? theme.font;
+        const tagWeight = L.fontWeight ?? theme.fontTagWeight ?? 700;
+        ctx.font = `${tagWeight} ${size}px ${tagFont}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         const tw = ctx.measureText(L.label).width;
@@ -854,20 +858,50 @@ const LAYERS = {
 
     withAlpha(ctx, v, () => {
       const size = L.size ?? 36;
-      ctx.font = `700 ${size}px ${theme.font}`;
+      const tagFont = L.font ?? theme.fontTag ?? theme.fontBody ?? theme.font;
+      const tagWeight = L.fontWeight ?? theme.fontTagWeight ?? 700;
+      ctx.font = `${tagWeight} ${size}px ${tagFont}`;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
       const label = L.label ?? (buy ? '매수' : '매도');
-      const tw = ctx.measureText(label).width;
-      const h = size * 1.34;
-      const w = (tw + size * 1.15) * pop;
+      // 브랜드 버튼(brand/ui/매수 버튼(좌우).png) 실측 비율을 그대로 쓴다.
+      //   186x88 · 글씨 잉크 128x67 · 화살촉 43 · 글씨 왼쪽여백 11 / 오른쪽 4
+      //     글씨높이 / 버튼높이           = 0.761
+      //     (버튼폭 - 글씨폭) / 버튼높이  = 0.659
+      // 폰트 폭에 의존하는 magic number 대신 잉크 박스에서 직접 잰다.
+      // 그래야 폰트를 바꿔도(Gmarket -> 에스코어 드림) 비율이 그대로 유지된다.
+      const m = ctx.measureText(label);
+      const inkL = m.actualBoundingBoxLeft ?? 0;
+      const inkR = m.actualBoundingBoxRight ?? m.width;
+      const inkW = inkL + inkR;
+      const inkH = (m.actualBoundingBoxAscent ?? size * 0.72) + (m.actualBoundingBoxDescent ?? 0);
+      const tw = m.width;
+      const h = L.height ?? inkH / (L.inkRatio ?? 0.761);
+      const w = (inkW + (L.padRatio ?? 0.659) * h) * pop;
       const d = dirRight ? 1 : -1;
 
       ctx.save();
-      arrowTagPath(ctx, tipX, cy, w, h, d, L.headRatio ?? 0.86);
-      // 최종본은 검정 외곽선 없이, 흰 여백만 살짝 두르는 형태다
-      if (L.halo !== false) {
-        ctx.strokeStyle = L.halo ?? '#FFFFFF';
+      // 브랜드 버튼 원본(brand/ui/매수 버튼(좌우).png) 실측 — 186x88px
+      //   화살촉 43px = 0.49·h   (예전 기본값 0.86 은 촉이 두 배 가까이 길었다)
+      //   모서리 r  7px = 0.08·h
+      arrowTagPath(ctx, tipX, cy, w, h, d, L.headRatio ?? 0.49, L.radius ?? h * 0.08);
+
+      // #6·#7 썸네일 PSD 의 '매수 버튼(좌우)' 레이어 효과를 그대로 옮겼다:
+      //   외부 광선 · 검정 · 표준 · 불투명도 18% · 스프레드 72% · 크기 10 · 노이즈 22
+      //   드롭섀도우 / 내부 그림자 / 획 / 그레이디언트 — 전부 꺼져 있다
+      // 캔버스에는 스프레드가 없으므로 같은 그림자를 여러 번 겹쳐 가장자리 농도를 맞춘다.
+      if (L.glow !== false) {
+        const G = L.glow ?? {};
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,' + (G.opacity ?? 0.18) + ')';
+        ctx.shadowBlur = (G.size ?? 0.114) * h;   // 88px 버튼의 크기 10 → 0.114·h
+        ctx.fillStyle = '#000000';
+        for (let k = 0; k < (G.passes ?? 3); k++) ctx.fill();
+        ctx.restore();
+      }
+      // 흰 헤일로는 영상용 태그의 것이다. 썸네일 버튼에는 없으니 명시할 때만 그린다.
+      if (L.halo) {
+        ctx.strokeStyle = L.halo;
         ctx.lineWidth = L.haloWidth ?? Math.max(3, size * 0.12);
         ctx.stroke();
       }
@@ -878,8 +912,15 @@ const LAYERS = {
       if (pop > 0.5) {
         ctx.save();
         ctx.globalAlpha *= clamp((pop - 0.5) * 3);
-        const tx = dirRight ? tipX - w + size * 0.26 : tipX + w - size * 0.26 - tw;
-        strokeText(ctx, label, tx, cy + 2, { strokeWidth: L.textStroke ?? 0 });
+        // 브랜드 버튼은 몸통 143px 안에 글씨를 왼쪽 11 / 오른쪽 4 로 둔다.
+        // 즉 몸통 한가운데에서 화살촉 쪽으로 (11-4)/2 = 3.5px ≒ 0.04·h 만큼 밀어 둔 것.
+        // 브랜드는 몸통 143px 안에 글씨를 왼쪽 11 / 오른쪽 4 로 둔다
+        // = 몸통 한가운데에서 화살촉 쪽으로 (11-4)/2 = 3.5px ≒ 0.04·h
+        const headLen = h * (L.headRatio ?? 0.49);
+        const bodyCx = tipX - d * (headLen + (w - headLen) / 2);
+        const inkCx = bodyCx + d * h * 0.04;
+        ctx.textAlign = 'left';
+        strokeText(ctx, label, inkCx - (inkR - inkL) / 2, cy + 2, { strokeWidth: L.textStroke ?? 0 });
         ctx.restore();
       }
     });
@@ -895,7 +936,9 @@ const LAYERS = {
     const pop = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.35, Ease.outBack);
 
     withAlpha(ctx, v, () => {
-      ctx.font = `700 ${size}px ${theme.font}`;
+      const tagFont = L.font ?? theme.fontTag ?? theme.fontBody ?? theme.font;
+      const tagWeight = L.fontWeight ?? theme.fontTagWeight ?? 700;
+      ctx.font = `${tagWeight} ${size}px ${tagFont}`;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
       const tw = ctx.measureText(L.text).width;
@@ -934,7 +977,7 @@ const LAYERS = {
 
     withAlpha(ctx, v, () => {
       ctx.translate(0, (1 - rise) * 18);
-      ctx.font = `700 ${size}px ${theme.font}`;
+      ctx.font = `700 ${size}px ${L.font ?? theme.font}`;  // 주석은 버튼이 아니다 — 타이틀 폰트 계열
       ctx.textAlign = L.align ?? 'center';
       ctx.textBaseline = 'middle';
       strokeText(ctx, L.text, x, y, {
