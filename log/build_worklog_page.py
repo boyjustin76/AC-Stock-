@@ -100,6 +100,37 @@ def build():
         for n, asp, fin, src, ln, tone in q(
             "SELECT name,aspect,final_spec,source_spec,length,tone FROM format ORDER BY id"))
 
+    # ── 숏폼 대본 규칙 ────────────────────────────────────────
+    TIER = {"필수": "here", "권장": "", "선택": "partial", "수치": "todo"}
+    sf_rules = []
+    for grp, rule, ev, hits, tot, tier in q(
+            "SELECT grp,rule,evidence,hits,total,tier FROM shortform_rule ORDER BY id"):
+        cnt = f"<span class='mono sub'>{hits}/{tot}편</span>" if hits else ""
+        sf_rules.append(
+            f"<tr><td class='nowrap'><span class='pill p-{TIER[tier]}'>{e(tier)}</span></td>"
+            f"<td class='nowrap sub'>{e(grp)}</td>"
+            f"<td><b>{e(rule)}</b> {cnt}<span class='sub'>{e(ev)}</span></td></tr>")
+    sfrules = "".join(sf_rules)
+
+    sfparts = "".join(
+        f"<tr><td class='nowrap'><b>{e(nm)}</b></td><td>{e(pur)}</td>"
+        f"<td class='mono r nowrap'>{lo}~{hi}자</td>"
+        f"<td class='mono r nowrap'>{lo/6.6:.0f}~{hi/6.6:.0f}초</td>"
+        f"<td class='sub'>{e(ph or '')}</td></tr>"
+        for nm, pur, lo, hi, ph in q(
+            "SELECT name,purpose,chars_min,chars_max,phrasing FROM shortform_part ORDER BY seq"))
+
+    sfdocs = "".join(
+        f"<tr><td class='mono nowrap'>{e(a)}</td>"
+        f"<td class='nowrap'>차{ep:02d}<b>#{no}</b></td>"
+        f"<td>{e(fo[7:])}</td>"
+        f"<td class='mono r'>{ch}</td><td class='mono r'>{sec:.0f}s</td>"
+        f"<td class='mono r'>{'' if w is None else str(w)+'~'+str(w+10)+'%'}</td>"
+        f"<td class='mono r'>{'' if n10 is None else f'{n10:.1f}%'}</td></tr>"
+        for a, ep, no, fo, ch, sec, w, n10 in q(
+            "SELECT aired,ep,no,folder,chars,est_sec,long_window,ngram10 FROM shortform_doc"
+            " WHERE rerun=0 ORDER BY ep,no"))
+
     # ── 세이브 슬롯 ───────────────────────────────────────────
     slots = "".join(
         f"<tr><td class='mono nowrap'>{e(kst)}</td><td class='mono'>{e(tag)}</td>"
@@ -268,6 +299,7 @@ def build():
         "__FLOW__": flow, "__BENCH__": bench, "__TOOLS__": tools, "__PRPROJ__": prproj,
         "__DOCS__": docs, "__PRJ__": prj, "__MOTION__": motion, "__SLOTS__": slots,
         "__PIPELINE__": pipeline, "__FORMATS__": formats,
+        "__SFRULES__": sfrules, "__SFPARTS__": sfparts, "__SFDOCS__": sfdocs,
         "__NSCENE__": str(counts.get("scene", 0)), "__NISSUE__": str(counts.get("issue", 0)),
         "__NTOKEN__": str(counts.get("brand_token", 0)), "__NRENDER__": str(counts.get("render", 0)),
     }.items():
@@ -518,6 +550,7 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
   <li><a href="#sync">대본 싱크</a></li>
   <li><a href="#flow">작업 방식</a></li>
   <li><a href="#scripts">대본 인덱스</a></li>
+  <li><a href="#shortform">숏폼 대본</a></li>
   <li><a href="#build">컷 짜는 법</a></li>
   <li><a href="#brand">브랜드 스펙</a></li>
   <li><a href="#issues">문제와 해결</a></li>
@@ -641,6 +674,35 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
   <div class="scroll"><table>
     <thead><tr><th>모션</th><th>파라미터</th><th>값</th><th>29.97</th><th>초</th><th>보간</th></tr></thead>
     <tbody>__MOTION__</tbody>
+  </table></div>
+</section>
+
+<section id="shortform">
+  <h2>숏폼 대본 — 롱폼에서 뽑는 규칙</h2>
+  <p class="lede">숏폼 대본을 만드는 방식은 팀장님 머릿속에만 있었습니다.
+     나간 숏폼 25편과 그 원본 롱폼 13편을 문장·n-gram 단위로 맞춰 보고 역으로 뽑아낸 규칙입니다.
+     핵심은 <b>복붙이 아니라 다시 쓴다</b>는 것 — 10자 n-gram 겹침이 중앙값 2.2%뿐입니다.</p>
+  <p class="lede">등급은 기존 24편 중 몇 편이 지켰는지로 나눴습니다.
+     5개를 모두 지킨 편은 2편뿐이라, 이건 규칙이라기보다 경향입니다.
+     <b>권장·선택은 어겨도 됩니다.</b></p>
+  <div class="scroll"><table>
+    <thead><tr><th>등급</th><th>갈래</th><th>규칙과 근거</th></tr></thead>
+    <tbody>__SFRULES__</tbody>
+  </table></div>
+
+  <h3 class="sub-h">뼈대</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>단</th><th>하는 일</th><th>분량</th><th>길이</th><th>쓰는 말</th></tr></thead>
+    <tbody>__SFPARTS__</tbody>
+  </table></div>
+
+  <h3 class="sub-h">나간 숏폼 25편</h3>
+  <p class="lede">「롱폼 구간」은 그 편이 롱폼의 어느 부분에서 왔는지,
+     「10자 겹침」은 원문을 얼마나 그대로 썼는지입니다.
+     #1 이 #2 보다 앞 구간에서 오는 것이 12쌍 중 11쌍입니다.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>방영</th><th>편</th><th>제목</th><th>자수</th><th>길이</th><th>롱폼 구간</th><th>10자 겹침</th></tr></thead>
+    <tbody>__SFDOCS__</tbody>
   </table></div>
 </section>
 

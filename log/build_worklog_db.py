@@ -367,6 +367,59 @@ CREATE TABLE pipeline_stage (
   note          TEXT
 );
 
+-- 숏폼 대본 (롱폼에서 추출한 것만. '포인트' 편은 기획형이라 제외)
+CREATE TABLE shortform_doc (
+  id            INTEGER PRIMARY KEY,
+  aired         TEXT NOT NULL,
+  ep            INTEGER,
+  no            INTEGER,
+  folder        TEXT NOT NULL,
+  file          TEXT NOT NULL,
+  drive_id      TEXT NOT NULL,
+  chars         INTEGER NOT NULL,
+  est_sec       REAL NOT NULL,
+  long_window   INTEGER,
+  ngram4        REAL,
+  ngram10       REAL,
+  size_ratio    REAL,
+  rerun         INTEGER NOT NULL DEFAULT 0
+);
+
+-- 숏폼 대본 전문 검색
+CREATE VIRTUAL TABLE shortform_fts USING fts5(folder, body, tokenize='unicode61');
+
+-- 롱폼 → 숏폼 추출 규칙. hits/total 은 기존 24편 중 몇 편이 지켰는지.
+CREATE TABLE shortform_rule (
+  id            INTEGER PRIMARY KEY,
+  grp           TEXT NOT NULL,
+  rule          TEXT NOT NULL,
+  evidence      TEXT NOT NULL,
+  hits          INTEGER,
+  total         INTEGER,
+  tier          TEXT NOT NULL CHECK (tier IN ('필수','권장','선택','수치'))
+);
+
+-- 숏폼 대본의 뼈대와 목표 분량
+CREATE TABLE shortform_part (
+  id            INTEGER PRIMARY KEY,
+  seq           INTEGER NOT NULL,
+  name          TEXT NOT NULL,
+  purpose       TEXT NOT NULL,
+  chars_min     INTEGER NOT NULL,
+  chars_max     INTEGER NOT NULL,
+  phrasing      TEXT
+);
+
+-- 일정표가 말하는 롱폼 ↔ 숏폼 대응
+CREATE TABLE shortform_map (
+  id            INTEGER PRIMARY KEY,
+  aired         TEXT NOT NULL,
+  kind          TEXT NOT NULL,
+  title         TEXT NOT NULL,
+  source        TEXT NOT NULL,
+  ep            INTEGER
+);
+
 -- 세이브 슬롯 (git 태그 = 되돌릴 수 있는 시점)
 CREATE TABLE checkpoint (
   id            INTEGER PRIMARY KEY,
@@ -379,10 +432,11 @@ CREATE TABLE checkpoint (
 
 -- 이 저장소가 파이프라인의 어디를 맡는가
 CREATE VIEW v_scope AS
-SELECT format, seq, name,
-       CASE WHEN in_repo THEN '← 이 저장소' ELSE '' END AS here,
-       owner, status
-FROM pipeline_stage ORDER BY format DESC, seq;
+SELECT p.format, p.seq, p.name,
+       CASE WHEN p.in_repo THEN '← 이 저장소' ELSE '' END AS here,
+       p.owner, p.status
+FROM pipeline_stage p JOIN format f ON f.name = p.format
+ORDER BY f.id, p.id;
 
 -- 처음 여는 사람이 순서대로 읽을 것
 CREATE VIEW v_start_here AS
@@ -400,6 +454,7 @@ UNION ALL SELECT 8, '렌더에 걸리는 시간', 'benchmark 테이블'
 UNION ALL SELECT 9, '지난 회차 대본 찾기', "script_fts MATCH '키워드' 또는 script_keyword"
 UNION ALL SELECT 10, '회사 모션 문법', 'motion_preset 테이블'
 UNION ALL SELECT 11, '되돌릴 수 있는 시점', "checkpoint 테이블 / python3 log/save.py --list"
+UNION ALL SELECT 12, '숏폼 대본 만드는 법', 'shortform_rule / shortform_part / tools/shortform.py'
 ORDER BY ord;
 
 -- 컷과 대본 싱크 한눈에
@@ -660,6 +715,9 @@ DECISIONS = [
 
 
 REPO_FILES = {
+    "tools": ("도구", "숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트"),
+    "scripts/shortform": ("산출물", "숏폼 대본 초안. 규칙대로 쓴 것"),
+    "log/data": ("자료", "롱폼 대본 인덱스·숏폼 대본·세이브 슬롯 (JSON)"),
     "README.md": ("문서", "렌더러 사용법 · 포맷 선택 기준 · 씬 설정 레퍼런스"),
     "brand/STYLE.md": ("문서", "차트명가 브랜드 스펙. 색·레이아웃·폰트·스크립트 6단 구조"),
     "log/WORKLOG.md": ("문서", "이 DB 에서 뽑은 작업 로그"),
@@ -693,6 +751,15 @@ REPO_FILES = {
 }
 
 RUNBOOK = [
+    (0, "숏폼 — 롱폼 챕터 보기", "어느 챕터를 숏폼으로 뽑을지 고른다",
+     "python3 tools/shortform.py chapters 11",
+     "이미 만든 숏폼과 일정표에 잡힌 편까지 같이 보여 준다"),
+    (0, "숏폼 — 작성 지시서", "챕터 하나로 숏폼을 쓰기 위한 지시서를 만든다",
+     "python3 tools/shortform.py brief 11 --chapter '전략 1' --no 4",
+     "챕터 원문 · 목표 분량 · 고정 문구 · 앞 편이 던진 질문까지 한 장에"),
+    (0, "숏폼 — 초안 검사", "써 놓은 초안이 규칙에 맞는지 본다",
+     "python3 tools/shortform.py check 'scripts/shortform/차11_#4_20일선 추세추종 매매법.txt'",
+     "필수/권장/선택 등급으로 나온다. 권장·선택은 어겨도 된다"),
     (0, "세이브", "지금 상태를 되돌릴 수 있는 시점으로 굳힌다",
      "python3 log/save.py \"어디까지 했는지 한 줄\"",
      "로그를 다시 만들고 커밋·태그·푸시까지 한 번에. 태그 이름은 save/YYYY-MM-DD-HHMM (KST)"),
@@ -741,6 +808,20 @@ ENV_TOOLS = [
 ]
 
 DRIVE_MAP = [
+    ("폴더", "03_영상_소스_숏츠 / 차트명가(숏)", "1xpW_VHXA3XZQDvhURn2DthQCwP_gfwtR", None,
+     "숏폼 대본·소스. 26XXXX_[SL_차NN_#N]제목 폴더 안에 .txt 대본이 있다. "
+     "[포인트_차] 폴더는 기획형이라 롱폼 추출 규칙과 무관하다"),
+    ("문서", "차트명가(유튜브)_업로드 현황(2026).xlsx", "129vEIFCHgNco6U4mUWoP_4JYOjuIQ2Ba", None,
+     "일정표. '유형' 열이 숏폼(SL)=롱폼 추출 / 숏폼(포)=기획형을 가른다. "
+     "'추출 원본' 열이 롱폼↔숏폼 대응의 정답"),
+    ("문서", "차트명가_숏츠 프롬프터 학습용 데이터.txt", "1zpwz-xtFvHup2EhtXpP4vbW3xOUN0LAI",
+     "1xpW_VHXA3XZQDvhURn2DthQCwP_gfwtR",
+     "숏폼 대본 30편을 --- 로 이어붙인 모음집. 포인트 편도 섞여 있다"),
+    ("프로젝트", "숏츠 기본 양식.prproj", "1Or596wJAfylN6iiL7W9bvK8ScFKijub9",
+     "1oxFlIGpiMtO6ru9TCIqSj2WO3YrMBBqZ",
+     "숏폼 프리미어 템플릿. 1080x1920 / 30fps. 숏폼 3단계 시작할 때 여기서 실측한다"),
+    ("영상", "260703_[SL_차11_#1]20일선 120%활용법(최종).mp4", "11XeXHXJdfGqqAeG4vCPMZIApex65yc_m", None,
+     "초당 글자수 실측에 쓴 최종본. 1080x1920 / 30fps / 83.4초, 내레이션 548자 → 6.6자/초"),
     ("폴더", "02_차트명가(최종본)", "1HOplrH8GowSLJPrbxIVvVTCDEL6sUPac", None, "소유 krtradingfactory@gmail.com. 완성본 영상"),
     ("폴더", "└ 롱폼_매매기법(차트명가)", "11eZrZdLgp4MLABX0dNR8dKF1lfMCZmSz", "02_차트명가(최종본)", "차명#1~#10 최종본 mp4. 디자인 실측 원본"),
     ("폴더", "└ 숏츠_영상(차트명가)", "1El3msCDwc3JM4toYMrVYvDQ15V2NC8RN", "02_차트명가(최종본)", "숏츠 60여 편"),
@@ -837,8 +918,13 @@ NEXT_STEPS = [
     (4, "규격 통일 여부", "채널 최종본은 720p/30fps. 1080p/59.94 유지 중인데 다른 소스와 맞출지 결정 필요", "사용자 판단"),
     (6, "컷별 병렬 렌더 스크립트", "지금은 셸에서 손으로 백그라운드를 띄운다. "
      "npm run render:par 로 코어 수만큼 자동 샤딩하게 만들면 매번 절반 시간에 끝난다", "사용자 승인"),
-    (10, "숏폼 톤앤매너 조사", "최종본 숏츠 60여 편이 드라이브에 있다 (drive_map 참고). "
-     "1080x1920 세로 프레임에서 자막·차트·라벨이 어떻게 배치되는지 실측하면 숏폼 3단계를 시작할 수 있다", None),
+    (12, "숏폼 #4·#5 초안 검토", "차11 전략1·전략2 로 초안 두 편을 규칙대로 써 두었다 "
+     "(scripts/shortform/). 팀장님이 쓰신 것과 얼마나 다른지 보면 규칙의 정확도를 알 수 있다", "사용자"),
+    (13, "숏폼 대본 규칙 검증", "차13·차14·차15 숏폼이 나오면 규칙대로 예측해 보고 맞는지 확인한다. "
+     "지금 규칙은 차01~차12 25편에서만 뽑았다", "새 숏폼"),
+    (10, "숏폼 화면 톤앤매너 조사", "대본 쪽은 끝났고 화면이 남았다. "
+     "숏츠 기본 양식.prproj (drive_map) 를 뜯어 1080x1920 에서 자막·차트·라벨이 어떻게 배치되는지 "
+     "실측하면 숏폼 3단계(모션그래픽)를 시작할 수 있다", None),
     (11, "롱폼 2단계(컷편집·자막) 연동", "지금은 타임코드를 사람이 옮겨 적어 준다. "
      ".srt 를 그대로 받아 컷 경계를 자동으로 나누면 3단계 입력이 손을 안 탄다", "사용자"),
     (8, "차명14·15 대본 미작성", "두 회차 문서가 927자짜리 빈 템플릿이고 본문이 서로 완전히 동일하다. "
@@ -902,6 +988,16 @@ EXTERNAL_TOOLS = [
 ]
 
 PRPROJ_FACTS = [
+    (20, "숏츠 기본 양식.prproj", "숏폼 규격",
+     "258KB → 2.9MB XML. FrameRate 8467200000 → 30.0fps. 모양 14 · 텍스트 10 · 그룹 10 · "
+     "모션 7 · 마스크 5. 롱폼 프리셋보다 훨씬 단순하다",
+     "gunzip 후 태그 집계"),
+    (21, "숏츠 기본 양식.prproj", "숏폼 폰트·소스",
+     "NotoSansKR-Black 이 숏폼에만 쓰인다(롱폼 프리셋에는 없음). "
+     "그 외 GmarketSansTTFBold · S-CoreDream-6Bold · GyeonggiBatangB 는 롱폼과 같다. "
+     "고정 소스: 차트명가_시네마스코프(숏).png, 차트명가_숏츠 아웃트로(풀영상 유도).mov, "
+     "종이 배경.jpg, 효과음 뽁(뚜껑소리).wav · 딱(차트명가).mp3",
+     "'소스 텍스트' base64 문자열 추출"),
     (10, "차명11 최종본 (drive 1nSw16I1CrCpzBMdZsqmeZf_tjEAFkOCe)", "규모",
      "607KB → 압축 해제 9.1MB. 텍스트 레이어 162개, 펜툴/도형 패스 96개, "
      "애니메이션 파라미터 16개에 키프레임 209개. 교차 디졸브 90회",
@@ -969,10 +1065,12 @@ FORMATS = [
      "10~20분", "차분한 설명조. 기획서+스크립트 6천자 안팎, 섹션 6개(후킹·소개·본론1·문제제시·본론2·아웃트로)",
      "작업중"),
     (2, "숏폼", "9:16",
-     "1080x1920 (채널 최종본 실측)",
-     "미정",
-     "30~60초", "미조사. 최종본 60여 편이 드라이브에 있으나 아직 뜯어보지 않았다",
-     "미조사"),
+     "1080x1920 / 30fps (최종본 260703 실측)",
+     "미정 (모션그래픽 단계 미착수)",
+     "50~85초 (25편 실측 중앙값 66초)",
+     "대본은 조사됨 — 훅·근거·본론·CTA 4단, 초당 6.6자, 한 편이 롱폼의 9%. "
+     "화면 톤앤매너는 아직 미조사",
+     "조사됨"),
 ]
 
 PIPELINE = [
@@ -993,7 +1091,11 @@ PIPELINE = [
      "이 저장소", 1, "진행중",
      "workflow_step 테이블의 9단계가 이 단계의 내부 절차다"),
     # 숏폼
-    (5, "숏폼", "1", "대본 만들기", "롱폼 대본에서 잘라 쓰는지 따로 쓰는지 아직 모른다", "사람", 0, "미착수", None),
+    (5, "숏폼", "1", "대본 만들기",
+     "롱폼 챕터 하나를 골라 350~560자로 다시 쓴다. 뽑는 규칙을 숏폼 25편에서 역으로 구해 "
+     "shortform_rule 17개로 정리했고 tools/shortform.py 가 지시서 작성과 검사를 한다",
+     "사람 + 이 저장소", 1, "진행중",
+     "대본을 대신 쓰는 게 아니라 규칙·지시서·검사를 제공한다. 최종 판단은 사람이 한다"),
     (6, "숏폼", "1.5", "성우 녹음", "롱폼과 같은 방식으로 보이나 확인 안 됨", "외부", 0, "해당없음", None),
     (7, "숏폼", "2", "컷편집 및 자막 달기", "9:16 세로 프레임. 자막 크기·위치가 롱폼과 다르다", "사람", 0, "미착수", None),
     (8, "숏폼", "3", "모션그래픽 및 소스 넣기",
@@ -1001,6 +1103,91 @@ PIPELINE = [
      "이 저장소", 0, "미착수",
      "먼저 최종본 숏츠를 실측해 톤앤매너부터 잡아야 한다"),
 ]
+
+
+# ── 숏폼 대본 만드는 법 ──────────────────────────────────────────────
+# 숏폼 25편과 그 원본 롱폼 13편을 문장·n-gram 단위로 맞춰 본 결과.
+# hits/total 은 기존 24편(파일 기준) 중 몇 편이 그렇게 했는지.
+SHORTFORM_RULES = [
+    # 무엇을 고르는가
+    (1, "고르기", "숏폼 한 편 = 롱폼 챕터 한 개. 여러 챕터를 섞지 않는다",
+     "일정표의 '추출 원본' 열이 모두 '롱폼 추출(차NN_… 편)' 하나를 가리킨다. "
+     "차09 는 '4.문제 제시'→#1, '5.핵심(제품)'→#2, "
+     "차11 은 '전략 1'→#4, '전략 2'→#5 로 챕터가 그대로 한 편이 된다",
+     None, None, "필수"),
+    (2, "고르기", "#1 은 롱폼 앞쪽, #2 는 뒤쪽에서 온다",
+     "롱폼을 10구간으로 나눠 4자 n-gram 겹침이 가장 큰 구간을 찾으면 "
+     "차01(20~30%→50~60%) 차02(20~30→60~70) 차03(30~40→60~70) 차06(30~40→60~70) "
+     "차07(20~30→50~60) 차08(10~20→40~50) 차09(40~50→80~90) 차10(40~50→80~90) — "
+     "12쌍 중 11쌍에서 #1 이 #2 보다 앞선다",
+     11, 12, "권장"),
+    (3, "고르기", "#1 은 '왜 필요한가/무엇이 문제인가', #2 는 '그래서 어떻게 하는가'",
+     "차09_#1 '단일지표를 쓰면 안되는 이유'(문제 제시) → #2 'RSI안 볼린저밴드 더하기'(핵심). "
+     "차11_#1 '20일선 120% 활용법' → #2 '횡보장은 이렇게 대응하자'",
+     None, None, "권장"),
+    (4, "고르기", "롱폼 한 편에서 숏폼 2편이 기본. 많으면 5편까지",
+     "일정표 SL 47건 / 롱폼 15편. 차11 만 #1~#5 다섯 편이고 나머지는 2~3편",
+     None, None, "수치"),
+    # 어떻게 쓰는가
+    (5, "쓰기", "복붙이 아니라 다시 쓴다",
+     "숏폼 본문과 롱폼의 10자 n-gram 겹침 중앙값 2.2% (최대 28%). "
+     "문장 단위로 봐도 그대로 옮긴 문장은 3% 뿐이고 61% 는 새로 쓴 문장이다",
+     None, None, "필수"),
+    (6, "쓰기", "분량은 롱폼 전체의 9% 안팎",
+     "숏폼 본문(제목·마커·CTA 상투구 제외) / 롱폼 전체 = 중앙값 9.1%, 평균 10.2%",
+     None, None, "수치"),
+    (7, "쓰기", "한 편 350~560자. 약 53~85초",
+     "25편 분포 — 10분위 327 · 25분위 350 · 중앙값 436 · 75분위 502 · 90분위 555자. "
+     "초당 6.6자는 최종본 260703 실측(내레이션 548자 / 83.4초)",
+     None, None, "수치"),
+    (8, "쓰기", "초기보다 길어졌다. 5월 중순 344자 → 5월 말 이후 482자",
+     "2026-05-29 을 경계로 구조 마커(①②③④)가 붙기 시작하고 분량이 40% 늘었다",
+     None, None, "수치"),
+    # 문구
+    (9, "문구", "훅은 «오늘은 …를 알려드릴게요» 한 문장",
+     "24편 중 22편. 예외는 차08_#1, 차12_#1", 22, 24, "필수"),
+    (10, "문구", "«아래/다음 영상» 으로 넘긴다", "24편 중 20편", 20, 24, "권장"),
+    (11, "문구", "근거에 역접을 한 번 넣는다 — 하지만/그런데/반대로", "24편 중 19편", 19, 24, "권장"),
+    (12, "문구", "«저를 팔로우하고 / 구독해주세요»", "24편 중 17편", 17, 24, "권장"),
+    (13, "문구", "CTA 를 답 없이 «…무엇일까요?» 로 넘긴다",
+     "24편 중 10편. 5월 말 이후에 늘어난 최신 방식이라 선택으로 둔다", 10, 24, "선택"),
+    (14, "문구", "«그렇다면» 으로 본론에서 CTA 로 넘어간다", "24편 중 13편", 13, 24, "선택"),
+    # 이어붙이기
+    (15, "잇기", "#N 의 CTA 질문이 곧 #N+1 의 주제다",
+     "차11_#1 '박스권 횡보장에서는 어떻게?' → #2 '횡보장은 이렇게 대응하자'. "
+     "차10_#1 '추세장인지 어떻게 수치로 걸러낼까요?' → #2 'ADX 지표'. "
+     "차09_#1 '익절 기준은?' → #2 'RSI안 볼린저밴드 더하기'. "
+     "차08_#1 '단타와 스윙을 모두 잡는 설정은?' → #2 '스텝 스토캐스틱 5분 단타'",
+     None, None, "필수"),
+    # 하지 않는 것
+    (16, "제외", "'포인트(포)' 편은 이 규칙이 아니다",
+     "일정표 유형이 '숏폼(포)' 인 47건은 '추출 원본' 이 외부 유튜브 링크나 "
+     "TF_ 레퍼런스다. 롱폼 추출이 아니라 따로 기획한 편이라 규칙이 다르다",
+     None, None, "필수"),
+    (17, "제외", "자막·타이틀·로고 문구는 대본에 쓰지 않는다",
+     "숏폼 프리미어 기본 양식(숏츠 기본 양식.prproj)에 텍스트 레이어가 이미 들어 있다",
+     None, None, "필수"),
+]
+
+SHORTFORM_PARTS = [
+    (1, 1, "① 훅 (Hook)", "무엇을 알려줄지 한 문장. 결론을 먼저 말한다", 20, 55,
+     "오늘은 {주제}를 알려드릴게요"),
+    (2, 2, "② 근거 (Evidence)", "왜 이게 문제인가. 통념 → 역접 → 손실", 110, 290,
+     "많은 분들이 … 합니다 / 하지만 … / 그래서 손실로 이어집니다"),
+    (3, 3, "③ 본론 (Body)", "어떻게 하는가. 기준·설정값·순서를 숫자로", 150, 370,
+     "첫째 … 둘째 … / 손절은 … / 청산 신호는 …"),
+    (4, 4, "④ 아웃트로 (CTA)", "답을 주지 않고 다음 편으로 넘긴다", 40, 135,
+     "그렇다면 {다음 주제}는 무엇일까요? / 더 자세한 내용이 궁금하시다면 / "
+     "저를 팔로우하고 / 아래 영상을 주목해주세요"),
+]
+
+
+def load_shortform():
+    """log/data/shortform.json — 숏폼 대본과 일정표 매칭."""
+    f = ROOT / "log" / "data" / "shortform.json"
+    if not f.exists():
+        return None
+    return json.loads(f.read_text(encoding="utf-8"))
 
 
 def load_checkpoints():
@@ -1139,6 +1326,32 @@ def build():
     for i, c in enumerate(load_checkpoints(), 1):
         con.execute("INSERT INTO checkpoint (id,tag,kst,utc,sha,summary) VALUES (?,?,?,?,?,?)",
                     (i, c["tag"], c["kst"], c["utc"], c.get("sha"), c["summary"]))
+
+    con.executemany(
+        "INSERT INTO shortform_rule (id,grp,rule,evidence,hits,total,tier) VALUES (?,?,?,?,?,?,?)",
+        SHORTFORM_RULES)
+    con.executemany(
+        "INSERT INTO shortform_part (id,seq,name,purpose,chars_min,chars_max,phrasing)"
+        " VALUES (?,?,?,?,?,?,?)", SHORTFORM_PARTS)
+
+    sf = load_shortform()
+    if sf:
+        for i, d in enumerate(sf["docs"], 1):
+            con.execute(
+                "INSERT INTO shortform_doc (id,aired,ep,no,folder,file,drive_id,chars,est_sec,"
+                "long_window,ngram4,ngram10,size_ratio,rerun) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (i, d["date"], d["ep"], d["no"], d["folder"], d["file"], d["drive_id"],
+                 d["chars"], d["est_sec"], d["long_window"], d["ngram4"], d["ngram10"],
+                 d["size_ratio"], 1 if d["rerun"] else 0))
+            con.execute("INSERT INTO shortform_fts (folder,body) VALUES (?,?)",
+                        (d["folder"], d["text"]))
+        import re as _re
+        for i, r in enumerate(sf["schedule_sl"], 1):
+            m = _re.search(r"차(\d{2})", r["title"] + r["source"])
+            con.execute(
+                "INSERT INTO shortform_map (id,aired,kind,title,source,ep) VALUES (?,?,?,?,?,?)",
+                (i, r["date"], r["type"], r["title"], r["source"],
+                 int(m.group(1)) if m else None))
 
     sc = load_scripts()
     if sc:
