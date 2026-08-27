@@ -208,6 +208,11 @@ DOM 에는 레이어 효과를 읽는 길이 없다. executeActionGet 으로 lay
 | `package-lock.json` | 기타 |  |
 | `log/worklog.db` | 데이터 | 작업 로그 원본 (SQLite) |
 | `tools` | 도구 | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
+| `tools/photoshop` | 도구 | 포토샵 COM+ExtendScript 로 템플릿 .psd 를 직접 편집한다 — 썸네일은 이 경로가 최신 |
+| `tools/photoshop/build_thumb.jsx` | 도구 | 회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg |
+| `tools/photoshop/dump_episodes.jsx` | 도구 | 완성 회차를 한 장씩 뽑고 레이어 트리를 받아 적는다 — 규칙을 뽑을 때 |
+| `tools/photoshop/dump_layer_fx.jsx` | 도구 | 레이어 효과(lfx2)를 ActionManager 로 값까지 읽는다 |
+| `tools/photoshop/run.ps1` | 도구 | 포토샵을 COM 으로 띄워 .jsx 를 실행하는 드라이버 |
 | `tools/psdedit.py` | 도구 | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
 | `tools/psdwrite.py` | 도구 | .psd 를 직접 쓴다 (레이어·한글 이름·RLE) |
 | `tools/thumbnail.py` | 도구 | 썸네일 조립 — 타이틀 자동 크기, 템플릿 효과 |
@@ -219,6 +224,7 @@ DOM 에는 레이어 효과를 읽는 길이 없다. executeActionGet 으로 lay
 | `deliver/thumbnail` | 산출물 | 채택된 썸네일. out/ 은 .gitignore 라 여기에 따로 둔다 |
 | `scripts/shortform` | 산출물 | 숏폼 대본 초안. 규칙대로 쓴 것 |
 | `package.json` | 설정 | 의존성과 npm 스크립트 |
+| `tools/photoshop/config.json` | 설정 | 템플릿·차트·출력 경로와 회차 문구 |
 | `log/build_worklog_db.py` | 스크립트 | 로그 DB 생성. 내용을 고칠 때 여기만 고친다 |
 | `log/build_worklog_page.py` | 스크립트 | DB → HTML 페이지 |
 | `src/tools/install-fonts.mjs` | 스크립트 | 폰트를 시스템에 등록 |
@@ -751,3 +757,4 @@ DOM 에는 레이어 효과를 읽는 길이 없다. executeActionGet 으로 lay
 | 43 | `83bd01ac` | 세이브 save/2026-08-27-1738 — 차11 썸네일 A·C 확정 — 포토샵 COM 편집, 버튼을 브랜드 실측 비율+에스코어드림5로 | 15파일 +433/-55 |
 | 44 | `f1d98d77` | 세이브 기록 save/2026-08-27-1738 | 5파일 +18/-4 |
 | 45 | `966df8ff` | 세이브 save/2026-08-27-1753 — 썸네일 도구 고정 — tools/photoshop(JSX+드라이버) 추가, 채택안 A·C 를 deliver/ 에 | 15파일 +689/-9 |
+| 46 | `0e0e72a2` | 세이브 기록 save/2026-08-27-1753 | 5파일 +14/-4 |
