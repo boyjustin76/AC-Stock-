@@ -212,6 +212,9 @@ PYTHONUTF8 없이는 한글 경로에서 cp949 로 죽는다. --print 는 out/ �
 | `scenes/cmg-20ma-runner.scenes.js` | 씬 | 차트명가 20일선 4컷. 새 대본은 이 파일을 본떠 만든다 |
 | `scenes/nq-basic.scenes.js` | 씬 | 다크 테마 NQ 6컷 (첫 버전, 브랜드 적용 전) |
 | `scenes/nq-overlay.scenes.js` | 씬 | 투명 배경 오버레이 3컷 |
+| `scenes/thumb-ch11-A.scenes.js` | 씬 | 차11 썸네일 A안 — 추세추종. 눌림목 매수 53번 → 완전 이격 음봉 익절 87번 |
+| `scenes/thumb-ch11-B.scenes.js` | 씬 | 차11 썸네일 B안 — 박스권. 순수 range 시장(seed 7)으로 EMA20 이 화면 내내 눕는다 |
+| `scenes/thumb-ch11-C.scenes.js` | 씬 | 차11 썸네일 C안 — 통합. 박스 점선 + 추세 진입/청산을 한 컷에 |
 | `scenes/thumb-ch11.scenes.js` | 씬 | 차11 썸네일용 차트 2안 |
 | `brand/fonts` | 애셋 | Gmarket Sans / S-Core Dream / 나눔고딕 / 경기천년제목 |
 | `brand/logo` | 애셋 | 차트명가 로고 7종 |
@@ -724,3 +727,4 @@ PYTHONUTF8 없이는 한글 경로에서 cp949 로 죽는다. --print 는 out/ �
 | 40 | `0dd9de20` | 썸네일(롱폼 2.5)을 로컬 클로드에게 넘김 | 10파일 +52/-44 |
 | 41 | `e7707db9` | 세이브 save/2026-08-27-1556 — 썸네일을 로컬 클로드에게 넘김 — 이 컨테이너는 롱폼 3단계·숏폼 1단계만 | 3파일 +2/-1 |
 | 42 | `0a156068` | 세이브 기록 save/2026-08-27-1556 | 5파일 +11/-3 |
+| 43 | `83bd01ac` | 세이브 save/2026-08-27-1738 — 차11 썸네일 A·C 확정 — 포토샵 COM 편집, 버튼을 브랜드 실측 비율+에스코어드림5로 | 15파일 +433/-55 |
