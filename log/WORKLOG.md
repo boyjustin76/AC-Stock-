@@ -216,6 +216,7 @@ DOM 에는 레이어 효과를 읽는 길이 없다. executeActionGet 으로 lay
 | `brand/STYLE.md` | 문서 | 차트명가 브랜드 스펙. 색·레이아웃·폰트·스크립트 6단 구조 |
 | `log/WORKLOG.md` | 문서 | 이 DB 에서 뽑은 작업 로그 |
 | `log/worklog.html` | 문서 | 브라우저로 보는 작업 로그 |
+| `deliver/thumbnail` | 산출물 | 채택된 썸네일. out/ 은 .gitignore 라 여기에 따로 둔다 |
 | `scripts/shortform` | 산출물 | 숏폼 대본 초안. 규칙대로 쓴 것 |
 | `package.json` | 설정 | 의존성과 npm 스크립트 |
 | `log/build_worklog_db.py` | 스크립트 | 로그 DB 생성. 내용을 고칠 때 여기만 고친다 |
@@ -749,3 +750,4 @@ DOM 에는 레이어 효과를 읽는 길이 없다. executeActionGet 으로 lay
 | 42 | `0a156068` | 세이브 기록 save/2026-08-27-1556 | 5파일 +11/-3 |
 | 43 | `83bd01ac` | 세이브 save/2026-08-27-1738 — 차11 썸네일 A·C 확정 — 포토샵 COM 편집, 버튼을 브랜드 실측 비율+에스코어드림5로 | 15파일 +433/-55 |
 | 44 | `f1d98d77` | 세이브 기록 save/2026-08-27-1738 | 5파일 +18/-4 |
+| 45 | `966df8ff` | 세이브 save/2026-08-27-1753 — 썸네일 도구 고정 — tools/photoshop(JSX+드라이버) 추가, 채택안 A·C 를 deliver/ 에 | 15파일 +689/-9 |
