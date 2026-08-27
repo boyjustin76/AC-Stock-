@@ -48,6 +48,8 @@ async function main() {
   const width = Number(args.width ?? project.width);
   const height = Number(args.height ?? project.height);
   const format = String(args.format ?? 'mp4');
+  const capture = String(args.capture ?? 'canvas'); // canvas | shot(예전 방식)
+  const preset = args.preset ? String(args.preset) : undefined; // x264 preset (mp4 만)
   const outDir = path.resolve(ROOT, String(args.out ?? 'out'));
 
   let scenes = project.scenes;
@@ -84,7 +86,7 @@ async function main() {
         const { files } = await renderStills(stage, {
           config: configRel, sceneId: scene.id, outDir: path.join(outDir, 'stills'),
           width, height, count: Number(args.stills === true ? 5 : args.stills),
-          transparent: format === 'alpha',
+          transparent: format === 'alpha', capture,
         });
         console.log(`    스틸 ${files.length}장 → ${path.relative(ROOT, path.join(outDir, 'stills'))}\n`);
         continue;
@@ -93,7 +95,7 @@ async function main() {
       if (format === 'png') {
         const r = await renderSequence(stage, {
           config: configRel, sceneId: scene.id, outDir: path.join(outDir, 'seq'),
-          width, height, transparent: !!args.transparent,
+          width, height, transparent: !!args.transparent, capture,
           onProgress: (c, t) => process.stdout.write(`\r    ${bar(c, t)}`),
         });
         console.log(`\r    ${bar(1, 1)}  ${r.frames}프레임 → ${path.relative(ROOT, r.dir)}\n`);
@@ -101,7 +103,7 @@ async function main() {
       }
 
       const r = await renderScene(stage, {
-        config: configRel, sceneId: scene.id, outDir, format, width, height,
+        config: configRel, sceneId: scene.id, outDir, format, width, height, capture, preset,
         onProgress: (c, t) => process.stdout.write(`\r    ${bar(c, t)}`),
       });
       console.log(`\r    ${bar(1, 1)}  ${r.frames}프레임 · ${fmtDur(r.ms)} → ${path.relative(ROOT, r.file)}\n`);

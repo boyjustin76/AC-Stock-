@@ -61,13 +61,23 @@ export function startEncoder({ format, fps, fpsExpr, outFile, width, height, onL
     err += d.toString();
     if (onLog) onLog(d.toString());
   });
+  // write 마다 once('error') 를 걸면 프레임 수만큼 리스너가 쌓인다(실제로
+  // MaxListenersExceededWarning 이 났다). 에러는 한 곳에서 받아 두고 다음 write 가 던진다.
+  let ioError = null;
+  let pendingDrain = null;
+  proc.stdin.on('error', (e) => {
+    ioError = e;
+    if (pendingDrain) { const r = pendingDrain; pendingDrain = null; r(); }
+  });
 
   return {
     write: (buf) =>
       new Promise((resolve, reject) => {
-        if (!proc.stdin.write(buf)) proc.stdin.once('drain', resolve);
-        else resolve();
-        proc.stdin.once('error', reject);
+        if (ioError) return reject(ioError);
+        if (!proc.stdin.write(buf)) {
+          pendingDrain = resolve;
+          proc.stdin.once('drain', () => { pendingDrain = null; resolve(); });
+        } else resolve();
       }),
     finish: () =>
       new Promise((resolve, reject) => {
