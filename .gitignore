@@ -5,3 +5,5 @@ out/
 .DS_Store
 log/*.db-wal
 log/*.db-shm
+__pycache__/
+*.pyc
