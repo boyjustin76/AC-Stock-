@@ -13,8 +13,10 @@ export const FORMATS = {
   mp4: {
     ext: 'mp4',
     alpha: false,
-    args: (fps) => [
-      '-c:v', 'libx264', '-preset', 'slow', '-crf', '12',
+    // preset 은 화질이 아니라 '얼마나 오래 짜내느냐' 다. 중간 소스에는 과할 수 있어
+    // 밖에서 바꿔 재 볼 수 있게 열어 두었다 (기본값은 지금까지 쓰던 slow).
+    args: (fps, preset = 'slow') => [
+      '-c:v', 'libx264', '-preset', preset, '-crf', '12',
       '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-level', '4.2',
       '-x264-params', `keyint=${Math.round(fps)}:min-keyint=${Math.round(fps / 2)}`,
       '-movflags', '+faststart',
@@ -38,7 +40,7 @@ export const FORMATS = {
   },
 };
 
-export function startEncoder({ format, fps, fpsExpr, outFile, width, height, onLog }) {
+export function startEncoder({ format, fps, fpsExpr, outFile, width, height, onLog, preset }) {
   const f = FORMATS[format];
   if (!f) throw new Error(`알 수 없는 포맷: ${format}`);
   // 29.97 / 59.94 처럼 유리수 프레임레이트는 '60000/1001' 형태로 넘겨야 정확하다
@@ -50,7 +52,7 @@ export function startEncoder({ format, fps, fpsExpr, outFile, width, height, onL
     '-i', 'pipe:0',
     '-r', rate,
     '-s', `${width}x${height}`,
-    ...f.args(fps),
+    ...f.args(fps, preset),
     outFile,
   ];
   const proc = spawn(ffmpegPath, args, { stdio: ['pipe', 'ignore', 'pipe'] });

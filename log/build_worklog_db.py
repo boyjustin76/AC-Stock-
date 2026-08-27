@@ -791,6 +791,8 @@ DECISIONS = [
 
 REPO_FILES = {
     "tools/psdedit.py": ("도구", "템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체"),
+    "src/tools/profile-render.mjs": ("도구", "한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다"),
+    "log/RENDER-REVIEW.md": ("문서", "렌더 속도 리뷰 의뢰서 — 코드 지도·실측·열린 질문"),
     "tools/thumbnail_png.py": ("도구", "롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장"),
     "brand/thumbnail/btn_매수.png": ("에셋", "템플릿에서 뜯은 매수 버튼 원본 픽셀 (189x90)"),
     "brand/thumbnail/btn_익절.png": ("에셋", "매수 버튼을 좌우 반전해 #00FF24 로 칠하고 익절 글자를 얹은 것 (185x90)"),
@@ -1061,6 +1063,12 @@ NEXT_STEPS = [
     (2, "전략 1 컷 (아직 안 만듦)", "기획서의 익절 기준이 '종가가 20일선을 하방 이탈하는 음봉, 아래꼬리조차 20일선에 닿지 않는 완전 이격 캔들'. 이 조건을 그대로 그리는 컷이 뒤에 필요하다", "대본"),
     (3, "전략 2 컷 (아직 안 만듦)", "박스권 횡보장 스위칭. 이평선이 눕는 것 확인 → 직전 고점 윗꼬리·저점 아랫꼬리로 라인 → 하단 지지에서 매수, 상단 저항에서 익절", "대본"),
     (4, "규격 통일 여부", "채널 최종본은 720p/30fps. 1080p/59.94 유지 중인데 다른 소스와 맞출지 결정 필요", "사용자 판단"),
+    (16, "렌더 속도 — 잰 병목 두 곳",
+     "프레임당 캡처 54.2ms 중 96%가 page.screenshot 의 PNG 인코딩이다. "
+     "canvas.toDataURL 은 같은 그림을 13.1ms 에 준다 (4배). 다만 base64 디코드가 붙고 "
+     "결과가 스크린샷과 픽셀 단위로 같은지 대조가 필요하다. "
+     "인코딩 쪽은 -preset slow(30.1ms) → medium(14.0ms) 으로 절반인데 파일은 2%만 커진다. "
+     "benchmark 3~9번이 근거다. src/tools/profile-render.mjs 로 다시 잴 수 있다", "검토"),
     (6, "컷별 병렬 렌더 스크립트", "지금은 셸에서 손으로 백그라운드를 띄운다. "
      "npm run render:par 로 코어 수만큼 자동 샤딩하게 만들면 매번 절반 시간에 끝난다", "사용자 승인"),
     (14, "썸네일 .psd — 로컬 클로드가 이어받음",
@@ -1094,6 +1102,24 @@ BENCHMARKS = [
      "컷 4개를 --all 로 차례로. 컷별 250f/23.4s, 234f/19.6s, 152f/14.6s, 320f/26.9s"),
     (2, "2026-08-26", "scenes/cmg-20ma-runner.scenes.js", "parallel", 4, 956, 15.95, 45.0, 21.2,
      "컷별 프로세스 4개 동시. 순차 대비 2.07배. 결과물이 순차와 md5 까지 동일해 렌더가 결정론적임을 확인"),
+
+    # 한 프레임을 조각내서 재 본 것. 총 시간만으로는 "왜 느린가" 를 답할 수 없어서 쪼갰다.
+    # src/tools/profile-render.mjs · cut1-pullback-entry 120프레임 · 4코어 · 각 1회 측정이라 ±로 흔들린다
+    (3, "2026-08-27", "scenes/cmg-20ma-runner.scenes.js", "profile:그리기", 4, 120, None, 0.264, 454.5,
+     "캔버스 드로잉만 (page.evaluate). 프레임당 2.2ms — 사실상 공짜다. 여기를 손봐야 소용없다"),
+    (4, "2026-08-27", "scenes/cmg-20ma-runner.scenes.js", "profile:스크린샷", 4, 120, None, 6.50, 18.5,
+     "page.screenshot({type:'png'}). 프레임당 54.2ms — **캡처 비용의 96%가 여기다.** 지금 파이프라인의 병목"),
+    (5, "2026-08-27", "scenes/cmg-20ma-runner.scenes.js", "profile:toDataURL", 4, 120, None, 1.57, 76.3,
+     "canvas.toDataURL('image/png') 로 대신 뽑아 봤다. 그리기 포함 13.1ms — 스크린샷보다 4배 빠르다. "
+     "다만 base64 라 노드에서 디코드해야 하고, 결과가 스크린샷과 같은지는 아직 대조 안 했다"),
+    (6, "2026-08-27", "scenes/cmg-20ma-runner.scenes.js", "profile:CDP", 4, 120, None, 6.08, 19.7,
+     "CDP Page.captureScreenshot. 50.7ms — Playwright 왕복을 빼도 거의 그대로다. PNG 인코딩 자체가 비싼 것"),
+    (7, "2026-08-27", "scenes/cmg-20ma-runner.scenes.js", "profile:ffmpeg-slow", 4, 120, None, 3.61, 33.2,
+     "-preset slow -crf 12 (지금 설정). 프레임당 30.1ms · 376KB"),
+    (8, "2026-08-27", "scenes/cmg-20ma-runner.scenes.js", "profile:ffmpeg-medium", 4, 120, None, 1.68, 71.4,
+     "-preset medium. 14.0ms · 383KB — **절반 시간에 파일은 2% 커질 뿐이다.** 중간 소스에 slow 는 과해 보인다"),
+    (9, "2026-08-27", "scenes/cmg-20ma-runner.scenes.js", "profile:ffmpeg-veryfast", 4, 120, None, 1.31, 91.6,
+     "-preset veryfast. 10.9ms · 474KB (+26%)"),
 ]
 
 # 사용자가 정한 표준 작업 순서 (2026-08-26)
