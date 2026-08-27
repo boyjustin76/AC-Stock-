@@ -1,3 +1,8 @@
+/* ── 검토 ──
+ * 검토내용: 프레임 루프의 병목이던 page.screenshot(90.2ms/f)을 canvas.toDataURL(23.6ms/f)로 교체. 세 캡처 경로의 픽셀·mp4 출력 md5 동일을 exp-capture.mjs 로 증명한 뒤 바꿨다. 예전 경로는 --capture shot 으로 보존. 투명 테마→불투명 포맷은 흰 바탕 합성으로 기존과 동일 동작.
+ * 타임코드: 2026-08-27 19:42 KST
+ * 검토자: Fable 5 Max
+ */
 /** Playwright 로 씬을 프레임 단위 캡처해 인코더로 흘려 보낸다. */
 import { chromium } from 'playwright';
 import { mkdir, writeFile } from 'node:fs/promises';

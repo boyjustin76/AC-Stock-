@@ -1,3 +1,8 @@
+/* ── 검토 ──
+ * 검토내용: 정적 서빙 전용, 프레임 경로에 안 낀다(캡처는 CDP 로 나간다). 성능 무관. 수정 없음.
+ * 타임코드: 2026-08-27 19:42 KST
+ * 검토자: Fable 5 Max
+ */
 /** 렌더 페이지를 위한 최소 정적 서버. ES 모듈을 file:// 로 못 읽는 문제를 피한다. */
 import http from 'node:http';
 import { createReadStream } from 'node:fs';

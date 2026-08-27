@@ -1,3 +1,8 @@
+/* ── 검토 ──
+ * 검토내용: write() 가 프레임마다 once('error') 리스너를 쌓던 누수 수정(실제 MaxListenersExceededWarning 발생). 인코딩은 별도 프로세스라 캡처와 이미 병행임을 확인 — 파이프라인 겹치기 과제는 원래 없었다. mp4 preset 을 밖에서 받게 함(기본 slow = 기존과 바이트 동일, medium 은 24.1s·파일 +2%).
+ * 타임코드: 2026-08-27 19:42 KST
+ * 검토자: Fable 5 Max
+ */
 /** PNG 프레임 스트림을 받아 편집용 파일로 인코딩한다. */
 import { spawn } from 'node:child_process';
 import ffmpegPath from 'ffmpeg-static';
