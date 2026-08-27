@@ -206,6 +206,11 @@ git restore --source=<해시> -- .              # 되돌리기
 | `brand/sfx` | 효과음 2종 |
 | `brand/texture` | 종이 배경, 모눈종이·땡땡이 패턴, 점선 |
 | `brand/thumbnail` | 템플릿에서 뽑은 로고·종이 배경 |
+| `brand/thumbnail/btn_매수.png` | 템플릿에서 뜯은 매수 버튼 원본 픽셀 (189x90) |
+| `brand/thumbnail/btn_익절.png` | 매수 버튼을 좌우 반전해 #00FF24 로 칠하고 익절 글자를 얹은 것 (185x90) |
+| `brand/thumbnail/로고.png` | 템플릿 로고 원본 픽셀 (209x52) |
+| `brand/thumbnail/종이배경.png` | 템플릿 종이 텍스처 원본 픽셀 |
+| `brand/thumbnail/틀.png` | 템플릿 '틀' 도형 원본 픽셀 (안쪽 투명) |
 | `brand/ui` | 매수·매도 버튼, 시네마스코프, 댓글 유도 |
 | `log/WORKLOG.md` | 이 DB 에서 뽑은 작업 로그 |
 | `log/build_worklog_db.py` | 로그 DB 생성. 내용을 고칠 때 여기만 고친다 |
@@ -235,6 +240,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/psdedit.py` | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
 | `tools/psdwrite.py` | .psd 를 직접 쓴다 (레이어·한글 이름·RLE) |
 | `tools/thumbnail.py` | 썸네일 조립 — 타이틀 자동 크기, 템플릿 효과 |
+| `tools/thumbnail_png.py` | 롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장 |
 
 ## 컨텍스트가 날아갔을 때
 

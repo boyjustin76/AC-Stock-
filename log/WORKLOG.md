@@ -183,6 +183,7 @@ DB 가 원본이다
 | `tools/psdedit.py` | 도구 | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
 | `tools/psdwrite.py` | 도구 | .psd 를 직접 쓴다 (레이어·한글 이름·RLE) |
 | `tools/thumbnail.py` | 도구 | 썸네일 조립 — 타이틀 자동 크기, 템플릿 효과 |
+| `tools/thumbnail_png.py` | 도구 | 롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장 |
 | `README.md` | 문서 | 렌더러 사용법 · 포맷 선택 기준 · 씬 설정 레퍼런스 |
 | `brand/STYLE.md` | 문서 | 차트명가 브랜드 스펙. 색·레이아웃·폰트·스크립트 6단 구조 |
 | `log/WORKLOG.md` | 문서 | 이 DB 에서 뽑은 작업 로그 |
@@ -204,6 +205,11 @@ DB 가 원본이다
 | `brand/texture` | 애셋 | 종이 배경, 모눈종이·땡땡이 패턴, 점선 |
 | `brand/thumbnail` | 애셋 | 템플릿에서 뽑은 로고·종이 배경 |
 | `brand/ui` | 애셋 | 매수·매도 버튼, 시네마스코프, 댓글 유도 |
+| `brand/thumbnail/btn_매수.png` | 에셋 | 템플릿에서 뜯은 매수 버튼 원본 픽셀 (189x90) |
+| `brand/thumbnail/btn_익절.png` | 에셋 | 매수 버튼을 좌우 반전해 #00FF24 로 칠하고 익절 글자를 얹은 것 (185x90) |
+| `brand/thumbnail/로고.png` | 에셋 | 템플릿 로고 원본 픽셀 (209x52) |
+| `brand/thumbnail/종이배경.png` | 에셋 | 템플릿 종이 텍스처 원본 픽셀 |
+| `brand/thumbnail/틀.png` | 에셋 | 템플릿 '틀' 도형 원본 픽셀 (안쪽 투명) |
 | `log/data` | 자료 | 롱폼 대본 인덱스·숏폼 대본·세이브 슬롯 (JSON) |
 | `src/cli.mjs` | 코어 | 렌더 CLI. --all --scene --format --stills --reel |
 | `src/market/candles.js` | 코어 | 시드 고정 캔들 생성기. 추세/박스권/돌파/눌림/급등락 |
@@ -624,3 +630,4 @@ DB 가 원본이다
 | 34 | `dc42e803` | 썸네일 PSD 가 포토샵에서 안 열리던 원인 수정 | 7파일 +173/-19 |
 | 35 | `47bab784` | 세이브 save/2026-08-27-1513 — 썸네일 PSD 포토샵 열기 오류 수정 (EngineData run 짝) + 타이틀 래스터 굽기 | 3파일 +2/-1 |
 | 36 | `ea0a6947` | 세이브 기록 save/2026-08-27-1513 | 5파일 +11/-3 |
+| 37 | `a377ef73` | 썸네일을 .psd 대신 .png 로 납품 — 버튼은 템플릿 원본 픽셀 사용 | 12파일 +284/-19 |
