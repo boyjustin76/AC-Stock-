@@ -420,6 +420,22 @@ CREATE TABLE shortform_map (
   ep            INTEGER
 );
 
+-- 숏폼 자막(.srt) 실측. 각 숏폼 폴더의 '소스+원본' 안에 있다.
+CREATE TABLE shortform_srt (
+  id            INTEGER PRIMARY KEY,
+  folder        TEXT NOT NULL,
+  file          TEXT NOT NULL,
+  drive_id      TEXT NOT NULL,
+  seconds       REAL NOT NULL,
+  cues          INTEGER NOT NULL,
+  chars         INTEGER NOT NULL,
+  cps           REAL NOT NULL,
+  hook_sec      REAL, hook_chars INTEGER,
+  body_sec      REAL, body_chars INTEGER,
+  cta_sec       REAL, cta_chars  INTEGER,
+  rerun         INTEGER NOT NULL DEFAULT 0
+);
+
 -- 폴더·파일 이름 규칙 (회사 매뉴얼)
 CREATE TABLE naming_rule (
   id            INTEGER PRIMARY KEY,
@@ -768,6 +784,10 @@ RUNBOOK = [
     (0, "숏폼 — 작성 지시서", "챕터 하나로 숏폼을 쓰기 위한 지시서를 만든다",
      "python3 tools/shortform.py brief 11 --chapter '전략 1' --no 4",
      "챕터 원문 · 목표 분량 · 고정 문구 · 앞 편이 던진 질문까지 한 장에"),
+    (0, "숏폼 — 자막으로 길이 재기", "나간 편의 실제 길이와 초당 글자수를 확인한다",
+     "python3 -c \"import sqlite3;c=sqlite3.connect('log/worklog.db');"
+     "print(*c.execute('SELECT folder,seconds,chars,cps FROM shortform_srt WHERE rerun=0 ORDER BY seconds'),sep=chr(10))\"",
+     "자막 원본은 각 숏폼 폴더의 '소스+원본' 안에 있다"),
     (0, "숏폼 — 이름 짓기", "회사 규칙대로 폴더·파일 이름을 만든다",
      "python3 tools/shortform.py name 11 --no 4 --title '20일선 추세추종 매매법'",
      "작업 중이면 (중간) 이 붙는다. 확정본은 --final"),
@@ -822,6 +842,11 @@ ENV_TOOLS = [
 ]
 
 DRIVE_MAP = [
+    ("폴더", "각 숏폼 폴더의 '소스+원본' (일부는 '소스'/'원본')",
+     "1xpW_VHXA3XZQDvhURn2DthQCwP_gfwtR", None,
+     "숏폼 루트 아래 각 26XXXX_[SL_...] 폴더 안에 있다. 자막 .srt 가 여기 들어 있고, "
+     "25개 폴더 중 14개에만 있다. 초당 글자수와 단별 분량을 여기서 실측했다. "
+     "파일별 드라이브 ID 는 shortform_srt 테이블에 있다"),
     ("폴더", "03_영상_소스_숏츠 / 차트명가(숏)", "1xpW_VHXA3XZQDvhURn2DthQCwP_gfwtR", None,
      "숏폼 대본·소스. 26XXXX_[SL_차NN_#N]제목 폴더 안에 .txt 대본이 있다. "
      "[포인트_차] 폴더는 기획형이라 롱폼 추출 규칙과 무관하다"),
@@ -1081,7 +1106,7 @@ FORMATS = [
     (2, "숏폼", "9:16",
      "1080x1920 / 30fps (최종본 260703 실측)",
      "미정 (모션그래픽 단계 미착수)",
-     "50~85초 (25편 실측 중앙값 66초)",
+     "목표 45초. 나간 편 실측 중앙값 55.9초 (자막 13편)",
      "대본은 조사됨 — 훅·근거·본론·CTA 4단, 초당 6.6자, 한 편이 롱폼의 9%. "
      "화면 톤앤매너는 아직 미조사",
      "조사됨"),
@@ -1150,10 +1175,19 @@ SHORTFORM_RULES = [
     (6, "쓰기", "분량은 롱폼 전체의 9% 안팎",
      "숏폼 본문(제목·마커·CTA 상투구 제외) / 롱폼 전체 = 중앙값 9.1%, 평균 10.2%",
      None, None, "수치"),
-    (7, "쓰기", "한 편 350~560자. 약 53~85초",
-     "25편 분포 — 10분위 327 · 25분위 350 · 중앙값 436 · 75분위 502 · 90분위 555자. "
-     "초당 6.6자는 최종본 260703 실측(내레이션 548자 / 83.4초)",
-     None, None, "수치"),
+    (7, "쓰기", "45초가 목표. 307자다",
+     "팀장님이 정한 이상적인 길이가 45초. 초당 6.82자(자막 13편 실측 중앙값)를 곱하면 307자. "
+     "허용 밴드는 40~50초 = 273~341자",
+     None, None, "필수"),
+    (20, "쓰기", "나간 편들은 목표보다 24% 길다 — 55.9초",
+     "자막 실측 13편: 영상 길이 중앙값 55.9초(39.3~83.4), 자수 중앙값 401자. "
+     "45초 밑은 차04_#1(39.9초) 차09_#1(39.3초) 차04_#2(42.0초) 셋뿐이다. "
+     "목표는 목표고 실태는 실태다 — 새로 쓸 때는 45초를 노린다",
+     3, 13, "수치"),
+    (21, "쓰기", "줄일 때는 본문에서만 줄인다",
+     "자막 실측에서 훅 26자/3.6초, CTA 26자/2.7초는 전체 길이와 무관하게 거의 고정이고 "
+     "본문(341자/49.0초)만 늘고 준다. 45초면 본문이 255자다",
+     None, None, "필수"),
     (8, "쓰기", "초기보다 길어졌다. 5월 중순 344자 → 5월 말 이후 482자",
      "2026-05-29 을 경계로 구조 마커(①②③④)가 붙기 시작하고 분량이 40% 늘었다",
      None, None, "수치"),
@@ -1211,15 +1245,17 @@ NAMING_RULES = [
      "check 명령도 파일·폴더 이름을 같이 본다"),
 ]
 
+# 45초(=307자) 기준. 자막 13편 실측에서 훅·CTA 는 길이와 무관하게 거의 고정이고
+# 본문만 늘고 준다는 것이 나왔으므로, 줄일 때는 본문에서만 줄인다.
 SHORTFORM_PARTS = [
-    (1, 1, "① 훅 (Hook)", "무엇을 알려줄지 한 문장. 결론을 먼저 말한다", 20, 55,
-     "오늘은 {주제}를 알려드릴게요"),
-    (2, 2, "② 근거 (Evidence)", "왜 이게 문제인가. 통념 → 역접 → 손실", 110, 290,
+    (1, 1, "① 훅 (Hook)", "무엇을 알려줄지 한 문장. 길이와 무관하게 고정 (실측 중앙값 26자 / 3.6초)",
+     20, 35, "오늘은 {주제}를 알려드릴게요"),
+    (2, 2, "② 근거 (Evidence)", "왜 이게 문제인가. 통념 → 역접 → 손실", 90, 130,
      "많은 분들이 … 합니다 / 하지만 … / 그래서 손실로 이어집니다"),
-    (3, 3, "③ 본론 (Body)", "어떻게 하는가. 기준·설정값·순서를 숫자로", 150, 370,
-     "첫째 … 둘째 … / 손절은 … / 청산 신호는 …"),
-    (4, 4, "④ 아웃트로 (CTA)", "답을 주지 않고 다음 편으로 넘긴다", 40, 135,
-     "그렇다면 {다음 주제}는 무엇일까요? / 더 자세한 내용이 궁금하시다면 / "
+    (3, 3, "③ 본론 (Body)", "어떻게 하는가. 기준·설정값·순서를 숫자로. 분량은 여기서 조절한다",
+     135, 155, "첫째 … 둘째 … / 손절은 … / 청산 신호는 …"),
+    (4, 4, "④ 아웃트로 (CTA)", "다음 편으로 넘기는 질문 + 고정 3줄 (실측 중앙값 26자 / 2.7초)",
+     20, 35, "그렇다면 {다음 주제}는 무엇일까요? / 더 자세한 내용이 궁금하시다면 / "
      "저를 팔로우하고 / 아래 영상을 주목해주세요"),
 ]
 
@@ -1381,6 +1417,16 @@ def build():
 
     sf = load_shortform()
     if sf:
+        for i, d in enumerate(sf.get("srt", {}).get("docs", []), 1):
+            pt = d["parts"]
+            con.execute(
+                "INSERT INTO shortform_srt (id,folder,file,drive_id,seconds,cues,chars,cps,"
+                "hook_sec,hook_chars,body_sec,body_chars,cta_sec,cta_chars,rerun)"
+                " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (i, d["folder"], d["file"], d["drive_id"], d["seconds"], d["cues"], d["chars"],
+                 d["cps"], pt["hook"]["sec"], pt["hook"]["chars"], pt["body"]["sec"],
+                 pt["body"]["chars"], pt["cta"]["sec"], pt["cta"]["chars"],
+                 1 if d["rerun"] else 0))
         for i, d in enumerate(sf["docs"], 1):
             con.execute(
                 "INSERT INTO shortform_doc (id,aired,ep,no,folder,file,drive_id,chars,est_sec,"

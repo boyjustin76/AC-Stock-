@@ -33,20 +33,29 @@ ROOT = Path(__file__).resolve().parent.parent
 LONG = json.loads((ROOT / "log/data/scripts.json").read_text(encoding="utf-8"))
 SHORT = json.loads((ROOT / "log/data/shortform.json").read_text(encoding="utf-8"))
 
-CPS = SHORT["cps"]                      # 초당 글자수 (최종본 실측)
+CPS = SHORT["cps"]                      # 6.82 — 자막 13편 실측 중앙값
+IDEAL = SHORT["ideal_seconds"]          # 45초 — 팀장님이 정한 이상적인 길이
 norm = lambda s: re.sub(r"[^가-힣A-Za-z0-9]", "", s)
 
-# ── 실측에서 나온 목표치 ────────────────────────────────────────────
-# 숏폼 25편(한 파일에 두 편 든 것은 쪼갬)의 실제 분포.
-#   10분위 327자 · 25분위 350 · 중앙값 436 · 75분위 502 · 90분위 555
-#   초기(5월 중순까지) 10편 중앙값 344자 → 정착기(5월 말 이후) 15편 중앙값 482자
-# 목표 밴드는 25~90분위로 잡았다. 정착기 기준이면 420~560 이 중심이다.
+# ── 목표 분량 ──────────────────────────────────────────────────────
+# 목표는 45초다. 팀장님이 정한 값이고, 나간 편들의 실태(중앙값 55.9초)와는 다르다.
+#
+# 자막(.srt) 13편을 뜯어 잰 값 — 각 숏폼 폴더의 '소스+원본' 안에 있다.
+#   자/초        중앙값 6.82 (범위 6.2~7.7)
+#   영상 길이     중앙값 55.9초 (범위 39.3~83.4)  ← 목표보다 24% 길다
+#   자수         중앙값 401자
+#   훅           3.6초 / 26자   ← 길이와 무관하게 거의 고정
+#   본문         49.0초 / 341자 ← 길이는 여기서만 늘고 준다
+#   CTA          2.7초 / 26자   ← 고정 문구라 거의 일정
+#
+# 45초 × 6.82 = 307자.  훅·CTA 는 고정이므로 본문만 255자로 줄인다.
+# 밴드는 40~50초(273~341자).
+IDEAL_CHARS = 307
 TARGET = {
-    "총 분량":  (350, 560),      # 글자 (공백·기호 제외) = 약 53~85초
-    "① 훅":    (20, 55),
-    "② 근거":  (110, 290),
-    "③ 본론":  (150, 370),
-    "④ CTA":   (40, 135),
+    "총 분량":  (273, 341),      # 40~50초. 한가운데가 45초 = 307자
+    "① 훅":    (20, 35),        # 실측 21~63, 중앙값 26
+    "②③ 본문": (225, 285),      # 307 - 훅 26 - CTA 26 = 255 가 한가운데
+    "④ CTA":   (20, 35),        # 실측 11~39, 중앙값 26
 }
 
 # 거의 모든 편에 나오는 고정 문구. 괄호 안은 25편 중 몇 편에 나왔는지.
@@ -226,8 +235,8 @@ def cmd_brief(a):
     print(f"  숏폼 작성 지시서 — 차{a.ep:02}_#{a.no}")
     print("═" * 74)
     print(f"\n  원본   롱폼 차{a.ep:02} · 챕터 「{name}」 ({len(norm(body))}자)")
-    print(f"  목표   {lo}~{hi}자  →  약 {lo/CPS:.0f}~{hi/CPS:.0f}초"
-          f"   (초당 {CPS}자, 최종본 실측)")
+    print(f"  목표   {IDEAL}초 = {IDEAL_CHARS}자   (허용 {lo}~{hi}자 = {lo/CPS:.0f}~{hi/CPS:.0f}초)")
+    print(f"         초당 {CPS}자 — 자막 13편 실측 중앙값")
     cn = len(norm(body))
     lfn = len(norm(doc["text"]))
     if cn > hi:
@@ -236,10 +245,11 @@ def cmd_brief(a):
         print(f"  압축   챕터 {cn}자 → {lo}~{hi}자. 챕터가 짧으니 줄이기보다 풀어 쓴다")
     print(f"         (숏폼 한 편은 롱폼 전체 {lfn}자의 {round((lo + hi) / 2 / lfn * 100)}% 안팎)")
 
-    print("\n  ─ 뼈대와 목표 분량 ─")
-    for k in ("① 훅", "② 근거", "③ 본론", "④ CTA"):
+    print("\n  ─ 뼈대와 목표 분량 (45초 기준) ─")
+    for k in ("① 훅", "②③ 본문", "④ CTA"):
         l, h = TARGET[k]
-        print(f"    {k:8} {l:3}~{h:3}자   {_part_hint(k)}")
+        print(f"    {k:9} {l:3}~{h:3}자  {l/CPS:4.1f}~{h/CPS:4.1f}초   {_part_hint(k)}")
+    print("    훅과 CTA 는 길이와 상관없이 거의 고정이다. 줄이고 늘리는 것은 본문이다.")
 
     print("\n  ─ 반드시 지킬 것 ─")
     print("    · 훅은 «오늘은 …를 알려드릴게요» 한 문장. (25편 중 22편)")
@@ -281,10 +291,9 @@ def cmd_brief(a):
 
 def _part_hint(k):
     return {
-        "① 훅": "무엇을 알려줄지 한 문장. 결론을 먼저 말한다",
-        "② 근거": "왜 이게 문제인가. 통념 → 하지만 → 손실",
-        "③ 본론": "어떻게 하는가. 기준·설정값·순서를 숫자로",
-        "④ CTA": "답을 주지 않고 다음 편으로 넘긴다",
+        "① 훅": "무엇을 알려줄지 한 문장",
+        "②③ 본문": "통념 → 하지만 → 문제 → 기준·설정값·순서 → 다음 편으로 넘기는 질문",
+        "④ CTA": "궁금하시다면 / 저를 팔로우하고 / 아래 영상을 주목해주세요",
     }[k]
 
 
@@ -318,13 +327,17 @@ def cmd_check(a):
     flat = re.sub(r"\s+", " ", raw)
     n = len(norm(raw))
     lo, hi = TARGET["총 분량"]
+    est = n / CPS
     print(f"\n  {a.file}")
-    print(f"  {n}자 → 약 {n / CPS:.0f}초  (기존 25편 중앙값 436자 / 66초)\n")
+    print(f"  {n}자 → 약 {est:.0f}초   (목표 {IDEAL}초 = {IDEAL_CHARS}자)\n")
 
     missing = []
     ok_len = lo <= n <= hi
-    print(f"    {'○' if ok_len else '△'}  분량   {n}자"
-          f"   (목표 {lo}~{hi}자 · 약 {lo / CPS:.0f}~{hi / CPS:.0f}초)")
+    over = ""
+    if not ok_len:
+        over = f"  {'+' if n > hi else '−'}{abs(round(est - IDEAL))}초"
+    print(f"    {'○' if ok_len else '△'}  분량   {n}자 / {est:.0f}초{over}"
+          f"   (허용 {lo}~{hi}자 = {lo / CPS:.0f}~{hi / CPS:.0f}초)")
     for _, pat, desc, hit, tot in CHECKS:
         good = bool(re.search(pat, flat))
         t = tier(hit, tot)
@@ -346,8 +359,10 @@ def cmd_check(a):
         for m in missing:
             print(f"    · {m}")
     elif not ok_len:
-        print("  필수는 다 지켰습니다. 분량만 목표 밖입니다 —"
-              " 기존에도 223~636자로 편차가 있으니 의도한 것이면 그대로 두세요.")
+        cut = n - IDEAL_CHARS
+        print(f"  필수는 다 지켰습니다. 분량만 목표 밖입니다 —"
+              f" 45초에 맞추려면 본문에서 {abs(cut)}자 {'덜어내세요' if cut > 0 else '더 쓰세요'}.")
+        print("  (나간 편들도 중앙값 55.9초로 목표보다 깁니다. 의도한 것이면 그대로 두세요.)")
     else:
         print("  필수·분량 모두 맞습니다.")
     print("  · 표시된 권장/선택은 어겨도 됩니다. 기존 24편 중 5개를 다 지킨 건 2편뿐입니다.\n")

@@ -2,8 +2,8 @@
  "fetched": "2026-08-27",
  "source_folder": "1xpW_VHXA3XZQDvhURn2DthQCwP_gfwtR",
  "schedule_file": "129vEIFCHgNco6U4mUWoP_4JYOjuIQ2Ba",
- "cps": 6.6,
- "cps_source": "최종본 260703 [SL_차11_#1] 실측 — 내레이션 548자 / 83.4초",
+ "cps": 6.82,
+ "cps_source": "자막(.srt) 13편 실측 — 각 폴더의 '소스+원본' 안에 있다. 자수/영상길이 중앙값 6.82자/초 (범위 6.2~7.7)",
  "docs": [
   {
    "date": "2026-05-01",
@@ -1120,5 +1120,361 @@
    "etc": ""
   }
  ],
- "schedule_point_count": 47
+ "schedule_point_count": 47,
+ "ideal_seconds": 45,
+ "ideal_source": "팀장님 기준 — 45초가 가장 이상적인 길이",
+ "srt": {
+  "docs": [
+   {
+    "folder": "260501_[SL_차01_#1]EMA+스윙 매매법",
+    "file": "자막)[SL]쿠라마기1_EMA+스윙 매매법.srt",
+    "drive_id": "17phUAIiGkllpgQmJbodJVVq3DQtubpDR",
+    "rerun": false,
+    "seconds": 55.0,
+    "cues": 57,
+    "chars": 375,
+    "cps": 6.82,
+    "parts": {
+     "hook": {
+      "sec": 4.72,
+      "chars": 33
+     },
+     "body": {
+      "sec": 47.59,
+      "chars": 325
+     },
+     "cta": {
+      "sec": 2.69,
+      "chars": 17
+     }
+    }
+   },
+   {
+    "folder": "260504_[SL_차01_#2]EMA+크로스 매매법",
+    "file": "자막_260427_[SL]쿠라마기2_EMA+크로스 매매법.srt",
+    "drive_id": "15In1RBDW6QbHPF4DZl71mxZeVANQF8lM",
+    "rerun": false,
+    "seconds": 55.02,
+    "cues": 48,
+    "chars": 364,
+    "cps": 6.62,
+    "parts": {
+     "hook": {
+      "sec": 3.61,
+      "chars": 26
+     },
+     "body": {
+      "sec": 43.39,
+      "chars": 299
+     },
+     "cta": {
+      "sec": 8.02,
+      "chars": 39
+     }
+    }
+   },
+   {
+    "folder": "260515_[SL_차04_#1]추세 매매를 해야 하는 이유",
+    "file": "sl tf 시그널1 추세매매를 해야하는 이유 자막파일-한국어.srt",
+    "drive_id": "1czVKPcLiCCr3p3Mz_cTRI0pKzp2UhOhC",
+    "rerun": false,
+    "seconds": 39.9,
+    "cues": 38,
+    "chars": 294,
+    "cps": 7.37,
+    "parts": {
+     "hook": {
+      "sec": 1.9,
+      "chars": 21
+     },
+     "body": {
+      "sec": 33.4,
+      "chars": 240
+     },
+     "cta": {
+      "sec": 3.62,
+      "chars": 33
+     }
+    }
+   },
+   {
+    "folder": "260519_[SL_차04_#2]목표가와 손절가가 중요한 이유",
+    "file": "자막파일 sl tf 시그널2 목표가와 손절가 중요이유-한국어.srt",
+    "drive_id": "1QHa4-9PKlGEMKJOQJKZfpIp_2vNLOfj8",
+    "rerun": false,
+    "seconds": 42.01,
+    "cues": 34,
+    "chars": 261,
+    "cps": 6.21,
+    "parts": {
+     "hook": {
+      "sec": 2.93,
+      "chars": 27
+     },
+     "body": {
+      "sec": 36.36,
+      "chars": 221
+     },
+     "cta": {
+      "sec": 1.73,
+      "chars": 13
+     }
+    }
+   },
+   {
+    "folder": "260522_[SL_차05_#1]추세의 끝을 찾아내는 법",
+    "file": "탐드마크1 쇼츠 자막파일-한국어.srt",
+    "drive_id": "1-vX5C-aFRghQucmDhpEk7eGhnDgkN3ho",
+    "rerun": false,
+    "seconds": 55.92,
+    "cues": 48,
+    "chars": 401,
+    "cps": 7.17,
+    "parts": {
+     "hook": {
+      "sec": 2.9,
+      "chars": 31
+     },
+     "body": {
+      "sec": 49.44,
+      "chars": 344
+     },
+     "cta": {
+      "sec": 2.52,
+      "chars": 26
+     }
+    }
+   },
+   {
+    "folder": "260526_[SL_차05_#2]초보자도 가능한 추세 읽는 법",
+    "file": "탐드마크2 초보자도 가능한 추세 읽는법 자막 파일-한국어.srt",
+    "drive_id": "18ObYmkJJi1bAnnebbSCzpAyOpjDtNfpj",
+    "rerun": false,
+    "seconds": 58.64,
+    "cues": 51,
+    "chars": 412,
+    "cps": 7.03,
+    "parts": {
+     "hook": {
+      "sec": 6.0,
+      "chars": 45
+     },
+     "body": {
+      "sec": 48.98,
+      "chars": 341
+     },
+     "cta": {
+      "sec": 2.66,
+      "chars": 26
+     }
+    }
+   },
+   {
+    "folder": "260619_[SL_차09_#1]단일지표를 쓰면 안되는 이유",
+    "file": "RSI+볼린저밴드 #1 자막파일-한국어.srt",
+    "drive_id": "17hgXzMj9G9ZK1Wlo0rN6lNg_BQhmK1VY",
+    "rerun": false,
+    "seconds": 39.26,
+    "cues": 39,
+    "chars": 301,
+    "cps": 7.67,
+    "parts": {
+     "hook": {
+      "sec": 2.99,
+      "chars": 25
+     },
+     "body": {
+      "sec": 34.68,
+      "chars": 252
+     },
+     "cta": {
+      "sec": 1.59,
+      "chars": 24
+     }
+    }
+   },
+   {
+    "folder": "260626_[SL_차10_#1]양방향 매매법",
+    "file": "260626_[SL_양방향매매법#1]손절하지마세요_(자막X).srt",
+    "drive_id": "1R4AFtQZlUnHd-AvZ8BpoNkT18K_Fp17f",
+    "rerun": false,
+    "seconds": 63.77,
+    "cues": 57,
+    "chars": 435,
+    "cps": 6.82,
+    "parts": {
+     "hook": {
+      "sec": 3.6,
+      "chars": 26
+     },
+     "body": {
+      "sec": 58.54,
+      "chars": 398
+     },
+     "cta": {
+      "sec": 1.63,
+      "chars": 11
+     }
+    }
+   },
+   {
+    "folder": "260630_[SL_차10_#2]ADX 지표",
+    "file": "260630_[SL_양방향매매법#2]ADX지표_(자막X).srt",
+    "drive_id": "1a3430X818mdJBrL_JMMcxlyQ0cU8AiOs",
+    "rerun": false,
+    "seconds": 51.54,
+    "cues": 44,
+    "chars": 343,
+    "cps": 6.66,
+    "parts": {
+     "hook": {
+      "sec": 4.19,
+      "chars": 26
+     },
+     "body": {
+      "sec": 45.83,
+      "chars": 306
+     },
+     "cta": {
+      "sec": 1.52,
+      "chars": 11
+     }
+    }
+   },
+   {
+    "folder": "260703_[SL_차11_#1]20일선 120% 활용법",
+    "file": "[SL]20일선#1.srt",
+    "drive_id": "1BWXf_mKvXfnQVI-ku063JiU0TPsfRyMx",
+    "rerun": false,
+    "seconds": 83.43,
+    "cues": 73,
+    "chars": 549,
+    "cps": 6.58,
+    "parts": {
+     "hook": {
+      "sec": 4.66,
+      "chars": 28
+     },
+     "body": {
+      "sec": 74.59,
+      "chars": 492
+     },
+     "cta": {
+      "sec": 4.18,
+      "chars": 29
+     }
+    }
+   },
+   {
+    "folder": "260706_[SL_차11_#2]횡보장은 이렇게 대응하자",
+    "file": "[SL]횡보장은 이렇게 대응하자[20일선의 비밀#2].srt",
+    "drive_id": "1a5tim_zJLCuOP28yteFW5cIdj4DpfGe0",
+    "rerun": false,
+    "seconds": 62.87,
+    "cues": 56,
+    "chars": 428,
+    "cps": 6.81,
+    "parts": {
+     "hook": {
+      "sec": 3.7,
+      "chars": 26
+     },
+     "body": {
+      "sec": 55.72,
+      "chars": 378
+     },
+     "cta": {
+      "sec": 3.45,
+      "chars": 24
+     }
+    }
+   },
+   {
+    "folder": "260711_[SL_차11_#3]20일선을 중요한 이유(ft.코인)",
+    "file": "260710_[SL_20일선의 비밀#3]20일선이 중요한 이유_(자막X).srt",
+    "drive_id": "1Q1x1hvBCvgH83ePxbVLiyt4vlFsZx09y",
+    "rerun": false,
+    "seconds": 61.44,
+    "cues": 50,
+    "chars": 419,
+    "cps": 6.82,
+    "parts": {
+     "hook": {
+      "sec": 3.1,
+      "chars": 22
+     },
+     "body": {
+      "sec": 53.95,
+      "chars": 369
+     },
+     "cta": {
+      "sec": 4.39,
+      "chars": 28
+     }
+    }
+   },
+   {
+    "folder": "260713_[SL_차10_#1]재업)양방향 매매법",
+    "file": "260626_[SL_양방향매매법#1]손절하지마세요_(자막X).srt",
+    "drive_id": "1WUkaN5gPQjdC1l3DAcfhQJ1txSFDpuU2",
+    "rerun": true,
+    "seconds": 63.77,
+    "cues": 57,
+    "chars": 435,
+    "cps": 6.82,
+    "parts": {
+     "hook": {
+      "sec": 3.6,
+      "chars": 26
+     },
+     "body": {
+      "sec": 58.54,
+      "chars": 398
+     },
+     "cta": {
+      "sec": 1.63,
+      "chars": 11
+     }
+    }
+   },
+   {
+    "folder": "260727_[SL_차12_#1]크로스와 rsi의 함정",
+    "file": "260727_[SL_차12_#1]크로스와 rsi의 함정_(자막X).srt",
+    "drive_id": "1lDkmVmNFaza57oJjwtRljt3mW9_tdAom",
+    "rerun": false,
+    "seconds": 74.97,
+    "cues": 54,
+    "chars": 496,
+    "cps": 6.62,
+    "parts": {
+     "hook": {
+      "sec": 9.07,
+      "chars": 63
+     },
+     "body": {
+      "sec": 61.82,
+      "chars": 406
+     },
+     "cta": {
+      "sec": 4.08,
+      "chars": 27
+     }
+    }
+   }
+  ],
+  "summary": {
+   "count": 13,
+   "cps_median": 6.82,
+   "seconds_median": 55.92,
+   "chars_median": 401,
+   "hook_chars_median": 26,
+   "hook_sec_median": 3.61,
+   "body_chars_median": 341,
+   "body_sec_median": 48.98,
+   "cta_chars_median": 26,
+   "cta_sec_median": 2.69,
+   "ideal_seconds": 45,
+   "ideal_chars": 307
+  }
+ }
 }

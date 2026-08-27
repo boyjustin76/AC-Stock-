@@ -131,6 +131,17 @@ def build():
             "SELECT aired,ep,no,folder,chars,est_sec,long_window,ngram10 FROM shortform_doc"
             " WHERE rerun=0 ORDER BY ep,no"))
 
+    srt = "".join(
+        f"<tr><td>{e(fo[7:])}</td>"
+        f"<td class='mono r'><b>{sec:.1f}s</b></td><td class='mono r'>{ch}</td>"
+        f"<td class='mono r'>{cps:.2f}</td>"
+        f"<td class='mono r sub'>{hs:.1f}s / {hc}자</td>"
+        f"<td class='mono r sub'>{bs:.1f}s / {bc}자</td>"
+        f"<td class='mono r sub'>{cs:.1f}s / {cc}자</td></tr>"
+        for fo, sec, ch, cps, hs, hc, bs, bc, cs, cc in q(
+            "SELECT folder,seconds,chars,cps,hook_sec,hook_chars,body_sec,body_chars,"
+            "cta_sec,cta_chars FROM shortform_srt WHERE rerun=0 ORDER BY seconds"))
+
     naming = "".join(
         f"<tr><td class='nowrap'><b>{e(sc)}</b></td>"
         f"<td class='mono'>{e(pat)}</td>"
@@ -308,7 +319,7 @@ def build():
         "__DOCS__": docs, "__PRJ__": prj, "__MOTION__": motion, "__SLOTS__": slots,
         "__PIPELINE__": pipeline, "__FORMATS__": formats,
         "__SFRULES__": sfrules, "__SFPARTS__": sfparts, "__SFDOCS__": sfdocs,
-        "__NAMING__": naming,
+        "__NAMING__": naming, "__SRT__": srt,
         "__NSCENE__": str(counts.get("scene", 0)), "__NISSUE__": str(counts.get("issue", 0)),
         "__NTOKEN__": str(counts.get("brand_token", 0)), "__NRENDER__": str(counts.get("render", 0)),
     }.items():
@@ -703,6 +714,18 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
   <div class="scroll"><table>
     <thead><tr><th>단</th><th>하는 일</th><th>분량</th><th>길이</th><th>쓰는 말</th></tr></thead>
     <tbody>__SFPARTS__</tbody>
+  </table></div>
+
+  <h3 class="sub-h">길이 — 목표 45초</h3>
+  <p class="lede"><b>45초가 목표</b>입니다. 팀장님이 정한 값이고, 나간 편들의 실태와는 다릅니다.
+     각 숏폼 폴더의 <code>소스+원본</code> 안에 있는 자막(.srt) 13편을 뜯어 재 보니
+     실제 길이는 중앙값 <b>55.9초</b> — 목표보다 24% 깁니다.</p>
+  <p class="lede">초당 <b>6.82자</b>(중앙값)이므로 45초는 <b>307자</b>입니다.
+     훅(26자·3.6초)과 CTA(26자·2.7초)는 전체 길이와 무관하게 거의 고정이고
+     본문만 늘고 줄어듭니다. <b>줄일 때는 본문에서만 줄입니다</b> — 45초면 본문이 255자입니다.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>회차</th><th>길이</th><th>자수</th><th>자/초</th><th>훅</th><th>본문</th><th>CTA</th></tr></thead>
+    <tbody>__SRT__</tbody>
   </table></div>
 
   <h3 class="sub-h">폴더·파일 이름</h3>
