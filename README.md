@@ -212,6 +212,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `brand/thumbnail/종이배경.png` | 템플릿 종이 텍스처 원본 픽셀 |
 | `brand/thumbnail/틀.png` | 템플릿 '틀' 도형 원본 픽셀 (안쪽 투명) |
 | `brand/ui` | 매수·매도 버튼, 시네마스코프, 댓글 유도 |
+| `log/RENDER-REVIEW.md` | 렌더 속도 리뷰 의뢰서 — 코드 지도·실측·열린 질문 |
 | `log/WORKLOG.md` | 이 DB 에서 뽑은 작업 로그 |
 | `log/build_worklog_db.py` | 로그 DB 생성. 내용을 고칠 때 여기만 고친다 |
 | `log/build_worklog_page.py` | DB → HTML 페이지 |
@@ -236,6 +237,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `src/render/server.mjs` | 렌더용 정적 서버 |
 | `src/render/theme.js` | 테마 프리셋. dark / chartmyeongga |
 | `src/tools/install-fonts.mjs` | 폰트를 시스템에 등록 |
+| `src/tools/profile-render.mjs` | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
 | `tools` | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
 | `tools/psdedit.py` | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
 | `tools/psdwrite.py` | .psd 를 직접 쓴다 (레이어·한글 이름·RLE) |
