@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
 """세이브 / 로드.
 
-세이브 슬롯은 git 태그다.  save/2026-08-27-1004 처럼 KST 분 단위로 이름이 붙고,
+한 슬롯 = 되돌릴 수 있는 한 시점.  KST 분 단위로 save/2026-08-27-1004 처럼 이름이 붙고,
 그 시점의 저장소 전체(코드·씬·브랜드 애셋·로그 DB)가 통째로 들어간다.
 
     python3 log/save.py "대본 인덱스까지"     # 지금 상태를 슬롯으로 굳힌다
     python3 log/save.py --list                # 슬롯 목록
-    python3 log/save.py --show save/2026-...  # 그 슬롯에 뭐가 들었나
-    python3 log/save.py --load save/2026-...  # 되돌리는 방법을 알려준다
+    python3 log/save.py --show <슬롯|해시>    # 그 슬롯이 지금과 뭐가 다른가
+    python3 log/save.py --load <슬롯|해시>    # 되돌리는 방법을 알려준다
+
+슬롯의 실체는 커밋이다.  이 저장소는 태그 푸시가 막혀 있어서(403) 태그는 로컬 편의용이고,
+슬롯 이름과 커밋 해시의 짝은 log/data/checkpoints.json 에 적혀 함께 푸시된다.
+새 컨테이너에서 clone 만 해도 --list 가 그대로 나오고, 해시로 되돌릴 수 있다.
 
 되돌리기는 두 가지다.
 
-    git checkout <태그>                       # 통째로 그 시점을 본다 (읽기 전용)
-    git restore --source=<태그> -- .          # 지금 브랜치 위로 그 시점 파일을 덮어쓴다
+    git checkout <해시>                       # 통째로 그 시점을 본다 (구경용)
+    git restore --source=<해시> -- .          # 지금 브랜치 위로 그 시점 파일을 덮어쓴다
 
 앞의 것은 구경만 하고 돌아올 때, 뒤의 것은 정말 되돌릴 때 쓴다.
-뒤의 것을 쓰면 되돌린 상태가 새 커밋이 되므로 지나온 기록이 사라지지 않는다.
+뒤의 것은 되돌린 상태가 새 커밋이 되므로 지나온 기록이 사라지지 않는다.
 """
 from __future__ import annotations
 
@@ -80,36 +84,39 @@ def cmd_save(summary: str, push: bool) -> None:
     print("  로그 다시 만드는 중")
     rebuild()
 
-    # 2) 슬롯 목록에 적는다 (커밋 해시는 나중에 태그에서 역으로 구한다)
+    # 2) 작업 내용을 먼저 커밋한다. 이 커밋이 곧 슬롯이 가리키는 시점이다.
+    git("add", "-A")
+    if git("diff", "--cached", "--name-only"):
+        git("commit", "-q", "-m", f"세이브 {tag} — {summary}")
+    sha = git("rev-parse", "--short", "HEAD")
+
+    # 3) 슬롯 목록에 해시를 그대로 적는다.
+    #    이 저장소는 태그 푸시가 막혀 있어(403) 태그는 로컬 편의용이고,
+    #    새 컨테이너에서 복구할 때 실제로 쓰이는 것은 여기 적힌 해시다.
     rows = load_slots()
     rows.append({
         "tag": tag,
         "kst": now.astimezone(KST).strftime("%Y-%m-%d %H:%M"),
         "utc": now.strftime("%Y-%m-%d %H:%M"),
+        "sha": sha,
         "summary": summary,
     })
     save_slots(rows)
-
-    # 3) 슬롯 기록이 DB 에도 들어가도록 한 번 더
-    rebuild()
-
-    # 4) 커밋 → 태그
+    rebuild()                       # 슬롯 기록이 DB 에도 들어가게
     git("add", "-A")
-    if not git("diff", "--cached", "--name-only"):
-        print("  바뀐 것이 없습니다. 태그만 붙입니다.")
-    else:
-        git("commit", "-q", "-m", f"세이브 {tag} — {summary}")
-    git("tag", "-a", tag, "-m", summary)
-    sha = git("rev-parse", "--short", "HEAD")
+    if git("diff", "--cached", "--name-only"):
+        git("commit", "-q", "-m", f"세이브 기록 {tag}")
+    git("tag", "-a", tag, sha, "-m", summary, check=False)
     print(f"\n  커밋 {sha} · 태그 {tag}")
 
     if push:
         print("  푸시 중")
         git("push", "-u", "origin", BRANCH)
-        git("push", "origin", tag)
         print("  올렸습니다. 컨테이너가 사라져도 남습니다.")
+        print("  (태그는 이 저장소에서 푸시가 막혀 있어 로컬에만 있습니다."
+              " 복구는 log/data/checkpoints.json 의 해시로 합니다.)")
     else:
-        print(f"  아직 로컬에만 있습니다:  git push -u origin {BRANCH} && git push origin {tag}")
+        print(f"  아직 로컬에만 있습니다:  git push -u origin {BRANCH}")
 
 
 def cmd_list() -> None:
@@ -119,20 +126,28 @@ def cmd_list() -> None:
         return
     print(f"\n  세이브 슬롯 {len(rows)}개\n")
     for r in rows:
-        sha = git("rev-list", "-n", "1", "--abbrev-commit", r["tag"], check=False) or "-"
+        sha = r.get("sha") or git("rev-list", "-n", "1", "--abbrev-commit", r["tag"], check=False) or "-"
         here = "  ← 지금" if sha and sha == git("rev-parse", "--short", "HEAD") else ""
         print(f"    {r['kst']} KST   {r['tag']:26} {sha:9} {r['summary']}{here}")
-    print(f"\n  되돌리기:  git restore --source=<태그> -- .")
-    print(f"  구경만:    git checkout <태그>   (돌아올 때 git checkout {BRANCH})\n")
+    print(f"\n  되돌리기:  git restore --source=<해시> -- .   그 다음  python3 log/save.py \"되돌림\"")
+    print(f"  구경만:    git checkout <해시>   (돌아올 때 git checkout {BRANCH})\n")
+
+
+def resolve(ref: str) -> str:
+    """슬롯 이름이든 커밋 해시든 받아 해시로 바꾼다."""
+    for r in load_slots():
+        if ref in (r["tag"], r.get("sha")):
+            return r.get("sha") or r["tag"]
+    if git("rev-parse", "--verify", "--quiet", ref, check=False):
+        return ref
+    raise SystemExit(f"{ref} 를 찾을 수 없습니다. --list 로 슬롯을 확인하세요.")
 
 
 def cmd_show(tag: str) -> None:
-    if not git("tag", "-l", tag):
-        raise SystemExit(f"{tag} 라는 슬롯이 없습니다. --list 로 확인하세요.")
+    tag = resolve(tag)
     print(f"\n  {tag}")
-    print("  " + git("tag", "-n99", "-l", tag).split(None, 1)[-1])
-    print(f"\n  커밋   {git('rev-list', '-n', '1', '--abbrev-commit', tag)}")
-    print(f"  시각   {git('log', '-1', '--format=%ad', '--date=iso', tag)}")
+    print(f"  {git('log', '-1', '--format=%s', tag)}")
+    print(f"\n  시각   {git('log', '-1', '--format=%ad', '--date=iso', tag)}")
     files = git("ls-tree", "-r", "--name-only", tag).splitlines()
     print(f"  파일   {len(files)}개")
     print(f"\n  지금과 다른 파일:")
@@ -142,8 +157,7 @@ def cmd_show(tag: str) -> None:
 
 
 def cmd_load(tag: str) -> None:
-    if not git("tag", "-l", tag):
-        raise SystemExit(f"{tag} 라는 슬롯이 없습니다. --list 로 확인하세요.")
+    tag = resolve(tag)
     print(f"""
   {tag} 로 되돌리는 방법
 

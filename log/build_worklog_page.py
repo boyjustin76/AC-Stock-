@@ -78,6 +78,13 @@ def build():
         f"<td class='sub'>{e(m or '')}</td></tr>"
         for t, f, m in q("SELECT topic,finding,method FROM prproj_fact ORDER BY id"))
 
+    # ── 세이브 슬롯 ───────────────────────────────────────────
+    slots = "".join(
+        f"<tr><td class='mono nowrap'>{e(kst)}</td><td class='mono'>{e(tag)}</td>"
+        f"<td class='mono sub'>{e(sha or '-')}</td><td>{e(sm)}</td></tr>"
+        for tag, kst, sha, sm in q(
+            "SELECT tag,kst,sha,summary FROM checkpoint ORDER BY id DESC"))
+
     # ── 대본 인덱스 ───────────────────────────────────────────
     doc_rows = []
     for no, ep, chars, head, kw, st in q(
@@ -237,7 +244,7 @@ def build():
         "__DRIVE__": drive, "__LAYERS__": layers, "__OPTS__": opts, "__SETUPS__": setups,
         "__CONS__": cons, "__NEXTS__": nexts,
         "__FLOW__": flow, "__BENCH__": bench, "__TOOLS__": tools, "__PRPROJ__": prproj,
-        "__DOCS__": docs, "__PRJ__": prj, "__MOTION__": motion,
+        "__DOCS__": docs, "__PRJ__": prj, "__MOTION__": motion, "__SLOTS__": slots,
         "__NSCENE__": str(counts.get("scene", 0)), "__NISSUE__": str(counts.get("issue", 0)),
         "__NTOKEN__": str(counts.get("brand_token", 0)), "__NRENDER__": str(counts.get("render", 0)),
     }.items():
@@ -499,6 +506,17 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
   <h2>시작하기</h2>
   <p class="lede">컨테이너는 세션이 끝나면 사라집니다. 새로 열었을 때 이 순서대로 보면 됩니다.</p>
   <ol class="start">__START__</ol>
+
+  <h3 class="sub-h">되돌릴 수 있는 시점</h3>
+  <p class="lede">한 슬롯 = 그 시점의 저장소 전체.
+     <code>python3 log/save.py "어디까지"</code> 로 만들고,
+     <code>git restore --source=&lt;해시&gt; -- .</code> 로 되돌립니다.
+     이 저장소는 태그 푸시가 막혀 있어 슬롯 이름과 해시의 짝을
+     <code>log/data/checkpoints.json</code> 에 적어 함께 올립니다.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>시각 (KST)</th><th>슬롯</th><th>커밋</th><th>어디까지</th></tr></thead>
+    <tbody>__SLOTS__</tbody>
+  </table></div>
 
   <h3 class="sub-h">환경 다시 깔기</h3>
   <div class="scroll"><table>

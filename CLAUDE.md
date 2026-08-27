@@ -34,6 +34,20 @@ SELECT ep, snippet(script_fts, 2, '[', ']', '…', 12)
 SELECT ep, hits FROM script_keyword WHERE keyword = '손익비' ORDER BY hits DESC;
 ```
 
+## 세이브 / 로드
+
+```bash
+python3 log/save.py "어디까지 했는지 한 줄"   # 로그 다시 만들고 커밋·태그·푸시까지
+python3 log/save.py --list                    # 되돌릴 수 있는 시점 목록
+python3 log/save.py --load <슬롯|해시>        # 되돌리는 방법
+git restore --source=<해시> -- .              # 실제로 되돌리기 (그 뒤 다시 save)
+```
+
+작업을 한 덩어리 끝낼 때마다 `save.py` 를 부른다. 슬롯 이름은 `save/YYYY-MM-DD-HHMM` (KST).
+**태그 푸시는 이 저장소에서 403 으로 막혀 있다.** 그래서 슬롯 이름과 커밋 해시의 짝을
+`log/data/checkpoints.json` 에 적어 브랜치와 함께 올린다. 새 컨테이너에서 clone 만 해도
+`--list` 가 그대로 나온다.
+
 ## 기억할 것
 
 - **컨테이너는 세션이 끝나면 사라진다.** 남길 것은 반드시 커밋한다. 원본 자료는 `drive_map` 을 보고 다시 받는다.
