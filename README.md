@@ -205,6 +205,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `brand/reference` | 레퍼런스 영상 캡처 4장. 색을 실측한 원본 |
 | `brand/sfx` | 효과음 2종 |
 | `brand/texture` | 종이 배경, 모눈종이·땡땡이 패턴, 점선 |
+| `brand/thumbnail` | 템플릿에서 뽑은 로고·종이 배경 |
 | `brand/ui` | 매수·매도 버튼, 시네마스코프, 댓글 유도 |
 | `log/WORKLOG.md` | 이 DB 에서 뽑은 작업 로그 |
 | `log/build_worklog_db.py` | 로그 DB 생성. 내용을 고칠 때 여기만 고친다 |
@@ -216,6 +217,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `scenes/cmg-20ma-runner.scenes.js` | 차트명가 20일선 4컷. 새 대본은 이 파일을 본떠 만든다 |
 | `scenes/nq-basic.scenes.js` | 다크 테마 NQ 6컷 (첫 버전, 브랜드 적용 전) |
 | `scenes/nq-overlay.scenes.js` | 투명 배경 오버레이 3컷 |
+| `scenes/thumb-ch11.scenes.js` | 차11 썸네일용 차트 2안 |
 | `scripts/shortform` | 숏폼 대본 초안. 규칙대로 쓴 것 |
 | `src/cli.mjs` | 렌더 CLI. --all --scene --format --stills --reel |
 | `src/market/candles.js` | 시드 고정 캔들 생성기. 추세/박스권/돌파/눌림/급등락 |
@@ -230,6 +232,9 @@ git restore --source=<해시> -- .              # 되돌리기
 | `src/render/theme.js` | 테마 프리셋. dark / chartmyeongga |
 | `src/tools/install-fonts.mjs` | 폰트를 시스템에 등록 |
 | `tools` | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
+| `tools/psdedit.py` | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
+| `tools/psdwrite.py` | .psd 를 직접 쓴다 (레이어·한글 이름·RLE) |
+| `tools/thumbnail.py` | 썸네일 조립 — 타이틀 자동 크기, 템플릿 효과 |
 
 ## 컨텍스트가 날아갔을 때
 

@@ -25,6 +25,7 @@ from pathlib import Path
 from PIL import Image
 from psd_tools import PSDImage
 from psd_tools.constants import ChannelID, Compression, Tag
+from psd_tools.compression import compress
 from psd_tools.psd.layer_and_mask import ChannelData, ChannelDataList, ChannelInfo
 
 
@@ -151,6 +152,37 @@ class Template:
             except Exception:
                 pass
 
+    def drop_group(self, name: str) -> int:
+        """그룹 하나를 레코드에서 통째로 들어낸다.
+
+        템플릿에는 회차 그룹이 10개 들어 있어 파일이 180MB 다.  쓰지 않는 회차를
+        빼면 20MB 안팎으로 줄어들고, 남긴 회차 그룹의 내부 구성은 그대로다.
+        """
+        lo, hi = self.group_span(name)
+        n = hi - lo + 1
+        del self.records[lo:hi + 1]
+        del self.channels[lo:hi + 1]
+        self.li.layer_count = len(self.records)
+        return n
+
+    def episode_groups(self, depth_wanted: int = 1) -> list[str]:
+        """아트보드 바로 밑에 있는 회차 그룹(# 로 시작)만 고른다.
+
+        #10 안에 #10-a · #10-b 처럼 같은 표기의 하위 그룹이 있어서 깊이를 센다.
+        레코드는 아래→위 순이라 끝에서부터 훑으면 깊이가 맞아떨어진다.
+        """
+        out, depth = [], 0
+        for i in range(len(self.records) - 1, -1, -1):
+            k = self._divider(i)
+            if k in (1, 2):
+                nm = self.name_of(i)
+                if depth == depth_wanted and nm.startswith("#"):
+                    out.append(nm)
+                depth += 1
+            elif k == 3:
+                depth -= 1
+        return out
+
     def find_in(self, group: str, layer: str) -> int:
         lo, hi = self.group_span(group)
         for i in range(lo, hi + 1):
@@ -188,9 +220,10 @@ class Template:
                   (ChannelID.CHANNEL_1, g), (ChannelID.CHANNEL_2, b)]
         data, info = [], []
         for cid, band in planes:
-            raw = band.tobytes()
-            data.append(ChannelData(Compression.RAW, raw))
-            info.append(ChannelInfo(id=cid, length=len(raw) + 2))
+            # 무압축으로 넣으면 1920x1080 한 장이 8MB 라 파일이 금세 커진다.
+            packed = compress(band.tobytes(), Compression.RLE, w, h, 8)
+            data.append(ChannelData(Compression.RLE, packed))
+            info.append(ChannelInfo(id=cid, length=len(packed) + 2))
         rec.channel_info = info
         self.channels[i] = ChannelDataList(data)
 
