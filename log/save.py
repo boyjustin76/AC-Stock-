@@ -60,7 +60,7 @@ def slot_name(when: datetime) -> str:
 
 def rebuild() -> None:
     """DB·MD·HTML 을 현재 저장소 상태로 다시 만든다."""
-    for script in ("build_worklog_db.py", "build_worklog_page.py"):
+    for script in ("build_worklog_db.py", "build_worklog_page.py", "build_readme.py"):
         args = [sys.executable, str(ROOT / "log" / script)]
         if script.endswith("db.py"):
             args.append("--md")

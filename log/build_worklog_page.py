@@ -78,6 +78,28 @@ def build():
         f"<td class='sub'>{e(m or '')}</td></tr>"
         for t, f, m in q("SELECT topic,finding,method FROM prproj_fact ORDER BY id"))
 
+    # ── 파이프라인 범위 ───────────────────────────────────────
+    MK = {"진행중": "here", "자료만": "partial", "미착수": "todo", "해당없음": "none"}
+    stage_rows = []
+    for fmt, seq, name, owner, in_repo, st, detail in q(
+            "SELECT p.format,p.seq,p.name,p.owner,p.in_repo,p.status,p.detail"
+            " FROM pipeline_stage p JOIN format f ON f.name=p.format ORDER BY f.id,p.id"):
+        num = seq if "." in seq else f"{seq}."
+        here = " st-here" if in_repo and st == "진행중" else ""
+        stage_rows.append(
+            f"<tr class='stage{here}'><td class='nowrap'>{e(fmt)}</td>"
+            f"<td><b>{num} {e(name)}</b><span class='sub'>{e(detail)}</span></td>"
+            f"<td class='nowrap'>{e(owner)}</td>"
+            f"<td class='nowrap'><span class='pill p-{MK[st]}'>{e(st)}</span></td></tr>")
+    pipeline = "".join(stage_rows)
+
+    formats = "".join(
+        f"<tr><td class='nowrap'><b>{e(n)}</b></td><td class='mono nowrap'>{e(asp)}</td>"
+        f"<td>{e(fin)}</td><td>{e(src or '-')}</td><td class='nowrap'>{e(ln or '')}</td>"
+        f"<td>{e(tone or '')}</td></tr>"
+        for n, asp, fin, src, ln, tone in q(
+            "SELECT name,aspect,final_spec,source_spec,length,tone FROM format ORDER BY id"))
+
     # ── 세이브 슬롯 ───────────────────────────────────────────
     slots = "".join(
         f"<tr><td class='mono nowrap'>{e(kst)}</td><td class='mono'>{e(tag)}</td>"
@@ -245,6 +267,7 @@ def build():
         "__CONS__": cons, "__NEXTS__": nexts,
         "__FLOW__": flow, "__BENCH__": bench, "__TOOLS__": tools, "__PRPROJ__": prproj,
         "__DOCS__": docs, "__PRJ__": prj, "__MOTION__": motion, "__SLOTS__": slots,
+        "__PIPELINE__": pipeline, "__FORMATS__": formats,
         "__NSCENE__": str(counts.get("scene", 0)), "__NISSUE__": str(counts.get("issue", 0)),
         "__NTOKEN__": str(counts.get("brand_token", 0)), "__NRENDER__": str(counts.get("render", 0)),
     }.items():
@@ -361,6 +384,10 @@ code{background:var(--surface-2);border-radius:4px;padding:1px 5px;font-size:.85
   background:var(--accent-soft);color:var(--accent-ink);white-space:nowrap}
 .issue.st-worked-around .tag{background:var(--mark-soft);color:var(--mark)}
 .issue.st-open .tag{background:var(--alert-soft);color:var(--alert)}
+tr.stage.st-here{background:var(--accent-soft)}
+tr.stage.st-here b{color:var(--accent-ink)}
+.pill.p-here{background:var(--accent-soft);color:var(--accent-ink)}
+.pill.p-none{background:transparent;color:var(--ink-3);border:1px solid var(--rule-2)}
 .kw span{display:inline-block;font-size:.72rem;font-family:var(--fm);padding:1px 7px;margin:1px 3px 1px 0;
   border:1px solid var(--rule-2);border-radius:4px;color:var(--ink-2)}
 .pill{font-size:.72rem;font-family:var(--fm);padding:2px 9px;border-radius:999px;white-space:nowrap;
@@ -506,6 +533,21 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
   <h2>시작하기</h2>
   <p class="lede">컨테이너는 세션이 끝나면 사라집니다. 새로 열었을 때 이 순서대로 보면 됩니다.</p>
   <ol class="start">__START__</ol>
+
+  <h3 class="sub-h">이 저장소가 맡는 곳</h3>
+  <p class="lede">영상 한 편은 네 단계를 거칩니다. 이 저장소는 그중 <b>롱폼 3단계</b> 하나만 합니다.
+     받는 것은 타임코드가 붙은 대본, 내놓는 것은 차트만 있는 영상 클립입니다.
+     자막·타이틀·로고는 2단계에서 이미 들어가므로 렌더에 넣지 않습니다.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>포맷</th><th>단계</th><th>담당</th><th>상태</th></tr></thead>
+    <tbody>__PIPELINE__</tbody>
+  </table></div>
+
+  <h3 class="sub-h">롱폼과 숏폼</h3>
+  <div class="scroll"><table>
+    <thead><tr><th></th><th>화면비</th><th>채널 최종본</th><th>우리가 납품</th><th>길이</th><th>톤앤매너</th></tr></thead>
+    <tbody>__FORMATS__</tbody>
+  </table></div>
 
   <h3 class="sub-h">되돌릴 수 있는 시점</h3>
   <p class="lede">한 슬롯 = 그 시점의 저장소 전체.

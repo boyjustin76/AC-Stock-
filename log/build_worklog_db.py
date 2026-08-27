@@ -265,6 +265,8 @@ CREATE TABLE benchmark (
 -- 대본 수령부터 납품까지의 표준 작업 순서
 CREATE TABLE workflow_step (
   id            INTEGER PRIMARY KEY,
+  format        TEXT NOT NULL DEFAULT '롱폼',
+  stage         TEXT NOT NULL DEFAULT '3. 모션그래픽 및 소스 넣기',
   seq           INTEGER NOT NULL,
   step          TEXT NOT NULL,
   how           TEXT NOT NULL,
@@ -340,6 +342,31 @@ CREATE TABLE motion_preset (
   note          TEXT
 );
 
+-- 영상 포맷. 롱폼과 숏폼은 규격도 톤앤매너도 다르다.
+CREATE TABLE format (
+  id            INTEGER PRIMARY KEY,
+  name          TEXT NOT NULL UNIQUE,
+  aspect        TEXT NOT NULL,
+  final_spec    TEXT NOT NULL,
+  source_spec   TEXT,
+  length        TEXT,
+  tone          TEXT,
+  status        TEXT NOT NULL CHECK (status IN ('작업중','조사됨','미조사'))
+);
+
+-- 제작 파이프라인. 이 저장소가 어디를 맡는지 여기서 정한다.
+CREATE TABLE pipeline_stage (
+  id            INTEGER PRIMARY KEY,
+  format        TEXT NOT NULL REFERENCES format(name),
+  seq           TEXT NOT NULL,
+  name          TEXT NOT NULL,
+  detail        TEXT NOT NULL,
+  owner         TEXT NOT NULL,
+  in_repo       INTEGER NOT NULL,
+  status        TEXT NOT NULL CHECK (status IN ('진행중','자료만','미착수','해당없음')),
+  note          TEXT
+);
+
 -- 세이브 슬롯 (git 태그 = 되돌릴 수 있는 시점)
 CREATE TABLE checkpoint (
   id            INTEGER PRIMARY KEY,
@@ -350,9 +377,19 @@ CREATE TABLE checkpoint (
   summary       TEXT NOT NULL
 );
 
+-- 이 저장소가 파이프라인의 어디를 맡는가
+CREATE VIEW v_scope AS
+SELECT format, seq, name,
+       CASE WHEN in_repo THEN '← 이 저장소' ELSE '' END AS here,
+       owner, status
+FROM pipeline_stage ORDER BY format DESC, seq;
+
 -- 처음 여는 사람이 순서대로 읽을 것
 CREATE VIEW v_start_here AS
-SELECT 1 AS ord, '무엇을 하는 저장소인가' AS step, goal AS detail FROM session
+SELECT 0 AS ord, '이 저장소가 맡는 범위' AS step,
+       '롱폼 파이프라인 4단계 중 3. 모션그래픽 및 소스 넣기. 1·2 단계와 숏폼은 아직 범위 밖 (v_scope 참고)' AS detail
+UNION ALL
+SELECT 1, '무엇을 하는 저장소인가', goal FROM session
 UNION ALL SELECT 2, '어디에 무엇이 있나', 'repo_file 테이블 / brand/STYLE.md / log/WORKLOG.md'
 UNION ALL SELECT 3, '환경 다시 깔기', 'env_tool 테이블의 install 열을 순서대로'
 UNION ALL SELECT 4, '렌더 돌리기', 'runbook 테이블'
@@ -392,7 +429,8 @@ ORDER BY seq, kind;
 
 SESSION = (
     1, "2026-08-26", "boyjustin76/AC-Stock-", "claude/futures-youtube-video-edit-fhio4s",
-    "해외선물 유튜브(차트명가) 영상용 차트 모션그래픽 소스 영상을 코드로 렌더한다",
+    "롱폼 제작 4단계 중 [3. 모션그래픽 및 소스 넣기] 를 코드로 자동화한다. "
+    "대본 작성(1)·성우 녹음(1.5)·컷편집과 자막(2) 은 사람이 하고 이 저장소는 손대지 않는다. 숏폼은 아직 범위 밖이다",
     "Chromium+Playwright 프레임 캡처, ffmpeg-static 인코딩, Pretendard/Gmarket Sans/S-Core Dream/경기천년/나눔고딕",
 )
 
@@ -799,6 +837,10 @@ NEXT_STEPS = [
     (4, "규격 통일 여부", "채널 최종본은 720p/30fps. 1080p/59.94 유지 중인데 다른 소스와 맞출지 결정 필요", "사용자 판단"),
     (6, "컷별 병렬 렌더 스크립트", "지금은 셸에서 손으로 백그라운드를 띄운다. "
      "npm run render:par 로 코어 수만큼 자동 샤딩하게 만들면 매번 절반 시간에 끝난다", "사용자 승인"),
+    (10, "숏폼 톤앤매너 조사", "최종본 숏츠 60여 편이 드라이브에 있다 (drive_map 참고). "
+     "1080x1920 세로 프레임에서 자막·차트·라벨이 어떻게 배치되는지 실측하면 숏폼 3단계를 시작할 수 있다", None),
+    (11, "롱폼 2단계(컷편집·자막) 연동", "지금은 타임코드를 사람이 옮겨 적어 준다. "
+     ".srt 를 그대로 받아 컷 경계를 자동으로 나누면 3단계 입력이 손을 안 탄다", "사용자"),
     (8, "차명14·15 대본 미작성", "두 회차 문서가 927자짜리 빈 템플릿이고 본문이 서로 완전히 동일하다. "
      "레퍼런스로 쓸 수 없으니 대본이 채워지면 log/data/scripts.json 을 다시 만든다", "사용자"),
     (9, "모션 문법 표본 부족", "motion_preset 3종은 차명11 최종본 하나에서만 뽑았다. "
@@ -920,6 +962,47 @@ MOTION_PRESETS = [
 ]
 
 
+FORMATS = [
+    (1, "롱폼", "16:9",
+     "1280x720 / 30fps (채널 최종본 실측)",
+     "1920x1080 / 59.94fps (우리가 납품하는 컷씬 소스)",
+     "10~20분", "차분한 설명조. 기획서+스크립트 6천자 안팎, 섹션 6개(후킹·소개·본론1·문제제시·본론2·아웃트로)",
+     "작업중"),
+    (2, "숏폼", "9:16",
+     "1080x1920 (채널 최종본 실측)",
+     "미정",
+     "30~60초", "미조사. 최종본 60여 편이 드라이브에 있으나 아직 뜯어보지 않았다",
+     "미조사"),
+]
+
+PIPELINE = [
+    # 롱폼
+    (1, "롱폼", "1", "대본 만들기",
+     "기획서+스크립트 .docx 작성. 타이틀·메인·목차·섹션 6개·매매법 설정값까지 한 문서에 들어간다",
+     "사람", 0, "자료만",
+     "저장소에는 결과물 인덱스만 있다 (script_doc 15편 + script_fts 전문 검색). 작성 자체는 하지 않는다"),
+    (2, "롱폼", "1.5", "성우 녹음",
+     "대본을 성우에게 넘겨 녹음본을 받는다. 이 녹음이 타임코드의 기준이 된다",
+     "외부", 0, "해당없음", "저장소가 관여하지 않는다"),
+    (3, "롱폼", "2", "컷편집 및 자막 달기",
+     "프리미어에서 녹음본에 맞춰 컷을 자르고 자막을 얹는다. 여기서 나온 타임코드(.srt)가 3단계 입력이 된다",
+     "사람", 0, "미착수",
+     "자막·타이틀·로고는 여기서 이미 들어가므로 3단계 렌더에는 넣지 않는다"),
+    (4, "롱폼", "3", "모션그래픽 및 소스 넣기",
+     "타임코드가 붙은 대본을 받아 차트 컷씬을 프레임 단위로 렌더해 납품한다. 프리미어에 얹는 것은 사람이 한다",
+     "이 저장소", 1, "진행중",
+     "workflow_step 테이블의 9단계가 이 단계의 내부 절차다"),
+    # 숏폼
+    (5, "숏폼", "1", "대본 만들기", "롱폼 대본에서 잘라 쓰는지 따로 쓰는지 아직 모른다", "사람", 0, "미착수", None),
+    (6, "숏폼", "1.5", "성우 녹음", "롱폼과 같은 방식으로 보이나 확인 안 됨", "외부", 0, "해당없음", None),
+    (7, "숏폼", "2", "컷편집 및 자막 달기", "9:16 세로 프레임. 자막 크기·위치가 롱폼과 다르다", "사람", 0, "미착수", None),
+    (8, "숏폼", "3", "모션그래픽 및 소스 넣기",
+     "세로 프레임용 차트 레이아웃이 따로 필요하다. 렌더러는 그대로 쓰되 layout·visibleBars 를 다시 잡아야 한다",
+     "이 저장소", 0, "미착수",
+     "먼저 최종본 숏츠를 실측해 톤앤매너부터 잡아야 한다"),
+]
+
+
 def load_checkpoints():
     """log/data/checkpoints.json — 세이브 슬롯. 커밋 해시는 태그에서 역으로 구한다."""
     f = ROOT / "log" / "data" / "checkpoints.json"
@@ -1038,6 +1121,10 @@ def build():
     con.executemany(
         "INSERT INTO benchmark (id,measured_on,config,mode,cores,frames,seconds_video,wall_seconds,fps_capture,note)"
         " VALUES (?,?,?,?,?,?,?,?,?,?)", BENCHMARKS)
+    con.executemany("INSERT INTO format VALUES (?,?,?,?,?,?,?,?)", FORMATS)
+    con.executemany(
+        "INSERT INTO pipeline_stage (id,format,seq,name,detail,owner,in_repo,status,note)"
+        " VALUES (?,?,?,?,?,?,?,?,?)", PIPELINE)
     con.executemany(
         "INSERT INTO workflow_step (seq,step,how,who,status,note) VALUES (?,?,?,?,?,?)", WORKFLOW_STEPS)
     con.executemany(

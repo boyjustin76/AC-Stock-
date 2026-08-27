@@ -1,13 +1,93 @@
 # 차트 컷씬 렌더러
 
-해외선물 유튜브 영상에 쓸 **차트 모션그래픽 소스 영상**을 만드는 도구입니다.
-캔들차트를 코드로 그리고, 프레임 단위로 캡처해서 편집 프로그램에 바로 얹을 수 있는
-영상 파일로 뽑습니다.
+해외선물 유튜브 채널 **차트명가** 영상에 쓸 차트 모션그래픽 소스 영상을 코드로 렌더합니다.
 
-- 1920×1080 / 60fps (기본값, 설정에서 변경 가능)
-- 실시세를 받아오지 않고 **시나리오대로 캔들을 생성** → 어떤 기법이든 원하는 모양으로 연출
-- `seed` 를 고정하므로 몇 번을 렌더해도 캔들이 똑같이 나옴 → 컷을 나눠 뽑아도 앞뒤가 안 어긋남
-- 알파 채널(투명 배경) 출력 지원 → 실제 촬영본 위에 차트만 오버레이 가능
+![범위](https://img.shields.io/badge/%EB%B2%94%EC%9C%84-%EB%A1%B1%ED%8F%BC%203%EB%8B%A8%EA%B3%84-0B8C7F?style=flat-square) ![규격](https://img.shields.io/badge/%EA%B7%9C%EA%B2%A9-1920x1080%20%C2%B7%2059.94fps-555?style=flat-square) ![렌더](https://img.shields.io/badge/%EB%A0%8C%EB%8D%94-16%EC%B4%88%20%ED%81%B4%EB%A6%BD%20%3D%2045%EC%B4%88-555?style=flat-square) ![대본 인덱스](https://img.shields.io/badge/%EB%8C%80%EB%B3%B8%20%EC%9D%B8%EB%8D%B1%EC%8A%A4-13%ED%8E%B8-555?style=flat-square) ![레이어](https://img.shields.io/badge/%EB%A0%88%EC%9D%B4%EC%96%B4-22%EC%A2%85-555?style=flat-square)
+
+📊 **[작업 로그 대시보드](https://claude.ai/code/artifact/cfb762d2-2caf-4a18-8ec2-696b884ac0e1)** · [전체 기록](log/WORKLOG.md) · [새 세션 안내](CLAUDE.md)
+
+---
+
+## 이 저장소가 맡는 곳
+
+영상 한 편은 네 단계를 거칩니다. **이 저장소는 그중 3단계 하나만** 합니다.
+나머지는 사람이 프리미어에서 합니다.
+
+```mermaid
+flowchart LR
+  subgraph L ["롱폼 — 작업중"]
+    direction LR
+    L1["1. 대본 만들기<br/><small>사람</small>"]
+    L15["1.5 성우 녹음<br/><small>외부</small>"]
+    L2["2. 컷편집 · 자막<br/><small>사람 · 프리미어</small>"]
+    L3["<b>3. 모션그래픽 · 소스</b><br/><small>이 저장소</small>"]
+    L1 --> L15 --> L2 --> L3
+  end
+  subgraph S ["숏폼 — 미착수"]
+    direction LR
+    S1["1. 대본"] --> S15["1.5 녹음"] --> S2["2. 컷편집 · 자막"] --> S3["3. 모션그래픽 · 소스"]
+  end
+  L3 -.->|납품| P[[프리미어 타임라인]]
+  classDef here fill:#0B8C7F,stroke:#0B8C7F,color:#fff,font-weight:bold
+  classDef human fill:#F2F2F2,stroke:#C9C9C9,color:#444
+  classDef idle fill:#FAFAFA,stroke:#E2E2E2,color:#9A9A9A,stroke-dasharray:3 3
+  class L3 here
+  class L1,L15,L2,P human
+  class S1,S15,S2,S3 idle
+```
+
+| 포맷 | 단계 | 담당 | 상태 | |
+|---|---|---|---|---|
+| 롱폼 | 1. 대본 만들기 | 사람 | 🔵 자료만 |  |
+| 롱폼 | 1.5 성우 녹음 | 외부 | ➖ 해당없음 |  |
+| 롱폼 | 2. 컷편집 및 자막 달기 | 사람 | ⚪ 미착수 |  |
+| 롱폼 | 3. 모션그래픽 및 소스 넣기 | 이 저장소 | 🟢 진행중 | **← 여기** |
+| 숏폼 | 1. 대본 만들기 | 사람 | ⚪ 미착수 |  |
+| 숏폼 | 1.5 성우 녹음 | 외부 | ➖ 해당없음 |  |
+| 숏폼 | 2. 컷편집 및 자막 달기 | 사람 | ⚪ 미착수 |  |
+| 숏폼 | 3. 모션그래픽 및 소스 넣기 | 이 저장소 | ⚪ 미착수 |  |
+
+> 🟢 진행중 · 🔵 결과물만 저장소에 있음 · ⚪ 미착수 · ➖ 저장소가 관여 안 함
+
+**3단계가 받는 것**은 타임코드가 붙은 대본(2단계 산출물), **내놓는 것**은 차트만 있는 영상 클립입니다. 자막·타이틀·로고는 2단계에서 이미 들어가므로 렌더에 넣지 않습니다.
+
+## 롱폼과 숏폼
+
+| | 화면비 | 채널 최종본 | 우리가 납품 | 길이 | 톤앤매너 |
+|---|---|---|---|---|---|
+| **롱폼** | 16:9 | 1280x720 / 30fps (채널 최종본 실측) | 1920x1080 / 59.94fps (우리가 납품하는 컷씬 소스) | 10~20분 | 차분한 설명조. 기획서+스크립트 6천자 안팎, 섹션 6개(후킹·소개·본론1·문제제시·본론2·아웃트로) |
+| **숏폼** | 9:16 | 1080x1920 (채널 최종본 실측) | 미정 | 30~60초 | 미조사. 최종본 60여 편이 드라이브에 있으나 아직 뜯어보지 않았다 |
+
+숏폼은 세로 프레임이라 차트 레이아웃을 다시 잡아야 합니다. 렌더러는 그대로 쓰되 `layout`·`visibleBars` 부터 새로 정해야 하고, 그 전에 최종본 숏츠를 실측해 톤앤매너를 잡는 것이 먼저입니다.
+
+---
+
+## 현황
+
+**롱폼 3단계 내부 절차** `███████████░` 8/9 자동화
+
+| 단계 | 방법 | 담당 |
+|---|---|---|
+| ✅ 1. 대본 수령 | 타임코드가 붙은 .srt 를 받는다 | 사용자 |
+| ✅ 2. 주제·소재·키워드 정리 | 대본에서 검색어가 될 키워드를 뽑는다 | 클로드 |
+| ✅ 3. 작업물 폴더 검색 | 이제 드라이브에 붙지 않아도 된다. script_fts 전문 검색과 script_keyword 역인덱스가 저장소 안에 있다 (… | 클로드 |
+| ✅ 4. 레퍼런스 확정 | script_keyword 로 키워드 일치율이 가장 높은 회차를 고른다. 그 회차의 최종 .prproj 는 episode_pr… | 클로드 |
+| ✅ 5. 레퍼런스 확인 | 그 회차의 .prproj 를 gunzip 해서 XML 을 직접 읽는다. 시퀀스·이펙트·키프레임·애셋 경로가 모두 평문으로 들어… | 클로드 |
+| ✅ 6. 컷 설계 + scenes.js 작성 | 타임코드를 프레임으로 환산하고 cmg-20ma-runner.scenes.js 를 본떠 layers 를 채운다 | 클로드 |
+| ✅ 7. 구도 확인 | --stills 로 스틸컷을 먼저 본다. 겹침은 여기서 잡는다 | 클로드 |
+| ✅ 8. 렌더 | 컷별 프로세스를 코어 수만큼 동시에 띄운다 | 자동 |
+| ⬜ 9. 프리미어 반입 | 지금은 사용자가 직접 넣는다. 자동화하려면 사용자 PC 에 프리미어 MCP 설치 필요 | 사용자 |
+
+| 갖춰 놓은 것 | 수 | 쓰임 |
+|---|---:|---|
+| 대본 인덱스 | 13편 | 새 대본과 겹치는 회차를 전문 검색으로 찾는다 (차명14·15 2편은 아직 빈 템플릿) |
+| 회차 프리미어 파일 | 37건 | 레퍼런스 확인 (`.prproj` 를 직접 읽는다) |
+| 브랜드 실측값 | 21건 | 색·크기. 레퍼런스 프레임에서 픽셀 단위로 잰 값 |
+| 레이어 | 22종 | 컷을 짤 때 쓰는 재료 |
+| 회사 모션 문법 | 3종 | 최종본 키프레임에서 뽑은 프레임 수·이징 |
+
+**최근 납품** — 20일선 눌림목 / 조기 익절 4컷, 956프레임 · 1920×1080 · 59.94fps  
+**렌더 실측** — 15.95초 클립 기준 순차 93초, 컷별 병렬 45초 (4코어)
 
 ---
 
@@ -15,157 +95,96 @@
 
 ```bash
 npm install
-npm run setup:fonts       # 리눅스만. Pretendard / JetBrains Mono 등록
-npm run render            # 씬 목록 보기
-npm run render -- --all   # 전 컷 렌더 (out/ 에 저장)
+npm run setup:fonts                        # 리눅스만. 폰트 등록
+npm run render -- --config scenes/cmg-20ma-runner.scenes.js --all --stills 5
+npm run render -- --config scenes/cmg-20ma-runner.scenes.js --all
 ```
 
-## 자주 쓰는 명령
-
-| 하고 싶은 것 | 명령 |
-|---|---|
-| 씬 목록 확인 | `npm run render` |
-| 전체 렌더 (mp4) | `npm run render -- --all` |
-| 특정 컷만 | `npm run render -- --scene 04-entry` |
-| 여러 컷 | `npm run render -- --scene 04-entry,05-tpsl` |
-| 전 컷 + 이어 붙인 릴 | `npm run render -- --all --reel` |
-| 편집용 ProRes | `npm run render -- --all --format mov` |
-| 투명 배경 오버레이 | `npm run render -- --scene 05-tpsl --format alpha` |
-| PNG 시퀀스 | `npm run render -- --scene 06-result --format png` |
-| 구도만 빠르게 확인 | `npm run render -- --all --stills 5` |
-| 쇼츠 비율로 | `npm run render -- --all --width 1080 --height 1920` |
-
-### 출력 포맷
-
-| `--format` | 파일 | 용도 |
-|---|---|---|
-| `mp4` (기본) | H.264 CRF 12 | 유튜브 업로드 / 일반 편집 |
-| `mov` | ProRes 422 HQ | 프리미어·파컷에서 가볍게 스크럽 |
-| `alpha` | QuickTime RLE (무손실 알파) | 차트만 오려서 오버레이 |
-| `webm` | VP9 알파 | 웹용 |
-| `png` | PNG 시퀀스 | 애프터이펙트 반입 |
-
-투명 배경으로 뽑으려면 씬(또는 프로젝트) `theme` 에 `transparent: true` 를 넣고
-`--format alpha` 로 렌더합니다. `scenes/nq-overlay.scenes.js` 가 그렇게 잡혀 있습니다.
+컷별로 쪼개 동시에 돌리면 절반 시간에 끝납니다. 결과물은 순차 렌더와 md5 까지 같습니다.
 
 ```bash
-npm run render -- --config scenes/nq-overlay.scenes.js --all --format alpha
+for c in cut1-pullback-entry cut2-profit-runs cut3-fear cut4-early-exit; do
+  node src/cli.mjs --config scenes/cmg-20ma-runner.scenes.js --scene $c --out out/cmg &
+done; wait
 ```
 
-`alpha`(QuickTime RLE)는 무손실이라 용량이 큽니다 — 1080p 60fps 5초에 20~40MB.
-편집에는 이쪽이 좋고, 파일을 주고받아야 할 때만 `--format webm`(VP9 알파, 1/10 크기)을 쓰세요.
-참고로 ProRes 4444 는 같은 클립이 150MB 넘게 나와서 알파 용도로는 오히려 손해입니다.
+## 되돌리기
+
+작업 한 덩어리마다 세이브 슬롯을 만듭니다. 슬롯 하나가 그 시점의 저장소 전체입니다.
+
+```bash
+python3 log/save.py "어디까지 했는지 한 줄"   # 세이브
+python3 log/save.py --list                    # 슬롯 목록
+git restore --source=<해시> -- .              # 되돌리기
+```
+
+| 시각 (KST) | 슬롯 | 커밋 | 어디까지 |
+|---|---|---|---|
+| 2026-08-27 10:09 | `save/2026-08-27-1009` | `d5d407a` | 세이브/로드 체계 정리 — 슬롯 목록·되돌리기 안내 |
+| 2026-08-27 10:07 | `save/2026-08-27-1007` | `852c061` | 대본 인덱스·prproj 디코드까지 — 세이브/로드 체계 도입 |
+| 2026-08-26 19:32 | `save/2026-08-26-1932` | `c6566ed` | 회차별 대본 인덱스 구축, prproj 바이너리 디코드 |
+| 2026-08-26 19:14 | `save/2026-08-26-1914` | `dbc37ca` | 작업 방식·렌더 실측·prproj 파싱 결과 기록 |
+| 2026-08-26 18:13 | `save/2026-08-26-1813` | `00eaa63` | 복구용 정보 추가 — 환경·명령어·드라이브 ID·레이어 카탈로그 |
+| 2026-08-26 17:39 | `save/2026-08-26-1739` | `a67d11f` | 작업 로그를 SQLite 한 파일로 정리 |
 
 ---
 
-## 기본 세트 — `scenes/nq-basic.scenes.js`
+## 어디에 무엇이 있나
 
-나스닥 100 선물(NQ) 5분봉 한 편을 6컷으로 나눈 것입니다. 순서대로 붙이면 그대로 한 편이 됩니다.
-
-| 컷 | 길이 | 내용 |
-|---|---|---|
-| `01-open` | 7.0s | 캔들이 그려지며 타이틀 등장 |
-| `02-structure` | 7.5s | 지지·저항선과 박스권 표시 |
-| `03-breakdown` | 7.0s | 하단 이탈 → 가짜 이탈(스탑 헌팅) |
-| `04-entry` | 7.0s | 되돌림 롱 진입 마커 |
-| `05-tpsl` | 7.5s | 손절·익절 박스와 손익비 1:2 |
-| `06-result` | 9.0s | 익절 도달 + 손익 카운터 + 결과 카드 |
-
----
-
-## 대본에 맞춰 고치기
-
-컷 내용은 전부 `scenes/*.scenes.js` 한 파일에 선언형으로 들어 있습니다.
-시간 단위는 초이고, `in: [시작, 등장시간]` / `out: [시작, 퇴장시간]` 입니다.
-
-```js
-{
-  id: '04-entry',
-  name: '진입 — 되돌림 롱',
-  duration: 7,
-  chart: {
-    visibleBars: 56,
-    reveal: [{ t: 0, v: 68 }, { t: 3.2, v: 70, ease: 'inOutCubic' }],
-  },
-  layers: [
-    { type: 'marker', bar: 68, dir: 'long', label: '롱 진입  24,688.75', in: [1.5, 0.5] },
-    { type: 'caption', title: '진입 근거', text: '...', in: [2.4, 0.6], out: [6.2, 0.4] },
-  ],
-}
-```
-
-### 차트 움직임 (`chart`)
-
-| 키 | 뜻 |
+| 경로 | 역할 |
 |---|---|
-| `reveal` | 몇 번째 캔들까지 그릴지. 키프레임을 주면 캔들이 그려지는 애니메이션이 된다 |
-| `zoom` | 화면에 보이는 캔들 개수 배율 |
-| `priceOffset` | 세로 방향 이동 |
-| `visibleBars` | 한 화면에 보이는 캔들 수 |
-| `include` | 화면에 반드시 들어와야 하는 가격 목록 (손절선·익절선 등) |
-| `layout.rightGap` | 마지막 캔들 오른쪽으로 비워 둘 칸 수 |
-| `ma` | 이동평균선 `[{ type:'ema', period:20, color, width }]` |
+| `README.md` | 렌더러 사용법 · 포맷 선택 기준 · 씬 설정 레퍼런스 |
+| `brand/STYLE.md` | 차트명가 브랜드 스펙. 색·레이아웃·폰트·스크립트 6단 구조 |
+| `brand/fonts` | Gmarket Sans / S-Core Dream / 나눔고딕 / 경기천년제목 |
+| `brand/logo` | 차트명가 로고 7종 |
+| `brand/premiere` | 차트명가_메인프리셋(24버전).prproj |
+| `brand/reference` | 레퍼런스 영상 캡처 4장. 색을 실측한 원본 |
+| `brand/sfx` | 효과음 2종 |
+| `brand/texture` | 종이 배경, 모눈종이·땡땡이 패턴, 점선 |
+| `brand/ui` | 매수·매도 버튼, 시네마스코프, 댓글 유도 |
+| `log/WORKLOG.md` | 이 DB 에서 뽑은 작업 로그 |
+| `log/build_worklog_db.py` | 로그 DB 생성. 내용을 고칠 때 여기만 고친다 |
+| `log/build_worklog_page.py` | DB → HTML 페이지 |
+| `log/worklog.db` | 작업 로그 원본 (SQLite) |
+| `log/worklog.html` | 브라우저로 보는 작업 로그 |
+| `package.json` | 의존성과 npm 스크립트 |
+| `scenes/cmg-20ma-runner.scenes.js` | 차트명가 20일선 4컷. 새 대본은 이 파일을 본떠 만든다 |
+| `scenes/nq-basic.scenes.js` | 다크 테마 NQ 6컷 (첫 버전, 브랜드 적용 전) |
+| `scenes/nq-overlay.scenes.js` | 투명 배경 오버레이 3컷 |
+| `src/cli.mjs` | 렌더 CLI. --all --scene --format --stills --reel |
+| `src/market/candles.js` | 시드 고정 캔들 생성기. 추세/박스권/돌파/눌림/급등락 |
+| `src/render/anim.js` | 이징·타임라인·cue. in 을 생략하면 처음부터 떠 있는 것으로 본다 |
+| `src/render/capture.mjs` | Playwright 프레임 캡처, 크로미움 경로 탐색 |
+| `src/render/chart.js` | 캔들·이평선·축·그리드 캔버스 드로잉, 뷰포트 계산 |
+| `src/render/encode.mjs` | ffmpeg 인코딩. mp4/mov/alpha/webm/png |
+| `src/render/engine.js` | 씬 런타임. 프레임 번호를 받아 그린다 |
+| `src/render/layers.js` | 오버레이 레이어 22종. 레이어를 추가하려면 여기 |
+| `src/render/scene.html` | 렌더 스테이지. @font-face 선언이 여기 있다 |
+| `src/render/server.mjs` | 렌더용 정적 서버 |
+| `src/render/theme.js` | 테마 프리셋. dark / chartmyeongga |
+| `src/tools/install-fonts.mjs` | 폰트를 시스템에 등록 |
 
-### 레이어 종류 (`layers`)
+## 컨텍스트가 날아갔을 때
 
-| `type` | 쓰임 |
-|---|---|
-| `titleCard` | 전체 화면 타이틀 (인트로 / 챕터 전환) |
-| `caption` | 하단 자막 · 로어서드 |
-| `hud` | 좌상단 종목 / 현재가 / 등락 |
-| `hline` | 수평 가격선 + 라벨 (지지·저항·진입가) |
-| `zone` | 가격 밴드 (박스권·매물대) |
-| `marker` | 진입 화살표 + 펄스 |
-| `tradeBox` | 손절·익절 박스와 손익비 |
-| `counter` | 숫자 카운트업 패널 (수익금·포인트) |
-| `statCard` | 결과 요약 카드 |
-| `label` | 캔들에 붙는 지시선 라벨 |
-| `flash` | 컷 전환용 플래시 |
-| `letterbox` | 시네마 레터박스 |
-| `watermark` | 채널명 |
+`log/worklog.db` 한 파일에 전부 들어 있습니다. 순서대로 읽으면 됩니다.
 
-### 캔들 시나리오 (`market.segments`)
-
-| `type` | 모양 |
-|---|---|
-| `trend` | 한 방향 추세 |
-| `range` | 박스권 (중심선으로 되돌아옴) |
-| `breakout` | 눌림 뒤 강한 이탈 |
-| `pullback` | 추세 중 되돌림 |
-| `spike` | 지표 발표식 급등락 |
-
-`seed` 숫자만 바꾸면 같은 구조의 다른 캔들이 나옵니다.
-
-### 상승/하락 색
-
-기본은 해외 플랫폼 표준(상승 초록 / 하락 빨강)입니다.
-국내식으로 바꾸려면 프로젝트 또는 씬의 `theme` 에:
-
-```js
-theme: { candleScheme: 'korea' }   // 상승 빨강 / 하락 파랑
+```sql
+-- 0. 이 저장소가 맡는 범위
+-- 1. 무엇을 하는 저장소인가
+-- 2. 어디에 무엇이 있나
+-- 3. 환경 다시 깔기
+-- 4. 렌더 돌리기
+-- 5. 새 대본 받으면
+-- 6. 원본 자료 위치
+-- 7. 대본 받고 납품까지 순서
+-- 8. 렌더에 걸리는 시간
+-- 9. 지난 회차 대본 찾기
+-- 10. 회사 모션 문법
+-- 11. 되돌릴 수 있는 시점
+SELECT * FROM v_start_here;   -- 이 순서대로
+SELECT * FROM v_scope;        -- 파이프라인 어디를 맡는가
+SELECT * FROM runbook;        -- 명령어
+SELECT * FROM constraint_note;-- 이미 부딪혀 본 벽
 ```
 
----
-
-## 구조
-
-```
-scenes/                컷 정의 (대본이 바뀌면 여기만 수정)
-src/
-  cli.mjs              렌더 CLI
-  market/candles.js    캔들 생성기
-  render/
-    scene.html         렌더 스테이지
-    engine.js          씬 런타임 (프레임 단위 렌더)
-    chart.js           캔들차트 캔버스 드로잉
-    layers.js          오버레이 레이어
-    theme.js           색 / 폰트
-    capture.mjs        Playwright 프레임 캡처
-    encode.mjs         ffmpeg 인코딩
-    server.mjs         렌더용 정적 서버
-  tools/install-fonts.mjs
-out/                   렌더 결과 (git 추적 안 함)
-```
-
-렌더는 실시간 재생이 아니라 프레임 번호를 넣고 그리는 방식이라,
-컴퓨터가 느려도 결과 영상의 fps 는 정확합니다.
+<sub>이 문서는 `log/worklog.db` 에서 자동 생성됩니다 — `python3 log/build_readme.py`. 직접 고치지 말고 DB 를 고치세요.</sub>
