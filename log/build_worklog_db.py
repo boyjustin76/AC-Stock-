@@ -821,6 +821,12 @@ ISSUES = [
      "git 을 부르는 subprocess.run 에 encoding='utf-8' 을 붙였다 (save.py 2곳, build_worklog_db.py 4곳). "
      "파일 입출력은 PYTHONUTF8=1 로 덮는다",
      "윈도우에서 db·md·html·README 4개 다 생성됨", "fixed"),
+    (15, "run.ps1 이 파싱 오류로 안 뜸",
+     "Unexpected token '}' — 멀쩡한 스크립트인데 PowerShell 이 거부한다",
+     "PowerShell 5.1 은 BOM 이 없는 .ps1 을 시스템 ANSI(cp949)로 읽는다. "
+     "한글 주석의 UTF-8 바이트가 깨지면서 따옴표가 생겨 구문이 어긋난다",
+     "run.ps1 을 UTF-8 with BOM 으로 저장",
+     "run.ps1 build_thumb 이 3안을 그대로 다시 뽑음", "fixed"),
 ]
 
 DECISIONS = [
@@ -928,6 +934,13 @@ REPO_FILES = {
     "scenes/thumb-ch11-A.scenes.js": ("씬", "차11 썸네일 A안 — 추세추종. 눌림목 매수 53번 → 완전 이격 음봉 익절 87번"),
     "scenes/thumb-ch11-B.scenes.js": ("씬", "차11 썸네일 B안 — 박스권. 순수 range 시장(seed 7)으로 EMA20 이 화면 내내 눕는다"),
     "scenes/thumb-ch11-C.scenes.js": ("씬", "차11 썸네일 C안 — 통합. 박스 점선 + 추세 진입/청산을 한 컷에"),
+    "tools/photoshop": ("도구", "포토샵 COM+ExtendScript 로 템플릿 .psd 를 직접 편집한다 — 썸네일은 이 경로가 최신"),
+    "tools/photoshop/build_thumb.jsx": ("도구", "회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg"),
+    "tools/photoshop/dump_episodes.jsx": ("도구", "완성 회차를 한 장씩 뽑고 레이어 트리를 받아 적는다 — 규칙을 뽑을 때"),
+    "tools/photoshop/dump_layer_fx.jsx": ("도구", "레이어 효과(lfx2)를 ActionManager 로 값까지 읽는다"),
+    "tools/photoshop/run.ps1": ("도구", "포토샵을 COM 으로 띄워 .jsx 를 실행하는 드라이버"),
+    "tools/photoshop/config.json": ("설정", "템플릿·차트·출력 경로와 회차 문구"),
+    "deliver/thumbnail": ("산출물", "채택된 썸네일. out/ 은 .gitignore 라 여기에 따로 둔다"),
 }
 
 RUNBOOK = [
@@ -988,8 +1001,15 @@ RUNBOOK = [
     (10, "로그 갱신", "작업 로그 다시 뽑기", "python3 log/build_worklog_db.py --md && python3 log/build_worklog_page.py", "DB 가 원본이다"),
     (11, "썸네일 (로컬 윈도우)", "포토샵으로 템플릿 .psd 를 직접 편집",
      "node src/cli.mjs --config scenes/thumb-ch11-A.scenes.js --all --stills 1"
-     " 그 다음 PowerShell 에서 New-Object -ComObject Photoshop.Application 의 DoJavaScriptFile 로 .jsx 실행",
-     "포토샵이 있어야 한다. 리눅스 컨테이너에서는 tools/thumbnail_png.py 나 psdedit.py 를 쓴다"),
+     "  →  차트 png 를 config.json 의 chartDir 로 복사  →  .\\tools\\photoshop\\run.ps1 build_thumb",
+     "경로와 문구는 tools/photoshop/config.json 에서 고친다. 포토샵이 있어야 한다 — "
+     "리눅스 컨테이너에서는 tools/thumbnail_png.py 나 psdedit.py 를 쓴다"),
+    (13, "썸네일 규칙 다시 뽑기", "새 회차를 만들기 전에 완성본 열 장을 다 본다",
+     ".\\tools\\photoshop\\run.ps1 dump_episodes",
+     "회차 하나만 보고 따라 하면 그 회차를 베낀 것이 된다. outDir/ref/ep00~09.jpg 와 ref_tree.txt 가 나온다"),
+    (14, "레이어 효과 값 읽기", "템플릿에 실제로 걸린 fx 를 값으로",
+     ".\\tools\\photoshop\\run.ps1 dump_layer_fx",
+     "DOM 에는 레이어 효과를 읽는 길이 없다. executeActionGet 으로 layerEffects 를 직접 뜯는다"),
     (12, "로그 갱신 (윈도우)", "윈도우에서 DB·MD·HTML 다시 뽑기",
      "$env:PYTHONUTF8='1'; python log/build_worklog_db.py --md; python log/build_worklog_page.py; python log/build_readme.py",
      "PYTHONUTF8 없이는 한글 경로에서 cp949 로 죽는다. --print 는 out/ 이 없으면 요약 단계에서 터지니 빼고 쓴다"),
@@ -1192,6 +1212,12 @@ NEXT_STEPS = [
     (7, "알파(.mov) 렌더 시간 미측정", "mp4 는 956프레임에 순차 93초/병렬 45초로 쟀는데 "
      "무손실 알파(qtrle)는 파일이 커서 I/O 가 더 붙는다. 필요해지면 따로 측정한다", None),
     (5, "로고 워터마크", "지금은 렌더에 넣지 않음(프리미어 프리셋과 중복). 필요하면 image 레이어로 brand/logo 사용", None),
+    (16, "차11 썸네일 마감", "A(추세추종)·C(통합) 채택. 최종 파일은 deliver/thumbnail/차11_20일선의 비밀/ 에 있다. "
+     "B(박스권)는 요소가 많다는 이유로 보류 — 씬 파일과 미리보기 png 는 남겨 두었다",
+     None),
+    (17, "다음 회차 썸네일", "tools/photoshop/config.json 의 group·variants 만 바꾸면 된다. "
+     "인물이 있는 회차면 base 를 #5 나 #7 로 바꾸고 '그룹 1'(인물 자리)에 이미지를 넣는다",
+     "회차 대본과 인물 이미지"),
 ]
 
 

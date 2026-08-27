@@ -1,0 +1,42 @@
+{
+  "_설명": "tools/photoshop/*.jsx 가 읽는 설정. 경로는 슬래시(/)로 쓴다 — 역슬래시는 JSX 문자열에서 이스케이프로 먹힌다.",
+
+  "template": "C:/cmgwork/src.psd",
+  "_template": "차트명가(롱)_하이라이트 - 복사본.psd 의 사본. 원본은 회사 드라이브에 있고 저장소에는 없다(180MB). 원본을 직접 열지 말고 사본으로 작업한다.",
+
+  "chartDir": "C:/cmgwork",
+  "_chartDir": "렌더러가 뽑은 차트 png 가 있는 폴더. npm run render 의 out/stills 에서 여기로 복사해 둔다.",
+
+  "outDir": "C:/cmgwork/out",
+
+  "base": "#6",
+  "_base": "복제할 베이스 회차. #6 지지와 저항은 인물이 없고 타이틀 좌표가 #2~#6 표준과 같다. 인물이 있는 회차를 만들 때는 #5 나 #7 을 쓰고 '그룹 1'(인물 자리)에 이미지를 넣는다.",
+
+  "group": "#11 20일선의 비밀",
+
+  "variants": [
+    {
+      "id": "A",
+      "chart": "chartA.png",
+      "main": "20일선 추세추종",
+      "sub": "목표가를 정하지 마세요"
+    },
+    {
+      "id": "B",
+      "chart": "chartB.png",
+      "main": "20일선 박스권 매매",
+      "sub": "이평선이 누우면 손절뿐"
+    },
+    {
+      "id": "C",
+      "chart": "chartC.png",
+      "main": "20일선 매매법",
+      "sub": "추세도 박스권도 다 잡는"
+    }
+  ],
+  "_variants": "main 은 아랫줄(노랑 #FFFF00), sub 는 윗줄(흰색). 글자 크기는 건드리지 않는다 — 채널 규칙이 고정 높이다.",
+
+  "fxGroups": ["#6", "#7"],
+  "fxTargets": ["매수", "매도", "익절", "손절"],
+  "_fx": "dump_layer_fx.jsx 가 훑을 회차와 레이어 이름 조각."
+}

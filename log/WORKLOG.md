@@ -174,15 +174,27 @@ DB 가 원본이다
 
 **11. 썸네일 (로컬 윈도우)** — 포토샵으로 템플릿 .psd 를 직접 편집
 ```
-node src/cli.mjs --config scenes/thumb-ch11-A.scenes.js --all --stills 1 그 다음 PowerShell 에서 New-Object -ComObject Photoshop.Application 의 DoJavaScriptFile 로 .jsx 실행
+node src/cli.mjs --config scenes/thumb-ch11-A.scenes.js --all --stills 1  →  차트 png 를 config.json 의 chartDir 로 복사  →  .\tools\photoshop\run.ps1 build_thumb
 ```
-포토샵이 있어야 한다. 리눅스 컨테이너에서는 tools/thumbnail_png.py 나 psdedit.py 를 쓴다
+경로와 문구는 tools/photoshop/config.json 에서 고친다. 포토샵이 있어야 한다 — 리눅스 컨테이너에서는 tools/thumbnail_png.py 나 psdedit.py 를 쓴다
 
 **12. 로그 갱신 (윈도우)** — 윈도우에서 DB·MD·HTML 다시 뽑기
 ```
 $env:PYTHONUTF8='1'; python log/build_worklog_db.py --md; python log/build_worklog_page.py; python log/build_readme.py
 ```
 PYTHONUTF8 없이는 한글 경로에서 cp949 로 죽는다. --print 는 out/ 이 없으면 요약 단계에서 터지니 빼고 쓴다
+
+**13. 썸네일 규칙 다시 뽑기** — 새 회차를 만들기 전에 완성본 열 장을 다 본다
+```
+.\tools\photoshop\run.ps1 dump_episodes
+```
+회차 하나만 보고 따라 하면 그 회차를 베낀 것이 된다. outDir/ref/ep00~09.jpg 와 ref_tree.txt 가 나온다
+
+**14. 레이어 효과 값 읽기** — 템플릿에 실제로 걸린 fx 를 값으로
+```
+.\tools\photoshop\run.ps1 dump_layer_fx
+```
+DOM 에는 레이어 효과를 읽는 길이 없다. executeActionGet 으로 layerEffects 를 직접 뜯는다
 
 
 ### 파일 지도
@@ -378,6 +390,8 @@ PYTHONUTF8 없이는 한글 경로에서 cp949 로 죽는다. --print 는 out/ �
 13. **숏폼 대본 규칙 검증** — 차13·차14·차15 숏폼이 나오면 규칙대로 예측해 보고 맞는지 확인한다. 지금 규칙은 차01~차12 25편에서만 뽑았다  _(대기: 새 숏폼)_
 14. **썸네일 .psd — 로컬 클로드가 이어받음** — 포기가 아니라 넘긴 것이다. 포토샵이 있는 PC 에서는 파일을 직접 만들면 되니 여기서 겪은 문제(psd-tools 로 쓴 파일을 포토샵이 거부)가 애초에 생기지 않는다. 여기서 잡은 것: EngineData 의 RunArray/RunLengthArray 짝, lyid 중복, macroman 이름칸. 못 잡은 것: 그 셋을 다 고친 뒤에도 열리지 않은 이유  _(대기: 넘김 — 로컬)_
 15. **썸네일 인물** — 차11 은 인물이 없는 회차라 비워 뒀다. 템플릿 '그룹 1' 이 인물 자리다 (#1 은 쿠라마기 그림이 거기 들어 있다)  _(대기: 넘김 — 로컬)_
+16. **차11 썸네일 마감** — A(추세추종)·C(통합) 채택. 최종 파일은 deliver/thumbnail/차11_20일선의 비밀/ 에 있다. B(박스권)는 요소가 많다는 이유로 보류 — 씬 파일과 미리보기 png 는 남겨 두었다
+17. **다음 회차 썸네일** — tools/photoshop/config.json 의 group·variants 만 바꾸면 된다. 인물이 있는 회차면 base 를 #5 나 #7 로 바꾸고 '그룹 1'(인물 자리)에 이미지를 넣는다  _(대기: 회차 대본과 인물 이미지)_
 
 ## 대본과 컷 싱크
 
@@ -569,6 +583,12 @@ PYTHONUTF8 없이는 한글 경로에서 cp949 로 죽는다. --print 는 out/ �
 - 조치: git 을 부르는 subprocess.run 에 encoding='utf-8' 을 붙였다 (save.py 2곳, build_worklog_db.py 4곳). 파일 입출력은 PYTHONUTF8=1 로 덮는다
 - 확인: 윈도우에서 db·md·html·README 4개 다 생성됨
 
+### 15. run.ps1 이 파싱 오류로 안 뜸  `fixed`
+- 증상: Unexpected token '}' — 멀쩡한 스크립트인데 PowerShell 이 거부한다
+- 원인: PowerShell 5.1 은 BOM 이 없는 .ps1 을 시스템 ANSI(cp949)로 읽는다. 한글 주석의 UTF-8 바이트가 깨지면서 따옴표가 생겨 구문이 어긋난다
+- 조치: run.ps1 을 UTF-8 with BOM 으로 저장
+- 확인: run.ps1 build_thumb 이 3안을 그대로 다시 뽑음
+
 ## 판단과 근거
 
 - **렌더 방식** — 실시간 재생이 아니라 프레임 번호를 받아 그린다
@@ -728,3 +748,4 @@ PYTHONUTF8 없이는 한글 경로에서 cp949 로 죽는다. --print 는 out/ �
 | 41 | `e7707db9` | 세이브 save/2026-08-27-1556 — 썸네일을 로컬 클로드에게 넘김 — 이 컨테이너는 롱폼 3단계·숏폼 1단계만 | 3파일 +2/-1 |
 | 42 | `0a156068` | 세이브 기록 save/2026-08-27-1556 | 5파일 +11/-3 |
 | 43 | `83bd01ac` | 세이브 save/2026-08-27-1738 — 차11 썸네일 A·C 확정 — 포토샵 COM 편집, 버튼을 브랜드 실측 비율+에스코어드림5로 | 15파일 +433/-55 |
+| 44 | `f1d98d77` | 세이브 기록 save/2026-08-27-1738 | 5파일 +18/-4 |
