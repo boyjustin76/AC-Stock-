@@ -1,41 +1,42 @@
 /**
- * 차트명가 숏폼 — [SL_차11-5] 20일선 박스권 매매법 (6컷) · v2
+ * 차트명가 숏폼 — [SL_차11-5] 20일선 박스권 매매법 (6컷) · v3
  *
  * 프리미어 숏츠 시퀀스(1080x1920/30fps) 가운데 1:1 박스용. 자막·타이틀·로고 없음.
- * v2 반영 (2026-08-28 사용자·팀장 피드백):
- *   - 박스권 수평선은 검은 선 (팀장 지시)
- *   - '20일선' 라벨은 처음부터
- *   - 휩쏘 손절은 '손절' 텍스트 + 화면 전체 손그림 ✕ (차10·차12 최종본 스타일)
- *   - 상단·하단 선의 등장 모션은 처음 그릴 때 한 번만 — 이후 컷에서는 정지 상태
- *     (growDur 0 + labelDelay -1 이 깜빡임을 없앤다)
- *   - 수익 실현은 초록 '익절' 태그 ('매도'는 숏 전용)
+ * v3 반영 (2026-08-29 피드백):
+ *   - 마켓 재튜닝(seed 73, 박스 22봉): 휩쏘 대사 때 화면이 추세가 아니라
+ *     '박스권 + 눕는 이평선'으로 보이게. 가짜 상향(+44pt)·가짜 하향(-86pt) 모두
+ *     박스를 실제로 뚫고, 장대 음봉(87번, 몸통 114pt)은 상단을 윗꼬리로 찍고 무너진다
+ *   - 두 번째 '손절' 등장을 낭독 싱크에 타이트하게 (12.3초 어절에 맞춤)
+ *   - '손절' 라인(지지 아래)을 다음 컷(⑤)까지 유지
+ *   - 컷 경계 줌 끊김 제거: visibleBars 34 통일, 경계 (reveal,줌폭) 일치,
+ *     컷⑥ 줌아웃은 컷 안에서 애니메이션
  *
- * 타이밍: 컷편집 내레이션 v3 (out_차11-5_내레이션.wav, 46.03초 — 헛출발·침묵 제거판)
- *   ① 0.00~ 6.87  훅 "박스권 대응법"                     206f
- *   ② 6.87~16.83  휩쏘 — 매수 손절 / 매도 손절 + 큰 ✕      299f
- *   ③ 16.83~26.80 검은 수평선 두 줄 — 새 기준              299f
- *   ④ 26.80~32.13 하단 반등 양봉 → 매수, 손절은 지지 아래    160f
- *   ⑤ 32.13~38.90 상단 노리다 장대 음봉 → 익절              203f
- *   ⑥ 38.90~46.07 CTA "추세장인지 박스권인지"              215f
+ * 타이밍: 컷편집 내레이션 v3 (46.03초)
+ *   ① 0.00~ 6.87  훅                                    206f  (r22→46)
+ *   ② 6.87~16.83  휩쏘 — 매수 손절 / 매도 손절 + 큰 ✕      299f  (r46→63)
+ *   ③ 16.83~26.80 검은 수평선 두 줄 — 새 기준              299f  (r63→68)
+ *   ④ 26.80~32.13 하단 반등 양봉 → 매수, 손절 라인          160f  (r68→78.4)
+ *   ⑤ 32.13~38.90 상단 노리다 장대 음봉 → 익절              203f  (r78.4→88.2)
+ *   ⑥ 38.90~46.07 CTA (줌아웃)                           215f  (r88.2→97, z→0.74)
  *                                                  합계 1382f = 46.067s
  *
- * 마켓(seed 71) 실측:
- *   박스 상단(직전 고점 윗꼬리) 24,238.25 (44번) · 하단(직전 저점 아랫꼬리) 23,960.75 (49번)
- *   가짜 상향 돌파 41~44번 / 가짜 하향 돌파 48~50번 · 하단 재테스트 66번(23,918)
- *   회복 양봉 70번(종가 23,992.25) → 랠리 고점 78번 24,103 → 79번 장대 음봉(직전 양봉을 덮음)
+ * 마켓(seed 73) 실측:
+ *   박스(26~47) 24,014.5 / 23,836.5 · 상단 꼬리 24,058 (50번) · 하단 꼬리 23,751 (58번)
+ *   재테스트 저점 23,710.75 (76번) → 회복 양봉 77·78번 (78번 종가 23,802.5 매수)
+ *   랠리 고점 24,044.75 (85번, 상단 13pt 앞) → 87번 장대 음봉 o24,029 c23,915 (h24,058.75 로 상단 터치)
  */
 
 const FPS = 30;
 const f = (n) => n / FPS;
 
 const BOX = {
-  top: 24238.25,
-  bottom: 23960.75,
-  buyBar: 70,
-  buyPrice: 23992.25,
-  stop: 23895, // 지지 라인 아래 (재테스트 꼬리 23,918 밑)
-  redBar: 79,
-  sellPrice: 24027.75,
+  top: 24058, // 직전 고점의 윗꼬리 (50번)
+  bottom: 23751, // 직전 저점의 아랫꼬리 (58번)
+  buyBar: 78,
+  buyPrice: 23802.5,
+  stop: 23690, // 지지 라인 아래 (재테스트 꼬리 23,710.75 밑)
+  redBar: 87,
+  sellPrice: 23915.25,
 };
 
 const LINE = '#111111'; // 박스권 수평선 — 검은 선 (팀장 지시)
@@ -46,22 +47,28 @@ const chartBase = {
   showGrid: false,
   showAxes: false,
   showLast: false,
+  include: [BOX.top + 130, BOX.stop - 60],
   layout: { padLeft: 0, padRight: 0, padTop: 0, padBottom: 0, rightGap: 6 },
   ma: [{ type: 'ema', period: 20, width: 5 }],
 };
 
-/* 상단·하단 검은 선 — 등장 이후 컷에서는 정지 상태 (깜빡임 방지) */
+/* 상단·하단 검은 선 — 등장 이후 컷에서는 정지 상태 */
 const topHeld = {
-  type: 'cmgLevel', price: BOX.top, fromBar: 41, color: LINE, thickness: 12,
+  type: 'cmgLevel', price: BOX.top, fromBar: 42, color: LINE, thickness: 12,
   label: '상단', labelSize: 40, growDur: 0, labelDelay: -1,
 };
 const bottomHeld = {
-  type: 'cmgLevel', price: BOX.bottom, fromBar: 46, color: LINE, thickness: 12,
+  type: 'cmgLevel', price: BOX.bottom, fromBar: 52, color: LINE, thickness: 12,
   label: '하단', labelSize: 40, growDur: 0, labelDelay: -1,
+};
+/* 손절 라인 — ④에서 그어지고 ⑤까지 유지 (피드백) */
+const stopHeld = {
+  type: 'cmgLevel', price: BOX.stop, fromBar: 72, color: '#9F0000', thickness: 14,
+  label: '손절', labelSize: 40, growDur: 0, labelDelay: -1,
 };
 
 export default {
-  title: '차트명가 숏폼 — 차11-5 20일선 박스권 6컷 (v2)',
+  title: '차트명가 숏폼 — 차11-5 20일선 박스권 6컷 (v3)',
   width: 1080,
   height: 1080,
   fps: FPS,
@@ -69,50 +76,48 @@ export default {
   theme: { preset: 'chartmyeongga' },
 
   market: {
-    seed: 71,
+    seed: 73,
     base: 23600,
     tick: 0.25,
     vol: 55,
     barMinutes: 1440,
     startTime: Date.UTC(2026, 2, 2, 0, 0),
     segments: [
-      { type: 'trend', dir: 1, bars: 26, strength: 0.6 },
-      { type: 'range', bars: 14, width: 1.0 },
-      { type: 'trend', dir: 1, bars: 3, strength: 1.5 },
-      { type: 'trend', dir: -1, bars: 5, strength: 1.2 },
-      { type: 'trend', dir: -1, bars: 3, strength: 1.4 },
-      { type: 'trend', dir: 1, bars: 4, strength: 1.1 },
-      { type: 'range', bars: 10, width: 0.9 },
-      { type: 'trend', dir: -1, bars: 4, strength: 1.1 },
-      { type: 'trend', dir: 1, bars: 2, strength: 1.7 },
-      { type: 'trend', dir: 1, bars: 8, strength: 0.85 },
-      { type: 'trend', dir: -1, bars: 2, strength: 2.4, vol: 1.5 },
-      { type: 'range', bars: 9, width: 0.9 },
+      { type: 'trend', dir: 1, bars: 26, strength: 0.6 }, // 이평선이 살아있던 추세
+      { type: 'range', bars: 22, width: 1.0 }, // 26-47 눕는 박스 (길게)
+      { type: 'trend', dir: 1, bars: 3, strength: 1.5 }, // 48-50 가짜 상향 돌파
+      { type: 'trend', dir: -1, bars: 5, strength: 1.2 }, // 51-55 되돌림
+      { type: 'trend', dir: -1, bars: 3, strength: 1.4 }, // 56-58 가짜 하향 돌파
+      { type: 'trend', dir: 1, bars: 4, strength: 1.1 }, // 59-62 복귀
+      { type: 'range', bars: 10, width: 0.9 }, // 63-72 안정
+      { type: 'trend', dir: -1, bars: 4, strength: 1.1 }, // 73-76 하단 재테스트
+      { type: 'trend', dir: 1, bars: 2, strength: 1.7 }, // 77-78 회복 양봉
+      { type: 'trend', dir: 1, bars: 8, strength: 0.85 }, // 79-86 랠리
+      { type: 'trend', dir: -1, bars: 2, strength: 2.4, vol: 1.5 }, // 87-88 장대 음봉
+      { type: 'range', bars: 9, width: 0.9 }, // 89-97 CTA
     ],
   },
 
   scenes: [
-    /* ── ① 훅 — 20일선이 통하지 않는 구간 (0.00~6.87) ───────────── */
+    /* ── ① 훅 (0.00~6.87) ──────────────────────────────────────── */
     {
       id: 'cut1-hook',
       name: '① 훅 (206f)',
       duration: f(206),
       chart: {
         ...chartBase,
-        visibleBars: 36,
         reveal: [
           { t: 0, v: 22 },
-          { t: 4.4, v: 38, ease: 'inOutCubic' },
-          { t: f(206), v: 40, ease: 'linear' },
+          { t: 4.6, v: 44, ease: 'inOutCubic' },
+          { t: f(206), v: 46, ease: 'linear' },
         ],
       },
       layers: [
         {
-          // '20일선' 라벨은 처음부터 (피드백 반영)
           type: 'cmgNote',
-          bar: 20,
-          price: 23860,
-          dy: 56,
+          bar: 24,
+          price: 23680,
+          dy: 30,
           text: '20일선',
           size: 44,
           color: '#F38808',
@@ -129,61 +134,63 @@ export default {
       chart: {
         ...chartBase,
         reveal: [
-          { t: 0, v: 40 },
-          { t: 2.0, v: 43, ease: 'inOutCubic' }, // 상향 돌파
-          { t: 3.5, v: 48, ease: 'inOutCubic' }, // 되돌림
-          { t: 5.0, v: 51, ease: 'inOutCubic' }, // 하향 돌파
-          { t: 6.5, v: 55, ease: 'inOutCubic' }, // 복귀
-          { t: f(299), v: 56, ease: 'linear' },
+          { t: 0, v: 46 },
+          { t: 2.4, v: 51, ease: 'inOutCubic' }, // 상향 돌파
+          { t: 3.4, v: 56, ease: 'inOutCubic' }, // 되돌림
+          { t: 4.7, v: 59, ease: 'inOutCubic' }, // 하향 돌파
+          { t: 6.3, v: 63, ease: 'inOutCubic' }, // 복귀
+          { t: f(299), v: 63, ease: 'linear' },
         ],
       },
       layers: [
         {
-          // "돌파에 매수해서"
+          // "돌파에 매수해서" (내레이션 9.4)
           type: 'cmgArrow',
-          bar: 42,
-          price: 24179.25,
+          bar: 50,
+          price: 24015.25,
           dir: 'buy',
           label: '매수',
           size: 32,
           gap: 16,
-          in: [1.8, 0.3],
+          in: [2.5, 0.3],
           out: [7.5, 0.4],
         },
         {
+          // 첫 번째 "손절" (내레이션 10.19~10.93)
           type: 'cmgNote',
-          bar: 47,
-          price: 24040,
+          bar: 53,
+          price: 24120,
           text: '손절',
           size: 46,
           color: '#9F0000',
-          in: [3.2, 0.3],
+          in: [3.35, 0.25],
           out: [7.5, 0.4],
         },
         {
-          // "다시 돌파에 매도해서" — 하향 돌파는 진짜 숏이라 '매도' 태그가 맞다
+          // "다시 돌파에 매도해서" — 하향 돌파, 진짜 숏이라 '매도'
           type: 'cmgArrow',
-          bar: 50,
-          price: 23969.25,
+          bar: 58,
+          price: 23780.25,
           dir: 'sell',
           label: '매도',
           size: 32,
           gap: 16,
-          in: [4.4, 0.3],
+          in: [4.75, 0.3],
           out: [7.5, 0.4],
         },
         {
+          // 두 번째 "손절" (내레이션 12.3~12.77 — 어절에 딱 맞춤)
           type: 'cmgNote',
-          bar: 54,
-          price: 24110,
+          bar: 61,
+          price: 23680,
           text: '손절',
           size: 46,
           color: '#9F0000',
-          in: [5.3, 0.3],
+          in: [5.42, 0.22],
           out: [7.5, 0.4],
         },
         {
-          // "양쪽으로 계좌만 깎입니다" — 화면 전체 손그림 ✕ (최종본 스타일)
+          // "양쪽으로 계좌만 깎입니다" — 화면 전체 손그림 ✕
           type: 'cmgCross',
           width: 36,
           drawDur: 0.55,
@@ -193,18 +200,18 @@ export default {
         {
           // "이평선이 눕는 순간 추세가 없다"
           type: 'cmgCircle',
-          bar: 48,
-          price: 24095,
-          rx: 210,
-          ry: 66,
+          bar: 52,
+          price: 23915,
+          rx: 230,
+          ry: 64,
           width: 11,
           drawDur: 0.65,
           in: [7.7, 0.2],
         },
         {
           type: 'cmgNote',
-          bar: 51,
-          price: 24200,
+          bar: 58,
+          price: 24140,
           text: '추세 없음',
           size: 46,
           color: '#F38808',
@@ -220,10 +227,9 @@ export default {
       duration: f(299),
       chart: {
         ...chartBase,
-        include: [BOX.top + 130, BOX.bottom - 110],
         reveal: [
-          { t: 0, v: 56 },
-          { t: f(299), v: 62, ease: 'linear' },
+          { t: 0, v: 63 },
+          { t: f(299), v: 68, ease: 'linear' },
         ],
       },
       layers: [
@@ -252,8 +258,8 @@ export default {
         },
         {
           type: 'cmgNote',
-          bar: 55,
-          price: 24095,
+          bar: 57,
+          price: 23935,
           text: '새 기준',
           size: 48,
           color: '#F38808',
@@ -262,18 +268,18 @@ export default {
       ],
     },
 
-    /* ── ④ 하단 반등 양봉 → 매수 (26.80~32.13) ─────────────────── */
+    /* ── ④ 하단 반등 양봉 → 매수, 손절 라인 (26.80~32.13) ────────── */
     {
       id: 'cut4-buy',
       name: '④ 하단 터치 후 회복 양봉 매수 (160f)',
       duration: f(160),
       chart: {
         ...chartBase,
-        include: [BOX.top + 130, BOX.stop - 60],
         reveal: [
-          { t: 0, v: 62 },
-          { t: 2.8, v: 71, ease: 'inOutCubic' }, // 하단 테스트 → 회복 양봉
-          { t: f(160), v: 71.4, ease: 'linear' },
+          { t: 0, v: 68 },
+          { t: 0.5, v: 73, ease: 'inOutCubic' },
+          { t: 2.6, v: 78.3, ease: 'inOutCubic' }, // 하단 테스트 → 회복 양봉
+          { t: f(160), v: 78.4, ease: 'linear' },
         ],
       },
       layers: [
@@ -282,13 +288,13 @@ export default {
         {
           // "다시 올라와 종가를 마감하면" — 회복 양봉 (봉 하나 타점)
           type: 'cmgCircle',
-          bar: BOX.buyBar,
-          price: 23995,
-          rx: 84,
-          ry: 112,
+          bar: 77,
+          price: 23770,
+          rx: 96,
+          ry: 100,
           width: 11,
           drawDur: 0.55,
-          in: [2.7, 0.2],
+          in: [2.6, 0.2],
         },
         {
           type: 'cmgArrow',
@@ -301,16 +307,11 @@ export default {
           in: [3.5, 0.35],
         },
         {
-          // "손절은 지지 라인 아래" — 손절 갈색 선
-          type: 'cmgLevel',
-          price: BOX.stop,
-          fromBar: 64,
-          color: '#9F0000',
-          thickness: 14,
-          label: '손절',
-          labelSize: 40,
-          in: [4.4, 0.2],
+          // "손절은 지지 라인 아래" — ⑤까지 유지된다
+          ...stopHeld,
           growDur: 0.4,
+          labelDelay: 0.12,
+          in: [4.4, 0.2],
         },
       ],
     },
@@ -322,19 +323,18 @@ export default {
       duration: f(203),
       chart: {
         ...chartBase,
-        include: [BOX.top + 130, BOX.stop - 60],
         reveal: [
-          { t: 0, v: 71.4 },
-          { t: 1.8, v: 78.4, ease: 'inOutCubic' }, // 상단을 향한 랠리
-          { t: 3.2, v: 80, ease: 'inOutCubic' }, // 장대 음봉 등장
-          { t: f(203), v: 80.2, ease: 'linear' },
+          { t: 0, v: 78.4 },
+          { t: 1.8, v: 85.4, ease: 'inOutCubic' }, // 상단을 향한 랠리
+          { t: 3.2, v: 88, ease: 'inOutCubic' }, // 장대 음봉
+          { t: f(203), v: 88.2, ease: 'linear' },
         ],
       },
       layers: [
         topHeld,
         bottomHeld,
+        stopHeld, // 손절 라인 유지 (피드백)
         {
-          // 진입 이후 평가수익 — 초록 박스 (내가 얼만큼 먹었는지)
           type: 'cmgProfit',
           entry: BOX.buyPrice,
           fromBar: BOX.buyBar,
@@ -351,19 +351,18 @@ export default {
           popDur: 0,
         },
         {
-          // "직전 양봉을 덮는 장대 음봉"
+          // "직전 양봉을 덮는 장대 음봉" — 상단을 윗꼬리로 찍고 무너진다
           type: 'cmgCircle',
           bar: BOX.redBar,
-          price: 24060,
-          rx: 88,
-          ry: 122,
+          price: 23985,
+          rx: 90,
+          ry: 130,
           width: 11,
           drawDur: 0.55,
           in: [3.4, 0.2],
         },
         { type: 'flash', at: 5.45, dur: 0.22, strength: 0.4, color: '#14FF36' },
         {
-          // "욕심 없이 짧게 수익 실현" — 초록 '익절' 태그
           type: 'cmgArrow',
           bar: BOX.redBar,
           price: BOX.sellPrice,
@@ -384,12 +383,14 @@ export default {
       duration: f(215),
       chart: {
         ...chartBase,
-        visibleBars: 46,
-        include: [BOX.top + 130, BOX.stop - 60],
         reveal: [
-          { t: 0, v: 80.2 },
-          { t: 4.2, v: 89, ease: 'inOutCubic' },
-          { t: f(215), v: 89, ease: 'linear' },
+          { t: 0, v: 88.2 },
+          { t: 4.2, v: 97, ease: 'inOutCubic' },
+          { t: f(215), v: 97, ease: 'linear' },
+        ],
+        zoom: [
+          { t: 0, v: 1 },
+          { t: 4.2, v: 0.74, ease: 'inOutCubic' }, // 컷 안에서 줌아웃 (끊김 없이)
         ],
       },
       layers: [
@@ -397,8 +398,8 @@ export default {
         bottomHeld,
         {
           type: 'cmgNote',
-          bar: 74,
-          price: 24330,
+          bar: 84,
+          price: 24140,
           text: '추세장? 박스권?',
           size: 48,
           color: '#F38808',

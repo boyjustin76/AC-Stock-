@@ -871,7 +871,9 @@ const LAYERS = {
         const bw = tw + padX * 2;
         const bh = L.labelHeight ?? size * 1.35;
         const anchor = L.labelX ?? x0;
-        const bx = L.labelSide === 'right' ? anchor : anchor - bw;
+        let bx = L.labelSide === 'right' ? anchor : anchor - bw;
+        // 선 시작점이 화면 밖으로 스크롤돼도 라벨은 왼쪽 가장자리에 붙어서 남는다
+        if (L.labelClamp !== false) bx = Math.min(Math.max(bx, p.x + 6), p.right - bw - 6);
         ctx.fillStyle = color;
         ctx.fillRect(bx, y - bh / 2, bw, bh);
         ctx.fillStyle = L.labelColor ?? '#FFFFFF';
