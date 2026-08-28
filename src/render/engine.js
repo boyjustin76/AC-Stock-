@@ -128,6 +128,8 @@ export class SceneRuntime {
       showGrid: c.showGrid !== false,
       showAxes: c.showAxes !== false,
       showLast: c.showLast !== false,
+      showCandles: c.showCandles !== false,
+      showMAs: c.showMAs !== false,
     });
 
     const env = {
