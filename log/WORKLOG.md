@@ -270,7 +270,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `src/tools/exp-capture.mjs` | 도구 | 캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다 |
 | `src/tools/profile-render.mjs` | 도구 | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
 | `tools` | 도구 | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
-| `tools/cutedit` | 도구 | 숏폼 컷편집 파이프라인 — transcribe(전사)·align_cut(대본 정렬)·build_cuts(컷·자막·내레이션 생성) |
+| `tools/cutedit` | 도구 | 숏폼 컷편집 파이프라인 — transcribe(전사)·align_cut(대본 정렬)·build_cuts(컷·자막·내레이션 생성, 무음 스냅·침묵 압축) |
 | `tools/legacy` | 도구 | 1세대 썸네일 도구 격리(실행 금지) — psdwrite.py·thumbnail.py. 효과 손그림·폭 역산 |
 | `tools/photoshop` | 도구 | 포토샵 COM+ExtendScript 로 템플릿 .psd 를 직접 편집한다 — 썸네일은 이 경로가 최신 |
 | `tools/photoshop/build_thumb.jsx` | 도구 | 회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg |
@@ -282,6 +282,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `tools/psdedit.py` | 도구 | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
 | `tools/thumbnail_png.py` | 도구 | 롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장 |
 | `README.md` | 문서 | 렌더러 사용법 · 포맷 선택 기준 · 씬 설정 레퍼런스 |
+| `brand/SHORTFORM-FX-POOL.md` | 문서 | 숏폼 1:1 박스 효과 pool 실측 22종 + 팀장 규칙 4개 (최종본 6편 전수 조사) |
 | `brand/STYLE.md` | 문서 | 차트명가 브랜드 스펙. 색·레이아웃·폰트·스크립트 6단 구조 |
 | `log/PREMIERE-LAB-MANUAL.md` | 문서 | 프리미어 직접 편집 실험(D 세션) 매뉴얼 — 경로·마일스톤·함정·병합 프로토콜 |
 | `log/PREMIERE-LAB-REPORT.md` | 문서 | D 의 M2~M6 총괄 보고 — 판정표·매뉴얼 정정·등재 요청·판단 요청 4건 |
@@ -629,6 +630,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 **35. 주말 클라우드 작업 — SL 차11-4·11-5 숏폼 편집. 원테이크 촬영본(CAM, 3편 뭉텅이)에서 포인트_차를 걸러내고 ① 컷편집 ② 자막(.srt) ③ 1:1 박스용 차트 모션그래픽까지. 조립은 사용자가.**
 → faster-whisper(medium int8) 로 전사 → 통합 대본과 문장 정렬(마지막 테이크 채택, 역방향 사슬) → ffmpeg 로 편별 내레이션·참고영상 컷편집. NG 재테이크·디렉팅 멘트 자동 배제, 낭독자가 문구를 바꾼 1문장('짧게 수익 실현합니다')은 음성을 따름. STT 가 단어 안에 삼킨 침묵은 silencedetect 로 보정해 '누워버리면' 뒤 2.8초 등 죽은 공백 제거(11-4 46.77초/3스팬, 11-5 50.58초/7스팬). 자막은 기존 14편 실측 스타일(큐 8~12자·버트조인·단어 경계 스냅). 소스는 scenes/sl-11-4·5 — 1080x1080/30fps, 레퍼런스 완성본(#11-1·#11-3) 실측으로 숏폼 화면 구성(얼굴 없음·차트 중앙 박스) 확인 후 제작. 11-4 는 러너 마켓(seed 11) 연장, 11-5 는 seed 71 튜닝(박스·휩쏘·장대음봉). 프레임 수 1405/1519 검증. (드라이브에 srt·컷리스트 업로드, 소스 패키지 2건(29MB)·미리보기·참고영상 전달)
 
+**36. SL 차11-4·11-5 v2 — 사용자·팀장 피드백 반영. 컷편집 노이즈 더 타이트하게(크흠 잔재·쩝 소리·'돌파에서..' 헛출발 필수 제거), 차트 소스는 '#11 스타일'이 아니라 차트명가 스타일로 — 최신 SL 최종본을 최신순으로 읽고 1:1 박스 효과를 pool 로 저장하라.**
+→ 컷편집 v3: 정밀 무음 지도(-33dB/0.35s, 87건)로 스팬 경계를 무음 가장자리에 스냅(경계 밖 헛기침·쩝을 떨굼), 스팬 안 0.55초+ 침묵은 0.3초로 압축, 스니펫 재전사로 '누워버리면' 뒤 헛출발 '돌파의…'(88.70~89.35) 실측 제거 → 43.37초/46.03초. 스타일: SL 최종본 6편(차12·차10·차09·차11-2) 콘택트시트 전수 조사 → brand/SHORTFORM-FX-POOL.md 22종 + 팀장 규칙 4개 기록. 씬 v2: 손익비 1:2 를 익절 초록·손절 갈색 색 박스로(cmgLevel fillTo — 선=테두리 정합), 수익 실현은 '익절' 태그(매도는 숏 전용), 박스권 상단·하단 검은 선, 휩쏘는 '손절'+화면 전체 손그림 ✕(cmgCross 신설), 20일선 라벨 처음부터, 등장 모션은 첫 컷만(growDur 0·labelDelay -1 로 깜빡임 제거). 프레임 1302/1382 검증. (v2 패키지·미리보기 재전달, 드라이브 자막·컷리스트 교체)
+
 ## 문제와 해결
 
 ### 1. Playwright 브라우저 빌드 불일치  `fixed`
@@ -965,3 +969,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 102 | `df240d51` | 세이브 save/2026-08-28-1832 — README 생성기 — 포인트 규칙을 SL 표에서 분리(별도 갈래 문단) | 5파일 +10/-7 |
 | 103 | `fc9d0094` | 세이브 기록 save/2026-08-28-1832 | 5파일 +11/-3 |
 | 104 | `d8490d63` | 세이브 save/2026-08-28-2337 — SL 차11-4·11-5 주말 편집 — STT 컷편집(무음 보정)·자막·1:1 차트 소스 렌더·납품(드라이브+전달), tools/cutedit 신설 | 17파일 +4363/-15 |
+| 105 | `af473797` | 세이브 기록 save/2026-08-28-2337 | 5파일 +11/-3 |

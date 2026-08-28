@@ -719,6 +719,50 @@ const LAYERS = {
   },
 
   /**
+   * 손그림 큰 ✕ — 영역(기본: 플롯 전체)을 통째로 긋는 두 획.
+   * 레퍼런스: 차10·차12 최종본의 빨간 X (실패/금지 강조). 획이 순서대로 그어진다.
+   */
+  cmgCross(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const p = env.chart.plot;
+    const inset = L.inset ?? 90;
+    const x0 = L.x0 ?? p.x + inset;
+    const y0 = L.y0 ?? p.y + inset;
+    const x1 = L.x1 ?? p.right - inset;
+    const y1 = L.y1 ?? p.bottom - inset;
+    const draw = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.55), Ease.outCubic);
+    const s1 = Math.min(1, draw * 2); // 첫 획 ↘
+    const s2 = Math.max(0, draw * 2 - 1); // 둘째 획 ↙
+    const color = L.color ?? '#E01313';
+
+    withAlpha(ctx, v, () => {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = L.width ?? 34;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      const stroke = (ax, ay, bx, by, prog) => {
+        if (prog <= 0.001) return;
+        ctx.beginPath();
+        const n = 24;
+        const last = Math.round(n * Math.min(1, prog));
+        for (let i = 0; i <= last; i++) {
+          const t = i / n;
+          // 손그림 느낌의 미세한 흔들림
+          const wob = Math.sin(t * 9.2 + ax * 0.01) * 6 + Math.sin(t * 17.7) * 3;
+          const x = ax + (bx - ax) * t + wob * 0.4;
+          const y = ay + (by - ay) * t + wob;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      };
+      stroke(x0, y0, x1, y1, s1);
+      stroke(x1, y0, x0, y1, s2);
+    });
+  },
+
+  /**
    * 평가손익 영역. 진입가와 현재가 사이를 칠한다.
    * 수익이면 초록, 손실이면 빨강. pulse 를 주면 불안하게 떨린다.
    */

@@ -10,22 +10,30 @@ import imageio_ffmpeg
 S = "/tmp/claude-0/-home-user-AC-Stock-/2aa738bb-430f-52e0-bfd6-c6b618c5db6c/scratchpad"
 FF = imageio_ffmpeg.get_ffmpeg_exe()
 CAM = f"{S}/cam.mp4"
-PAD_PRE, PAD_POST, MERGE_GAP = 0.12, 0.20, 0.7
+PAD_PRE, PAD_POST, MERGE_GAP = 0.08, 0.14, 0.4
+SHRINK_SIL, SHRINK_KEEP = 0.55, 0.15  # 스팬 안 침묵 압축
 
 aligned = json.load(open(f"{S}/aligned.json", encoding="utf-8"))
 
-# ── 무음 실측(ffmpeg silencedetect -35dB, 0.8s+)으로 STT 단어 시각 보정 ──
-# whisper 가 단어 안에 침묵을 삼키는 경우가 있다 (예: '누워버리면' 88.16~92.38).
-SILENCES = [(0.39,1.35),(2.22,3.22),(6.30,7.93),(7.94,9.39),(9.73,10.97),(37.78,39.31),
-            (56.69,57.60),(60.02,60.89),(67.24,69.06),(69.42,74.09),(74.60,76.54),
-            (89.40,90.56),(100.52,101.98),(113.20,115.52),(130.79,131.98),(138.18,139.27),
-            (147.75,148.85),(156.60,157.89),(167.63,169.59),(179.34,181.54),(181.74,183.65),
-            (183.99,185.15),(196.77,197.83),(199.68,200.58),(207.31,208.18),(210.68,211.77),
-            (213.77,215.39),(223.98,224.88),(234.92,235.79),(245.40,246.46),(251.85,252.78),
-            (258.67,259.54),(266.09,267.91)]
+# ── 무음 실측(ffmpeg silencedetect -33dB, 0.35s+)으로 STT 단어 시각 보정 ──
+# whisper 가 단어 안에 침묵·잡음을 삼키는 경우가 있다 (예: '누워버리면' 88.16~92.38).
+import re as _re
+SILENCES = []
+for line in open(f"{S}/silences_fine.txt", encoding="utf-8"):
+    m = _re.findall(r"[-\d.]+", line)
+    if len(m) >= 2:
+        SILENCES.append((float(m[0]), float(m[1])))
+
+# 스니펫 재전사로 실측한 명시 보정: (단어 시작시각 근처) → 강제 끝시각
+# '누워버리면'(88.16~) 뒤에 헛출발 "돌파의…"(88.70~89.35)가 붙어 있다
+WORD_FIXES = {88.16: ("e", 88.56)}
 
 def fix_word(w):
     s, e = w["s"], w["e"]
+    for near, (kind, val) in WORD_FIXES.items():
+        if abs(s - near) < 0.1:
+            if kind == "e":
+                e = val
     for s0, e0 in SILENCES:
         if s <= s0 < e - 0.05:   # 단어 꼬리가 침묵을 물었다
             e = s0
@@ -49,7 +57,7 @@ for i, r in enumerate(ep5["rows"]):
             "script": "익절은 상단 저항까지 노리되, 직전 양봉을 덮는 장대 음봉이 나오면 욕심 없이 짧게 수익 실현합니다.",
             "heard": "(이어붙임) 익절은 … 나오면 + 욕심없이 짧게 수익 실현합니다",
             "sim": 1.0,
-            "spans": [(148.39, 153.27), (157.80, 160.46)],
+            "spans": [(148.39, 153.12), (157.80, 160.46)],
             "words": None,  # 조각별로 아래에서 구성
         }
         ep5["rows"][i] = r_new
@@ -105,29 +113,38 @@ for ep in aligned[:2]:  # SL 두 편만
         for (a, b) in spans_of(row):
             raw.append([a, b, row])
     raw.sort(key=lambda x: x[0])
-    # 2) 패딩 + 병합 — 패딩이 잘려나갈 이웃 테이크의 단어를 물지 않게 클램프
-    all_words = sorted(
-        [(w["s"], w["e"]) for sg in json.load(open(f"{S}/cam_transcript.json", encoding="utf-8")) for w in sg["words"]])
-    def clamp(a_raw, b_raw):
-        a2, b2 = a_raw - PAD_PRE, b_raw + PAD_POST
-        prev_end = max((we for ws, we in all_words if we <= a_raw + 0.01), default=0.0)
-        next_start = min((ws for ws, we in all_words if ws >= b_raw - 0.01), default=1e9)
-        if prev_end < a_raw - 0.01:
-            a2 = max(a2, prev_end + 0.02)
-        else:
-            a2 = a_raw
-        if next_start > b_raw + 0.01:
-            b2 = min(b2, next_start - 0.02)
-        else:
-            b2 = b_raw
+    # 2) 경계 스냅 + 병합 + 내부 침묵 압축
+    # 시작: 단어 직전 무음의 끝에 붙인다 (그 앞의 헛기침·쩝 소리를 떨군다)
+    # 끝: 단어 직후 무음의 시작에 붙인다 (STT 꼬리 과대평가를 자른다)
+    def snap(a_raw, b_raw):
+        a2 = a_raw - PAD_PRE
+        ends = [e0 for s0, e0 in SILENCES if a_raw - 1.5 < e0 < a_raw + 0.9]
+        if ends:
+            a2 = max(a2, max(ends) - 0.10)
+        b2 = b_raw + PAD_POST
+        starts = [s0 for s0, e0 in SILENCES if b_raw - 0.9 < s0 < b_raw + 1.5]
+        if starts:
+            b2 = min(b2, min(starts) + 0.10)
+        if b2 <= a2 + 0.2:  # 스냅이 서로 넘어가면 원값으로
+            a2, b2 = a_raw - PAD_PRE, b_raw + PAD_POST
         return a2, b2
     spans = []
     for a, b, row in raw:
-        a2, b2 = clamp(a, b)
+        a2, b2 = snap(a, b)
         if spans and a2 - spans[-1][1] < MERGE_GAP:
             spans[-1][1] = b2
         else:
             spans.append([a2, b2])
+    # 내부 침묵 압축: 스팬 안 0.55초+ 무음은 0.3초로 줄인다 (고개 돌리는 공백 등)
+    shrunk = []
+    for a, b in spans:
+        cur = a
+        for s0, e0 in SILENCES:
+            if cur < s0 and e0 < b and (e0 - s0) >= SHRINK_SIL:
+                shrunk.append([cur, s0 + SHRINK_KEEP])
+                cur = e0 - SHRINK_KEEP
+        shrunk.append([cur, b])
+    spans = shrunk
     # 3) 출력 타임라인 매핑
     def to_out(t_src):
         acc = 0.0
