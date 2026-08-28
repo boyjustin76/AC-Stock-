@@ -221,12 +221,44 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 |---|---|---|
 | `.gitignore` | 기타 |  |
 | `CLAUDE.md` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/컷1_교과서공식.mp4` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/컷2_조용한배경.mp4` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/컷3_공식대로_손실.mp4` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/컷4_크로스신호하나.mp4` | 기타 |  |
+| `lab/premiere/baseline_open_save.prproj` | 기타 |  |
+| `lab/premiere/frames/06_60s.png` | 기타 |  |
+| `lab/premiere/frames/08_50s.png` | 기타 |  |
+| `lab/premiere/frames/10_50s.png` | 기타 |  |
+| `lab/premiere/frames/13_70s.png` | 기타 |  |
+| `lab/premiere/frames/15_00s.png` | 기타 |  |
+| `lab/premiere/frames6/06_60s.png` | 기타 |  |
+| `lab/premiere/frames6/10_00s.png` | 기타 |  |
+| `lab/premiere/frames6/13_70s.png` | 기타 |  |
+| `lab/premiere/frames6/15_45s.png` | 기타 |  |
 | `lab/premiere/m1_after_open_only.prproj` | 기타 |  |
 | `lab/premiere/m1_out.prproj` | 기타 |  |
+| `lab/premiere/m2_out.prproj` | 기타 |  |
+| `lab/premiere/m3_interp_map.prproj` | 기타 |  |
+| `lab/premiere/m3_out.prproj` | 기타 |  |
+| `lab/premiere/m4_out.prproj` | 기타 |  |
+| `lab/premiere/m4_place.prproj` | 기타 |  |
+| `lab/premiere/m4_place_v1_destructive.prproj` | 기타 |  |
+| `lab/premiere/m4_purged.prproj` | 기타 |  |
+| `lab/premiere/m5_intro2.prproj` | 기타 |  |
+| `lab/premiere/m5_relink.prproj` | 기타 |  |
+| `lab/premiere/m6_build.prproj` | 기타 |  |
 | `log/PREMIERE-LAB.md` | 기타 |  |
 | `log/build_readme.py` | 기타 |  |
 | `log/save.py` | 기타 |  |
 | `package-lock.json` | 기타 |  |
+| `scenes/cmg12-cross.build.js` | 기타 |  |
+| `scenes/cmg12-cross.scenes.js` | 기타 |  |
+| `scenes/cmg12-layer-candle.scenes.js` | 기타 |  |
+| `scenes/cmg12-layer-ma.scenes.js` | 기타 |  |
+| `scenes/cmg12-layer-mark.scenes.js` | 기타 |  |
+| `scenes/cmg12-layer-tag.scenes.js` | 기타 |  |
+| `scenes/cmg12-layer-text.scenes.js` | 기타 |  |
+| `src/tools/find-cross.mjs` | 기타 |  |
 | `log/worklog.db` | 데이터 | 작업 로그 원본 (SQLite) |
 | `src/tools/exp-capture.mjs` | 도구 | 캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다 |
 | `src/tools/profile-render.mjs` | 도구 | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
@@ -238,13 +270,16 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 | `tools/photoshop/dump_layer_fx.jsx` | 도구 | 레이어 효과(lfx2)를 ActionManager 로 값까지 읽는다 |
 | `tools/photoshop/dump_text_runs.jsx` | 도구 | 타이틀을 문자 단위로 읽어 한 줄 안에서 색·크기가 갈리는 곳을 찾는다. config 에 runsTarget 을 넣으면 결과물 .psd 도 검사한다 |
 | `tools/photoshop/run.ps1` | 도구 | 포토샵을 COM 으로 띄워 .jsx 를 실행하는 드라이버 |
+| `tools/premiere` | 도구 | 프리미어 자동화 (D 영역) — run.ps1(BridgeTalk 드라이버)·jobs/*.jsx·verify.py(되읽기 검사기)·presets/30fps sqpreset |
 | `tools/psdedit.py` | 도구 | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
 | `tools/thumbnail_png.py` | 도구 | 롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장 |
 | `README.md` | 문서 | 렌더러 사용법 · 포맷 선택 기준 · 씬 설정 레퍼런스 |
 | `brand/STYLE.md` | 문서 | 차트명가 브랜드 스펙. 색·레이아웃·폰트·스크립트 6단 구조 |
 | `log/PREMIERE-LAB-MANUAL.md` | 문서 | 프리미어 직접 편집 실험(D 세션) 매뉴얼 — 경로·마일스톤·함정·병합 프로토콜 |
+| `log/PREMIERE-LAB-REPORT.md` | 문서 | D 의 M2~M6 총괄 보고 — 판정표·매뉴얼 정정·등재 요청·판단 요청 4건 |
 | `log/RENDER-REVIEW.md` | 문서 | 렌더 속도 리뷰 의뢰서 — 코드 지도·실측·열린 질문 |
 | `log/SCRIPT-AGENT-MANUAL.md` | 문서 | 대본 담당(E 세션) 인수인계 매뉴얼 — 자산 지도·숫자·작업 순서·병합 프로토콜 |
+| `log/SCRIPT-LAB.md` | 문서 | E 의 인계 보고서 — 포인트_차 실측 3종(카피 모드·기준선·New 형식), 기준선 오판 교훈, 미반영 피드백 3건과 참고 원고 |
 | `log/THUMBNAIL-REVIEW.md` | 문서 | 썸네일 코드 검토 보고서 + 로컬 푸시 확인 절차 (2026-08-27) |
 | `log/WORKLOG.md` | 문서 | 이 DB 에서 뽑은 작업 로그 |
 | `log/worklog.html` | 문서 | 브라우저로 보는 작업 로그 |
@@ -410,7 +445,9 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 | CRLF 파일의 줄 비교 | 윈도우 CRLF 파일에서 l == '=======' 같은 줄 비교는 '\r' 이 붙어 어긋난다 — 로컬 세션의 충돌 해소 스크립트가 이걸로 자기 변경을 통째로 날렸다 (2026-08-28, config.json) | 줄 단위 비교는 rstrip 후에 한다. 그리고 해소 직후 결과를 파싱해서(JSON.parse 등) 되읽어 확인한다 — 눈으로 보면 멀쩡해 보여서 못 잡는다. 복구는 git stash drop 이 커밋 객체를 남기는 성질로 했다 |
 | 프리미어 COM | 프리미어에는 COM 자동화 ProgID 가 없다 — Premiere.Application 류 없음, Adobe.Premiere.* 12개는 전부 파일 연결, CLSID LocalServer32 전수 스캔에도 자동화 서버 없음 (26.3.2 실측) | BridgeTalk 경유가 검증된 길이다: PowerShell → Photoshop.Application(COM) → bridge.jsx → BridgeTalk → premierepro-26.0. 설치·관리자 권한·미서명 확장 불필요. 단 이 경로는 포토샵 설치에 의존한다 — 포토샵이 빠지면 프리미어 자동화도 같이 죽는다. 탈출구인 Scripts\Startup\ 은 상시 편집용 PC 라 권하지 않는다(켤 때마다 스크립트가 돈다) |
 | BridgeTalk 본문 이스케이프 | 잡 소스를 BridgeTalk 본문에 실으면 역슬래시 이스케이프가 전송 중 한 번 더 풀린다 — \t 가 프리미어에서 글자 t 로 실행됐다 | 본문에는 '이 파일을 실행해라' 한 줄만 보내고 잡 소스는 프리미어가 디스크에서 직접 읽게 한다 |
-| 파일 안에 적힌 경로 | 산출물 안의 경로(<ActualMediaFilePath> 등)는 그 파일을 만든 환경을 말할 뿐, 지금 이 PC 의 마운트 사실이 아니다 — 프리셋의 D:\ 가 그랬다(사무실 PC 실측은 G:\내 드라이브\, 문자는 가변) | 경로를 기록할 때는 드라이브 문자를 박지 말고 '드라이브 안 상대 경로 + config 의 마운트 지점 한 곳' 으로 적는다. 포토샵 config.json 의 template/chartDir 이 그 형태다 |
+| 파일 안에 적힌 경로 | 산출물 안의 경로(<ActualMediaFilePath> 등)는 그 파일을 만든 환경을 말할 뿐, 지금 이 PC 의 마운트 사실이 아니다 — 프리셋의 D:\ 가 그랬다(사무실 PC 실측은 G:\내 드라이브\, 문자는 가변) | 경로를 기록할 때는 드라이브 문자를 박지 말고 '드라이브 안 상대 경로 + config 의 마운트 지점 한 곳' 으로 적는다. 포토샵 config.json 의 template/chartDir 이 그 형태다. 실측 대응표: 편집자 PC 'D:\01_구글 드라이브(파가드AC)\트레이딩팩토리\...' = 사무실 PC 'G:\내 드라이브\트레이딩팩토리\...' — 트레이딩팩토리 아래는 동일. 이 차이 때문에 프리미어 자동 탐색이 실패하고 미디어가 전부 오프라인이 된다 |
+| 프리미어 릴링크 | relinkMedia 라는 API 는 없다. 릴링크하면 OfflineReason 이 사라지고(14→0) FrameRate 집계가 바뀐다(자리표시자 대신 진짜 값을 읽는다) — 정상이다 | projectItem.changeMediaPath(path, true) 가 답이고 canChangeMediaPath(path) 로 미리 물어볼 수 있다. 성공 판정은 반환값 말고 getMediaPath() 를 다시 읽어서. verify 는 --allow-lost OfflineReason:-N 으로 선언 |
+| 프리미어 모달 | 모달 대화상자가 뜨면 그 뒤의 모든 잡이 TIMEOUT 이고 로그도 안 남는다(잡이 끝나야 파일을 쓰므로). createNewSequence 가 대표적 | 위험한 호출 앞에서는 로그를 먼저 flush 한다. TIMEOUT 이 반복되면 프리미어 창 목록부터 열거해라 — vis=True en=True 인 창이 모달이다. WM_CLOSE 로 닫으면 살아난다 |
 
 ## 다음에 할 일
 
@@ -435,7 +472,10 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 19. **차11 썸네일 마감** — A(추세추종)·C(통합) 채택. 최종 파일은 deliver/thumbnail/차11_20일선의 비밀/ 에 있다. B(박스권)는 요소가 많다는 이유로 보류 — 씬 파일과 미리보기 png 는 남겨 두었다
 20. **다음 회차 썸네일** — tools/photoshop/config.json 의 group·variants 만 바꾸면 된다. 인물이 있는 회차면 base 를 #5 나 #7 로 바꾸고 '그룹 1'(인물 자리)에 이미지를 넣는다. 컨테이너 대체 경로(thumbnail_png.py)도 같은 config 를 읽는다 — probe 컷이 있는 씬을 만들고 variants 에 scene·tags 를 달면 된다(decision 21)  _(대기: 회차 대본과 인물 이미지)_
 21. **프리미어 직접 편집 실험 (D 세션) — M1 통과, M2 진행** — M1(BridgeTalk 열기·시퀀스 복제·저장) 은 2026-08-28 3자 검증으로 통과. 다음은 M2 소스 교체 — 오프라인 상태로, 기준선은 m1_after_open_only.prproj, 차트는 C:\cmgwork\chartA.png 등. 그 뒤 M3 키프레임 → M4 회차 조립(미디어 되살리기는 M4 에서). 산출물은 옆가지 local/premiere-lab, 판정은 클라우드  _(대기: D 가 verify.py 기준선 교체 후 M2 시작)_
-22. **대본 담당 E 세션 가동** — 사용자가 로컬 E 세션을 만들고 log/SCRIPT-AGENT-MANUAL.md 를 읽힌다. 첫 일감 후보: scripts/shortform/ 의 (중간) 초안 2편(차11 #4·#5)을 check 로 검사해 마감. 보고는 log/SCRIPT-LAB.md, 옆가지 local/script-lab, 합류·판정은 클라우드  _(대기: 사용자가 E 세션 생성)_
+22. **대본 — 방영일 확정 시 마무리** — 포인트 편 (중간)·260828 을 방영일로 갱신해 뗀다. SL 2편(차11 #4·#5)은 팀장 컨펌 대기. 다음 포인트_차 편 주제는 '손절 기준을 어디에 두느냐'(이번 CTA 가 던진 질문 — 260715 '못하는 이유' 와 겹치지 않게), 팀장 피드백 3건(포인트_차 화법·라이브톤 유지·New 기준) 적용, 참고 원고는 log/SCRIPT-LAB.md §7  _(대기: 방영일 확정 · 팀장 컨펌)_
+23. **shortform.py --kind point 구현 (E, 승인됨)** — ①발화만 세기(제목·라벨·지문 제외) ②갈래별 cps(토크 6.91/기법 6.70/모드A 5.90) ③포인트 이름 규칙 ④'포인트' 표기 검사 해제 ⑤토크편 훅 면제. 나간 편(후행스팬 53.1초·캔들꼬리 43.1초)으로 검증하며 넣는다  _(대기: E 다음 세션)_
+24. **프리미어 M7 — 텍스트를 편집 가능하게 (D)** — 프리셋 안 그래픽 텍스트 클립의 소스 텍스트를 스크립트로 바꾸는 길을 탐색한다(미탐색·D 판단요청 1·3 통합). 타이틀이 아직 차명10 문구인 것도 이걸로 풀린다. .mogrt 는 사람 손이 한 번 필요하니 후순위. 안 뚫리면 현행 구조(텍스트 층 재렌더 9초) 유지  _(대기: D 다음 세션)_
+25. **팀장 확정 2건 (사용자)** — ① 회차 조립 본류 — B(새 시퀀스)를 A(프리셋)에 중첩하는 구성이 맞는지 ② 편집자가 글자를 직접 고치는 일이 얼마나 잦은지(M7 의 우선순위를 정한다)  _(대기: 사용자가 팀장에게)_
 
 ## 대본과 컷 싱크
 
@@ -564,6 +604,12 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 
 **32. 대본(스크립트)용 로컬 서브 에이전트(E)를 새로 판다. 아는 대본 관련 내용을 전부 전달해 달라. 클라우드는 계속 총괄·저장소 관리. (D 는 M2 완료, M3 진행 중.)**
 → log/SCRIPT-AGENT-MANUAL.md 를 작성했다 — 자산 지도(규칙 21·뼈대 4단·나간 25편·자막 실측 14·대응 47·롱폼 인덱스 16·전문검색·이름규칙·scripts.json 원문), 외울 숫자(45초=307자·6.82자/초·훅/CTA 고정·실태 55.9초를 표준으로 착각 말 것·겹침 2.2%·CTA 사슬), 작업 순서(chapters→brief→초안→check→name), 팀 대원칙 4개, 병합 프로토콜(보고는 log/SCRIPT-LAB.md, 옆가지 local/script-lab, DB 빌더 금지), 윈도우 함정, 금지 목록(롱폼 대필은 결정 전 금지 포함). tools/shortform.py 와 scripts/shortform/ 의 (중간) 초안 2편은 E 영역으로 이관. (log/SCRIPT-AGENT-MANUAL.md · 4작업자 체제)
+
+**33. E(대본)의 첫 인계 보고를 받아라 — 포인트 편 촬영 완료, 새 갈래 실측 3종, 도구 승인 요청.**
+→ local/script-lab 을 본류에 합류했다. 포인트_차 갈래의 실측(New 기준선 53.9초·362자·6.70자/초, 갈래별 속도, 카피 모드 A/B 와 간격 5.5개월 분기, 방향 판정, 재업 2건, Old/New 경계 260725)을 shortform_rule 22~27 · naming_rule 5~6 으로 등재했다. tools/shortform.py 의 --kind point (발화만 세기·갈래별 cps·포인트 이름 규칙·토크편 훅 면제)는 승인 — 나간 편 실측(53.1초·43.1초)으로 검증됐고 도구는 E 영역이다. E 의 기준선 4회 오판 교훈(전수가 항상 옳지 않다·모집단을 걸러라·사실→규칙 추론은 지시자가 정한다)은 보고서(log/SCRIPT-LAB.md §8)가 원본이다. (합류 6ef287b · 규칙 6건+이름 2건 등재 · 도구 승인)
+
+**34. D(프리미어)의 M2~M6 총괄 보고를 받아라 — 판정 대기 6건, 등재 요청, 판단 요청 4건.**
+→ local/premiere-lab 을 본류에 합류하고 verify.py 7행을 전부 재현했다. 6행 통과, M2 행만 실패했는데 원인은 손실이 아니라 표의 플래그 오기 — m2_out 에는 M1 복제 시퀀스가 들어 있어 --seq-delta 1 이 맞고, 그리로 돌리면 통과(고유 경로 +chartA.png 하나만 증가, D 의 확인점 그대로). M2~M6 전부 통과 판정. D 가 고친 src/render(showCandles·showMAs 토글)는 기존 씬 재렌더 md5 동일로 회귀 없음 확인. 등재: prproj_fact 24~27(시퀀스 생성·qe 도구·키프레임 함정·고정 오프닝), constraint 2건(릴링크·모달), brand_token 0D9488, 마운트 대응표. 판단 4건 중 차트-대본 정합은 판정 완료 — 대본이 '공식대로 하면 수익 나는 경우가 많지 않다' 이므로 −0.57% 완만한 손실 + 상방 +0.44% 는 과장이 아니라 절제된 예시다. 적합. 텍스트 편집(1·3)은 M7 로, A/B 본류(2)는 B-중첩-A 가설 지지하되 팀장 확정 필요. (M2~M6 통과 · 등재 완료 · M7 지시)
 
 ## 문제와 해결
 
@@ -757,6 +803,7 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 | 썸네일 버튼 | 비율 | `글씨높이/버튼높이 0.761 · (버튼폭-글씨폭)/버튼높이 0.659` |  | brand/ui PNG 실측 | 글씨는 몸통 한가운데에서 화살촉 쪽으로 0.04·h. 폰트가 바뀌어도 이 비율로 역산한다 |
 | 썸네일 타이틀 | 윗줄 글자 높이 | `141px 고정` | 왼쪽 x=88 · 베이스라인 y=198 | #2~#6 실측 | 폭은 1017~1306 으로 자유 |
 | 썸네일 타이틀 | 아랫줄 글자 높이 | `194px 고정` | 왼쪽 x=74 · 베이스라인 y=395 | #2~#6 실측 | 폭은 1148~1583 으로 자유 |
+| 프리미어 | 상반 지표 서브 강조 | `#0D9488` |  | 메인 프리셋 색상 범례 원문 | '반대되는 개념의 서브 강조 (예: 매수/매도, 상승/하락 등 상반된 지표 비교)'. 단기 이평선처럼 20일선과 대비되는 선에 쓴다. 같은 범례: EF2767(메인 타이틀)·ED7F89(서브 타이틀)·1E293B·334155 |
 
 ## 렌더 산출물
 
@@ -878,4 +925,20 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 | 80 | `d694fb02` | 프리미어 실험 §0~M1 — BridgeTalk 으로 뚫고 시퀀스 복제 성공 | 11파일 +761/-0 |
 | 81 | `7ed8d7a2` | 세이브 save/2026-08-28-1250 — 프리미어 M1 합류·3자 검증 통과 — 매뉴얼 정정(BridgeTalk·기준선·오프라인 M2), prproj_fact 22~23, constraint 4건, request 31 | 5파일 +111/-30 |
 | 82 | `22c8c3bd` | 세이브 기록 save/2026-08-28-1250 | 5파일 +11/-3 |
-| 83 | `2223d4f2` | 세이브 save/2026-08-28-1410 — 대본 담당 E 인수인계 매뉴얼 작성 — 자산 지도·숫자·프로토콜, tools/shortform.py 이관, request 32 | 5파일 +134/-2 |
+| 83 | `0b024622` | 프리미어 M2 통과 — 소스 교체·격리 성공, 그리고 검증 기준선 정정 | 10파일 +855/-60 |
+| 84 | `2223d4f2` | 세이브 save/2026-08-28-1410 — 대본 담당 E 인수인계 매뉴얼 작성 — 자산 지도·숫자·프로토콜, tools/shortform.py 이관, request 32 | 5파일 +134/-2 |
+| 85 | `411f795c` | 세이브 기록 save/2026-08-28-1410 | 5파일 +14/-4 |
+| 86 | `1e249c76` | 프리미어 M3 통과 — 키프레임 읽기·수정·생성, qe 없이 공개 DOM 으로 | 9파일 +769/-4 |
+| 87 | `f51515e4` | 프리미어 M4-a/b 통과 — 정리(§3-9)와 격자 확정. 컷 배치는 미착수 | 6파일 +475/-7 |
+| 88 | `d2065a29` | 포인트_차 역설계 + [포인트_차]진화한 세력들 초안 — 카피 모드 2종 규명 | 2파일 +249/-0 |
+| 89 | `4c01e784` | 포인트_차 43편 내부 규격 전수 — 형식 기준을 자기 계보로 바꾸고 초안 재작성 | 2파일 +136/-83 |
+| 90 | `2016936c` | 차트명가는 라이브가 없다 — 토크편 기준선을 260514 로 바꾸고 초안 3차 | 2파일 +101/-84 |
+| 91 | `3ae14dc2` | 차명12 인트로 3컷 조립 — 차트 신규 생성 + 대본 타임코드 배치 (M4-c 테스트) | 11파일 +788/-0 |
+| 92 | `2245b999` | 기준선을 260708~261001 창으로 좁힘 — 초안 4차 | 2파일 +115/-142 |
+| 93 | `84cb30c2` | D: 경로 릴링크 + 차명12 인트로 4컷 자율 조립 (M5) | 23파일 +1171/-66 |
+| 94 | `8d81a830` | 팀장 피드백 반영 — New(260725~) 기준, 라이브톤 복원, 초안 5차 | 2파일 +135/-116 |
+| 95 | `54206855` | 대본 종결 — 촬영본 복원, 총괄 인계 보고서로 재작성 | 2파일 +262/-212 |
+| 96 | `6c81b44b` | 시퀀스를 처음부터 만들고 5층으로 쌓았다 (M6) | 22파일 +1222/-336 |
+| 97 | `c2784265` | 총괄 보고서 — M2~M6 판정 대기분 정리 | 2파일 +265/-0 |
+| 98 | `6ef287b8` | 병합 — E 대본 실험실 (포인트 촬영본 + 인계 보고서) | 2파일 +361/-0 |
+| 99 | `9428ea43` | 병합 — D 프리미어 M2~M6 (판정 대기분) | 66파일 +5134/-62 |
