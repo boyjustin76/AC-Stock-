@@ -194,5 +194,12 @@
   "utc": "2026-08-28 01:16",
   "sha": "496c15c",
   "summary": "합류 마무리 — next_step 중복 해소(로컬 16·17 -> 19·20), 옆가지 유지 결정, private 전환 기록"
+ },
+ {
+  "tag": "save/2026-08-28-1024",
+  "kst": "2026-08-28 10:24",
+  "utc": "2026-08-28 01:24",
+  "sha": "e8e5a20",
+  "summary": "1세대 썸네일 도구 격리 — tools/legacy·brand/thumbnail/legacy, 참조 6곳 갱신, decision 20"
  }
 ]
