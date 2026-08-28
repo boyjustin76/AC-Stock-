@@ -222,5 +222,12 @@
   "utc": "2026-08-28 02:26",
   "sha": "1e843b0",
   "summary": "프리미어 실험 준비 — 로컬 보고 반영(thumbnail_rule 22~25·issue 16~17·runbook 17), D 매뉴얼 작성, request 29"
+ },
+ {
+  "tag": "save/2026-08-28-1214",
+  "kst": "2026-08-28 12:14",
+  "utc": "2026-08-28 03:14",
+  "sha": "f841107",
+  "summary": "문자 단위 강조 — dump_text_runs.jsx 신규, build_thumb 에 emphasis(색·크기·nth), A2·C2 결과물"
  }
 ]
