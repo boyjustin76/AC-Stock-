@@ -440,15 +440,6 @@ export default {
           out: [1.4, 0.5],
         },
         {
-          // 마무리 — 화면이 살짝 어두워지며 정중앙에 크게 (최종본 엔딩 스타일)
-          type: 'titleCard',
-          title: '옆으로 누우면?',
-          size: 104,
-          color: '#FFFFFF',
-          scrimStrength: 0.85,
-          in: [1.9, 0.45],
-        },
-        {
           // 박스권 예고 원 — 캔들이 먼저 그려진 뒤에 친다 (당연한 순서)
           type: 'cmgCircle',
           bar: 113,
@@ -458,6 +449,15 @@ export default {
           width: 11,
           drawDur: 0.65,
           in: [4.3, 0.2],
+        },
+        {
+          // 마무리 — 화면이 살짝 어두워지며 정중앙에 크게 (최종본 엔딩 스타일)
+          type: 'titleCard',
+          title: '옆으로 누우면?',
+          size: 104,
+          color: '#FFFFFF',
+          scrimStrength: 0.85,
+          in: [1.9, 0.45],
         },
       ],
     },
