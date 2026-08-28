@@ -55,7 +55,16 @@ while (!state.done && waited < cfg.timeoutSec) {
     $.sleep(250);
     waited += 0.25;
 }
-if (!state.done) state.text = "NO_RESPONSE\t" + waited + "s 기다렸다";
+if (!state.done) {
+    /*  §5 — NO_RESPONSE 면 프리미어 탓하기 전에 포토샵의 열린 문서부터 적는다.
+        썸네일 빌드가 같은 포토샵 인스턴스를 지나가면 순서 대기가 생긴다.  */
+    var busy = [];
+    try {
+        for (var d = 0; d < app.documents.length; d++) busy.push(app.documents[d].name);
+    } catch (e) { busy.push("(문서 목록 실패: " + e.toString() + ")"); }
+    state.text = "NO_RESPONSE\t" + waited + "s 기다렸다\n포토샵 열린 문서: " +
+                 (busy.length ? busy.join(" | ") : "(없음)");
+}
 
 writeFile(lab + "/_result.txt", (state.ok ? "OK" : "FAIL") + "\n" + state.text);
 (state.ok ? "OK " : "FAIL ") + state.text;

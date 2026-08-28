@@ -401,13 +401,18 @@ export class Chart {
    * 한 프레임 전체를 그린다.
    * @returns {{scale, viewport, last}} 오버레이 레이어가 쓸 좌표 정보
    */
-  frame({ reveal, zoom = 1, priceOffset = 0, alpha = 1, showGrid = true, showAxes = true, showLast = true }) {
+  frame({ reveal, zoom = 1, priceOffset = 0, alpha = 1, showGrid = true, showAxes = true, showLast = true,
+          showCandles = true, showMAs = true }) {
     const vp = this.viewport(reveal, zoom, priceOffset);
     const s = this.makeScale(vp);
     this.drawBackground();
     if (showGrid) this.drawGrid(s, alpha * 1);
-    this.drawMAs(s, reveal, alpha);
-    this.drawCandles(s, reveal, alpha);
+    /*  showMAs / showCandles 는 레이어를 따로 렌더할 때 쓴다.
+        프리미어에 층으로 쌓으려면 '캔들만' · '이평선만' 클립이 각각 필요하다.
+        좌표계(scale/viewport)는 그리지 않아도 그대로 계산되므로,
+        차트를 다 끄고 오버레이 레이어만 렌더해도 위치가 어긋나지 않는다.  */
+    if (showMAs) this.drawMAs(s, reveal, alpha);
+    if (showCandles) this.drawCandles(s, reveal, alpha);
     let last = this.lastInfo(s, reveal);
     if (showLast) last = this.drawLastPrice(s, reveal, alpha) ?? last;
     if (showAxes) this.drawAxes(s, reveal, alpha);
