@@ -201,5 +201,12 @@
   "utc": "2026-08-28 01:24",
   "sha": "e8e5a20",
   "summary": "1세대 썸네일 도구 격리 — tools/legacy·brand/thumbnail/legacy, 참조 6곳 갱신, decision 20"
+ },
+ {
+  "tag": "save/2026-08-28-1035",
+  "kst": "2026-08-28 10:35",
+  "utc": "2026-08-28 01:35",
+  "sha": "8a859d0",
+  "summary": "썸네일 검토 지적 ③(타이틀 캐시 spec 해시 무효화)·⑤(회차 스펙 config.json 단일화) 실행 — request 28 · decision 21"
  }
 ]
