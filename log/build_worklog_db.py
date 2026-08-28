@@ -912,6 +912,13 @@ DECISIONS = [
      "세 경로(screenshot/toDataURL/getImageData)의 픽셀이 md5 까지 같고 mp4 출력도 동일함을 "
      "src/tools/exp-capture.mjs 로 증명한 뒤 바꿨다. 전체 렌더 93s → 26.8s. "
      "예전 경로는 --capture shot 으로 남겨 뒀다", None),
+    (19, "옆가지 local/thumb-ch11", "지우지 않고 남긴다",
+     "썸네일이 순수하게 로컬에서만 검증됐던 마지막 지점(0652cac)이다 — 팀장 컨펌(A·C 채택) 이후, "
+     "tools/photoshop 을 실제로 돌려 3안 재현을 확인한 뒤, 클라우드 렌더 가속이 섞이기 전. "
+     "본 브랜치에 전부 병합돼 있어 지워도 커밋은 안 사라지지만(merge-base --is-ancestor 로 확인), "
+     "작업자가 셋이고 하루에 충돌이 두 번 난 상황이라 '여기까진 확실히 됐다' 는 기준점에 "
+     "이름표를 남겨 두는 값이 이름표 하나 값보다 크다. 렌더 가속은 이 가지에 없다",
+     "썸네일이 다시 크게 바뀌어 이 시점이 의미를 잃을 때"),
 ]
 
 
@@ -1047,6 +1054,13 @@ RUNBOOK = [
     (12, "로그 갱신 (윈도우)", "윈도우에서 DB·MD·HTML 다시 뽑기",
      "$env:PYTHONUTF8='1'; python log/build_worklog_db.py --md; python log/build_worklog_page.py; python log/build_readme.py",
      "PYTHONUTF8 없이는 한글 경로에서 cp949 로 죽는다. --print 는 out/ 이 없으면 요약 단계에서 터지니 빼고 쓴다"),
+    (15, "검증 시점으로 돌아가기", "썸네일이 로컬에서만 검증됐던 상태를 보고 싶을 때",
+     "git checkout 0652cac        (구경만. 돌아올 때 git checkout claude/futures-youtube-video-edit-fhio4s)",
+     "옆가지 local/thumb-ch11 이 같은 커밋을 가리킨다. 렌더 가속 전 코드라 렌더는 느리다"),
+    (16, "윈도우에서 명령 줄 때", "PowerShell 5.1 에 bash 문법을 주면 안 된다",
+     "cd C:\\cmgwork\\repo 를 먼저 실행하고 다음 줄에 git 명령을 준다",
+     "PowerShell 5.1 에는 && 가 없다 — '토큰은 이 버전에서 올바른 문 구분 기호가 아닙니다' 로 죽는다. "
+     "한 줄로 붙이려면 ; 를 쓰거나 A; if ($?) { B } 로 쓴다"),
 ]
 
 ENV_TOOLS = [
@@ -1214,11 +1228,16 @@ CONSTRAINTS = [
     ("렌더 병렬화", "코어 수만큼만 빨라짐 (4코어에서 2.07배)",
      "컷 수보다 코어가 적으면 가장 긴 컷이 하한이 된다"),
     ("최종본 규격", "채널 롱폼 최종본은 1280x720 / 30fps", "컷씬 소스는 1080p / 59.94fps 로 납품. 축소는 손해가 없다"),
+    ("저장소 공개 범위", "2026-08-27 저녁에 private 으로 전환됐다(사용자 의도). "
+     "익명 접근이 전부 막힌다 — api.github.com 은 404, git ls-remote·fetch 는 인증을 요구한다",
+     "clone·fetch·push 모두 자격증명이 필요하다. 윈도우는 Git Credential Manager 가 브라우저 로그인을 "
+     "띄우는데, 비대화형 셸에서는 그 창을 못 띄워 막힌다. 사람이 터미널에서 한 번 로그인하면 캐시된다. "
+     "raw.githubusercontent.com 으로 파일을 바로 읽던 절차도 이제 안 된다"),
 ]
 
 NEXT_STEPS = [
-    (17, "로컬 커밋 6개 합류 (PC 켜지면 바로)",
-     "대화록으로 확인: 로컬은 커밋을 다 했고 푸시만 GitHub 인증(브라우저 로그인)에서 막혔다. "
+    (17, "로컬 커밋 6개 합류 — 완료 (2026-08-28)",
+     "대화록으로 확인: 로컬은 커밋을 다 했고 푸시만 GitHub 인증(브라우저 로그인)에서 막혔다. 2026-08-28 병합 dd04e8b 으로 합류 완료 — 사용자가 로그인해 옆가지 local/thumb-ch11 로 올린 뒤 병합했다. "
      "단 로컬이 'fast-forward 라 안전' 을 확인한 뒤 클라우드가 8커밋을 더 올려서, "
      "지금 그 push 명령은 거부된다(non-fast-forward). force 금지. "
      "추천: 로컬에서 git push -u origin HEAD:local/thumb-ch11 로 옆가지에 먼저 올리고, "
@@ -1259,10 +1278,10 @@ NEXT_STEPS = [
     (7, "알파(.mov) 렌더 시간 미측정", "mp4 는 956프레임에 순차 26.8초(캡처 교체 후)로 재놨는데 "
      "무손실 알파(qtrle)는 파일이 커서 I/O 가 더 붙는다. 필요해지면 따로 측정한다", None),
     (5, "로고 워터마크", "지금은 렌더에 넣지 않음(프리미어 프리셋과 중복). 필요하면 image 레이어로 brand/logo 사용", None),
-    (16, "차11 썸네일 마감", "A(추세추종)·C(통합) 채택. 최종 파일은 deliver/thumbnail/차11_20일선의 비밀/ 에 있다. "
+    (19, "차11 썸네일 마감", "A(추세추종)·C(통합) 채택. 최종 파일은 deliver/thumbnail/차11_20일선의 비밀/ 에 있다. "
      "B(박스권)는 요소가 많다는 이유로 보류 — 씬 파일과 미리보기 png 는 남겨 두었다",
      None),
-    (17, "다음 회차 썸네일", "tools/photoshop/config.json 의 group·variants 만 바꾸면 된다. "
+    (20, "다음 회차 썸네일", "tools/photoshop/config.json 의 group·variants 만 바꾸면 된다. "
      "인물이 있는 회차면 base 를 #5 나 #7 로 바꾸고 '그룹 1'(인물 자리)에 이미지를 넣는다",
      "회차 대본과 인물 이미지"),
     (18, "1세대 썸네일 도구의 타이틀 크기 계산", "tools/thumbnail.py 의 fit_size 와 psdedit 의 _fit·bake_text 가 "
