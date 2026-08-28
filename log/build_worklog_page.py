@@ -51,13 +51,27 @@ def build():
             f"<td class='nowrap'><span class='pill p-{st}'>{label}</span></td></tr>")
     flow = "".join(flow_rows)
 
+    MODE_KO = {"serial": "순차 (교체 전)", "parallel": "병렬 (교체 전)",
+               "serial-v2": "순차 · 새 캡처", "serial-v2-medium": "순차 · 새 캡처+medium",
+               "parallel-v2": "병렬 · 새 캡처"}
     bench = "".join(
-        f"<tr><td class='nowrap'>{e('순차' if mode=='serial' else '병렬')}</td>"
+        f"<tr><td class='nowrap'>{e(MODE_KO.get(mode, mode))}</td>"
         f"<td class='mono r'>{cores}</td><td class='mono r'>{frames}</td>"
         f"<td class='mono r'>{sv:.2f}s</td><td class='mono r'><b>{ws:.0f}s</b></td>"
         f"<td class='mono r'>{fc:.1f}</td><td>{e(note)}</td></tr>"
         for mode, cores, frames, sv, ws, fc, note in q(
-            "SELECT mode,cores,frames,seconds_video,wall_seconds,fps_capture,note FROM benchmark ORDER BY id"))
+            "SELECT mode,cores,frames,seconds_video,wall_seconds,fps_capture,note FROM benchmark"
+            " WHERE mode IN ('serial','parallel','serial-v2','serial-v2-medium','parallel-v2')"
+            " ORDER BY id"))
+
+    # 한 프레임을 조각내 잰 것 — 총 시간만으로는 어디가 느린지 알 수 없어서 따로 둔다
+    prof = "".join(
+        f"<tr><td class='nowrap'>{e(mode.split(':', 1)[1])}</td>"
+        f"<td class='mono r'><b>{ws * 1000 / frames:.1f}</b></td>"
+        f"<td>{e(note)}</td></tr>"
+        for mode, frames, ws, note in q(
+            "SELECT mode,frames,wall_seconds,note FROM benchmark"
+            " WHERE mode LIKE 'profile:%' OR mode LIKE 'loop:%' ORDER BY id"))
 
     VERDICT = {"adopt": ("fixed", "도입"), "local-only": ("worked-around", "로컬 전용"),
                "rejected": ("open", "보류"), "pending": ("open", "검토중")}
@@ -315,7 +329,7 @@ def build():
         "__START__": start, "__ENVS__": envs, "__RUNS__": runs, "__TREE__": tree,
         "__DRIVE__": drive, "__LAYERS__": layers, "__OPTS__": opts, "__SETUPS__": setups,
         "__CONS__": cons, "__NEXTS__": nexts,
-        "__FLOW__": flow, "__BENCH__": bench, "__TOOLS__": tools, "__PRPROJ__": prproj,
+        "__FLOW__": flow, "__BENCH__": bench, "__PROF__": prof, "__TOOLS__": tools, "__PRPROJ__": prproj,
         "__DOCS__": docs, "__PRJ__": prj, "__MOTION__": motion, "__SLOTS__": slots,
         "__PIPELINE__": pipeline, "__FORMATS__": formats,
         "__SFRULES__": sfrules, "__SFPARTS__": sfparts, "__SFDOCS__": sfdocs,
@@ -652,11 +666,21 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--rule);
   </table></div>
 
   <h3 class="sub-h">렌더에 걸리는 시간</h3>
-  <p class="lede">2026-08-26 실측. 컷 4개 956프레임(15.95초) 기준이고,
-     병렬 결과물은 순차와 md5 까지 같습니다. 렌더가 결정론적이라 쪼개도 결과가 흔들리지 않습니다.</p>
+  <p class="lede">컷 4개 956프레임(15.95초) 기준. 2026-08-27 에 캡처를 canvas.toDataURL 로 바꿔
+     순차 93초 → 26.8초가 됐고(출력 md5 동일), 그 뒤로는 한 프로세스가 코어를 다 쓰기 때문에
+     컷별 병렬의 이득이 사라졌습니다.</p>
   <div class="scroll"><table>
     <thead><tr><th>방식</th><th>코어</th><th>프레임</th><th>영상 길이</th><th>실제 소요</th><th>캡처 fps</th><th>비고</th></tr></thead>
     <tbody>__BENCH__</tbody>
+  </table></div>
+
+  <h3 class="sub-h">한 프레임이 어디에 시간을 쓰나</h3>
+  <p class="lede">2026-08-27 실측 (<code>src/tools/profile-render.mjs</code> 조각 측정 · 각 1회,
+     <code>src/tools/exp-capture.mjs</code> 실전 루프 · 각 3회, 120프레임, 4코어).
+     그리는 것은 공짜고 <b>PNG 로 만드는 데서 거의 다 쓴다</b> → 그래서 캡처 경로를 바꿨습니다.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>조각</th><th>프레임당 ms</th><th>비고</th></tr></thead>
+    <tbody>__PROF__</tbody>
   </table></div>
 
   <h3 class="sub-h">레퍼런스 확인 — .prproj 는 그냥 읽힙니다</h3>
