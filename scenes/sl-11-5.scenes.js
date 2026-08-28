@@ -163,7 +163,7 @@ export default {
           text: '손절',
           size: 46,
           color: '#9F0000',
-          in: [3.35, 0.25],
+          in: [3.22, 0.15],
           out: [7.5, 0.4],
         },
         {
@@ -186,7 +186,7 @@ export default {
           text: '손절',
           size: 46,
           color: '#9F0000',
-          in: [5.42, 0.22],
+          in: [5.05, 0.15],
           out: [7.5, 0.4],
         },
         {
@@ -397,13 +397,13 @@ export default {
         topHeld,
         bottomHeld,
         {
-          type: 'cmgNote',
-          bar: 84,
-          price: 24140,
-          text: '추세장? 박스권?',
-          size: 48,
-          color: '#F38808',
-          in: [1.3, 0.35],
+          // 마무리 — 화면이 살짝 어두워지며 정중앙에 크게 (최종본 엔딩 스타일)
+          type: 'titleCard',
+          title: '추세장? 박스권?',
+          size: 104,
+          color: '#FFFFFF',
+          scrimStrength: 0.85,
+          in: [1.4, 0.45],
         },
       ],
     },
