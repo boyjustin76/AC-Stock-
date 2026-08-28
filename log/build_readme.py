@@ -165,13 +165,18 @@ def build() -> str:
     a("|---|---|---|")
     for grp, rule, hits, tot, tier in q(
             "SELECT grp,rule,hits,total,tier FROM shortform_rule"
-            " WHERE tier IN ('필수','권장') ORDER BY id"):
+            " WHERE tier IN ('필수','권장') AND grp<>'포인트' ORDER BY id"):
         cnt = f"{hits}/{tot}편" if hits else "—"
         a(f"| {tier} | {rule} | {cnt} |")
     a("")
     a("등급은 기존 24편 중 몇 편이 지켰는지로 나눴습니다. "
       "5개를 모두 지킨 편은 2편뿐이라 **경향에 가깝습니다 — 권장은 어겨도 됩니다.** "
       "일정표에서 `숏폼(포)`로 표시된 편은 기획형이라 이 규칙 밖입니다.")
+    a("")
+    n_pt = one("SELECT COUNT(*) FROM shortform_rule WHERE grp='포인트'")
+    a(f"**`포인트_차` 갈래는 위 SL 규칙과 별도입니다** — 기준선부터 다릅니다"
+      f"(New 10편 실측 53.9초 · 362자 · 6.70자/초, SL 값 사용 금지). 규칙 {n_pt}개는 "
+      f"`SELECT * FROM shortform_rule WHERE grp='포인트';`, 상세는 [log/SCRIPT-LAB.md](log/SCRIPT-LAB.md).")
     a("")
     a("**폴더·파일 이름**도 매뉴얼이 있습니다. 작업 중에는 둘 다 앞에 `(중간)` 을 붙입니다.")
     a("")
