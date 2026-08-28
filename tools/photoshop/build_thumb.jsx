@@ -10,6 +10,7 @@
  *   2. 회차 전용 그림(스마트오브젝트·스틸컷·버튼)을 걷어내고 흑백 조정 레이어를 끈다
  *   3. 렌더러가 뽑은 차트 .png 를 종이 배경 위에 얹는다
  *   4. 타이틀 두 줄의 글자만 바꾼다 — 크기·좌표는 건드리지 않는다
+ *      config 에 emphasis 가 있으면 그 조각만 빨강으로 빼고 키운다 (#8 방식)
  *   5. 나머지 회차 그룹을 통째로 들어내고 .psd / .png / .jpg 로 저장한다
  *
  * 설정은 같은 폴더의 config.json 에서 읽는다. run.ps1 이 이 파일을 실행한다.
@@ -74,6 +75,144 @@ function boxOf(l) {
          + " h=" + Math.round(b[3].as("px") - b[1].as("px"));
 }
 
+/* ─────────────────────────────────────────────────────────────────────
+   문자 단위 강조 — 한 줄 안에서 일부 글자만 색·크기를 바꾼다.
+
+   왜 ActionManager 인가
+     DOM 의 textItem.color / .size 는 줄 전체에만 걸린다. 문자별 서식은
+     textKey 디스크립터의 textStyleRange 목록에만 있고 거기는 DOM 이 못 닿는다.
+     읽기만 하는 쪽은 dump_text_runs.jsx 를 보라.
+
+   열 회차에서 뽑은 규칙 (thumbnail_rule 22·23)
+     빨강은 윗줄 맨 앞 단어에만 붙고, 붙을 때는 글자도 같이 커진다.
+       #8  "가짜신호" #FF0000 1.174배   #10 "변동성" #FF0000 1.174배
+       #7  "가짜 반등" #FF5353 1.087배
+     색 없이 크기만 키우는 강조가 더 흔하다 — 숫자·지표 이름에 붙는다.
+       #1 "100배" 1.323배   #10 "수익" 1.274배   #9 "단일지표" 1.174배
+     조사를 줄여서 명사를 띄우기도 한다 — #4 "부터/까지" 0.826배.
+
+   베이스라인(y=198)이 고정이라 키운 글자는 위로만 자란다. 그래서 규칙 4 의
+   "윗줄 141px" 는 안 깨진다 — 기준 구간이 141 이고 강조 구간만 위로 솟는다.
+
+   주의 — 포토샵은 글자 끝에 종결 문자를 하나 더 센다. 마지막 to 는 길이+1 이다.
+   ───────────────────────────────────────────────────────────────────── */
+function sID(k) { return stringIDToTypeID(k); }
+
+/** 활성 텍스트 레이어의 textKey 디스크립터를 가져온다 */
+function getTextKey(layer) {
+    doc.activeLayer = layer;
+    var r = new ActionReference();
+    r.putProperty(sID("property"), sID("textKey"));
+    r.putEnumerated(sID("layer"), sID("ordinal"), sID("targetEnum"));
+    return executeActionGet(r).getObjectValue(sID("textKey"));
+}
+
+/** "#FF0000" -> RGBColor 디스크립터. 초록 채널 키가 grain 이다. green 이 아니다. */
+function rgbDesc(hex) {
+    var h = String(hex).replace("#", "");
+    var c = new ActionDescriptor();
+    c.putDouble(sID("red"),   parseInt(h.substring(0, 2), 16));
+    c.putDouble(sID("grain"), parseInt(h.substring(2, 4), 16));
+    c.putDouble(sID("blue"),  parseInt(h.substring(4, 6), 16));
+    return c;
+}
+
+/**
+ * runs = [{from,to,color?,scale?}] 로 한 줄을 다시 칠한다.
+ * 기준 서식(폰트·자간·크기)은 지금 줄의 첫 구간에서 그대로 물려받고
+ * color / size 만 덮어쓴다 — 폰트를 다시 지정하면 자간이 날아간다.
+ */
+function paintRuns(layer, runs) {
+    var tk    = getTextKey(layer);
+    var lst   = tk.getList(sID("textStyleRange"));
+    var proto = lst.getObjectValue(0);
+    var pst   = proto.getObjectValue(sID("textStyle"));
+    var baseSize = pst.getUnitDoubleValue(sID("size"));
+    var sizeUnit = pst.getUnitDoubleType(sID("size"));
+
+    /* 크기를 키울 때 size 만 쓰면 조용히 무시된다.
+       이 채널 타이틀은 레이어에 큰 변형(transform xx≈9.63)이 걸려 있어서
+       textStyle 이 size(11.95) 와 impliedFontSize(=size×배율, 115.07) 를 같이 들고 있다.
+       둘이 어긋나면 포토샵은 impliedFontSize 를 믿고 size 를 되돌려 버린다.
+       그래서 둘 다 같은 배율로 써야 한다. leading 은 줄간격이라 건드리지 않는다. */
+    var hasImplied = pst.hasKey(sID("impliedFontSize"));
+    var baseImplied = hasImplied ? pst.getUnitDoubleValue(sID("impliedFontSize")) : 0;
+    var impliedUnit = hasImplied ? pst.getUnitDoubleType(sID("impliedFontSize")) : 0;
+
+    var out = new ActionList();
+    for (var i = 0; i < runs.length; i++) {
+        var R = runs[i];
+        // getObjectValue 는 사본을 준다 — 구간마다 새로 받아야 서로 안 섞인다
+        var st = proto.getObjectValue(sID("textStyle"));
+        if (R.color) st.putObject(sID("color"), sID("RGBColor"), rgbDesc(R.color));
+        if (R.scale && R.scale !== 1) {
+            st.putUnitDouble(sID("size"), sizeUnit, baseSize * R.scale);
+            if (hasImplied) st.putUnitDouble(sID("impliedFontSize"), impliedUnit, baseImplied * R.scale);
+        }
+        var rd = new ActionDescriptor();
+        rd.putInteger(sID("from"), R.from);
+        rd.putInteger(sID("to"), R.to);
+        rd.putObject(sID("textStyle"), sID("textStyle"), st);
+        out.putObject(sID("textStyleRange"), rd);
+    }
+    tk.putList(sID("textStyleRange"), out);
+
+    var ref = new ActionReference();
+    ref.putEnumerated(sID("textLayer"), sID("ordinal"), sID("targetEnum"));
+    var d = new ActionDescriptor();
+    d.putReference(sID("null"), ref);
+    d.putObject(sID("to"), sID("textLayer"), tk);
+    executeAction(sID("set"), d, DialogModes.NO);
+    return baseSize;
+}
+
+/**
+ * config 의 emphasis 항목([{text,color,scale}])을 한 줄에 적용한다.
+ * text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세면 띄어쓰기에서 틀린다.
+ * 강조가 없으면 아무것도 하지 않는다 (기존 동작 그대로).
+ */
+function applyEmphasis(layer, lineText, specs, label) {
+    if (!specs || !specs.length) return;
+
+    var marks = [];
+    for (var i = 0; i < specs.length; i++) {
+        var E = specs[i];
+        // nth 로 같은 글자의 몇 번째를 집을지 고른다 (조사처럼 반복되는 글자용). 기본 1번째.
+        var at = -1, nth = E.nth || 1;
+        for (var n = 0; n < nth; n++) {
+            at = String(lineText).indexOf(E.text, at + 1);
+            if (at < 0) break;
+        }
+        if (at < 0) {
+            L("  !! " + label + " 에 \"" + E.text + "\" 의 " + nth + "번째가 없습니다 — 건너뜁니다");
+            continue;
+        }
+        marks.push({ from: at, to: at + E.text.length, color: E.color || null, scale: E.scale || 1 });
+    }
+    if (!marks.length) return;
+    marks.sort(function (a, b) { return a.from - b.from; });
+
+    for (var i = 1; i < marks.length; i++)
+        if (marks[i].from < marks[i - 1].to) throw new Error(label + " 의 강조 구간이 겹칩니다");
+
+    // 강조 구간 사이사이를 기준 서식 구간으로 메운다. 마지막은 길이+1 까지.
+    var runs = [], cur = 0, end = String(lineText).length + 1;
+    for (var i = 0; i < marks.length; i++) {
+        if (marks[i].from > cur) runs.push({ from: cur, to: marks[i].from });
+        runs.push(marks[i]);
+        cur = marks[i].to;
+    }
+    if (cur < end) runs.push({ from: cur, to: end });
+
+    var baseSize = paintRuns(layer, runs);
+    var bits = [];
+    for (var i = 0; i < marks.length; i++)
+        bits.push("\"" + lineText.substring(marks[i].from, marks[i].to) + "\""
+                + (marks[i].color ? " " + marks[i].color : "")
+                + (marks[i].scale !== 1 ? " x" + marks[i].scale : ""));
+    L("  강조 " + label + " — " + bits.join(" · ") + "  (기준 " + Math.round(baseSize * 100) / 100 + "px)");
+}
+
 /** 종이 배경 레이어는 (4, -84) 에 놓여 있다 — 회차가 달라도 같다 */
 function isPaper(y) {
     try {
@@ -86,8 +225,18 @@ var doc = openTemplate();
 var outDir = new Folder(CFG.outDir);
 if (!outDir.exists) outDir.create();
 
+/** config 의 build 목록에 있는 안만 뽑는다. 목록이 없으면 전부 뽑는다. */
+function wanted(id) {
+    if (!CFG.build || !CFG.build.length) return true;
+    for (var i = 0; i < CFG.build.length; i++) if (CFG.build[i] === id) return true;
+    return false;
+}
+
+var built = 0;
 for (var v = 0; v < CFG.variants.length; v++) {
     var V = CFG.variants[v];
+    if (!wanted(V.id)) continue;
+    built++;
     L("");
     L("================ " + V.id + " ================");
 
@@ -165,6 +314,13 @@ for (var v = 0; v < CFG.variants.length; v++) {
     }
     mainL.textItem.contents = V.main; mainL.name = V.main;
     subL.textItem.contents  = V.sub;  subL.name  = V.sub;
+    // 문자 단위 강조는 글자를 다 넣은 뒤에 건다 — contents 를 쓰면 서식이 초기화된다
+    var EMP = V.emphasis || [];
+    var empSub = [], empMain = [];
+    for (var e = 0; e < EMP.length; e++) ((EMP[e].line === "main") ? empMain : empSub).push(EMP[e]);
+    applyEmphasis(subL,  V.sub,  empSub,  "윗줄");
+    applyEmphasis(mainL, V.main, empMain, "아랫줄");
+
     L("아랫줄 " + V.main + "  " + boxOf(mainL));
     L("윗줄  " + V.sub  + "  " + boxOf(subL));
     // 관측 최대폭을 넘으면 알려만 준다 (자동으로 줄이지 않는다 — 크기가 고정 규격이다)
@@ -201,4 +357,4 @@ app.preferences.typeUnits = _tu;
 
 var lf = new File(CFG.outDir + "/build_log.txt");
 lf.encoding = "UTF-8"; lf.open("w"); lf.write(log.join(String.fromCharCode(10))); lf.close();
-"OK " + CFG.variants.length + "안";
+"OK " + built + "안";

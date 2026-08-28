@@ -4,6 +4,7 @@
         .\tools\photoshop\run.ps1 build_thumb
         .\tools\photoshop\run.ps1 dump_episodes
         .\tools\photoshop\run.ps1 dump_layer_fx
+        .\tools\photoshop\run.ps1 dump_text_runs
 
     포토샵이 안 떠 있으면 알아서 뜬다. 템플릿이 180MB 라 첫 실행은 1~2분 걸린다.
     두 번째부터는 문서가 열린 채로 남아 있어 빠르다.
@@ -12,7 +13,7 @@
 #>
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('build_thumb', 'dump_episodes', 'dump_layer_fx')]
+    [ValidateSet('build_thumb', 'dump_episodes', 'dump_layer_fx', 'dump_text_runs')]
     [string]$Script
 )
 
@@ -39,7 +40,7 @@ $result = $ps.DoJavaScriptFile($jsx)
 Write-Host "  결과: $result"
 
 # jsx 가 남긴 로그를 그대로 보여 준다
-foreach ($name in 'build_log.txt', 'layer_fx.txt', 'ref_tree.txt') {
+foreach ($name in 'build_log.txt', 'layer_fx.txt', 'ref_tree.txt', 'text_runs.txt') {
     $log = Join-Path $cfg.outDir $name
     if ((Test-Path $log) -and ((Get-Item $log).LastWriteTime -gt (Get-Date).AddMinutes(-5))) {
         Write-Host ""

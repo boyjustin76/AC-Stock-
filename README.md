@@ -252,6 +252,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/photoshop/config.json` | 템플릿·차트·출력 경로와 회차 문구 — 컨테이너의 thumbnail_png.py 도 같은 파일을 읽는다(스펙 단일화, decision 21) |
 | `tools/photoshop/dump_episodes.jsx` | 완성 회차를 한 장씩 뽑고 레이어 트리를 받아 적는다 — 규칙을 뽑을 때 |
 | `tools/photoshop/dump_layer_fx.jsx` | 레이어 효과(lfx2)를 ActionManager 로 값까지 읽는다 |
+| `tools/photoshop/dump_text_runs.jsx` | 타이틀을 문자 단위로 읽어 한 줄 안에서 색·크기가 갈리는 곳을 찾는다. config 에 runsTarget 을 넣으면 결과물 .psd 도 검사한다 |
 | `tools/photoshop/run.ps1` | 포토샵을 COM 으로 띄워 .jsx 를 실행하는 드라이버 |
 | `tools/psdedit.py` | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
 | `tools/thumbnail_png.py` | 롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장 |

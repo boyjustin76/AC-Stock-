@@ -233,6 +233,7 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 | `tools/photoshop/build_thumb.jsx` | 도구 | 회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg |
 | `tools/photoshop/dump_episodes.jsx` | 도구 | 완성 회차를 한 장씩 뽑고 레이어 트리를 받아 적는다 — 규칙을 뽑을 때 |
 | `tools/photoshop/dump_layer_fx.jsx` | 도구 | 레이어 효과(lfx2)를 ActionManager 로 값까지 읽는다 |
+| `tools/photoshop/dump_text_runs.jsx` | 도구 | 타이틀을 문자 단위로 읽어 한 줄 안에서 색·크기가 갈리는 곳을 찾는다. config 에 runsTarget 을 넣으면 결과물 .psd 도 검사한다 |
 | `tools/photoshop/run.ps1` | 도구 | 포토샵을 COM 으로 띄워 .jsx 를 실행하는 드라이버 |
 | `tools/psdedit.py` | 도구 | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
 | `tools/thumbnail_png.py` | 도구 | 롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장 |
@@ -743,22 +744,22 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 
 | 파일 | 포맷 | 프레임 | 크기 | 비고 |
 |---|---|---|---|---|
-| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | 0.8 MB | 29.97 기준 125f |
-| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | 1.0 MB | 29.97 기준 117f |
-| `out/cmg/cut3-fear.mp4` | mp4 | 152 | 1.1 MB | 29.97 기준 76f |
-| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | 3.4 MB | 29.97 기준 160f |
-| `out/cmg/_reel.mp4` | mp4 | 956 | 6.4 MB | 4컷 이어붙임, 29.97 기준 478f |
-| `out/01-open.mp4` | mp4 | 420 | 4.4 MB |  |
-| `out/02-structure.mp4` | mp4 | 450 | 4.3 MB |  |
-| `out/03-breakdown.mp4` | mp4 | 420 | 4.9 MB |  |
-| `out/04-entry.mp4` | mp4 | 420 | 3.7 MB |  |
-| `out/05-tpsl.mp4` | mp4 | 450 | 3.6 MB |  |
-| `out/06-result.mp4` | mp4 | 540 | 4.8 MB |  |
-| `out/_reel.mp4` | mp4 | 2700 | 25.6 MB | 다크 6컷 릴 45초 |
-| `out/ov-chart.mov` | qtrle | 300 | 38.5 MB | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
-| `out/ov-chart.webm` | vp9a | 300 | 3.2 MB | 전송용 압축본 |
-| `out/ov-tpsl.mov` | qtrle | 300 | 17.1 MB |  |
-| `out/ov-pnl.mov` | qtrle | 300 | 17.0 MB |  |
+| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | - | 29.97 기준 125f |
+| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | - | 29.97 기준 117f |
+| `out/cmg/cut3-fear.mp4` | mp4 | 152 | - | 29.97 기준 76f |
+| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | - | 29.97 기준 160f |
+| `out/cmg/_reel.mp4` | mp4 | 956 | - | 4컷 이어붙임, 29.97 기준 478f |
+| `out/01-open.mp4` | mp4 | 420 | - |  |
+| `out/02-structure.mp4` | mp4 | 450 | - |  |
+| `out/03-breakdown.mp4` | mp4 | 420 | - |  |
+| `out/04-entry.mp4` | mp4 | 420 | - |  |
+| `out/05-tpsl.mp4` | mp4 | 450 | - |  |
+| `out/06-result.mp4` | mp4 | 540 | - |  |
+| `out/_reel.mp4` | mp4 | 2700 | - | 다크 6컷 릴 45초 |
+| `out/ov-chart.mov` | qtrle | 300 | - | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
+| `out/ov-chart.webm` | vp9a | 300 | - | 전송용 압축본 |
+| `out/ov-tpsl.mov` | qtrle | 300 | - |  |
+| `out/ov-pnl.mov` | qtrle | 300 | - |  |
 
 ## 받아 온 자료
 
@@ -851,3 +852,4 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 | 72 | `e5a64f17` | 세이브 save/2026-08-28-1036 — README 생성기 정정 — 렌더 문단을 v2 실측으로(재생성 때마다 병렬 권장으로 회귀하던 것) | 6파일 +24/-18 |
 | 73 | `26931264` | 세이브 기록 save/2026-08-28-1036 | 5파일 +11/-3 |
 | 74 | `1e843b0d` | 세이브 save/2026-08-28-1126 — 프리미어 실험 준비 — 로컬 보고 반영(thumbnail_rule 22~25·issue 16~17·runbook 17), D 매뉴얼 작성, request 29 | 6파일 +270/-5 |
+| 75 | `d4a96a93` | 세이브 기록 save/2026-08-28-1126 | 5파일 +14/-4 |
