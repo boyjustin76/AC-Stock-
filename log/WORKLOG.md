@@ -221,6 +221,9 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 |---|---|---|
 | `.gitignore` | 기타 |  |
 | `CLAUDE.md` | 기타 |  |
+| `lab/premiere/m1_after_open_only.prproj` | 기타 |  |
+| `lab/premiere/m1_out.prproj` | 기타 |  |
+| `log/PREMIERE-LAB.md` | 기타 |  |
 | `log/build_readme.py` | 기타 |  |
 | `log/save.py` | 기타 |  |
 | `package-lock.json` | 기타 |  |
@@ -404,6 +407,9 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 | 최종본 규격 | 채널 롱폼 최종본은 1280x720 / 30fps | 컷씬 소스는 1080p / 59.94fps 로 납품. 축소는 손해가 없다 |
 | 저장소 공개 범위 | 2026-08-27 저녁에 private 으로 전환됐다(사용자 의도). 익명 접근이 전부 막힌다 — api.github.com 은 404, git ls-remote·fetch 는 인증을 요구한다 | clone·fetch·push 모두 자격증명이 필요하다. 윈도우는 Git Credential Manager 가 브라우저 로그인을 띄우는데, 비대화형 셸에서는 그 창을 못 띄워 막힌다. 사람이 터미널에서 한 번 로그인하면 캐시된다. raw.githubusercontent.com 으로 파일을 바로 읽던 절차도 이제 안 된다 |
 | CRLF 파일의 줄 비교 | 윈도우 CRLF 파일에서 l == '=======' 같은 줄 비교는 '\r' 이 붙어 어긋난다 — 로컬 세션의 충돌 해소 스크립트가 이걸로 자기 변경을 통째로 날렸다 (2026-08-28, config.json) | 줄 단위 비교는 rstrip 후에 한다. 그리고 해소 직후 결과를 파싱해서(JSON.parse 등) 되읽어 확인한다 — 눈으로 보면 멀쩡해 보여서 못 잡는다. 복구는 git stash drop 이 커밋 객체를 남기는 성질로 했다 |
+| 프리미어 COM | 프리미어에는 COM 자동화 ProgID 가 없다 — Premiere.Application 류 없음, Adobe.Premiere.* 12개는 전부 파일 연결, CLSID LocalServer32 전수 스캔에도 자동화 서버 없음 (26.3.2 실측) | BridgeTalk 경유가 검증된 길이다: PowerShell → Photoshop.Application(COM) → bridge.jsx → BridgeTalk → premierepro-26.0. 설치·관리자 권한·미서명 확장 불필요. 단 이 경로는 포토샵 설치에 의존한다 — 포토샵이 빠지면 프리미어 자동화도 같이 죽는다. 탈출구인 Scripts\Startup\ 은 상시 편집용 PC 라 권하지 않는다(켤 때마다 스크립트가 돈다) |
+| BridgeTalk 본문 이스케이프 | 잡 소스를 BridgeTalk 본문에 실으면 역슬래시 이스케이프가 전송 중 한 번 더 풀린다 — \t 가 프리미어에서 글자 t 로 실행됐다 | 본문에는 '이 파일을 실행해라' 한 줄만 보내고 잡 소스는 프리미어가 디스크에서 직접 읽게 한다 |
+| 파일 안에 적힌 경로 | 산출물 안의 경로(<ActualMediaFilePath> 등)는 그 파일을 만든 환경을 말할 뿐, 지금 이 PC 의 마운트 사실이 아니다 — 프리셋의 D:\ 가 그랬다(사무실 PC 실측은 G:\내 드라이브\, 문자는 가변) | 경로를 기록할 때는 드라이브 문자를 박지 말고 '드라이브 안 상대 경로 + config 의 마운트 지점 한 곳' 으로 적는다. 포토샵 config.json 의 template/chartDir 이 그 형태다 |
 
 ## 다음에 할 일
 
@@ -427,7 +433,7 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 18. **1세대 썸네일 도구의 타이틀 크기 계산** — tools/legacy/thumbnail.py(격리됨) 의 fit_size 와 psdedit 의 _fit·bake_text 가 아직 '폭에 맞춰 폰트 크기를 역산' 하는 방식이다. 완성본 실측으로 규칙이 뒤집혔으므로(글자 높이 고정·폭 자유, thumbnail_rule 4·5) 그 경로로 뽑으면 규격이 어긋난다. 포토샵이 없는 환경에서 그 도구를 다시 쓸 일이 생기면 먼저 고쳐야 한다  _(대기: 리눅스에서 썸네일을 다시 뽑아야 할 때)_
 19. **차11 썸네일 마감** — A(추세추종)·C(통합) 채택. 최종 파일은 deliver/thumbnail/차11_20일선의 비밀/ 에 있다. B(박스권)는 요소가 많다는 이유로 보류 — 씬 파일과 미리보기 png 는 남겨 두었다
 20. **다음 회차 썸네일** — tools/photoshop/config.json 의 group·variants 만 바꾸면 된다. 인물이 있는 회차면 base 를 #5 나 #7 로 바꾸고 '그룹 1'(인물 자리)에 이미지를 넣는다. 컨테이너 대체 경로(thumbnail_png.py)도 같은 config 를 읽는다 — probe 컷이 있는 씬을 만들고 variants 에 scene·tags 를 달면 된다(decision 21)  _(대기: 회차 대본과 인물 이미지)_
-21. **프리미어 직접 편집 실험 (D 세션)** — log/PREMIERE-LAB-MANUAL.md 대로 로컬 사무실 PC 에서 진행. M1 COM 으로 열기·시퀀스 복제·저장 → M2 소스 교체 → M3 키프레임 → M4 회차 조립. 산출물 .prproj 를 옆가지 local/premiere-lab 으로 올리면 클라우드가 gunzip 으로 판정한다  _(대기: 사용자가 D 세션을 만들고 매뉴얼을 전달)_
+21. **프리미어 직접 편집 실험 (D 세션) — M1 통과, M2 진행** — M1(BridgeTalk 열기·시퀀스 복제·저장) 은 2026-08-28 3자 검증으로 통과. 다음은 M2 소스 교체 — 오프라인 상태로, 기준선은 m1_after_open_only.prproj, 차트는 C:\cmgwork\chartA.png 등. 그 뒤 M3 키프레임 → M4 회차 조립(미디어 되살리기는 M4 에서). 산출물은 옆가지 local/premiere-lab, 판정은 클라우드  _(대기: D 가 verify.py 기준선 교체 후 M2 시작)_
 
 ## 대본과 컷 싱크
 
@@ -550,6 +556,9 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 
 **30. 로컬(B)의 문자 단위 강조 푸시(f841107)를 받아라. config.json 은 로컬 것이 상위집합. 당부: emphasis 가 붙은 안에는 scene·tags 를 달지 마라 — 컨테이너가 강조 빠진 그림을 같은 id 로 만든다.**
 → ff-only 로 합류했다. config 검증 결과 A 의 scene·tags 생존, A2·C2 는 emphasis 만 보유 — 상위집합 맞다. 당부는 주석에 이미 있었지만 코드 가드로 승격했다: load_spec 이 scene+emphasis 동시 보유를 발견하면 즉시 거부한다(오조합 config 로 테스트 통과). 로컬이 병합 중 낸 CRLF 사고(충돌 해소 스크립트가 '=======\r' 을 못 알아봐 자기 변경을 날림, stash 커밋 객체로 복구)는 constraint 로 남겼다. (합류 e2c2c36 · scene+emphasis 가드 · CRLF constraint)
+
+**31. D 의 프리미어 M1 보고와 B 의 재검증 의견을 받아라.**
+→ 옆가지 local/premiere-lab(d694fb0)을 본류에 ff 합류하고 3자 검증을 했다 — B 의 숫자와 전부 일치: 기준선(열기만 한 파일) 대비 손실 0, 시퀀스 단위 객체 전수 9→10, StartKeyframe 5,906→10,571, 고유 미디어 경로 52 불변. M1 판정 통과. 추가 발견: 열기 정규화가 StartKeyframe 점도 60개 지운다 — 기준선 교정(B 제안 1)의 근거가 하나 더 늘었다. 매뉴얼을 실측으로 정정했다: COM ProgID 없음 → BridgeTalk 경로, 기준선·점 세기·전수 검사 규칙, 멱등 반환값(거짓 실패) 별도 항목, 동시 실행 금지, M2 는 오프라인 진행(미디어 되살리기는 M4 로 — B 제안 채택, 총괄 결정). constraint 4건·prproj_fact 22~23·fact 4 정정을 기록했다. (M1 통과 판정 · 매뉴얼 6곳 정정 · M2 지시 확정)
 
 ## 문제와 해결
 
@@ -860,3 +869,5 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 | 76 | `f8411073` | 세이브 save/2026-08-28-1214 — 문자 단위 강조 — dump_text_runs.jsx 신규, build_thumb 에 emphasis(색·크기·nth), A2·C2 결과물 | 12파일 +364/-23 |
 | 77 | `e2c2c36c` | 세이브 기록 save/2026-08-28-1214 | 5파일 +11/-3 |
 | 78 | `0ca2e3b9` | 세이브 save/2026-08-28-1223 — 로컬 강조 푸시 합류(e2c2c36) — scene+emphasis 코드 가드, CRLF constraint, request 30 | 5파일 +41/-19 |
+| 79 | `9f8d3efb` | 세이브 기록 save/2026-08-28-1223 | 5파일 +11/-3 |
+| 80 | `d694fb02` | 프리미어 실험 §0~M1 — BridgeTalk 으로 뚫고 시퀀스 복제 성공 | 11파일 +761/-0 |
