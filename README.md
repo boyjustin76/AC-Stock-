@@ -184,12 +184,12 @@ git restore --source=<해시> -- .              # 되돌리기
 
 | 시각 (KST) | 슬롯 | 커밋 | 어디까지 |
 |---|---|---|---|
+| 2026-08-28 14:10 | `save/2026-08-28-1410` | `2223d4f` | 대본 담당 E 인수인계 매뉴얼 작성 — 자산 지도·숫자·프로토콜, tools/shortform.py 이관, request 32 |
 | 2026-08-28 12:50 | `save/2026-08-28-1250` | `7ed8d7a` | 프리미어 M1 합류·3자 검증 통과 — 매뉴얼 정정(BridgeTalk·기준선·오프라인 M2), prproj_fact 22~23, constraint 4건, request 31 |
 | 2026-08-28 12:23 | `save/2026-08-28-1223` | `0ca2e3b` | 로컬 강조 푸시 합류(e2c2c36) — scene+emphasis 코드 가드, CRLF constraint, request 30 |
 | 2026-08-28 12:14 | `save/2026-08-28-1214` | `f841107` | 문자 단위 강조 — dump_text_runs.jsx 신규, build_thumb 에 emphasis(색·크기·nth), A2·C2 결과물 |
 | 2026-08-28 11:26 | `save/2026-08-28-1126` | `1e843b0` | 프리미어 실험 준비 — 로컬 보고 반영(thumbnail_rule 22~25·issue 16~17·runbook 17), D 매뉴얼 작성, request 29 |
 | 2026-08-28 10:36 | `save/2026-08-28-1036` | `e5a64f1` | README 생성기 정정 — 렌더 문단을 v2 실측으로(재생성 때마다 병렬 권장으로 회귀하던 것) |
-| 2026-08-28 10:35 | `save/2026-08-28-1035` | `8a859d0` | 썸네일 검토 지적 ③(타이틀 캐시 spec 해시 무효화)·⑤(회차 스펙 config.json 단일화) 실행 — request 28 · decision 21 |
 
 ---
 
@@ -215,6 +215,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `deliver/thumbnail` | 채택된 썸네일. out/ 은 .gitignore 라 여기에 따로 둔다 |
 | `log/PREMIERE-LAB-MANUAL.md` | 프리미어 직접 편집 실험(D 세션) 매뉴얼 — 경로·마일스톤·함정·병합 프로토콜 |
 | `log/RENDER-REVIEW.md` | 렌더 속도 리뷰 의뢰서 — 코드 지도·실측·열린 질문 |
+| `log/SCRIPT-AGENT-MANUAL.md` | 대본 담당(E 세션) 인수인계 매뉴얼 — 자산 지도·숫자·작업 순서·병합 프로토콜 |
 | `log/THUMBNAIL-REVIEW.md` | 썸네일 코드 검토 보고서 + 로컬 푸시 확인 절차 (2026-08-27) |
 | `log/WORKLOG.md` | 이 DB 에서 뽑은 작업 로그 |
 | `log/build_worklog_db.py` | 로그 DB 생성. 내용을 고칠 때 여기만 고친다 |

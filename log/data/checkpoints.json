@@ -243,5 +243,12 @@
   "utc": "2026-08-28 03:50",
   "sha": "7ed8d7a",
   "summary": "프리미어 M1 합류·3자 검증 통과 — 매뉴얼 정정(BridgeTalk·기준선·오프라인 M2), prproj_fact 22~23, constraint 4건, request 31"
+ },
+ {
+  "tag": "save/2026-08-28-1410",
+  "kst": "2026-08-28 14:10",
+  "utc": "2026-08-28 05:10",
+  "sha": "2223d4f",
+  "summary": "대본 담당 E 인수인계 매뉴얼 작성 — 자산 지도·숫자·프로토콜, tools/shortform.py 이관, request 32"
  }
 ]
