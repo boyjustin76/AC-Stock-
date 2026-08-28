@@ -318,13 +318,15 @@ export default {
           { t: 0, v: 45.5 },
           { t: 6.4, v: 46, ease: 'linear' },
           { t: 8.2, v: 60, ease: 'inOutCubic' },
-          { t: 13.5, v: 104.2, ease: 'inOutCubic' },
+          { t: 11.2, v: 104.2, ease: 'inOutCubic' },
           { t: f(417), v: 104.5, ease: 'linear' },
         ],
         zoom: [
           { t: 0, v: ZOOM_IN },
           { t: 8.2, v: ZOOM_IN },
-          { t: 13.2, v: 0.55, ease: 'inOutCubic' },
+          { t: 11.2, v: 0.55, ease: 'inOutCubic' }, // 추세 전체 줌아웃
+          { t: 11.5, v: 0.55 },
+          { t: 12.7, v: 1.1, ease: 'inOutCubic' }, // "이격된 음봉" — 봉 하나로 다시 줌인
         ],
       },
       layers: [
@@ -363,8 +365,8 @@ export default {
         },
         {
           type: 'cmgNote',
-          bar: 96,
-          price: 25060,
+          bar: 98,
+          price: 25000,
           text: '이격 음봉',
           size: 46,
           color: '#E90054',
@@ -398,7 +400,7 @@ export default {
           { t: f(197), v: 121, ease: 'linear' },
         ],
         zoom: [
-          { t: 0, v: 0.55 },
+          { t: 0, v: 1.1 },
           { t: 5.0, v: 0.8, ease: 'inOutCubic' },
         ],
       },
