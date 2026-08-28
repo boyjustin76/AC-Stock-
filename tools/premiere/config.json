@@ -1,0 +1,15 @@
+{
+  "_설명": "tools/premiere/*.jsx 가 읽는 설정. 경로는 슬래시(/)로 쓴다 — 역슬래시는 JSX 문자열에서 이스케이프로 먹힌다.",
+
+  "labDir": "C:/pprolab",
+  "_labDir": "실험 폴더. 잡 파일·로그·결과가 전부 여기 떨어진다. 저장소 밖이다.",
+
+  "src": "C:/pprolab/src.prproj",
+  "_src": "brand/premiere/차트명가_메인프리셋(24버전).prproj 의 사본. 회사 드라이브 원본은 열지 않는다.",
+
+  "target": "premierepro-26.0",
+  "_target": "BridgeTalk 스펙파이어. 포토샵 안에서 BridgeTalk.getSpecifier('premierepro') 로 실측한 값(26.3.2 = 26.0 계열).",
+
+  "timeoutSec": 600,
+  "_timeoutSec": "프리셋이 288KB(압축)라 첫 열기가 오래 걸릴 수 있다. 넉넉히 준다."
+}
