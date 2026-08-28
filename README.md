@@ -214,7 +214,9 @@ git restore --source=<해시> -- .              # 되돌리기
 | `brand/thumbnail/종이배경.png` | 템플릿 종이 텍스처 원본 픽셀 |
 | `brand/thumbnail/틀.png` | 템플릿 '틀' 도형 원본 픽셀 (안쪽 투명) |
 | `brand/ui` | 매수·매도 버튼, 시네마스코프, 댓글 유도 |
+| `deliver/shortform` | 납품한 숏폼 자막·컷리스트 (영상·음성은 드라이브/전달분에만) |
 | `deliver/thumbnail` | 채택된 썸네일. out/ 은 .gitignore 라 여기에 따로 둔다 |
+| `lab/cutedit` | CAM 촬영본 전사 원본(cam_transcript.json) — 컷 재현·재검증용 |
 | `log/PREMIERE-LAB-MANUAL.md` | 프리미어 직접 편집 실험(D 세션) 매뉴얼 — 경로·마일스톤·함정·병합 프로토콜 |
 | `log/PREMIERE-LAB-REPORT.md` | D 의 M2~M6 총괄 보고 — 판정표·매뉴얼 정정·등재 요청·판단 요청 4건 |
 | `log/RENDER-REVIEW.md` | 렌더 속도 리뷰 의뢰서 — 코드 지도·실측·열린 질문 |
@@ -231,6 +233,8 @@ git restore --source=<해시> -- .              # 되돌리기
 | `scenes/cmg-20ma-runner.scenes.js` | 차트명가 20일선 4컷. 새 대본은 이 파일을 본떠 만든다 |
 | `scenes/nq-basic.scenes.js` | 다크 테마 NQ 6컷 (첫 버전, 브랜드 적용 전) |
 | `scenes/nq-overlay.scenes.js` | 투명 배경 오버레이 3컷 |
+| `scenes/sl-11-4.scenes.js` | 숏폼 차11-4 추세추종 5컷 — 1080x1080/30fps, 내레이션 46.77초에 동기 |
+| `scenes/sl-11-5.scenes.js` | 숏폼 차11-5 박스권 6컷 — seed 71 튜닝(가짜 돌파 2회·하단 반등·장대 음봉) |
 | `scenes/thumb-ch11-A.scenes.js` | 차11 썸네일 A안 — 추세추종. 눌림목 매수 53번 → 완전 이격 음봉 익절 87번 |
 | `scenes/thumb-ch11-B.scenes.js` | 차11 썸네일 B안 — 박스권. 순수 range 시장(seed 7)으로 EMA20 이 화면 내내 눕는다 |
 | `scenes/thumb-ch11-C.scenes.js` | 차11 썸네일 C안 — 통합. 박스 점선 + 추세 진입/청산을 한 컷에 |
@@ -251,6 +255,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `src/tools/install-fonts.mjs` | 폰트를 시스템에 등록 |
 | `src/tools/profile-render.mjs` | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
 | `tools` | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
+| `tools/cutedit` | 숏폼 컷편집 파이프라인 — transcribe(전사)·align_cut(대본 정렬)·build_cuts(컷·자막·내레이션 생성) |
 | `tools/legacy` | 1세대 썸네일 도구 격리(실행 금지) — psdwrite.py·thumbnail.py. 효과 손그림·폭 역산 |
 | `tools/photoshop` | 포토샵 COM+ExtendScript 로 템플릿 .psd 를 직접 편집한다 — 썸네일은 이 경로가 최신 |
 | `tools/photoshop/build_thumb.jsx` | 회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg |
