@@ -688,6 +688,15 @@ REQUESTS = [
      "M2 는 오프라인 진행(미디어 되살리기는 M4 로 — B 제안 채택, 총괄 결정). "
      "constraint 4건·prproj_fact 22~23·fact 4 정정을 기록했다.",
      "M1 통과 판정 · 매뉴얼 6곳 정정 · M2 지시 확정"),
+    (32, "대본(스크립트)용 로컬 서브 에이전트(E)를 새로 판다. 아는 대본 관련 내용을 전부 전달해 달라. "
+     "클라우드는 계속 총괄·저장소 관리. (D 는 M2 완료, M3 진행 중.)",
+     "log/SCRIPT-AGENT-MANUAL.md 를 작성했다 — 자산 지도(규칙 21·뼈대 4단·나간 25편·자막 실측 14·"
+     "대응 47·롱폼 인덱스 16·전문검색·이름규칙·scripts.json 원문), 외울 숫자(45초=307자·6.82자/초·"
+     "훅/CTA 고정·실태 55.9초를 표준으로 착각 말 것·겹침 2.2%·CTA 사슬), 작업 순서(chapters→brief→"
+     "초안→check→name), 팀 대원칙 4개, 병합 프로토콜(보고는 log/SCRIPT-LAB.md, 옆가지 local/script-lab, "
+     "DB 빌더 금지), 윈도우 함정, 금지 목록(롱폼 대필은 결정 전 금지 포함). "
+     "tools/shortform.py 와 scripts/shortform/ 의 (중간) 초안 2편은 E 영역으로 이관.",
+     "log/SCRIPT-AGENT-MANUAL.md · 4작업자 체제"),
 ]
 
 PHASES = [
@@ -992,6 +1001,7 @@ REPO_FILES = {
     "src/tools/exp-capture.mjs": ("도구", "캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다"),
     "log/THUMBNAIL-REVIEW.md": ("문서", "썸네일 코드 검토 보고서 + 로컬 푸시 확인 절차 (2026-08-27)"),
     "log/PREMIERE-LAB-MANUAL.md": ("문서", "프리미어 직접 편집 실험(D 세션) 매뉴얼 — 경로·마일스톤·함정·병합 프로토콜"),
+    "log/SCRIPT-AGENT-MANUAL.md": ("문서", "대본 담당(E 세션) 인수인계 매뉴얼 — 자산 지도·숫자·작업 순서·병합 프로토콜"),
     "log/RENDER-REVIEW.md": ("문서", "렌더 속도 리뷰 의뢰서 — 코드 지도·실측·열린 질문"),
     "tools/thumbnail_png.py": ("도구", "롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장"),
     "brand/thumbnail/btn_매수.png": ("에셋", "템플릿에서 뜯은 매수 버튼 원본 픽셀 (189x90)"),
@@ -1382,6 +1392,10 @@ NEXT_STEPS = [
      "m1_after_open_only.prproj, 차트는 C:\\cmgwork\\chartA.png 등. 그 뒤 M3 키프레임 → M4 회차 조립"
      "(미디어 되살리기는 M4 에서). 산출물은 옆가지 local/premiere-lab, 판정은 클라우드",
      "D 가 verify.py 기준선 교체 후 M2 시작"),
+    (22, "대본 담당 E 세션 가동", "사용자가 로컬 E 세션을 만들고 log/SCRIPT-AGENT-MANUAL.md 를 읽힌다. "
+     "첫 일감 후보: scripts/shortform/ 의 (중간) 초안 2편(차11 #4·#5)을 check 로 검사해 마감. "
+     "보고는 log/SCRIPT-LAB.md, 옆가지 local/script-lab, 합류·판정은 클라우드",
+     "사용자가 E 세션 생성"),
     (18, "1세대 썸네일 도구의 타이틀 크기 계산", "tools/legacy/thumbnail.py(격리됨) 의 fit_size 와 psdedit 의 _fit·bake_text 가 "
      "아직 '폭에 맞춰 폰트 크기를 역산' 하는 방식이다. 완성본 실측으로 규칙이 뒤집혔으므로"
      "(글자 높이 고정·폭 자유, thumbnail_rule 4·5) 그 경로로 뽑으면 규격이 어긋난다. "
