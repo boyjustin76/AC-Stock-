@@ -403,6 +403,7 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 | 렌더 병렬화 | 코어 수만큼만 빨라짐 (4코어에서 2.07배) | 컷 수보다 코어가 적으면 가장 긴 컷이 하한이 된다 |
 | 최종본 규격 | 채널 롱폼 최종본은 1280x720 / 30fps | 컷씬 소스는 1080p / 59.94fps 로 납품. 축소는 손해가 없다 |
 | 저장소 공개 범위 | 2026-08-27 저녁에 private 으로 전환됐다(사용자 의도). 익명 접근이 전부 막힌다 — api.github.com 은 404, git ls-remote·fetch 는 인증을 요구한다 | clone·fetch·push 모두 자격증명이 필요하다. 윈도우는 Git Credential Manager 가 브라우저 로그인을 띄우는데, 비대화형 셸에서는 그 창을 못 띄워 막힌다. 사람이 터미널에서 한 번 로그인하면 캐시된다. raw.githubusercontent.com 으로 파일을 바로 읽던 절차도 이제 안 된다 |
+| CRLF 파일의 줄 비교 | 윈도우 CRLF 파일에서 l == '=======' 같은 줄 비교는 '\r' 이 붙어 어긋난다 — 로컬 세션의 충돌 해소 스크립트가 이걸로 자기 변경을 통째로 날렸다 (2026-08-28, config.json) | 줄 단위 비교는 rstrip 후에 한다. 그리고 해소 직후 결과를 파싱해서(JSON.parse 등) 되읽어 확인한다 — 눈으로 보면 멀쩡해 보여서 못 잡는다. 복구는 git stash drop 이 커밋 객체를 남기는 성질로 했다 |
 
 ## 다음에 할 일
 
@@ -546,6 +547,9 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 
 **29. 프리미어 직접 편집(파이프라인 2단계)을 로컬 실험으로 뚫어 보자. 새 로컬 세션 D 를 만들 테니 실험 매뉴얼을 써 달라. 클립 생성 방식(구)은 백업으로 유지. 로컬의 포토샵 실험 기록 전문을 먼저 읽어라.**
 → 로컬 보고서를 반영해 검토를 수정했다 — MCP 보다 COM+ExtendScript 를 먼저(설치·보안 검토 없이 포토샵에서 검증된 경로), prproj_fact 는 21건이 아니라 12건(내 착각 정정). 로컬이 지시한 DB 기록 (thumbnail_rule 22~25 · issue 16~17 · runbook 17 · repo_file)을 넣고, D 매뉴얼을 log/PREMIERE-LAB-MANUAL.md 로 작성했다 — 경로·사용자 작업·마일스톤 M1~M4·이중값 함정·되읽기 검증·병합 프로토콜(D 는 이 DB 를 건드리지 않는다)·금지 목록. (log/PREMIERE-LAB-MANUAL.md · next_step 21)
+
+**30. 로컬(B)의 문자 단위 강조 푸시(f841107)를 받아라. config.json 은 로컬 것이 상위집합. 당부: emphasis 가 붙은 안에는 scene·tags 를 달지 마라 — 컨테이너가 강조 빠진 그림을 같은 id 로 만든다.**
+→ ff-only 로 합류했다. config 검증 결과 A 의 scene·tags 생존, A2·C2 는 emphasis 만 보유 — 상위집합 맞다. 당부는 주석에 이미 있었지만 코드 가드로 승격했다: load_spec 이 scene+emphasis 동시 보유를 발견하면 즉시 거부한다(오조합 config 로 테스트 통과). 로컬이 병합 중 낸 CRLF 사고(충돌 해소 스크립트가 '=======\r' 을 못 알아봐 자기 변경을 날림, stash 커밋 객체로 복구)는 constraint 로 남겼다. (합류 e2c2c36 · scene+emphasis 가드 · CRLF constraint)
 
 ## 문제와 해결
 
@@ -744,22 +748,22 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 
 | 파일 | 포맷 | 프레임 | 크기 | 비고 |
 |---|---|---|---|---|
-| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | - | 29.97 기준 125f |
-| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | - | 29.97 기준 117f |
-| `out/cmg/cut3-fear.mp4` | mp4 | 152 | - | 29.97 기준 76f |
-| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | - | 29.97 기준 160f |
-| `out/cmg/_reel.mp4` | mp4 | 956 | - | 4컷 이어붙임, 29.97 기준 478f |
-| `out/01-open.mp4` | mp4 | 420 | - |  |
-| `out/02-structure.mp4` | mp4 | 450 | - |  |
-| `out/03-breakdown.mp4` | mp4 | 420 | - |  |
-| `out/04-entry.mp4` | mp4 | 420 | - |  |
-| `out/05-tpsl.mp4` | mp4 | 450 | - |  |
-| `out/06-result.mp4` | mp4 | 540 | - |  |
-| `out/_reel.mp4` | mp4 | 2700 | - | 다크 6컷 릴 45초 |
-| `out/ov-chart.mov` | qtrle | 300 | - | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
-| `out/ov-chart.webm` | vp9a | 300 | - | 전송용 압축본 |
-| `out/ov-tpsl.mov` | qtrle | 300 | - |  |
-| `out/ov-pnl.mov` | qtrle | 300 | - |  |
+| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | 0.8 MB | 29.97 기준 125f |
+| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | 1.0 MB | 29.97 기준 117f |
+| `out/cmg/cut3-fear.mp4` | mp4 | 152 | 1.1 MB | 29.97 기준 76f |
+| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | 3.4 MB | 29.97 기준 160f |
+| `out/cmg/_reel.mp4` | mp4 | 956 | 6.4 MB | 4컷 이어붙임, 29.97 기준 478f |
+| `out/01-open.mp4` | mp4 | 420 | 4.4 MB |  |
+| `out/02-structure.mp4` | mp4 | 450 | 4.3 MB |  |
+| `out/03-breakdown.mp4` | mp4 | 420 | 4.9 MB |  |
+| `out/04-entry.mp4` | mp4 | 420 | 3.7 MB |  |
+| `out/05-tpsl.mp4` | mp4 | 450 | 3.6 MB |  |
+| `out/06-result.mp4` | mp4 | 540 | 4.8 MB |  |
+| `out/_reel.mp4` | mp4 | 2700 | 25.6 MB | 다크 6컷 릴 45초 |
+| `out/ov-chart.mov` | qtrle | 300 | 38.5 MB | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
+| `out/ov-chart.webm` | vp9a | 300 | 3.2 MB | 전송용 압축본 |
+| `out/ov-tpsl.mov` | qtrle | 300 | 17.1 MB |  |
+| `out/ov-pnl.mov` | qtrle | 300 | 17.0 MB |  |
 
 ## 받아 온 자료
 
@@ -854,3 +858,4 @@ text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지
 | 74 | `1e843b0d` | 세이브 save/2026-08-28-1126 — 프리미어 실험 준비 — 로컬 보고 반영(thumbnail_rule 22~25·issue 16~17·runbook 17), D 매뉴얼 작성, request 29 | 6파일 +270/-5 |
 | 75 | `d4a96a93` | 세이브 기록 save/2026-08-28-1126 | 5파일 +14/-4 |
 | 76 | `f8411073` | 세이브 save/2026-08-28-1214 — 문자 단위 강조 — dump_text_runs.jsx 신규, build_thumb 에 emphasis(색·크기·nth), A2·C2 결과물 | 12파일 +364/-23 |
+| 77 | `e2c2c36c` | 세이브 기록 save/2026-08-28-1214 | 5파일 +11/-3 |

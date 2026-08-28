@@ -672,6 +672,13 @@ REQUESTS = [
      "log/PREMIERE-LAB-MANUAL.md 로 작성했다 — 경로·사용자 작업·마일스톤 M1~M4·이중값 함정·"
      "되읽기 검증·병합 프로토콜(D 는 이 DB 를 건드리지 않는다)·금지 목록.",
      "log/PREMIERE-LAB-MANUAL.md · next_step 21"),
+    (30, "로컬(B)의 문자 단위 강조 푸시(f841107)를 받아라. config.json 은 로컬 것이 상위집합. "
+     "당부: emphasis 가 붙은 안에는 scene·tags 를 달지 마라 — 컨테이너가 강조 빠진 그림을 같은 id 로 만든다.",
+     "ff-only 로 합류했다. config 검증 결과 A 의 scene·tags 생존, A2·C2 는 emphasis 만 보유 — 상위집합 맞다. "
+     "당부는 주석에 이미 있었지만 코드 가드로 승격했다: load_spec 이 scene+emphasis 동시 보유를 발견하면 "
+     "즉시 거부한다(오조합 config 로 테스트 통과). 로컬이 병합 중 낸 CRLF 사고(충돌 해소 스크립트가 "
+     "'=======\\r' 을 못 알아봐 자기 변경을 날림, stash 커밋 객체로 복구)는 constraint 로 남겼다.",
+     "합류 e2c2c36 · scene+emphasis 가드 · CRLF constraint"),
 ]
 
 PHASES = [
@@ -1288,6 +1295,11 @@ CONSTRAINTS = [
      "clone·fetch·push 모두 자격증명이 필요하다. 윈도우는 Git Credential Manager 가 브라우저 로그인을 "
      "띄우는데, 비대화형 셸에서는 그 창을 못 띄워 막힌다. 사람이 터미널에서 한 번 로그인하면 캐시된다. "
      "raw.githubusercontent.com 으로 파일을 바로 읽던 절차도 이제 안 된다"),
+    ("CRLF 파일의 줄 비교",
+     "윈도우 CRLF 파일에서 l == '=======' 같은 줄 비교는 '\\r' 이 붙어 어긋난다 — "
+     "로컬 세션의 충돌 해소 스크립트가 이걸로 자기 변경을 통째로 날렸다 (2026-08-28, config.json)",
+     "줄 단위 비교는 rstrip 후에 한다. 그리고 해소 직후 결과를 파싱해서(JSON.parse 등) 되읽어 확인한다 — "
+     "눈으로 보면 멀쩡해 보여서 못 잡는다. 복구는 git stash drop 이 커밋 객체를 남기는 성질로 했다"),
 ]
 
 NEXT_STEPS = [

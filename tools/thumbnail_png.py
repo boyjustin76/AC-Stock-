@@ -71,6 +71,11 @@ def load_spec(path: Path) -> tuple[str, str, list[dict]]:
     m = re.fullmatch(r"#(\d+)\s+(.+)", cfg["group"].strip())
     if not m:
         sys.exit(f"config 의 group 이 '#번호 제목' 꼴이 아니다: {cfg['group']!r}")
+    bad = [v["id"] for v in cfg["variants"] if v.get("scene") and v.get("emphasis")]
+    if bad:
+        sys.exit(f"안 {'·'.join(bad)} 에 scene 과 emphasis 가 같이 달려 있다 — "
+                 "emphasis 는 포토샵 전용이라 이 경로로 뽑으면 강조가 빠진 그림이 "
+                 "같은 id 로 나온다. 한쪽을 떼라 (config 의 _emphasis 참조)")
     skipped = [v["id"] for v in cfg["variants"] if not v.get("scene")]
     if skipped:
         print(f"  scene 없는 안 {'·'.join(skipped)} 은 로컬 포토샵 경로 전용 — 건너뜀")
