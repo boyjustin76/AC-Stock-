@@ -112,6 +112,10 @@ def main():
     ap.add_argument("--baseline", default=DEFAULT_BASELINE, help="기준선 .prproj")
     ap.add_argument("--seq-delta", type=int, default=None,
                     help="시퀀스가 몇 개 늘어야 하는지. 생략하면 실측값을 그대로 기대값으로 쓴다")
+    ap.add_argument("--allow-lost", default="",
+                    help="줄어도 되는 태그를 Tag:증감 으로 선언한다 (쉼표로 여러 개). "
+                         "예: DefaultMotion:-1 — 모션에 키프레임을 걸면 그 클립이 '기본값' 표시를 "
+                         "잃는다. 의도한 변경의 부산물이라 손실이 아니지만, 선언해야 통과시킨다")
     args = ap.parse_args()
 
     a = facts(load(args.baseline))
@@ -167,12 +171,21 @@ def main():
     print()
 
     # ---- 4. 줄어든 태그 = 손실 후보 --------------------------------------
+    allowed = {}
+    for entry in filter(None, (e.strip() for e in args.allow_lost.split(","))):
+        tag, _, delta = entry.rpartition(":")
+        allowed[tag] = int(delta)
+
     shrank = sorted(((b["tags"].get(t, 0) - a["tags"][t], t) for t in a["tags"]
                      if b["tags"].get(t, 0) < a["tags"][t]))
-    lost = [(d, t) for d, t in shrank if not is_ui_state(t)]
-    ui = [(d, t) for d, t in shrank if is_ui_state(t)]
+    declared = [(d, t) for d, t in shrank if allowed.get(t) == d]
+    rest = [(d, t) for d, t in shrank if allowed.get(t) != d]
+    lost = [(d, t) for d, t in rest if not is_ui_state(t)]
+    ui = [(d, t) for d, t in rest if is_ui_state(t)]
 
-    print(f"[줄어든 태그]  내용물 {len(lost)}종 · 편집기 세션 상태 {len(ui)}종")
+    print(f"[줄어든 태그]  내용물 {len(lost)}종 · 편집기 세션 상태 {len(ui)}종 · 선언된 부산물 {len(declared)}종")
+    for d, t in declared:
+        print(f"  · {t:<40} {a['tags'][t]:>5} → {b['tags'].get(t, 0):>5}  ({d:+d})   (선언됨, 무시)")
     if not lost:
         print("  ✓ 내용물 손실 없음 — 기준선에 있던 것은 전부 살아 있다")
     for d, t in lost[:30]:
