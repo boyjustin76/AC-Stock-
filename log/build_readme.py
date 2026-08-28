@@ -50,8 +50,9 @@ def build() -> str:
     n_tok = one("SELECT COUNT(*) FROM brand_token")
     n_lay = one("SELECT COUNT(*) FROM layer_catalog")
     n_mot = one("SELECT COUNT(*) FROM motion_preset")
-    ser, par = q("SELECT wall_seconds FROM benchmark ORDER BY id")[0][0], \
-        q("SELECT wall_seconds FROM benchmark ORDER BY id")[1][0]
+    # 현행 수치는 v2(캡처 교체 후)다. 1·2행(93s/45s)은 교체 전 역사 기록이라 여기 안 쓴다.
+    ser = one("SELECT wall_seconds FROM benchmark WHERE mode='serial-v2'")
+    med = one("SELECT wall_seconds FROM benchmark WHERE mode='serial-v2-medium'")
     secs = one("SELECT seconds_video FROM benchmark LIMIT 1")
 
     L = []
@@ -64,7 +65,7 @@ def build() -> str:
     a(" ".join([
         badge("범위", "롱폼 3단계 + 숏폼 1단계", "0B8C7F"),
         badge("규격", "1920x1080 · 59.94fps", "555"),
-        badge("렌더", f"{secs:.0f}초 클립 = {par:.0f}초", "555"),
+        badge("렌더", f"{secs:.0f}초 클립 = {ser:.0f}초", "555"),
         badge("대본 인덱스", f"{n_doc}편", "555"),
         badge("레이어", f"{n_lay}종", "555"),
     ]))
@@ -215,7 +216,9 @@ def build() -> str:
     a("")
     a(f"**최근 납품** — 20일선 눌림목 / 조기 익절 {n_cut}컷, "
       f"{n_frames}프레임 · 1920×1080 · 59.94fps  \n"
-      f"**렌더 실측** — {secs:.2f}초 클립 기준 순차 {ser:.0f}초, 컷별 병렬 {par:.0f}초 (4코어)")
+      f"**렌더 실측** — {secs:.2f}초 클립 기준 순차 {ser:.1f}초 "
+      f"(`--preset medium` {med:.1f}초). 캡처 교체(2026-08-27) 뒤로는 한 프로세스가 "
+      f"4코어를 포화시켜 컷별 병렬의 이득이 없다")
     a("")
     a("---")
     a("")
@@ -230,12 +233,12 @@ def build() -> str:
     a("npm run render -- --config scenes/cmg-20ma-runner.scenes.js --all")
     a("```")
     a("")
-    a("컷별로 쪼개 동시에 돌리면 절반 시간에 끝납니다. 결과물은 순차 렌더와 md5 까지 같습니다.")
+    a("`--all` 순차면 충분합니다. 컷별 병렬은 캡처 교체 뒤 이득이 사라져 쓰지 않습니다.")
     a("")
     a("```bash")
-    a("for c in cut1-pullback-entry cut2-profit-runs cut3-fear cut4-early-exit; do")
-    a("  node src/cli.mjs --config scenes/cmg-20ma-runner.scenes.js --scene $c --out out/cmg &")
-    a("done; wait")
+    a("npm run render -- --config ... --all --preset medium   # 급할 때. 파일 +2%")
+    a("npm run render -- --config ... --all --capture shot    # 예전 캡처 경로 (대조용)")
+    a("node src/tools/exp-capture.mjs                         # 환경이 바뀌면 재실측")
     a("```")
     a("")
     a("## 되돌리기")
