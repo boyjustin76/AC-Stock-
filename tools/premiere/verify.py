@@ -116,6 +116,11 @@ def main():
                     help="삭제 작업이다. 줄어드는 것이 곧 의도이므로 손실 검사를 참고용으로 낮춘다. "
                          "--seq-delta 를 반드시 함께 준다. 시퀀스 단위 객체 전수 검사와 "
                          "살아남은 시퀀스 목록은 그대로 엄격하게 본다")
+    ap.add_argument("--allow-fps", default="",
+                    help="새로 들어와도 되는 FrameRate 틱값을 쉼표로 선언한다. "
+                         "예: --allow-fps 4237833600 (59.94 렌더 클립을 넣을 때). "
+                         "선언하지 않은 값이 새로 생기면 실패다 — 프리미어가 "
+                         "타임베이스를 몰래 바꾼 것일 수 있어서 자동으로 봐주지 않는다.")
     ap.add_argument("--allow-lost", default="",
                     help="줄어도 되는 태그를 Tag:증감 으로 선언한다 (쉼표로 여러 개). "
                          "예: DefaultMotion:-1 — 모션에 키프레임을 걸면 그 클립이 '기본값' 표시를 "
@@ -225,15 +230,25 @@ def main():
     print()
 
     # ---- 6. FrameRate ----------------------------------------------------
+    allow_fps = {x.strip() for x in args.allow_fps.split(",") if x.strip()}
     print("[FrameRate 틱]")
     for t in sorted(set(a["framerates"]) | set(b["framerates"]), key=lambda k: -int(k)):
         na, nb = a["framerates"][t], b["framerates"][t]
         fps = TICKS_PER_SEC / int(t)
         note = "  (29.97 드롭프레임)" if t == "8475667200" else "  (30.0)" if t == "8467200000" else ""
+        if t in allow_fps and na == 0:
+            note += "  (선언된 새 값)"
         print(f"    {t:>14}  {na:>4} → {nb:>4}   = {fps:.4f}{note}")
-    if set(a["framerates"]) != set(b["framerates"]):
-        print("    ✗ FrameRate 값 집합이 바뀌었다")
+    added = set(b["framerates"]) - set(a["framerates"]) - allow_fps
+    gone = set(a["framerates"]) - set(b["framerates"])
+    if added or gone:
+        if added:
+            print("    ✗ 선언 안 된 FrameRate 값이 새로 생겼다: " + ", ".join(sorted(added)))
+        if gone:
+            print("    ✗ FrameRate 값이 사라졌다: " + ", ".join(sorted(gone)))
         ok = False
+    elif set(a["framerates"]) != set(b["framerates"]):
+        print("    ✓ 선언한 값만 늘었다")
     else:
         print("    ✓ 값 집합 불변")
     print()
