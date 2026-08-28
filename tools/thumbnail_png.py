@@ -16,6 +16,9 @@
 (자홍·청록)으로 같은 (봉, 가격) 에 태그를 찍어 두었으니, 그 색만 찾으면
 화면 좌표가 나온다.
 
+회차 스펙(회차 이름·안별 문구)은 여기 박지 않고 tools/photoshop/config.json
+에서 읽는다 — 로컬 포토샵 경로와 같은 파일이라 두 경로의 스펙이 한 곳이다.
+
     python3 tools/thumbnail_png.py --template '차트명가(롱)_하이라이트 - 복사본.psd'
 """
 from __future__ import annotations
@@ -40,20 +43,38 @@ PAPER_ALPHA = 0.30   # 템플릿의 '종이 배경' 은 불투명도 77/255
 LOGO_AT = (49, 977)
 FRAME_AT = (-27, -27)
 
-VERSIONS = {
-    "v1": {
-        "scene": "thumb-a",
-        "sub": "손익비 1:5 만드는",
-        "main": "20일선 매매법",
-        "tags": ["매수", "익절"],
-    },
-    "v2": {
-        "scene": "thumb-b",
-        "sub": "여기서 사면 물립니다",
-        "main": "20일선의 두 얼굴",
-        "tags": ["매수"],
-    },
-}
+# 회차 스펙은 tools/photoshop/config.json 과 공유한다 (--config 로 바꿀 수 있다).
+# group("#11 20일선의 비밀")과 variants(id·main·sub)가 회차마다 바뀌는 전부다.
+# scene·tags 는 이 컨테이너 경로만 쓰는 키다 — JSX 는 모르는 키를 무시한다.
+# scene 이 없는 안은 로컬 차트(seed 가 다르거나 probe 컷이 없음)라 여기서 못 만들고 건너뛴다.
+CONFIG = ROOT / "tools/photoshop/config.json"
+
+# 템플릿에서 복제 기준으로 쓰는 그룹과 그 안의 텍스트 레이어 (컨테이너 경로 고정값.
+# config 의 "base"(#6)는 로컬 JSX 용이다 — 여기는 레이어 이름까지 아는 #1 을 쓴다.)
+BASE_GROUP = "#1 쿠라마기"
+BAKE = (
+    ("이동평균선 매매법", "main", 1185, (255, 255, 0)),    # 아랫줄(노랑)
+    ("3년만에 100배 수익", "sub", 1120, (255, 255, 255)),  # 윗줄(흰색)
+)
+FONT = ROOT / "brand/fonts/GmarketSansBold.otf"
+
+
+def load_spec(path: Path) -> tuple[str, str, list[dict]]:
+    """config.json 에서 (출력 이름 머리, 회차 번호, 만들 안 목록) 을 읽는다."""
+    import json
+    import re
+
+    cfg = json.loads(path.read_text(encoding="utf-8"))
+    m = re.fullmatch(r"#(\d+)\s+(.+)", cfg["group"].strip())
+    if not m:
+        sys.exit(f"config 의 group 이 '#번호 제목' 꼴이 아니다: {cfg['group']!r}")
+    skipped = [v["id"] for v in cfg["variants"] if not v.get("scene")]
+    if skipped:
+        print(f"  scene 없는 안 {'·'.join(skipped)} 은 로컬 포토샵 경로 전용 — 건너뜀")
+    variants = [v for v in cfg["variants"] if v.get("scene")]
+    if not variants:
+        sys.exit("scene 이 달린 안이 하나도 없다 — 컨테이너 경로에서 만들 게 없다")
+    return f"차명#{m.group(1)}_{m.group(2)}", m.group(1), variants
 
 PROBE = {"매수": (255, 0, 255), "익절": (0, 255, 255)}
 
@@ -96,7 +117,25 @@ def build_chart(still: Path, anchors: dict, tags: list[str]) -> Image.Image:
     return chart
 
 
-def titles(template: Path, cache: Path) -> dict[str, list[tuple[Image.Image, int, int]]]:
+def title_sig(template: Path, spec: dict, grp: str) -> str:
+    """캐시 유효성 열쇠 — 문구·크기·색·템플릿·글꼴이 하나라도 바뀌면 달라진다.
+
+    예전엔 title_*.txt 가 존재하기만 하면 재사용해서, 문구를 고쳐도
+    옛 타이틀이 조용히 나왔다. 이제 meta 첫 줄의 spec 해시와 비교한다.
+    """
+    import hashlib
+
+    parts = [grp, BASE_GROUP]
+    for src, key, want, colour in BAKE:
+        parts += [src, spec[key], str(want), str(colour)]
+    for f in (template, FONT):
+        st = f.stat()
+        parts += [f.name, str(st.st_size), str(int(st.st_mtime))]
+    return hashlib.sha1("\x1f".join(parts).encode()).hexdigest()[:12]
+
+
+def titles(template: Path, cache: Path, num: str,
+           variants: list[dict]) -> dict[str, list[tuple[Image.Image, int, int]]]:
     """타이틀 두 줄을 템플릿 텍스트 레이어 그대로 그린다.
 
     글자 위에 얹히는 획 6px·그림자는 레이어 효과(lfx2)라 우리가 그리지 않는다.
@@ -109,31 +148,29 @@ def titles(template: Path, cache: Path) -> dict[str, list[tuple[Image.Image, int
     from tools.psdedit import Template
 
     out = {}
-    for tag, spec in VERSIONS.items():
-        meta = cache / f"title_{tag}.txt"
-        if meta.exists():
+    for spec in variants:
+        vid = spec["id"]
+        grp = f"#{num} {vid}"
+        sig = title_sig(template, spec, grp)
+        meta = cache / f"title_{vid}.txt"
+        head = meta.read_text().split("\n") if meta.exists() else []
+        if head and head[0] == f"spec {sig}":       # 첫 줄이 다르면(옛 형식 포함) 다시 굽는다
             rows = []
-            for i, line in enumerate(meta.read_text().split("\n")):
-                if not line.strip():
-                    continue
+            for i, line in enumerate(l for l in head[1:] if l.strip()):
                 x, y = (int(v) for v in line.split())
-                rows.append((Image.open(cache / f"title_{tag}_{i}.png").convert("RGBA"), x, y))
-            out[tag] = rows
+                rows.append((Image.open(cache / f"title_{vid}_{i}.png").convert("RGBA"), x, y))
+            out[vid] = rows
             continue
 
         t = Template(template)
-        grp = f"#11 {tag}"
-        t.clone_group("#1 쿠라마기", grp)
+        t.clone_group(BASE_GROUP, grp)
         t.solo(grp)          # 원본 #1 은 꺼져 있어서 복제본도 꺼진 채로 나온다
-        for src, txt, want, colour in (
-            ("이동평균선 매매법", spec["main"], 1185, (255, 255, 0)),
-            ("3년만에 100배 수익", spec["sub"], 1120, (255, 255, 255)),
-        ):
-            t.bake_text(grp, src, txt, ROOT / "brand/fonts/GmarketSansBold.otf", want, colour)
+        for src, key, want, colour in BAKE:
+            t.bake_text(grp, src, spec[key], FONT, want, colour)
         for other in t.episode_groups():
             if other != grp:
                 t.drop_group(other)
-        tmp = cache / f"_{tag}.psd"
+        tmp = cache / f"_{vid}.psd"
         cache.mkdir(parents=True, exist_ok=True)
         t.save(tmp)
 
@@ -148,17 +185,17 @@ def titles(template: Path, cache: Path) -> dict[str, list[tuple[Image.Image, int
                     if r is not None:
                         return r
 
-        rows, lines = [], []
+        rows, lines = [], [f"spec {sig}"]
         for txt in (spec["main"], spec["sub"]):     # 아랫줄 먼저 = 레이어 순서 그대로
             l = find(psd, txt)
             im = l.composite(force=True).convert("RGBA")
             i = len(rows)
-            im.save(cache / f"title_{tag}_{i}.png")
+            im.save(cache / f"title_{vid}_{i}.png")
             lines.append(f"{l.left} {l.top}")
             rows.append((im, l.left, l.top))
         meta.write_text("\n".join(lines))
         tmp.unlink(missing_ok=True)
-        out[tag] = rows
+        out[vid] = rows
     return out
 
 
@@ -176,20 +213,24 @@ def main() -> None:
     ap.add_argument("--stills", type=Path, required=True, help="렌더된 차트 스틸 폴더")
     ap.add_argument("--out", type=Path, default=ROOT / "out/thumbnail")
     ap.add_argument("--cache", type=Path, default=ROOT / "out/thumbnail/.cache")
+    ap.add_argument("--config", type=Path, default=CONFIG,
+                    help="회차 스펙 — 로컬 포토샵 경로(tools/photoshop)와 같은 파일을 읽는다")
     a = ap.parse_args()
 
+    stem, num, variants = load_spec(a.config)
     anchors = probe_anchors(a.stills / "probe_t0.00s.png")
     print("  버튼 꼭짓점:", {k: (v[0], round(v[1])) for k, v in anchors.items()})
-    ttl = titles(a.template, a.cache)
+    ttl = titles(a.template, a.cache, num, variants)
     a.out.mkdir(parents=True, exist_ok=True)
 
     paper = Image.open(ASSET / "종이배경.png").convert("RGBA")
     logo = Image.open(ASSET / "로고.png").convert("RGBA")
     frame = Image.open(ASSET / "틀.png").convert("RGBA")
 
-    for tag, spec in VERSIONS.items():
-        chart = build_chart(a.stills / f"{spec['scene']}_t0.00s.png", anchors, spec["tags"])
-        cp = a.out / f"차명#11_20일선의 비밀_{tag}_차트.png"
+    for spec in variants:
+        vid = spec["id"]
+        chart = build_chart(a.stills / f"{spec['scene']}_t0.00s.png", anchors, spec.get("tags", []))
+        cp = a.out / f"{stem}_{vid}_차트.png"
         chart.save(cp)      # 배경은 투명하게 둔다 — 종이 위에 그대로 얹을 수 있게
 
         # 흰 바탕 → 종이 텍스처 30% → 차트.  완성본에서 흰 부분을 재 보면 250.2 인데
@@ -199,13 +240,13 @@ def main() -> None:
         veil.putalpha(veil.getchannel("A").point(lambda v: round(v * PAPER_ALPHA)))
         paste(c, veil, PAPER_AT)
         paste(c, chart, (0, 0))
-        for im, x, y in ttl[tag]:
+        for im, x, y in ttl[vid]:
             paste(c, im, (x, y))
         paste(c, logo, LOGO_AT)
         paste(c, frame, FRAME_AT)
-        fp = a.out / f"차명#11_20일선의 비밀_{tag}.png"
+        fp = a.out / f"{stem}_{vid}.png"
         c.convert("RGB").save(fp, quality=95)
-        print(f"  {tag}  {cp.name} · {fp.name}")
+        print(f"  {vid}  {cp.name} · {fp.name}")
 
 
 if __name__ == "__main__":

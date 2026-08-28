@@ -654,6 +654,14 @@ REQUESTS = [
      "실제 충돌은 build_worklog_db.py 와 checkpoints.json 둘뿐이었는데 둘 다 같은 자리에 "
      "서로 다른 항목을 더한 것이라 양쪽을 다 남겼다. 클라우드가 ID 를 25·26/18 로 미리 비켜 둔 덕이다.",
      "세이브 슬롯 25개 · 강제 푸시 없이 합류"),
+    (28, "썸네일 검토 지적 중 ③ 타이틀 캐시 무효화와 ⑤ 차11 하드코딩 config 분리를 실행해라. "
+     "(①·④ 격리는 전날 승인·완료 — decision 20)",
+     "thumbnail_png.py 의 회차 스펙(VERSIONS·출력 이름 '차명#11_…')을 걷어내고 로컬 JSX 와 같은 "
+     "tools/photoshop/config.json 을 읽게 했다 — 두 경로의 스펙이 한 곳이 됐다. 타이틀 캐시는 "
+     "meta 첫 줄의 spec 해시 비교로 무효화된다. 템플릿 .psd 가 컨테이너에 없어 타이틀 절반은 "
+     "로직 단위검증(결정성·문구/템플릿 변경 감지·옛 형식 재생성 판정), 차트 절반은 probe 렌더부터 "
+     "합성까지 실제 실행으로 검증했다.",
+     "decision 21 · 검토 지적 ③·⑤ 처리"),
 ]
 
 PHASES = [
@@ -926,6 +934,14 @@ DECISIONS = [
      "지금 돌리면 규격이 어긋난 썸네일이 나온다. 지우지 않고 격리한 것은 획 근사·그림자 "
      "산술 같은 실측 기록이 코드 안에 있어서다. 구세대 애셋 3개(다운샘플 종이배경 등)도 "
      "같이 옮겨 brand/thumbnail/ 에는 현행만 남겼다. 검토 지적 ①·④ 의 실행", "사용자 승인 2026-08-28"),
+    (21, "썸네일 회차 스펙을 config.json 한 곳으로", "thumbnail_png.py 가 tools/photoshop/config.json 을 읽는다",
+     "회차 이름(group)과 안별 문구(variants)가 로컬 JSX 와 컨테이너 파이썬 양쪽에 따로 박혀 있으면 "
+     "한쪽만 고치는 사고가 난다. 컨테이너 전용 키 scene·tags 를 variants 에 얹는 방식이라 "
+     "JSX 는 모르는 키를 무시하고 그대로 돈다. scene 은 probe 와 같은 차트(seed 41)를 쓰는 "
+     "안에만 달 수 있어 차11 은 A안만 컨테이너로 재현된다 — B(seed 7)·C 는 로컬 전용. "
+     "타이틀 캐시도 같이 고쳤다: meta 첫 줄에 spec 해시(문구·크기·색·템플릿·글꼴 mtime)를 적고 "
+     "다르면 다시 굽는다. 옛 형식(좌표만)은 자동으로 재생성 판정. 검토 지적 ③·⑤ 의 실행",
+     "사용자 승인 2026-08-28"),
 ]
 
 
@@ -948,7 +964,7 @@ REPO_FILES = {
     "tools/photoshop/dump_episodes.jsx": ("도구", "완성 회차를 한 장씩 뽑고 레이어 트리를 받아 적는다 — 규칙을 뽑을 때"),
     "tools/photoshop/dump_layer_fx.jsx": ("도구", "레이어 효과(lfx2)를 ActionManager 로 값까지 읽는다"),
     "tools/photoshop/build_thumb.jsx": ("도구", "회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg"),
-    "tools/photoshop/config.json": ("설정", "템플릿·차트·출력 경로와 회차 문구"),
+    "tools/photoshop/config.json": ("설정", "템플릿·차트·출력 경로와 회차 문구 — 컨테이너의 thumbnail_png.py 도 같은 파일을 읽는다(스펙 단일화, decision 21)"),
     "tools/photoshop/run.ps1": ("도구", "포토샵을 COM 으로 띄워 .jsx 를 실행하는 드라이버"),
     "tools/photoshop": ("도구", "포토샵 COM+ExtendScript 로 템플릿 .psd 를 직접 편집한다 — 썸네일은 이 경로가 최신"),
     "tools": ("도구", "숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트"),
@@ -1285,7 +1301,9 @@ NEXT_STEPS = [
      "B(박스권)는 요소가 많다는 이유로 보류 — 씬 파일과 미리보기 png 는 남겨 두었다",
      None),
     (20, "다음 회차 썸네일", "tools/photoshop/config.json 의 group·variants 만 바꾸면 된다. "
-     "인물이 있는 회차면 base 를 #5 나 #7 로 바꾸고 '그룹 1'(인물 자리)에 이미지를 넣는다",
+     "인물이 있는 회차면 base 를 #5 나 #7 로 바꾸고 '그룹 1'(인물 자리)에 이미지를 넣는다. "
+     "컨테이너 대체 경로(thumbnail_png.py)도 같은 config 를 읽는다 — probe 컷이 있는 씬을 만들고 "
+     "variants 에 scene·tags 를 달면 된다(decision 21)",
      "회차 대본과 인물 이미지"),
     (18, "1세대 썸네일 도구의 타이틀 크기 계산", "tools/legacy/thumbnail.py(격리됨) 의 fit_size 와 psdedit 의 _fit·bake_text 가 "
      "아직 '폭에 맞춰 폰트 크기를 역산' 하는 방식이다. 완성본 실측으로 규칙이 뒤집혔으므로"

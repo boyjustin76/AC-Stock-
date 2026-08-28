@@ -80,6 +80,9 @@ tools/photoshop(로컬)" 경고를 달거나 `tools/legacy/` 로 옮긴다. (병
 로컬 기록(brand_token 의 타이틀 고정 높이 2종) 기준으로 고쳐야 한다.
 
 ### ③ `thumbnail_png.py` 의 타이틀 캐시가 입력을 안 본다
+
+> **[처리 2026-08-28]** meta 첫 줄에 spec 해시(문구·크기·색·템플릿·글꼴 mtime) 기록,
+> 다르면 재생성. 옛 형식(좌표만)은 자동으로 재생성 판정 (decision 21).
 `titles()` 는 `title_{tag}.txt` 가 **존재하기만 하면** 재사용한다. 문구(VERSIONS)나
 템플릿을 바꿔도 옛 타이틀이 조용히 나온다.
 **제안**: 캐시 파일명에 (문구·크기·색) 해시를 넣거나, meta 에 spec 을 적고 비교.
@@ -95,6 +98,10 @@ tools/photoshop(로컬)" 경고를 달거나 `tools/legacy/` 로 옮긴다. (병
 이름이 비슷해서 저장소만 보고 작업하는 쪽이 헷갈리기 좋다. ①과 함께 정리.
 
 ### ⑤ 차11 이 소스에 박혀 있다
+
+> **[처리 2026-08-28]** `thumbnail_png.py` 가 `tools/photoshop/config.json` 을 읽는다.
+> 컨테이너 전용 키 scene·tags 를 variants 에 추가(JSX 는 무시). probe 와 같은 차트를
+> 쓰는 안에만 달 수 있어 차11 은 A안만 컨테이너 재현 — B(seed 7)·C 는 로컬 전용 (decision 21).
 `VERSIONS` 문구·씬 이름·출력 파일명(`차명#11_...`)이 하드코딩. 로컬 JSX 는 이미
 `config.json` 의 group·variants 만 바꾸는 구조로 갔다 — 컨테이너 쪽도 같은
 config 를 읽게 맞추면 회차마다 코드 수정이 사라지고 두 경로의 스펙이 한 곳이 된다.

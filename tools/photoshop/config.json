@@ -19,7 +19,9 @@
       "id": "A",
       "chart": "chartA.png",
       "main": "20일선 추세추종",
-      "sub": "목표가를 정하지 마세요"
+      "sub": "목표가를 정하지 마세요",
+      "scene": "thumb-a",
+      "tags": ["매수", "익절"]
     },
     {
       "id": "B",
@@ -35,6 +37,7 @@
     }
   ],
   "_variants": "main 은 아랫줄(노랑 #FFFF00), sub 는 윗줄(흰색). 글자 크기는 건드리지 않는다 — 채널 규칙이 고정 높이다.",
+  "_scene": "scene·tags 는 컨테이너 대체 경로(tools/thumbnail_png.py)만 쓴다 — JSX 는 무시. scene 은 thumb-ch11.scenes.js 의 컷 id, tags 는 probe 좌표에 얹을 버튼. probe 와 같은 차트(seed 41)를 쓰는 안에만 달 수 있다 — B(seed 7)·C 는 로컬 전용.",
 
   "fxGroups": ["#6", "#7"],
   "fxTargets": ["매수", "매도", "익절", "손절"],
