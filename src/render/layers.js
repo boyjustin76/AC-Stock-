@@ -719,6 +719,45 @@ const LAYERS = {
   },
 
   /**
+   * 선 구간 덧칠 — MA 같은 선의 한 구간만 굵게 따라 긋는다 (팀장 단골 기법:
+   * "선이면 그 구간에만 접선 그리듯 굵게 덧칠"). flatten 0 = 선 그대로,
+   * 1 = 구간 평균 높이의 수평선. '누워 있음' 강조는 0.7~0.9.
+   */
+  cmgTrace(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const { scale, chart } = env;
+    const ov = chart.overlays?.[L.overlay ?? 0];
+    if (!ov) return;
+    const vals = [];
+    for (let b = L.fromBar; b <= L.toBar; b++) {
+      const val = ov.values[b];
+      if (val != null) vals.push([b, val]);
+    }
+    if (vals.length < 2) return;
+    const mean = vals.reduce((s, x) => s + x[1], 0) / vals.length;
+    const k = L.flatten ?? 0.75;
+    const draw = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.6), Ease.outCubic);
+    withAlpha(ctx, v * (L.opacity ?? 0.92), () => {
+      ctx.strokeStyle = L.color ?? '#F38808';
+      ctx.lineWidth = L.width ?? 16;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      const n = Math.round((vals.length - 1) * draw);
+      for (let i = 0; i <= n; i++) {
+        const [b, val] = vals[i];
+        const p = val + (mean - val) * k;
+        const x = scale.x(b);
+        const y = scale.y(p) + Math.sin(i * 1.7) * 1.5; // 손그림 흔들림
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    });
+  },
+
+  /**
    * 손그림 큰 ✕ — 영역(기본: 플롯 전체)을 통째로 긋는 두 획.
    * 레퍼런스: 차10·차12 최종본의 빨간 X (실패/금지 강조). 획이 순서대로 그어진다.
    */

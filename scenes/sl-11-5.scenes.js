@@ -144,6 +144,17 @@ export default {
       },
       layers: [
         {
+          // "이평선이 옆으로 누워버리면" — 누운 구간만 접선처럼 굵게 덧칠 (팀장 기법)
+          type: 'cmgTrace',
+          fromBar: 39,
+          toBar: 50,
+          flatten: 0.65,
+          width: 16,
+          in: [1.55, 0.2],
+          drawDur: 0.7,
+          out: [7.5, 0.4],
+        },
+        {
           // "돌파에 매수해서" (내레이션 9.4)
           type: 'cmgArrow',
           bar: 50,
