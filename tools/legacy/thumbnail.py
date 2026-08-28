@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# ┌────────────────────────────────────────────────────────────────────┐
+# │ 레거시 — 실행 금지 (2026-08-28 격리, 검토자 Fable 5 Max)              │
+# │ 1세대 경로다: 효과를 손으로 근사해 그리고, 타이틀을 폭 역산(1120/1185)  │
+# │ 으로 잡는다. 실측 결과 규격은 "높이 고정·폭 자유"라 이걸로 뽑으면      │
+# │ 회사 규격과 어긋난다. 포토샵도 이 psdwrite 출력물을 두 번 거부했다.    │
+# │ 현행: 로컬 = tools/photoshop/ (기준) · 컨테이너 = tools/thumbnail_png.py │
+# └────────────────────────────────────────────────────────────────────┘
 """롱폼 썸네일을 템플릿 규격대로 조립해 .psd 로 쓴다.
 
 템플릿: 04_영상_에셋_디자인 작업물 / 01_영상(유튜브) 관련 / 05_썸네일 /
@@ -26,9 +33,9 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
-from tools.psdwrite import Layer, write_psd  # noqa: E402
+from tools.legacy.psdwrite import Layer, write_psd  # noqa: E402
 
 W, H = 1920, 1080
 FONT = ROOT / "brand/fonts/GmarketSansBold.otf"
@@ -161,7 +168,7 @@ def load_logo(asset_dir: Path) -> Image.Image | None:
 def build(name: str, chart_png: Path, sub: str, main: str, out_dir: Path,
           sub_color: str = WHITE, sub_size: int = 0, main_size: int = 0,
           person_png: Path | None = None, asset_dir: Path | None = None) -> dict:
-    asset_dir = asset_dir or (ROOT / "brand/thumbnail")
+    asset_dir = asset_dir or (ROOT / "brand/thumbnail/legacy")
     layers: list[Layer] = []
 
     layers.append(Layer("배경(종이)", paper_background(asset_dir), 0, 0))

@@ -245,6 +245,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `src/tools/install-fonts.mjs` | 폰트를 시스템에 등록 |
 | `src/tools/profile-render.mjs` | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
 | `tools` | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
+| `tools/legacy` | 1세대 썸네일 도구 격리(실행 금지) — psdwrite.py·thumbnail.py. 효과 손그림·폭 역산 |
 | `tools/photoshop` | 포토샵 COM+ExtendScript 로 템플릿 .psd 를 직접 편집한다 — 썸네일은 이 경로가 최신 |
 | `tools/photoshop/build_thumb.jsx` | 회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg |
 | `tools/photoshop/config.json` | 템플릿·차트·출력 경로와 회차 문구 |
@@ -252,8 +253,6 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/photoshop/dump_layer_fx.jsx` | 레이어 효과(lfx2)를 ActionManager 로 값까지 읽는다 |
 | `tools/photoshop/run.ps1` | 포토샵을 COM 으로 띄워 .jsx 를 실행하는 드라이버 |
 | `tools/psdedit.py` | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
-| `tools/psdwrite.py` | .psd 를 직접 쓴다 (레이어·한글 이름·RLE) |
-| `tools/thumbnail.py` | 썸네일 조립 — 타이틀 자동 크기, 템플릿 효과 |
 | `tools/thumbnail_png.py` | 롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장 |
 
 ## 컨텍스트가 날아갔을 때

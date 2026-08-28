@@ -490,7 +490,7 @@ UNION ALL SELECT 9, '지난 회차 대본 찾기', "script_fts MATCH '키워드'
 UNION ALL SELECT 10, '회사 모션 문법', 'motion_preset 테이블'
 UNION ALL SELECT 11, '되돌릴 수 있는 시점', "checkpoint 테이블 / python3 log/save.py --list"
 UNION ALL SELECT 12, '숏폼 대본 만드는 법', 'shortform_rule / shortform_part / tools/shortform.py'
-UNION ALL SELECT 13, '파일·폴더 이름 규칙', 'naming_rule 테이블'\nUNION ALL SELECT 14, '썸네일 만드는 법', 'thumbnail_rule / tools/thumbnail.py'
+UNION ALL SELECT 13, '파일·폴더 이름 규칙', 'naming_rule 테이블'\nUNION ALL SELECT 14, '썸네일 만드는 법', 'thumbnail_rule / tools/photoshop (로컬 기준)'
 ORDER BY ord;
 
 -- 컷과 대본 싱크 한눈에
@@ -921,6 +921,11 @@ DECISIONS = [
      "작업자가 셋이고 하루에 충돌이 두 번 난 상황이라 '여기까진 확실히 됐다' 는 기준점에 "
      "이름표를 남겨 두는 값이 이름표 하나 값보다 크다. 렌더 가속은 이 가지에 없다",
      "썸네일이 다시 크게 바뀌어 이 시점이 의미를 잃을 때"),
+    (20, "1세대 썸네일 도구 격리", "tools/legacy/ 와 brand/thumbnail/legacy/ 로 이동",
+     "thumbnail.py+psdwrite.py 는 효과 손그림·타이틀 폭 역산·포토샵이 거부한 출력 경로라 "
+     "지금 돌리면 규격이 어긋난 썸네일이 나온다. 지우지 않고 격리한 것은 획 근사·그림자 "
+     "산술 같은 실측 기록이 코드 안에 있어서다. 구세대 애셋 3개(다운샘플 종이배경 등)도 "
+     "같이 옮겨 brand/thumbnail/ 에는 현행만 남겼다. 검토 지적 ①·④ 의 실행", "사용자 승인 2026-08-28"),
 ]
 
 
@@ -936,8 +941,7 @@ REPO_FILES = {
     "brand/thumbnail/틀.png": ("에셋", "템플릿 '틀' 도형 원본 픽셀 (안쪽 투명)"),
     "brand/thumbnail/로고.png": ("에셋", "템플릿 로고 원본 픽셀 (209x52)"),
     "brand/thumbnail/종이배경.png": ("에셋", "템플릿 종이 텍스처 원본 픽셀"),
-    "tools/psdwrite.py": ("도구", ".psd 를 직접 쓴다 (레이어·한글 이름·RLE)"),
-    "tools/thumbnail.py": ("도구", "썸네일 조립 — 타이틀 자동 크기, 템플릿 효과"),
+    "tools/legacy": ("도구", "1세대 썸네일 도구 격리(실행 금지) — psdwrite.py·thumbnail.py. 효과 손그림·폭 역산"),
     "brand/thumbnail": ("애셋", "템플릿에서 뽑은 로고·종이 배경"),
     "out/thumbnail": ("산출물", "차11 썸네일 2안 (.psd + 미리보기)"),
     "scenes/thumb-ch11.scenes.js": ("씬", "차11 썸네일용 차트 2안"),
@@ -987,11 +991,9 @@ REPO_FILES = {
 }
 
 RUNBOOK = [
-    (0, "썸네일 만들기", "롱폼 썸네일을 템플릿 규격대로 조립해 .psd 로 쓴다",
-     "npm run render -- --config scenes/thumb-ch11.scenes.js --all --stills 1 --out out/thumb"
-     " && python3 tools/thumbnail.py '차명#11_...v1' --chart out/thumb/stills/thumb-a_t0.00s.png"
-     " --sub '손익비 1:5 만드는' --main '20일선 매매법'",
-     "타이틀 크기는 폭(윗줄 1120 · 아랫줄 1185)에 맞춰 자동으로 잡힌다"),
+    (0, "썸네일 만들기 — 레거시, 쓰지 마라", "1세대 경로였다. 2026-08-28 tools/legacy/ 로 격리",
+     "(실행 금지 — 효과 손그림 · 타이틀 폭 역산이라 규격이 어긋난다)",
+     "현행: 로컬은 runbook 의 tools/photoshop 항목, 컨테이너는 tools/thumbnail_png.py"),
     (0, "숏폼 — 롱폼 챕터 보기", "어느 챕터를 숏폼으로 뽑을지 고른다",
      "python3 tools/shortform.py chapters 11",
      "이미 만든 숏폼과 일정표에 잡힌 편까지 같이 보여 준다"),
@@ -1285,7 +1287,7 @@ NEXT_STEPS = [
     (20, "다음 회차 썸네일", "tools/photoshop/config.json 의 group·variants 만 바꾸면 된다. "
      "인물이 있는 회차면 base 를 #5 나 #7 로 바꾸고 '그룹 1'(인물 자리)에 이미지를 넣는다",
      "회차 대본과 인물 이미지"),
-    (18, "1세대 썸네일 도구의 타이틀 크기 계산", "tools/thumbnail.py 의 fit_size 와 psdedit 의 _fit·bake_text 가 "
+    (18, "1세대 썸네일 도구의 타이틀 크기 계산", "tools/legacy/thumbnail.py(격리됨) 의 fit_size 와 psdedit 의 _fit·bake_text 가 "
      "아직 '폭에 맞춰 폰트 크기를 역산' 하는 방식이다. 완성본 실측으로 규칙이 뒤집혔으므로"
      "(글자 높이 고정·폭 자유, thumbnail_rule 4·5) 그 경로로 뽑으면 규격이 어긋난다. "
      "포토샵이 없는 환경에서 그 도구를 다시 쓸 일이 생기면 먼저 고쳐야 한다",

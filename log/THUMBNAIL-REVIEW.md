@@ -57,6 +57,8 @@ cd C:\cmgwork\repo && git push -u origin HEAD:local/thumb-ch11
 ## 2. 발견 (중요한 순)
 
 ### ① 1세대 도구가 살아 있고, 지금 돌리면 "그때 그 틀린 썸네일"이 나온다
+
+> **[처리 2026-08-28]** `tools/legacy/` 로 격리, 실행 금지 헤더 부착 (decision 20).
 `tools/thumbnail.py` + `tools/psdwrite.py` 는 처음 시도(효과를 손으로 근사해 그리던
 시절)의 짝이다. 서로만 참조하는 고립 계통인데 문제는 **지금도 멀쩡히 실행된다**는 것:
 
@@ -83,6 +85,8 @@ tools/photoshop(로컬)" 경고를 달거나 `tools/legacy/` 로 옮긴다. (병
 **제안**: 캐시 파일명에 (문구·크기·색) 해시를 넣거나, meta 에 spec 을 적고 비교.
 
 ### ④ 애셋 이중화 — `brand/thumbnail/` 에 신·구 세대 공존
+
+> **[처리 2026-08-28]** 구세대 3개를 `brand/thumbnail/legacy/` 로 이동. 현행만 남음.
 | 구세대 (thumbnail.py 만 참조) | 현행 |
 |---|---|
 | `종이 배경.png` 11KB 다운샘플 | `종이배경.png` 3.1MB 원본 |

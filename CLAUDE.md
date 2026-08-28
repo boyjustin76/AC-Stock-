@@ -103,7 +103,7 @@ git restore --source=<해시> -- .              # 실제로 되돌리기 (그 �
 - **썸네일은 로컬 클로드가 한다.** 여기서는 만들지 않는다. 넘긴 자료는 저장소 안에 다 있다 —
   `thumbnail_rule` 21개(규격 실측), `log/data/thumbnail_fx.json`(레이어 32개 효과값),
   `brand/thumbnail/*.png`(템플릿에서 뜯은 원본 픽셀 — 매수·익절 버튼, 틀, 로고, 종이 배경),
-  `tools/thumbnail_png.py`·`psdedit.py`·`thumbnail.py`, `scenes/thumb-ch11-{A,B,C}.scenes.js`.
+  `tools/thumbnail_png.py`·`psdedit.py`, `scenes/thumb-ch11-{A,B,C}.scenes.js`.
   **지금 기준은 `tools/photoshop/`** 이다 — 포토샵을 COM 으로 띄워 템플릿을 직접 편집한다.
   **저장소에 없는 것**은 템플릿 `.psd` 와 완성본 레퍼런스 PNG 10장, 그리고 `out/`(gitignore) 이다.
   셋 다 회사 드라이브에 있고 로컬 PC 에는 이미 있다. 채택된 결과물은 `deliver/thumbnail/` 에 있다.
@@ -112,8 +112,8 @@ git restore --source=<해시> -- .              # 실제로 되돌리기 (그 �
   아랫줄 194px·왼쪽 x=74·베이스라인 y=395. 버튼 글씨는 에스코어 드림 5 Medium.)
 - **타이틀 크기를 폭에서 역산하지 마라.** 예전에 "글자 수가 달라도 폭을 맞춘다(1120/1185)"고
   적혀 있었는데, 완성본 `#2`~`#6` 을 재 보니 반대였다 — 크기가 고정이고 폭이 변한다.
-  폭에 맞추면 회차마다 글자가 들쭉날쭉해진다. `tools/thumbnail.py` 의 `fit_size` 등
-  1세대 도구는 아직 폭 역산이라 그 경로로 뽑으면 규격이 어긋난다.
+  폭에 맞추면 회차마다 글자가 들쭉날쭉해진다. 1세대 도구(폭 역산)는 `tools/legacy/` 로
+  격리했다(2026-08-28) — 실행 금지. `psdedit` 의 `_fit`·`bake_text` 폭 인자는 next_step 18.
 - **`.psd` 는 포기가 아니라 넘긴 것이다.** psd-tools 로 쓴 파일을 포토샵이 두 번 거부했다.
   잡은 원인은 셋 — EngineData 의 `RunArray`/`RunLengthArray` 짝, `lyid` 중복, macroman 이름칸.
   셋을 다 고친 뒤에도 열리지 않은 이유는 못 잡았다. 포토샵이 있는 쪽에서는 직접 만들면 되는 문제다.

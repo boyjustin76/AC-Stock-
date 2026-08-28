@@ -23,7 +23,7 @@
 11. **되돌릴 수 있는 시점** — checkpoint 테이블 / python3 log/save.py --list
 12. **숏폼 대본 만드는 법** — shortform_rule / shortform_part / tools/shortform.py
 13. **파일·폴더 이름 규칙** — naming_rule 테이블
-14. **썸네일 만드는 법** — thumbnail_rule / tools/thumbnail.py
+14. **썸네일 만드는 법** — thumbnail_rule / tools/photoshop (로컬 기준)
 
 ### 환경 다시 깔기
 
@@ -44,11 +44,11 @@
 
 ### 명령어
 
-**0. 썸네일 만들기** — 롱폼 썸네일을 템플릿 규격대로 조립해 .psd 로 쓴다
+**0. 썸네일 만들기 — 레거시, 쓰지 마라** — 1세대 경로였다. 2026-08-28 tools/legacy/ 로 격리
 ```
-npm run render -- --config scenes/thumb-ch11.scenes.js --all --stills 1 --out out/thumb && python3 tools/thumbnail.py '차명#11_...v1' --chart out/thumb/stills/thumb-a_t0.00s.png --sub '손익비 1:5 만드는' --main '20일선 매매법'
+(실행 금지 — 효과 손그림 · 타이틀 폭 역산이라 규격이 어긋난다)
 ```
-타이틀 크기는 폭(윗줄 1120 · 아랫줄 1185)에 맞춰 자동으로 잡힌다
+현행: 로컬은 runbook 의 tools/photoshop 항목, 컨테이너는 tools/thumbnail_png.py
 
 **0. 숏폼 — 롱폼 챕터 보기** — 어느 챕터를 숏폼으로 뽑을지 고른다
 ```
@@ -222,14 +222,13 @@ PowerShell 5.1 에는 && 가 없다 — '토큰은 이 버전에서 올바른 �
 | `src/tools/exp-capture.mjs` | 도구 | 캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다 |
 | `src/tools/profile-render.mjs` | 도구 | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
 | `tools` | 도구 | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
+| `tools/legacy` | 도구 | 1세대 썸네일 도구 격리(실행 금지) — psdwrite.py·thumbnail.py. 효과 손그림·폭 역산 |
 | `tools/photoshop` | 도구 | 포토샵 COM+ExtendScript 로 템플릿 .psd 를 직접 편집한다 — 썸네일은 이 경로가 최신 |
 | `tools/photoshop/build_thumb.jsx` | 도구 | 회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg |
 | `tools/photoshop/dump_episodes.jsx` | 도구 | 완성 회차를 한 장씩 뽑고 레이어 트리를 받아 적는다 — 규칙을 뽑을 때 |
 | `tools/photoshop/dump_layer_fx.jsx` | 도구 | 레이어 효과(lfx2)를 ActionManager 로 값까지 읽는다 |
 | `tools/photoshop/run.ps1` | 도구 | 포토샵을 COM 으로 띄워 .jsx 를 실행하는 드라이버 |
 | `tools/psdedit.py` | 도구 | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
-| `tools/psdwrite.py` | 도구 | .psd 를 직접 쓴다 (레이어·한글 이름·RLE) |
-| `tools/thumbnail.py` | 도구 | 썸네일 조립 — 타이틀 자동 크기, 템플릿 효과 |
 | `tools/thumbnail_png.py` | 도구 | 롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장 |
 | `README.md` | 문서 | 렌더러 사용법 · 포맷 선택 기준 · 씬 설정 레퍼런스 |
 | `brand/STYLE.md` | 문서 | 차트명가 브랜드 스펙. 색·레이아웃·폰트·스크립트 6단 구조 |
@@ -416,7 +415,7 @@ PowerShell 5.1 에는 && 가 없다 — '토큰은 이 버전에서 올바른 �
 15. **썸네일 인물** — 차11 은 인물이 없는 회차라 비워 뒀다. 템플릿 '그룹 1' 이 인물 자리다 (#1 은 쿠라마기 그림이 거기 들어 있다)  _(대기: 넘김 — 로컬)_
 16. **렌더 속도 — 적용 완료 (2026-08-27)** — 잰 병목 두 곳을 그대로 실행했다. 캡처를 canvas.toDataURL 로 바꿔 93s → 26.8s (md5 동일 증명), 인코딩은 --preset 으로 열어 medium 이면 24.1s. 남은 여지는 WebCodecs 로 브라우저 안에서 h264 를 직접 뽑는 것 정도인데, baseline 프로파일 제약이 있어 화질 요건과 안 맞는다. benchmark 10~17번이 근거다  _(대기: 완료)_
 17. **로컬 커밋 6개 합류 — 완료 (2026-08-28)** — 제안한 절차 그대로 진행됐다: 사용자가 로그인해 옆가지 local/thumb-ch11 로 올리고, 로컬이 공통 조상 0a15606 에서 병합(dd04e8b, force 없음, 양쪽 보존). 옆가지는 지우지 않고 둔다 — '썸네일이 로컬에서만 검증됐던 마지막 지점'(0652cac, 팀장 컨펌 직후·클라우드 미합류)의 이름표로 쓴다. 사용자 결정 2026-08-28  _(대기: 완료)_
-18. **1세대 썸네일 도구의 타이틀 크기 계산** — tools/thumbnail.py 의 fit_size 와 psdedit 의 _fit·bake_text 가 아직 '폭에 맞춰 폰트 크기를 역산' 하는 방식이다. 완성본 실측으로 규칙이 뒤집혔으므로(글자 높이 고정·폭 자유, thumbnail_rule 4·5) 그 경로로 뽑으면 규격이 어긋난다. 포토샵이 없는 환경에서 그 도구를 다시 쓸 일이 생기면 먼저 고쳐야 한다  _(대기: 리눅스에서 썸네일을 다시 뽑아야 할 때)_
+18. **1세대 썸네일 도구의 타이틀 크기 계산** — tools/legacy/thumbnail.py(격리됨) 의 fit_size 와 psdedit 의 _fit·bake_text 가 아직 '폭에 맞춰 폰트 크기를 역산' 하는 방식이다. 완성본 실측으로 규칙이 뒤집혔으므로(글자 높이 고정·폭 자유, thumbnail_rule 4·5) 그 경로로 뽑으면 규격이 어긋난다. 포토샵이 없는 환경에서 그 도구를 다시 쓸 일이 생기면 먼저 고쳐야 한다  _(대기: 리눅스에서 썸네일을 다시 뽑아야 할 때)_
 19. **차11 썸네일 마감** — A(추세추종)·C(통합) 채택. 최종 파일은 deliver/thumbnail/차11_20일선의 비밀/ 에 있다. B(박스권)는 요소가 많다는 이유로 보류 — 씬 파일과 미리보기 png 는 남겨 두었다
 20. **다음 회차 썸네일** — tools/photoshop/config.json 의 group·variants 만 바꾸면 된다. 인물이 있는 회차면 base 를 #5 나 #7 로 바꾸고 '그룹 1'(인물 자리)에 이미지를 넣는다  _(대기: 회차 대본과 인물 이미지)_
 
@@ -673,6 +672,9 @@ PowerShell 5.1 에는 && 가 없다 — '토큰은 이 버전에서 올바른 �
 - **옆가지 local/thumb-ch11** — 지우지 않고 남긴다
   - 이유: 썸네일이 순수하게 로컬에서만 검증됐던 마지막 지점(0652cac)이다 — 팀장 컨펌(A·C 채택) 이후, tools/photoshop 을 실제로 돌려 3안 재현을 확인한 뒤, 클라우드 렌더 가속이 섞이기 전. 본 브랜치에 전부 병합돼 있어 지워도 커밋은 안 사라지지만(merge-base --is-ancestor 로 확인), 작업자가 셋이고 하루에 충돌이 두 번 난 상황이라 '여기까진 확실히 됐다' 는 기준점에 이름표를 남겨 두는 값이 이름표 하나 값보다 크다. 렌더 가속은 이 가지에 없다
   - 다시 볼 때: 썸네일이 다시 크게 바뀌어 이 시점이 의미를 잃을 때
+- **1세대 썸네일 도구 격리** — tools/legacy/ 와 brand/thumbnail/legacy/ 로 이동
+  - 이유: thumbnail.py+psdwrite.py 는 효과 손그림·타이틀 폭 역산·포토샵이 거부한 출력 경로라 지금 돌리면 규격이 어긋난 썸네일이 나온다. 지우지 않고 격리한 것은 획 근사·그림자 산술 같은 실측 기록이 코드 안에 있어서다. 구세대 애셋 3개(다운샘플 종이배경 등)도 같이 옮겨 brand/thumbnail/ 에는 현행만 남겼다. 검토 지적 ①·④ 의 실행
+  - 다시 볼 때: 사용자 승인 2026-08-28
 
 ## 브랜드 스펙 (실측)
 
@@ -712,22 +714,22 @@ PowerShell 5.1 에는 && 가 없다 — '토큰은 이 버전에서 올바른 �
 
 | 파일 | 포맷 | 프레임 | 크기 | 비고 |
 |---|---|---|---|---|
-| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | - | 29.97 기준 125f |
-| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | - | 29.97 기준 117f |
-| `out/cmg/cut3-fear.mp4` | mp4 | 152 | - | 29.97 기준 76f |
-| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | - | 29.97 기준 160f |
-| `out/cmg/_reel.mp4` | mp4 | 956 | - | 4컷 이어붙임, 29.97 기준 478f |
-| `out/01-open.mp4` | mp4 | 420 | - |  |
-| `out/02-structure.mp4` | mp4 | 450 | - |  |
-| `out/03-breakdown.mp4` | mp4 | 420 | - |  |
-| `out/04-entry.mp4` | mp4 | 420 | - |  |
-| `out/05-tpsl.mp4` | mp4 | 450 | - |  |
-| `out/06-result.mp4` | mp4 | 540 | - |  |
-| `out/_reel.mp4` | mp4 | 2700 | - | 다크 6컷 릴 45초 |
-| `out/ov-chart.mov` | qtrle | 300 | - | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
-| `out/ov-chart.webm` | vp9a | 300 | - | 전송용 압축본 |
-| `out/ov-tpsl.mov` | qtrle | 300 | - |  |
-| `out/ov-pnl.mov` | qtrle | 300 | - |  |
+| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | 0.8 MB | 29.97 기준 125f |
+| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | 1.0 MB | 29.97 기준 117f |
+| `out/cmg/cut3-fear.mp4` | mp4 | 152 | 1.1 MB | 29.97 기준 76f |
+| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | 3.4 MB | 29.97 기준 160f |
+| `out/cmg/_reel.mp4` | mp4 | 956 | 6.4 MB | 4컷 이어붙임, 29.97 기준 478f |
+| `out/01-open.mp4` | mp4 | 420 | 4.4 MB |  |
+| `out/02-structure.mp4` | mp4 | 450 | 4.3 MB |  |
+| `out/03-breakdown.mp4` | mp4 | 420 | 4.9 MB |  |
+| `out/04-entry.mp4` | mp4 | 420 | 3.7 MB |  |
+| `out/05-tpsl.mp4` | mp4 | 450 | 3.6 MB |  |
+| `out/06-result.mp4` | mp4 | 540 | 4.8 MB |  |
+| `out/_reel.mp4` | mp4 | 2700 | 25.6 MB | 다크 6컷 릴 45초 |
+| `out/ov-chart.mov` | qtrle | 300 | 38.5 MB | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
+| `out/ov-chart.webm` | vp9a | 300 | 3.2 MB | 전송용 압축본 |
+| `out/ov-tpsl.mov` | qtrle | 300 | 17.1 MB |  |
+| `out/ov-pnl.mov` | qtrle | 300 | 17.0 MB |  |
 
 ## 받아 온 자료
 
@@ -808,5 +810,8 @@ PowerShell 5.1 에는 && 가 없다 — '토큰은 이 버전에서 올바른 �
 | 60 | `dd04e8bc` | 병합 — 로컬 썸네일 작업과 클라우드 렌더 가속을 합류 | 22파일 +952/-55 |
 | 61 | `983921c4` | 세이브 save/2026-08-28-0959 — 로컬 썸네일 + 클라우드 렌더 가속 합류 — 병합 dd04e8b, 세이브 슬롯 25개 | 3파일 +13/-1 |
 | 62 | `9a92ee90` | 세이브 기록 save/2026-08-28-0959 | 5파일 +11/-3 |
-| 63 | `496c15c7` | 세이브 save/2026-08-28-1016 — 합류 마무리 — next_step 중복 해소(로컬 16·17 -> 19·20), 옆가지 유지 결정, private 전환 기록 | 4파일 +48/-12 |
-| 64 | `288bfc59` | 세이브 기록 save/2026-08-28-1016 | 5파일 +11/-3 |
+| 63 | `735b9912` | 세이브 save/2026-08-28-1014 — 병합 후속 — request 26 정정, next_step 17 완료, 옆가지 유지 결정 기록 | 5파일 +34/-28 |
+| 64 | `4c36165e` | 세이브 기록 save/2026-08-28-1014 | 5파일 +11/-3 |
+| 65 | `496c15c7` | 세이브 save/2026-08-28-1016 — 합류 마무리 — next_step 중복 해소(로컬 16·17 -> 19·20), 옆가지 유지 결정, private 전환 기록 | 4파일 +48/-12 |
+| 66 | `288bfc59` | 세이브 기록 save/2026-08-28-1016 | 5파일 +11/-3 |
+| 67 | `dbaef6df` | 병합 2차 — 클라우드의 병합 후속과 로컬의 중복 정리를 합류 | 7파일 +25/-12 |
