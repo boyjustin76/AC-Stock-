@@ -47,6 +47,9 @@ FRAME_AT = (-27, -27)
 # group("#11 20일선의 비밀")과 variants(id·main·sub)가 회차마다 바뀌는 전부다.
 # scene·tags 는 이 컨테이너 경로만 쓰는 키다 — JSX 는 모르는 키를 무시한다.
 # scene 이 없는 안은 로컬 차트(seed 가 다르거나 probe 컷이 없음)라 여기서 못 만들고 건너뛴다.
+# config 는 하나지만 경로마다 만들 수 있는 것이 다르다 — emphasis(문자 단위 강조)는
+# 포토샵 ActionManager 전용이라 이 경로로는 재현이 안 된다. emphasis 가 달린 안(A2·C2 류)에
+# scene 을 달면 강조가 빠진 그림이 같은 id 로 나와 로컬 결과와 갈리니 달지 않는다.
 CONFIG = ROOT / "tools/photoshop/config.json"
 
 # 템플릿에서 복제 기준으로 쓰는 그룹과 그 안의 텍스트 레이어 (컨테이너 경로 고정값.

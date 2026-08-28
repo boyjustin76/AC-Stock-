@@ -208,6 +208,12 @@ cd C:\cmgwork\repo 를 먼저 실행하고 다음 줄에 git 명령을 준다
 ```
 PowerShell 5.1 에는 && 가 없다 — '토큰은 이 버전에서 올바른 문 구분 기호가 아닙니다' 로 죽는다. 한 줄로 붙이려면 ; 를 쓰거나 A; if ($?) { B } 로 쓴다
 
+**17. 윗줄 일부만 빨강으로 빼기 (로컬 윈도우)** — config 의 emphasis 로 문자 단위 강조를 건다
+```
+config.json 의 그 안(variant)에 "emphasis": [{"text": "목표가", "color": "#FF0000", "scale": 1.174}]
+```
+text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지 마라. 같은 글자가 여러 번이면 nth 로 고른다. color 를 빼면 크기만 바뀐다. line: "main" 이면 아랫줄(노랑). build 에 뽑을 id 만 적으면 그것만 만든다. 넣은 뒤 build_log 의 폭 경고를 봐라 — 윗줄 오른쪽 끝이 1306 을 넘으면 관측 최대폭 밖이다. 키우는 대신 조사를 줄여라(규칙 25). emphasis 는 포토샵(ActionManager) 전용 — 컨테이너 thumbnail_png.py 로는 못 만든다
+
 
 ### 파일 지도
 
@@ -418,6 +424,7 @@ PowerShell 5.1 에는 && 가 없다 — '토큰은 이 버전에서 올바른 �
 18. **1세대 썸네일 도구의 타이틀 크기 계산** — tools/legacy/thumbnail.py(격리됨) 의 fit_size 와 psdedit 의 _fit·bake_text 가 아직 '폭에 맞춰 폰트 크기를 역산' 하는 방식이다. 완성본 실측으로 규칙이 뒤집혔으므로(글자 높이 고정·폭 자유, thumbnail_rule 4·5) 그 경로로 뽑으면 규격이 어긋난다. 포토샵이 없는 환경에서 그 도구를 다시 쓸 일이 생기면 먼저 고쳐야 한다  _(대기: 리눅스에서 썸네일을 다시 뽑아야 할 때)_
 19. **차11 썸네일 마감** — A(추세추종)·C(통합) 채택. 최종 파일은 deliver/thumbnail/차11_20일선의 비밀/ 에 있다. B(박스권)는 요소가 많다는 이유로 보류 — 씬 파일과 미리보기 png 는 남겨 두었다
 20. **다음 회차 썸네일** — tools/photoshop/config.json 의 group·variants 만 바꾸면 된다. 인물이 있는 회차면 base 를 #5 나 #7 로 바꾸고 '그룹 1'(인물 자리)에 이미지를 넣는다. 컨테이너 대체 경로(thumbnail_png.py)도 같은 config 를 읽는다 — probe 컷이 있는 씬을 만들고 variants 에 scene·tags 를 달면 된다(decision 21)  _(대기: 회차 대본과 인물 이미지)_
+21. **프리미어 직접 편집 실험 (D 세션)** — log/PREMIERE-LAB-MANUAL.md 대로 로컬 사무실 PC 에서 진행. M1 COM 으로 열기·시퀀스 복제·저장 → M2 소스 교체 → M3 키프레임 → M4 회차 조립. 산출물 .prproj 를 옆가지 local/premiere-lab 으로 올리면 클라우드가 gunzip 으로 판정한다  _(대기: 사용자가 D 세션을 만들고 매뉴얼을 전달)_
 
 ## 대본과 컷 싱크
 
@@ -535,6 +542,9 @@ PowerShell 5.1 에는 && 가 없다 — '토큰은 이 버전에서 올바른 �
 **28. 썸네일 검토 지적 중 ③ 타이틀 캐시 무효화와 ⑤ 차11 하드코딩 config 분리를 실행해라. (①·④ 격리는 전날 승인·완료 — decision 20)**
 → thumbnail_png.py 의 회차 스펙(VERSIONS·출력 이름 '차명#11_…')을 걷어내고 로컬 JSX 와 같은 tools/photoshop/config.json 을 읽게 했다 — 두 경로의 스펙이 한 곳이 됐다. 타이틀 캐시는 meta 첫 줄의 spec 해시 비교로 무효화된다. 템플릿 .psd 가 컨테이너에 없어 타이틀 절반은 로직 단위검증(결정성·문구/템플릿 변경 감지·옛 형식 재생성 판정), 차트 절반은 probe 렌더부터 합성까지 실제 실행으로 검증했다. 부수 발견: README 는 build_readme.py 가 재생성하는 파일이라 어제 README 에 직접 고친 렌더 속도 문단(병렬 루프 권장)이 옛날로 돌아가 있었다 — 생성기를 v2 실측(serial-v2 26.8s·medium 24.1s·병렬 이득 소멸)으로 고쳐 재발을 막았다. (decision 21 · 검토 지적 ③·⑤ 처리 · README 생성기 정정)
 
+**29. 프리미어 직접 편집(파이프라인 2단계)을 로컬 실험으로 뚫어 보자. 새 로컬 세션 D 를 만들 테니 실험 매뉴얼을 써 달라. 클립 생성 방식(구)은 백업으로 유지. 로컬의 포토샵 실험 기록 전문을 먼저 읽어라.**
+→ 로컬 보고서를 반영해 검토를 수정했다 — MCP 보다 COM+ExtendScript 를 먼저(설치·보안 검토 없이 포토샵에서 검증된 경로), prproj_fact 는 21건이 아니라 12건(내 착각 정정). 로컬이 지시한 DB 기록 (thumbnail_rule 22~25 · issue 16~17 · runbook 17 · repo_file)을 넣고, D 매뉴얼을 log/PREMIERE-LAB-MANUAL.md 로 작성했다 — 경로·사용자 작업·마일스톤 M1~M4·이중값 함정·되읽기 검증·병합 프로토콜(D 는 이 DB 를 건드리지 않는다)·금지 목록. (log/PREMIERE-LAB-MANUAL.md · next_step 21)
+
 ## 문제와 해결
 
 ### 1. Playwright 브라우저 빌드 불일치  `fixed`
@@ -626,6 +636,18 @@ PowerShell 5.1 에는 && 가 없다 — '토큰은 이 버전에서 올바른 �
 - 원인: PowerShell 5.1 은 BOM 이 없는 .ps1 을 시스템 ANSI(cp949)로 읽는다. 한글 주석의 UTF-8 바이트가 깨지면서 따옴표가 생겨 구문이 어긋난다
 - 조치: run.ps1 을 UTF-8 with BOM 으로 저장
 - 확인: run.ps1 build_thumb 이 3안을 그대로 다시 뽑음
+
+### 16. 문자 단위 크기가 조용히 무시된다  `fixed`
+- 증상: textStyleRange 의 size 를 바꿔 써도 적용되지 않는다. 오류도 안 난다. 색은 정상 적용된다
+- 원인: 타이틀 레이어에 큰 변형이 걸려 있다(transform xx=9.629). 그래서 textStyle 이 size(11.95px) 와 impliedFontSize(=size x 배율, 115.065px) 를 같이 들고 있고, 둘이 어긋나면 포토샵이 impliedFontSize 를 믿고 size 를 되돌린다
+- 조치: size 와 impliedFontSize 를 같은 배율로 함께 쓴다. build_thumb.jsx 의 paintRuns()
+- 확인: A2.psd 를 다시 읽어 [0,3) 목표가 #FF0000 14.03px 확인 — #8 의 14.03px 과 일치
+
+### 17. 덤프가 섞인 줄의 색을 하나로 적었다  `fixed`
+- 증상: ref_tree.txt 가 #8 윗줄을 통째로 #FF0000 이라고 적어 놨다. 실제로는 가짜신호만 빨강이다
+- 원인: DOM 의 textItem.color 는 첫 글자 색 하나만 돌려준다. 문자별 서식은 textKey 디스크립터의 textStyleRange 목록에만 있다
+- 조치: tools/photoshop/dump_text_runs.jsx 를 새로 만들어 ActionManager 로 구간별로 읽는다
+- 확인: 10회차 재확인 — 섞인 줄 3개(#8·#10·#7)를 정확히 집어냈다
 
 ## 판단과 근거
 
@@ -826,3 +848,4 @@ PowerShell 5.1 에는 && 가 없다 — '토큰은 이 버전에서 올바른 �
 | 70 | `8a859d08` | 세이브 save/2026-08-28-1035 — 썸네일 검토 지적 ③(타이틀 캐시 spec 해시 무효화)·⑤(회차 스펙 config.json 단일화) 실행 — request 28 · decision 21 | 8파일 +127/-51 |
 | 71 | `fb84dae3` | 세이브 기록 save/2026-08-28-1035 | 5파일 +11/-3 |
 | 72 | `e5a64f17` | 세이브 save/2026-08-28-1036 — README 생성기 정정 — 렌더 문단을 v2 실측으로(재생성 때마다 병렬 권장으로 회귀하던 것) | 6파일 +24/-18 |
+| 73 | `26931264` | 세이브 기록 save/2026-08-28-1036 | 5파일 +11/-3 |

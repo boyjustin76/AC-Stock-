@@ -664,6 +664,14 @@ REQUESTS = [
      "파일이라 어제 README 에 직접 고친 렌더 속도 문단(병렬 루프 권장)이 옛날로 돌아가 있었다 — "
      "생성기를 v2 실측(serial-v2 26.8s·medium 24.1s·병렬 이득 소멸)으로 고쳐 재발을 막았다.",
      "decision 21 · 검토 지적 ③·⑤ 처리 · README 생성기 정정"),
+    (29, "프리미어 직접 편집(파이프라인 2단계)을 로컬 실험으로 뚫어 보자. 새 로컬 세션 D 를 만들 테니 "
+     "실험 매뉴얼을 써 달라. 클립 생성 방식(구)은 백업으로 유지. 로컬의 포토샵 실험 기록 전문을 먼저 읽어라.",
+     "로컬 보고서를 반영해 검토를 수정했다 — MCP 보다 COM+ExtendScript 를 먼저(설치·보안 검토 없이 "
+     "포토샵에서 검증된 경로), prproj_fact 는 21건이 아니라 12건(내 착각 정정). 로컬이 지시한 DB 기록 "
+     "(thumbnail_rule 22~25 · issue 16~17 · runbook 17 · repo_file)을 넣고, D 매뉴얼을 "
+     "log/PREMIERE-LAB-MANUAL.md 로 작성했다 — 경로·사용자 작업·마일스톤 M1~M4·이중값 함정·"
+     "되읽기 검증·병합 프로토콜(D 는 이 DB 를 건드리지 않는다)·금지 목록.",
+     "log/PREMIERE-LAB-MANUAL.md · next_step 21"),
 ]
 
 PHASES = [
@@ -863,6 +871,21 @@ ISSUES = [
      "한글 주석의 UTF-8 바이트가 깨지면서 따옴표가 생겨 구문이 어긋난다",
      "run.ps1 을 UTF-8 with BOM 으로 저장",
      "run.ps1 build_thumb 이 3안을 그대로 다시 뽑음", "fixed"),
+    (16, "문자 단위 크기가 조용히 무시된다",
+     "textStyleRange 의 size 를 바꿔 써도 적용되지 않는다. 오류도 안 난다. 색은 정상 적용된다",
+     "타이틀 레이어에 큰 변형이 걸려 있다(transform xx=9.629). 그래서 textStyle 이 "
+     "size(11.95px) 와 impliedFontSize(=size x 배율, 115.065px) 를 같이 들고 있고, "
+     "둘이 어긋나면 포토샵이 impliedFontSize 를 믿고 size 를 되돌린다",
+     "size 와 impliedFontSize 를 같은 배율로 함께 쓴다. build_thumb.jsx 의 paintRuns()",
+     "A2.psd 를 다시 읽어 [0,3) 목표가 #FF0000 14.03px 확인 — #8 의 14.03px 과 일치",
+     "fixed"),
+    (17, "덤프가 섞인 줄의 색을 하나로 적었다",
+     "ref_tree.txt 가 #8 윗줄을 통째로 #FF0000 이라고 적어 놨다. 실제로는 가짜신호만 빨강이다",
+     "DOM 의 textItem.color 는 첫 글자 색 하나만 돌려준다. 문자별 서식은 "
+     "textKey 디스크립터의 textStyleRange 목록에만 있다",
+     "tools/photoshop/dump_text_runs.jsx 를 새로 만들어 ActionManager 로 구간별로 읽는다",
+     "10회차 재확인 — 섞인 줄 3개(#8·#10·#7)를 정확히 집어냈다",
+     "fixed"),
 ]
 
 DECISIONS = [
@@ -952,6 +975,7 @@ REPO_FILES = {
     "src/tools/profile-render.mjs": ("도구", "한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다"),
     "src/tools/exp-capture.mjs": ("도구", "캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다"),
     "log/THUMBNAIL-REVIEW.md": ("문서", "썸네일 코드 검토 보고서 + 로컬 푸시 확인 절차 (2026-08-27)"),
+    "log/PREMIERE-LAB-MANUAL.md": ("문서", "프리미어 직접 편집 실험(D 세션) 매뉴얼 — 경로·마일스톤·함정·병합 프로토콜"),
     "log/RENDER-REVIEW.md": ("문서", "렌더 속도 리뷰 의뢰서 — 코드 지도·실측·열린 질문"),
     "tools/thumbnail_png.py": ("도구", "롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장"),
     "brand/thumbnail/btn_매수.png": ("에셋", "템플릿에서 뜯은 매수 버튼 원본 픽셀 (189x90)"),
@@ -965,6 +989,8 @@ REPO_FILES = {
     "scenes/thumb-ch11.scenes.js": ("씬", "차11 썸네일용 차트 2안"),
     "tools/photoshop/dump_episodes.jsx": ("도구", "완성 회차를 한 장씩 뽑고 레이어 트리를 받아 적는다 — 규칙을 뽑을 때"),
     "tools/photoshop/dump_layer_fx.jsx": ("도구", "레이어 효과(lfx2)를 ActionManager 로 값까지 읽는다"),
+    "tools/photoshop/dump_text_runs.jsx": ("도구", "타이틀을 문자 단위로 읽어 한 줄 안에서 색·크기가 갈리는 곳을 찾는다. "
+                                           "config 에 runsTarget 을 넣으면 결과물 .psd 도 검사한다"),
     "tools/photoshop/build_thumb.jsx": ("도구", "회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg"),
     "tools/photoshop/config.json": ("설정", "템플릿·차트·출력 경로와 회차 문구 — 컨테이너의 thumbnail_png.py 도 같은 파일을 읽는다(스펙 단일화, decision 21)"),
     "tools/photoshop/run.ps1": ("도구", "포토샵을 COM 으로 띄워 .jsx 를 실행하는 드라이버"),
@@ -1083,6 +1109,13 @@ RUNBOOK = [
      "cd C:\\cmgwork\\repo 를 먼저 실행하고 다음 줄에 git 명령을 준다",
      "PowerShell 5.1 에는 && 가 없다 — '토큰은 이 버전에서 올바른 문 구분 기호가 아닙니다' 로 죽는다. "
      "한 줄로 붙이려면 ; 를 쓰거나 A; if ($?) { B } 로 쓴다"),
+    (17, "윗줄 일부만 빨강으로 빼기 (로컬 윈도우)", "config 의 emphasis 로 문자 단위 강조를 건다",
+     "config.json 의 그 안(variant)에 \"emphasis\": [{\"text\": \"목표가\", \"color\": \"#FF0000\", \"scale\": 1.174}]",
+     "text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지 마라. 같은 글자가 여러 번이면 "
+     "nth 로 고른다. color 를 빼면 크기만 바뀐다. line: \"main\" 이면 아랫줄(노랑). "
+     "build 에 뽑을 id 만 적으면 그것만 만든다. 넣은 뒤 build_log 의 폭 경고를 봐라 — "
+     "윗줄 오른쪽 끝이 1306 을 넘으면 관측 최대폭 밖이다. 키우는 대신 조사를 줄여라(규칙 25). "
+     "emphasis 는 포토샵(ActionManager) 전용 — 컨테이너 thumbnail_png.py 로는 못 만든다"),
 ]
 
 ENV_TOOLS = [
@@ -1307,6 +1340,10 @@ NEXT_STEPS = [
      "컨테이너 대체 경로(thumbnail_png.py)도 같은 config 를 읽는다 — probe 컷이 있는 씬을 만들고 "
      "variants 에 scene·tags 를 달면 된다(decision 21)",
      "회차 대본과 인물 이미지"),
+    (21, "프리미어 직접 편집 실험 (D 세션)", "log/PREMIERE-LAB-MANUAL.md 대로 로컬 사무실 PC 에서 진행. "
+     "M1 COM 으로 열기·시퀀스 복제·저장 → M2 소스 교체 → M3 키프레임 → M4 회차 조립. "
+     "산출물 .prproj 를 옆가지 local/premiere-lab 으로 올리면 클라우드가 gunzip 으로 판정한다",
+     "사용자가 D 세션을 만들고 매뉴얼을 전달"),
     (18, "1세대 썸네일 도구의 타이틀 크기 계산", "tools/legacy/thumbnail.py(격리됨) 의 fit_size 와 psdedit 의 _fit·bake_text 가 "
      "아직 '폭에 맞춰 폰트 크기를 역산' 하는 방식이다. 완성본 실측으로 규칙이 뒤집혔으므로"
      "(글자 높이 고정·폭 자유, thumbnail_rule 4·5) 그 경로로 뽑으면 규격이 어긋난다. "
@@ -1680,6 +1717,25 @@ THUMBNAIL_RULES = [
      "#6 초록 지지선 + '지지선' 라벨 / #9 지시 화살표 + 괄호 라벨 / #10 매수①~매도⑥ 번호 화살표 / "
      "#2 스토캐스틱 서브차트 + 가짜신호 X 표시",
      "차트가 그냥 캔들 그림이면 어느 회차인지 알 수 없다. 규칙 7 을 회차 단위로 푼 것이다"),
+    # 22~25 는 로컬 세션의 2026-08-28 문자 단위 실측 (10회차 전수, dump_text_runs.jsx)
+    (22, "윗줄 부분 빨강",
+     "맨 앞 단어만 #FF0000 · 나머지는 흰색 유지",
+     "10회차 중 3개뿐 — #8 가짜신호[0,4) · #10 변동성[0,3) · #7 가짜 반등[0,5) 는 #FF5353",
+     "셋 다 부정어다. 문제를 윗줄에 던지고 아랫줄에서 해법을 준다. "
+     "긍정문 윗줄에는 빨강을 쓰지 않는다 — 그래서 차11 C 안에는 안 넣었다"),
+    (23, "빨강은 크기를 데리고 온다",
+     "빨강 구간은 기준 대비 1.174배 (#7 만 1.087배)",
+     "#8·#10 은 11.95px -> 14.03px · #7 은 11.95px -> 12.99px",
+     "색만 바꾸면 채널 것처럼 안 보인다. 색과 크기가 항상 같이 움직인다"),
+    (24, "크기만 쓰는 강조가 더 흔하다",
+     "숫자·지표 이름을 1.17~1.32배로 키운다 · 색은 그대로",
+     "#1 100배 1.323 · #10 수익 1.274 · #9 단일지표 1.174 · #8-a RSI 1.174 · #7 100만원 1.087",
+     "10회차 중 7개에 있다. 아랫줄(노랑)에도 쓴다 — #9 안에 0.866"),
+    (25, "조사는 줄여서 명사를 띄운다",
+     "조사·어미를 0.826배로 눌러 앞 명사를 도드라지게",
+     "#4 진입타점[부터] 목표가[까지] 11.95px -> 9.87px",
+     "줄이 길어 최대폭(윗줄 1306)에 걸릴 때 특히 쓸모 있다 — 키우는 대신 줄이면 폭이 준다. "
+     "차11 C2 가 이 방식이다"),
 ]
 
 NAMING_RULES = [
