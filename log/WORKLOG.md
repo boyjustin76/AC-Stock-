@@ -1018,3 +1018,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 119 | `476e5215` | 세이브 기록 save/2026-08-29-0413 | 5파일 +11/-3 |
 | 120 | `a5530b29` | 세이브 save/2026-08-29-2039 — .aep/.mogrt 납품 가능성 조사 — 공식 자료 확인, 보고서 lab/ae/, DB 요청44·next_step27 | 6파일 +221/-3 |
 | 121 | `a1652c4f` | 세이브 기록 save/2026-08-29-2039 | 5파일 +11/-3 |
+| 122 | `22bcbd65` | 세이브 save/2026-08-29-2155 — AE 파일럿 매뉴얼(log/AE-LAB-MANUAL.md) + 무주석 바닥 스틸 — 확인 3개 답변 반영, DB 요청45·next_step27 갱신 | 8파일 +289/-10 |
