@@ -284,6 +284,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `README.md` | 문서 | 렌더러 사용법 · 포맷 선택 기준 · 씬 설정 레퍼런스 |
 | `brand/SHORTFORM-FX-POOL.md` | 문서 | 숏폼 1:1 박스 효과 pool 실측 22종 + 팀장 규칙 4개 (최종본 6편 전수 조사) |
 | `brand/STYLE.md` | 문서 | 차트명가 브랜드 스펙. 색·레이아웃·폰트·스크립트 6단 구조 |
+| `lab/ae/AEP-MOGRT-조사보고.txt` | 문서 | .aep/.mogrt 납품 가능성 조사 — 공식 자료 vs 우리 실측, 결론: 파일 직접 쓰기 배제, ExtendScript 로 AE 가 굽게 한다 (next_step 27) |
 | `log/PREMIERE-LAB-MANUAL.md` | 문서 | 프리미어 직접 편집 실험(D 세션) 매뉴얼 — 경로·마일스톤·함정·병합 프로토콜 |
 | `log/PREMIERE-LAB-REPORT.md` | 문서 | D 의 M2~M6 총괄 보고 — 판정표·매뉴얼 정정·등재 요청·판단 요청 4건 |
 | `log/RENDER-REVIEW.md` | 문서 | 렌더 속도 리뷰 의뢰서 — 코드 지도·실측·열린 질문 |
@@ -492,6 +493,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 24. **프리미어 M7 — 텍스트를 편집 가능하게 (D)** — 프리셋 안 그래픽 텍스트 클립의 소스 텍스트를 스크립트로 바꾸는 길을 탐색한다(미탐색·D 판단요청 1·3 통합). 타이틀이 아직 차명10 문구인 것도 이걸로 풀린다. .mogrt 는 사람 손이 한 번 필요하니 후순위. 안 뚫리면 현행 구조(텍스트 층 재렌더 9초) 유지  _(대기: D 다음 세션)_
 25. **팀장 확정 2건 (사용자)** — ① 회차 조립 본류 — B(새 시퀀스)를 A(프리셋)에 중첩하는 구성이 맞는지 ② 편집자가 글자를 직접 고치는 일이 얼마나 잦은지(M7 의 우선순위를 정한다)  _(대기: 사용자가 팀장에게)_
 26. **SL 차11-4·11-5 조립 피드백 반영** — 사용자가 프리미어에서 소스 패키지로 조립한 뒤 나오는 지적 — 컷 타이밍·차트 연출·자막 줄바꿈 — 을 받아 scenes/sl-11-4·5 와 컷리스트를 고친다. 특히 11-5 '누워버리면' 침묵 컷(92.38 이음새)이 귀로 자연스러운지 확인 필요  _(대기: 사용자 조립 후)_
+27. **.aep/.mogrt 파이프라인 파일럿** — 선행 확인 3개(편집 PC 의 AE 설치 여부 / 팀장이 만지는 자리가 프리미어 EG 패널인지 AE 인지 / 파일럿 대상 회차)가 답 오면: tools/ae/compile_jsx.py 를 새로 만들어 scenes/sl-11-4 컷②(손익비 장면) 하나를 build.jsx 로 변환 → 로컬 세션이 BridgeTalk(타깃 aftereffects) 또는 afterfx -r 로 굽고 .aep 재열기 검증 → exportAsMotionGraphicsTemplate 로 .mogrt. 1차는 차트 바닥 footage + 주석 네이티브 하이브리드. 근거는 lab/ae/AEP-MOGRT-조사보고.txt  _(대기: 사용자가 확인 3개에 답한 뒤)_
 
 ## 대본과 컷 싱크
 
@@ -653,6 +655,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 
 **43. 11-4 v7 — CTA 원의 레이어 쌓임 순서는 '타이틀 > 스크림 > 동그라미 > 차트'가 맞다. v6 에서 등장 순서 지적을 쌓임 순서까지 바꾸는 걸로 오버해석했던 것(원을 스크림 위에 올림)을 정정.**
 → 동그라미 레이어를 titleCard 앞(아래)으로 되돌림 — 스크림에 같이 딤. 등장 시점(캔들 리빌 후 4.3초)은 유지. 교훈: 등장 순서(시간)와 쌓임 순서(z)는 별개 지시다 — 지적받은 축만 고친다. (11-4 v7 최종 납품)
+
+**44. .aep/.mogrt 납품 가능성 조사 — 팀장이 수치 하나 건드릴 수 있게 mp4/zip 대신 시퀀스/템플릿 파일로 줄 수 있는지, 어도비 공식 자료를 뒤져 우리 .psd(완파)·.prproj(부분) 실측과 비교해 달라. 답은 채팅이 아니라 텍스트 파일로.**
+→ 공식 자료 조사(helpx Projects·Creating MOGRTs·Scripting Guide): .aep 는 스펙 비공개 RIFX, .aepx 는 마커·경로·이름만 고칠 수 있는 반쪽 XML — 직접 쓰기는 .psd 실패의 재판이라 배제. 대신 ExtendScript DOM 이 창작 전체(컴포지션·키프레임·이징·표현식)와 mogrt 내보내기(exportAsMotionGraphicsTemplate 등)를 공식으로 덮는다. mogrt 는 노출한 컨트롤만 프리미어 Essential Graphics 에서 편집되고 조건(Classic 3D, 금지 효과 회피 등) 지키면 AE 없이도 돌아간다. 제안: scenes.js→compile_jsx.py→build.jsx(클라우드)→로컬 AE 가 BridgeTalk/afterfx -r 로 굽기(포토샵 성공 공식). 1차는 차트 바닥 footage + 주석 네이티브 하이브리드. 선행 확인 3개(AE 설치 여부·팀장 편집 자리·파일럿 대상)는 사용자 몫. (lab/ae/AEP-MOGRT-조사보고.txt 납품)
 
 ## 문제와 해결
 
@@ -1004,3 +1009,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 116 | `ccde4f3a` | 세이브 save/2026-08-29-0405 — 11-4 v6 — 이격음봉 세트 컷 경계 이어받기+페이드, CTA 원 등장 순서(캔들→원) | 5파일 +53/-7 |
 | 117 | `4a9a348a` | 세이브 기록 save/2026-08-29-0405 | 5파일 +11/-3 |
 | 118 | `5dda8225` | 세이브 save/2026-08-29-0413 — 11-4 v7 — CTA 원 쌓임 순서 정정(타이틀>스크림>동그라미>차트). 두 편 최종: 11-4 v7 · 11-5 v5 | 5파일 +19/-10 |
+| 119 | `476e5215` | 세이브 기록 save/2026-08-29-0413 | 5파일 +11/-3 |

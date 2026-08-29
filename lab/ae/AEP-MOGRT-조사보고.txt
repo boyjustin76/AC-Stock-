@@ -1,0 +1,191 @@
+.aep / .mogrt 납품 가능성 조사 — 어도비 공식 자료 vs 우리 실측
+2026-08-29 · 총괄(클라우드) 세션 · boyjustin76/AC-Stock-
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+0. 결론 세 줄
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+① 가능하다. 단 "클라우드가 .aep 파일을 직접 짓는" 방식이 아니라
+   "클라우드가 빌드 스크립트(.jsx)를 짓고, 로컬 AE가 파일을 굽는" 방식으로.
+   포토샵을 완파한 공식(파일은 앱이 쓰게 한다)과 정확히 같은 구조다.
+
+② ChatGPT 말은 반만 맞다.
+   - 파일 포맷 관점: AE가 오히려 셋 중 제일 닫혀 있다. .aep는 공식 스펙이 없는
+     RIFX 바이너리고, .aepx(XML)는 껍데기만 텍스트지 알맹이는 16진 블롭이다.
+   - 스크립팅 관점: AE가 셋 중 제일 열려 있다. ExtendScript DOM이 컴포지션 생성부터
+     키프레임·이징·표현식·Essential Graphics 노출·mogrt 내보내기까지 전부 공식이다.
+   즉 "AE는 다를 것"의 실체는 파일이 아니라 스크립팅이다.
+
+③ 팀장이 수치만 만지게 하는 공식 통로는 .mogrt다. AE에서 노출한 컨트롤만
+   프리미어 Essential Graphics 패널에 뜨고, 조건만 지키면 AE가 설치 안 된
+   프리미어에서도 돌아간다. 납품물로는 .mogrt + 원본 .aep 두 개를 주면 된다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. 세 형식의 벽 — 우리 git 실측과 나란히 놓으면
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+            .psd (포토샵)         .prproj (프리미어)      .aep (애프터이펙트)
+공식 스펙    있음 (Adobe 문서)     없음                    없음 (비공개 RIFX)
+파일 읽기    psd-tools로 완파      gunzip→XML 완파         비공식 파서만 존재
+                                  (키프레임 평문,          (boltframe Go 등,
+                                   패스/텍스트 해독)        읽기 전용 수준)
+파일 직접쓰기 시도→포토샵이 2회     안 함 (열기만 해도       시도할 가치 없음
+             거부. 원인 3개 고쳐도  앱이 재정규화 —          (스펙 0, .psd 전례)
+             안 열림 → 포기        prproj_fact 22)
+앱더러 쓰기  COM으로 완파 ★        BridgeTalk로 M1~M6 ★    ExtendScript가 정공법 ★
+             (tools/photoshop)     (tools/premiere)         (이번에 열 길)
+
+우리 git이 이미 증명한 교훈 두 개가 그대로 적용된다:
+- 교훈 A (.psd에서): 공식 스펙이 "있어도" 파일을 직접 쓰면 앱이 거부한다.
+  스펙이 아예 없는 .aep를 직접 쓰는 건 그 실패의 하위 호환이다. 시도하지 않는다.
+- 교훈 B (.prproj에서): 앱은 열기만 해도 파일을 다시 쓴다(288KB→278KB, 정규화).
+  어차피 최종본은 앱이 쓴 파일이어야 한다. 그러면 처음부터 앱이 쓰게 하는 게 맞다.
+
+.aepx에 대한 공식 문서의 정확한 문장 (helpx "Projects", 2026-03 갱신):
+- 지금도 저장된다: File > Save As > Save a Copy As XML.
+- 그러나 "some project information as hexadecimal-encoded binary data" —
+  컴포지션·레이어·키프레임의 알맹이는 16진 블롭이다.
+- XML로 고칠 수 있다고 명시된 것: 마커, 소스 푸티지 경로(프록시 포함),
+  컴포지션/푸티지/레이어/폴더의 이름·코멘트. 이게 전부다.
+- "Do not use the XML project file format as your primary file format."
+  (자동화 워크플로의 중간 산물로만 쓰라고 공식이 못박음)
+→ .aepx로 씬을 "지어내는" 건 불가능하다. .prproj보다도 닫혀 있다
+  (.prproj는 키프레임까지 평문이었다 — prproj_fact 14).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. 스크립팅은 정반대 — AE DOM은 창작 전체를 덮는다
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+프리미어 DOM이 반쪽이었던 것(시퀀스 생성이 .sqpreset 꼼수, qe 비공식층 의존,
+모달이 세션을 죽임 — prproj_fact 24·25, constraint 25)과 대조적으로,
+AE ExtendScript는 우리 렌더러가 하는 일 전부를 공식 API로 표현할 수 있다:
+
+- 프로젝트/컴포지션 생성: app.newProject(), items.addComp(이름, 폭, 높이, 종횡비, 길이, fps)
+- 레이어: 텍스트(sourceText에 TextDocument), 셰이프, 솔리드, 널
+- 키프레임: property.setValueAtTime(초, 값) / setValuesAtTimes(배열, 배열)
+- 이징: setTemporalEaseAtKey, setInterpolationTypeAtKey (모션프리셋의 프레임·이징 이식 가능)
+- 표현식: property.expression = "..." (손그림 흔들림 같은 것도 표현식으로 가능)
+- 마스크/패스: maskPath에 Shape 객체 대입 (닫힘/열림, 베지어 핸들 —
+  .prproj 패스 해독(prproj_fact 11)과 같은 구조라 우리가 이미 아는 데이터다)
+
+Essential Graphics / mogrt 연동도 전부 공식 스크립팅 API다:
+- property.canAddToMotionGraphicsTemplate(comp) — 노출 가능한지 검사
+- property.addToMotionGraphicsTemplate(comp) — 컨트롤로 노출
+- comp.motionGraphicsTemplateName — 템플릿 이름
+- comp.exportAsMotionGraphicsTemplate(overwrite[, 경로]) — .mogrt 내보내기 (불리언 반환)
+- comp.openInEssentialGraphics() — 패널 열기
+
+실행 경로 3가지:
+(a) AE 메뉴 File > Scripts > Run Script File (수동 확인용)
+(b) 커맨드라인: afterfx.exe -r 경로.jsx (파일 실행) / -s "구문" (인라인).
+    afterfx -m 로 새 인스턴스 강제 가능, 종료코드는 app.exitCode 로 스크립트가
+    직접 정한다 — 성패를 배치에서 판정할 수 있다 (스크립팅 가이드 Application object).
+    AE 창은 뜬다 — 완전 헤드리스는 렌더 전용 aerender뿐이고, 프로젝트 저장·mogrt
+    내보내기는 본체가 해야 한다.
+(c) BridgeTalk — 우리가 프리미어에서 검증한 경로 그대로:
+    PowerShell → Photoshop.Application(COM) → bridge.jsx → BridgeTalk → 타깃만
+    premierepro-26.0 대신 aftereffects로. 설치·관리자 권한·미서명 확장 불필요.
+    (constraint 21·22의 이스케이프 규칙 — 본문엔 "이 파일 실행해라" 한 줄만 — 도 그대로)
+
+UXP는 답이 아니다: 2026-04 기준 AE용 UXP 패널은 아직 미출시고, 공식 현역은
+CEP+ExtendScript다. 프리미어 UXP가 반쪽이던 경험과 무관하게 AE는 ExtendScript로 간다.
+
+주의 (공식): 스크립트가 파일을 쓰려면 환경설정
+"Scripting & Expressions > Allow Scripts to Write Files and Access Network"를 켜야 한다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. .mogrt — "팀장이 수치 하나 건드린다"에 정확히 맞는 물건
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+공식 문서(helpx "Creating Motion Graphics templates", 2026-05 갱신) 요지:
+- AE 컴포지션을 소스까지 패키징한 단일 파일. 프리미어에 설치하면 Essential
+  Graphics 패널에 뜬다.
+- "Only the controls you expose are available for customization in Premiere,
+  which allows you to retain creative control of your design."
+  → 노출한 수치만 만질 수 있고 구조는 잠긴다. 팀장 요구와 우리 보호 요구를 동시에 충족.
+- AE가 설치 안 된 프리미어에서도 쓸 수 있다. 단 조건 (전부 공식 명시):
+  · Classic 3D 렌더러만 (Cinema 4D·Ray-traced 불가)
+  · 금지 효과: Puppet, Warp Stabilizer, CINEWARE, Camera-Shake Deblur, Color Finesse
+  · 다이내믹 링크 푸티지(프리미어 시퀀스 등) 불가, FLV 불가, 서드파티 플러그인 불가
+  → 우리 소스는 텍스트+셰이프+키프레임+정지/동영상 푸티지라 전부 허용 범위다.
+  내보낼 때 "AE 필요하면 경고" 체크박스로 자가검증도 된다.
+- 구버전 주의: AE 15.0 이전에서 만든 mogrt는 다이내믹 링크로 AE를 요구했다.
+  회사는 최신 CC라 해당 없음. (참고: .mogrt 내부는 definition.json + .aep를 담은
+  zip이다 — 비공식 정보. 이걸 직접 조립하는 것도 결국 .aep를 써야 해서 같은 벽.)
+- 노출 가능한 컨트롤 타입: 소스 텍스트, 색, 1차원 슬라이더(숫자), 체크박스,
+  드롭다운, 폰트, 미디어 교체. "진입가 23795" 같은 수치는 슬라이더로 노출한다.
+- 프리미어 스스로도 mogrt를 내보낼 수 있으나(Graphics > Export Motion Graphics
+  template), 프리미어 그래픽을 스크립트로 짓는 자동화가 반쪽이라(우리 실측) AE 경로가 낫다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. 우리 파이프라인에 얹는 설계 (제안)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+흐름:
+  scenes/*.scenes.js (지금 그대로 — 진실의 원본)
+    → tools/ae/compile_jsx.py [신규, 클라우드가 만들고 돌림]
+    → build_차11-4.jsx (AE 빌드 스크립트 — 산출물에 동봉)
+    → 로컬 PC 세션이 BridgeTalk(또는 afterfx -r)로 AE 실행
+    → .aep 저장 + .mogrt 내보내기 → 검증(재열기·프레임 수) → 납품
+
+- 클라우드 납품물이 지금의 mp4/zip에 build.jsx 하나가 더 붙는 구조다.
+  mp4는 계속 나간다 (미리보기·검증·AE 없는 상황의 보험).
+- 포토샵 3단 검증 공식도 이식: 원본 없음 → 스크립트가 지음 → AE로 재열어
+  레이어 수·키프레임 수·프레임 수를 dump 해서 씬 선언과 대조.
+
+1차 범위는 하이브리드를 권한다:
+- 캔들 차트 바닥(봉 수백 개 + 손그림 흔들림)을 AE 셰이프로 전부 재현하는 건
+  별도 대공사다. 1차는 차트 바닥을 렌더 영상(footage)으로 깔고, 그 위 주석
+  레이어(수평선·색박스·익절/손절 버튼·원·텍스트·빗금·타이틀카드)를 AE 네이티브로.
+- 팀장이 만지고 싶은 "수치"는 대부분 주석이다: 라벨 문구, 가격 라인 위치,
+  색, 버튼 종류, 등장 타이밍. 전부 Essential Graphics 노출 타입 안에 있다.
+- footage는 mogrt 안에 같이 패키징된다(공식) — 용량 주의. 숏폼 1080² 30fps
+  40~50초면 수십 MB 선에서 관리 가능.
+- 2차에서 캔들 네이티브화(셰이프 그룹 + 표현식 흔들림)를 검토한다. 그때는
+  가격→좌표 매핑까지 슬라이더에 물릴 수 있어 "진입가 수치를 돌리면 선이 움직이는"
+  물건이 된다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. 시작 전에 사람이 확인해 줄 것 3가지
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+① 사무실/편집 PC에 After Effects가 설치돼 있는가? (CC 플랜에 포함돼 있어도
+   설치는 별개다. BridgeTalk 경로는 포토샵+AE 둘 다 필요 — 포토샵은 이미 검증됨.)
+② 팀장이 수치를 만지는 자리는 어디인가 — 프리미어 Essential Graphics 패널인가,
+   AE를 직접 여는가? (노출 컨트롤을 어디 기준으로 설계할지가 갈린다.
+   mogrt면 전자, .aep 원본 전달이면 후자. 둘 다 줄 수도 있다.)
+③ 첫 대상은 숏폼(1080×1080/30fps)인가 롱폼(59.94fps)인가?
+   (숏폼이 단순해서 파일럿으로 적합 — sl-11-4 컷② '손익비' 장면 하나로 시작 권장.)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. 리스크
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- AE 미설치면 이 경로 전체가 무산 (①이 선행 조건).
+- 클라우드 단독으로는 .aep를 검증할 수 없다 — 굽기·검증은 반드시 로컬 몫.
+  (프리미어 M1~M6처럼 로컬 세션에 매뉴얼을 써 주는 방식으로 진행.)
+- 캔들 네이티브화는 공수가 크다 — 1차 하이브리드로 기대치를 맞춰 둘 것.
+- mogrt에 쓰는 폰트(GmarketSansBold 등)는 사용처 PC에도 설치돼 있어야 한다
+  (프리미어가 누락 폰트 해결창을 띄운다 — 회사 PC엔 이미 있음).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+출처 (전부 2026-08-29 열람)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[공식]
+- Adobe helpx — Projects (aep/aepx 정의, XML로 고칠 수 있는 항목, "주 포맷으로
+  쓰지 마라"): https://helpx.adobe.com/after-effects/using/projects.html
+- Adobe helpx — Creating Motion Graphics templates (노출 컨트롤만 편집 가능,
+  AE 없이 쓰기 위한 조건 목록):
+  https://helpx.adobe.com/after-effects/desktop/motion-graphics/work-with-motion-graphics-templates/creating-motion-graphics-templates.html
+- Adobe helpx — Scripts in After Effects: https://helpx.adobe.com/after-effects/using/scripts.html
+- Adobe blog — Motion Graphics templates 해설 (AE 15.0부터 "AE 엔진"이 프리미어에
+  내장돼 AE 없이 재생): https://blog.adobe.com/en/publish/2017/08/23/how-i-learned-to-stop-worrying-and-love-motion-graphics-templates
+[공식 준하는 표준 레퍼런스 (어도비 스크립팅 가이드의 커뮤니티 유지판)]
+- After Effects Scripting Guide — Overview(ExtendScript·파일쓰기 권한):
+  https://ae-scripting.docsforadobe.dev/introduction/overview/
+- 같은 곳 — CompItem(exportAsMotionGraphicsTemplate 등)·Property(setValueAtTime 등)·
+  Changelog(mogrt API 추가 이력): https://ae-scripting.docsforadobe.dev/
+[비공식 (참고만)]
+- boltframe/aftereffects-aep-parser (RIFX 역공학, 읽기): https://github.com/boltframe/aftereffects-aep-parser
+- UXP 상태 정리(2026-04 기준 AE UXP 패널 미출시): https://github.com/pushREC/after-effects-sdk-kb/blob/main/scripting/UXP-STATUS-NOTE.md

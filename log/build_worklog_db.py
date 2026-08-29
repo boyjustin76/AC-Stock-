@@ -779,6 +779,18 @@ REQUESTS = [
      "동그라미 레이어를 titleCard 앞(아래)으로 되돌림 — 스크림에 같이 딤. 등장 시점(캔들 리빌 후 4.3초)은 "
      "유지. 교훈: 등장 순서(시간)와 쌓임 순서(z)는 별개 지시다 — 지적받은 축만 고친다.",
      "11-4 v7 최종 납품"),
+    (44, ".aep/.mogrt 납품 가능성 조사 — 팀장이 수치 하나 건드릴 수 있게 mp4/zip 대신 시퀀스/템플릿 "
+     "파일로 줄 수 있는지, 어도비 공식 자료를 뒤져 우리 .psd(완파)·.prproj(부분) 실측과 비교해 달라. "
+     "답은 채팅이 아니라 텍스트 파일로.",
+     "공식 자료 조사(helpx Projects·Creating MOGRTs·Scripting Guide): .aep 는 스펙 비공개 RIFX, "
+     ".aepx 는 마커·경로·이름만 고칠 수 있는 반쪽 XML — 직접 쓰기는 .psd 실패의 재판이라 배제. "
+     "대신 ExtendScript DOM 이 창작 전체(컴포지션·키프레임·이징·표현식)와 mogrt 내보내기"
+     "(exportAsMotionGraphicsTemplate 등)를 공식으로 덮는다. mogrt 는 노출한 컨트롤만 프리미어 "
+     "Essential Graphics 에서 편집되고 조건(Classic 3D, 금지 효과 회피 등) 지키면 AE 없이도 돌아간다. "
+     "제안: scenes.js→compile_jsx.py→build.jsx(클라우드)→로컬 AE 가 BridgeTalk/afterfx -r 로 "
+     "굽기(포토샵 성공 공식). 1차는 차트 바닥 footage + 주석 네이티브 하이브리드. "
+     "선행 확인 3개(AE 설치 여부·팀장 편집 자리·파일럿 대상)는 사용자 몫.",
+     "lab/ae/AEP-MOGRT-조사보고.txt 납품"),
 ]
 
 PHASES = [
@@ -1087,6 +1099,8 @@ REPO_FILES = {
     "scenes/sl-11-5.scenes.js": ("씬", "숏폼 차11-5 박스권 6컷 — seed 71 튜닝(가짜 돌파 2회·하단 반등·장대 음봉)"),
     "deliver/shortform": ("산출물", "납품한 숏폼 자막·컷리스트 (영상·음성은 드라이브/전달분에만)"),
     "lab/cutedit": ("기록", "CAM 촬영본 전사 원본(cam_transcript.json) — 컷 재현·재검증용"),
+    "lab/ae/AEP-MOGRT-조사보고.txt": ("문서", ".aep/.mogrt 납품 가능성 조사 — 공식 자료 vs 우리 실측, "
+        "결론: 파일 직접 쓰기 배제, ExtendScript 로 AE 가 굽게 한다 (next_step 27)"),
     "tools/psdedit.py": ("도구", "템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체"),
     "src/tools/profile-render.mjs": ("도구", "한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다"),
     "src/tools/exp-capture.mjs": ("도구", "캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다"),
@@ -1545,6 +1559,12 @@ NEXT_STEPS = [
      "컷 타이밍·차트 연출·자막 줄바꿈 — 을 받아 scenes/sl-11-4·5 와 컷리스트를 고친다. "
      "특히 11-5 '누워버리면' 침묵 컷(92.38 이음새)이 귀로 자연스러운지 확인 필요",
      "사용자 조립 후"),
+    (27, ".aep/.mogrt 파이프라인 파일럿", "선행 확인 3개(편집 PC 의 AE 설치 여부 / 팀장이 만지는 자리가 "
+     "프리미어 EG 패널인지 AE 인지 / 파일럿 대상 회차)가 답 오면: tools/ae/compile_jsx.py 를 새로 만들어 "
+     "scenes/sl-11-4 컷②(손익비 장면) 하나를 build.jsx 로 변환 → 로컬 세션이 BridgeTalk(타깃 aftereffects) "
+     "또는 afterfx -r 로 굽고 .aep 재열기 검증 → exportAsMotionGraphicsTemplate 로 .mogrt. "
+     "1차는 차트 바닥 footage + 주석 네이티브 하이브리드. 근거는 lab/ae/AEP-MOGRT-조사보고.txt",
+     "사용자가 확인 3개에 답한 뒤"),
 ]
 
 
