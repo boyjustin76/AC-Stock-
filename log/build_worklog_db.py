@@ -791,6 +791,16 @@ REQUESTS = [
      "굽기(포토샵 성공 공식). 1차는 차트 바닥 footage + 주석 네이티브 하이브리드. "
      "선행 확인 3개(AE 설치 여부·팀장 편집 자리·파일럿 대상)는 사용자 몫.",
      "lab/ae/AEP-MOGRT-조사보고.txt 납품"),
+    (45, "확인 3개 답변 수신 — ① AE 설치 가능(내 자리 + 팀장 자리) ② 팀장 습관 무관, 이어서 수정 가능한 "
+     "프리미어/AE 용 파일이면 됨 ③ 파일럿은 sl-11-4 컷② 손익비. 캔들은 png/mp4 여도 됨(팀장도 스크린샷 "
+     "위에 작업하는 스타일), 폰트 설치 완료. D 에게 전달할 Tasks 매뉴얼을 만들어 달라 — 사용자가 직접 "
+     "할 일도 단계 사이에 끼워서, 매뉴얼만 보고 D 와 둘이 진행할 수 있게.",
+     "log/AE-LAB-MANUAL.md 작성 (프리미어 매뉴얼 관례 그대로: 대원칙·마일스톤 A1~A6·사람 단계 §2·"
+     "함정·보고 프로토콜). 토큰/API/MCP 발급은 불필요함을 명시(전부 로컬 앱 자동화). 유일한 클라우드 "
+     "의존이던 무주석 바닥 스틸도 미리 렌더해 동봉 — lab/ae/cut2-base-r63-무주석.png "
+     "(+재현 씬 cut2-base.scenes.js). 컷② 재현 스펙은 §5 에 표로 박음. 보고는 log/AE-LAB.md, "
+     "잡은 tools/ae/jobs/, 푸시는 옆가지 local/ae-lab 만.",
+     "매뉴얼 납품 — 출근 후 D 세션에 전달하면 시작"),
 ]
 
 PHASES = [
@@ -1101,6 +1111,10 @@ REPO_FILES = {
     "lab/cutedit": ("기록", "CAM 촬영본 전사 원본(cam_transcript.json) — 컷 재현·재검증용"),
     "lab/ae/AEP-MOGRT-조사보고.txt": ("문서", ".aep/.mogrt 납품 가능성 조사 — 공식 자료 vs 우리 실측, "
         "결론: 파일 직접 쓰기 배제, ExtendScript 로 AE 가 굽게 한다 (next_step 27)"),
+    "log/AE-LAB-MANUAL.md": ("매뉴얼", "AE .aep/.mogrt 파일럿(sl-11-4 컷② 손익비) — D 세션용 마일스톤 "
+        "A1~A6 + 사용자 단계. 보고는 log/AE-LAB.md, 잡은 tools/ae/jobs/, 옆가지 local/ae-lab"),
+    "lab/ae/cut2-base-r63-무주석.png": ("소재", "컷② 무주석 바닥 스틸 (reveal 63, 캔들+20일선만) — "
+        "AE 파일럿 A3 의 바닥. 재현 씬은 lab/ae/cut2-base.scenes.js"),
     "tools/psdedit.py": ("도구", "템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체"),
     "src/tools/profile-render.mjs": ("도구", "한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다"),
     "src/tools/exp-capture.mjs": ("도구", "캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다"),
@@ -1559,12 +1573,12 @@ NEXT_STEPS = [
      "컷 타이밍·차트 연출·자막 줄바꿈 — 을 받아 scenes/sl-11-4·5 와 컷리스트를 고친다. "
      "특히 11-5 '누워버리면' 침묵 컷(92.38 이음새)이 귀로 자연스러운지 확인 필요",
      "사용자 조립 후"),
-    (27, ".aep/.mogrt 파이프라인 파일럿", "선행 확인 3개(편집 PC 의 AE 설치 여부 / 팀장이 만지는 자리가 "
-     "프리미어 EG 패널인지 AE 인지 / 파일럿 대상 회차)가 답 오면: tools/ae/compile_jsx.py 를 새로 만들어 "
-     "scenes/sl-11-4 컷②(손익비 장면) 하나를 build.jsx 로 변환 → 로컬 세션이 BridgeTalk(타깃 aftereffects) "
-     "또는 afterfx -r 로 굽고 .aep 재열기 검증 → exportAsMotionGraphicsTemplate 로 .mogrt. "
-     "1차는 차트 바닥 footage + 주석 네이티브 하이브리드. 근거는 lab/ae/AEP-MOGRT-조사보고.txt",
-     "사용자가 확인 3개에 답한 뒤"),
+    (27, ".aep/.mogrt 파일럿 — D 가 매뉴얼대로 실행", "확인 3개는 답 받음(2026-08-29). 매뉴얼은 "
+     "log/AE-LAB-MANUAL.md — 사용자가 출근해 AE 를 설치하고 D 세션에 전달하면 시작. D 는 옆가지 "
+     "local/ae-lab 로 보고(log/AE-LAB.md)하고, 클라우드는 .mogrt(zip)·.aep dump 를 열어 판정 후 "
+     "DB 반영. 파일럿 합격(A6) 뒤에 양산기 tools/ae/compile_jsx.py(scenes.js→build.jsx 자동 변환)를 "
+     "짓는다. 근거: lab/ae/AEP-MOGRT-조사보고.txt, 바닥 스틸: lab/ae/cut2-base-r63-무주석.png",
+     "사용자 출근 후 (D 세션 + 사용자)"),
 ]
 
 

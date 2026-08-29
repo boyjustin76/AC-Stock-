@@ -232,6 +232,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/컷2_조용한배경.mp4` | 기타 |  |
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/컷3_공식대로_손실.mp4` | 기타 |  |
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/컷4_크로스신호하나.mp4` | 기타 |  |
+| `lab/ae/cut2-base.scenes.js` | 기타 |  |
 | `lab/premiere/baseline_open_save.prproj` | 기타 |  |
 | `lab/premiere/frames/06_60s.png` | 기타 |  |
 | `lab/premiere/frames/08_50s.png` | 기타 |  |
@@ -281,6 +282,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `tools/premiere` | 도구 | 프리미어 자동화 (D 영역) — run.ps1(BridgeTalk 드라이버)·jobs/*.jsx·verify.py(되읽기 검사기)·presets/30fps sqpreset |
 | `tools/psdedit.py` | 도구 | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
 | `tools/thumbnail_png.py` | 도구 | 롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장 |
+| `log/AE-LAB-MANUAL.md` | 매뉴얼 | AE .aep/.mogrt 파일럿(sl-11-4 컷② 손익비) — D 세션용 마일스톤 A1~A6 + 사용자 단계. 보고는 log/AE-LAB.md, 잡은 tools/ae/jobs/, 옆가지 local/ae-lab |
 | `README.md` | 문서 | 렌더러 사용법 · 포맷 선택 기준 · 씬 설정 레퍼런스 |
 | `brand/SHORTFORM-FX-POOL.md` | 문서 | 숏폼 1:1 박스 효과 pool 실측 22종 + 팀장 규칙 4개 (최종본 6편 전수 조사) |
 | `brand/STYLE.md` | 문서 | 차트명가 브랜드 스펙. 색·레이아웃·폰트·스크립트 6단 구조 |
@@ -298,6 +300,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `scripts/shortform` | 산출물 | 숏폼 대본 초안. 규칙대로 쓴 것 |
 | `package.json` | 설정 | 의존성과 npm 스크립트 |
 | `tools/photoshop/config.json` | 설정 | 템플릿·차트·출력 경로와 회차 문구 — 컨테이너의 thumbnail_png.py 도 같은 파일을 읽는다(스펙 단일화, decision 21) |
+| `lab/ae/cut2-base-r63-무주석.png` | 소재 | 컷② 무주석 바닥 스틸 (reveal 63, 캔들+20일선만) — AE 파일럿 A3 의 바닥. 재현 씬은 lab/ae/cut2-base.scenes.js |
 | `log/build_worklog_db.py` | 스크립트 | 로그 DB 생성. 내용을 고칠 때 여기만 고친다 |
 | `log/build_worklog_page.py` | 스크립트 | DB → HTML 페이지 |
 | `src/tools/install-fonts.mjs` | 스크립트 | 폰트를 시스템에 등록 |
@@ -493,7 +496,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 24. **프리미어 M7 — 텍스트를 편집 가능하게 (D)** — 프리셋 안 그래픽 텍스트 클립의 소스 텍스트를 스크립트로 바꾸는 길을 탐색한다(미탐색·D 판단요청 1·3 통합). 타이틀이 아직 차명10 문구인 것도 이걸로 풀린다. .mogrt 는 사람 손이 한 번 필요하니 후순위. 안 뚫리면 현행 구조(텍스트 층 재렌더 9초) 유지  _(대기: D 다음 세션)_
 25. **팀장 확정 2건 (사용자)** — ① 회차 조립 본류 — B(새 시퀀스)를 A(프리셋)에 중첩하는 구성이 맞는지 ② 편집자가 글자를 직접 고치는 일이 얼마나 잦은지(M7 의 우선순위를 정한다)  _(대기: 사용자가 팀장에게)_
 26. **SL 차11-4·11-5 조립 피드백 반영** — 사용자가 프리미어에서 소스 패키지로 조립한 뒤 나오는 지적 — 컷 타이밍·차트 연출·자막 줄바꿈 — 을 받아 scenes/sl-11-4·5 와 컷리스트를 고친다. 특히 11-5 '누워버리면' 침묵 컷(92.38 이음새)이 귀로 자연스러운지 확인 필요  _(대기: 사용자 조립 후)_
-27. **.aep/.mogrt 파이프라인 파일럿** — 선행 확인 3개(편집 PC 의 AE 설치 여부 / 팀장이 만지는 자리가 프리미어 EG 패널인지 AE 인지 / 파일럿 대상 회차)가 답 오면: tools/ae/compile_jsx.py 를 새로 만들어 scenes/sl-11-4 컷②(손익비 장면) 하나를 build.jsx 로 변환 → 로컬 세션이 BridgeTalk(타깃 aftereffects) 또는 afterfx -r 로 굽고 .aep 재열기 검증 → exportAsMotionGraphicsTemplate 로 .mogrt. 1차는 차트 바닥 footage + 주석 네이티브 하이브리드. 근거는 lab/ae/AEP-MOGRT-조사보고.txt  _(대기: 사용자가 확인 3개에 답한 뒤)_
+27. **.aep/.mogrt 파일럿 — D 가 매뉴얼대로 실행** — 확인 3개는 답 받음(2026-08-29). 매뉴얼은 log/AE-LAB-MANUAL.md — 사용자가 출근해 AE 를 설치하고 D 세션에 전달하면 시작. D 는 옆가지 local/ae-lab 로 보고(log/AE-LAB.md)하고, 클라우드는 .mogrt(zip)·.aep dump 를 열어 판정 후 DB 반영. 파일럿 합격(A6) 뒤에 양산기 tools/ae/compile_jsx.py(scenes.js→build.jsx 자동 변환)를 짓는다. 근거: lab/ae/AEP-MOGRT-조사보고.txt, 바닥 스틸: lab/ae/cut2-base-r63-무주석.png  _(대기: 사용자 출근 후 (D 세션 + 사용자))_
 
 ## 대본과 컷 싱크
 
@@ -658,6 +661,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 
 **44. .aep/.mogrt 납품 가능성 조사 — 팀장이 수치 하나 건드릴 수 있게 mp4/zip 대신 시퀀스/템플릿 파일로 줄 수 있는지, 어도비 공식 자료를 뒤져 우리 .psd(완파)·.prproj(부분) 실측과 비교해 달라. 답은 채팅이 아니라 텍스트 파일로.**
 → 공식 자료 조사(helpx Projects·Creating MOGRTs·Scripting Guide): .aep 는 스펙 비공개 RIFX, .aepx 는 마커·경로·이름만 고칠 수 있는 반쪽 XML — 직접 쓰기는 .psd 실패의 재판이라 배제. 대신 ExtendScript DOM 이 창작 전체(컴포지션·키프레임·이징·표현식)와 mogrt 내보내기(exportAsMotionGraphicsTemplate 등)를 공식으로 덮는다. mogrt 는 노출한 컨트롤만 프리미어 Essential Graphics 에서 편집되고 조건(Classic 3D, 금지 효과 회피 등) 지키면 AE 없이도 돌아간다. 제안: scenes.js→compile_jsx.py→build.jsx(클라우드)→로컬 AE 가 BridgeTalk/afterfx -r 로 굽기(포토샵 성공 공식). 1차는 차트 바닥 footage + 주석 네이티브 하이브리드. 선행 확인 3개(AE 설치 여부·팀장 편집 자리·파일럿 대상)는 사용자 몫. (lab/ae/AEP-MOGRT-조사보고.txt 납품)
+
+**45. 확인 3개 답변 수신 — ① AE 설치 가능(내 자리 + 팀장 자리) ② 팀장 습관 무관, 이어서 수정 가능한 프리미어/AE 용 파일이면 됨 ③ 파일럿은 sl-11-4 컷② 손익비. 캔들은 png/mp4 여도 됨(팀장도 스크린샷 위에 작업하는 스타일), 폰트 설치 완료. D 에게 전달할 Tasks 매뉴얼을 만들어 달라 — 사용자가 직접 할 일도 단계 사이에 끼워서, 매뉴얼만 보고 D 와 둘이 진행할 수 있게.**
+→ log/AE-LAB-MANUAL.md 작성 (프리미어 매뉴얼 관례 그대로: 대원칙·마일스톤 A1~A6·사람 단계 §2·함정·보고 프로토콜). 토큰/API/MCP 발급은 불필요함을 명시(전부 로컬 앱 자동화). 유일한 클라우드 의존이던 무주석 바닥 스틸도 미리 렌더해 동봉 — lab/ae/cut2-base-r63-무주석.png (+재현 씬 cut2-base.scenes.js). 컷② 재현 스펙은 §5 에 표로 박음. 보고는 log/AE-LAB.md, 잡은 tools/ae/jobs/, 푸시는 옆가지 local/ae-lab 만. (매뉴얼 납품 — 출근 후 D 세션에 전달하면 시작)
 
 ## 문제와 해결
 
@@ -1011,3 +1017,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 118 | `5dda8225` | 세이브 save/2026-08-29-0413 — 11-4 v7 — CTA 원 쌓임 순서 정정(타이틀>스크림>동그라미>차트). 두 편 최종: 11-4 v7 · 11-5 v5 | 5파일 +19/-10 |
 | 119 | `476e5215` | 세이브 기록 save/2026-08-29-0413 | 5파일 +11/-3 |
 | 120 | `a5530b29` | 세이브 save/2026-08-29-2039 — .aep/.mogrt 납품 가능성 조사 — 공식 자료 확인, 보고서 lab/ae/, DB 요청44·next_step27 | 6파일 +221/-3 |
+| 121 | `a1652c4f` | 세이브 기록 save/2026-08-29-2039 | 5파일 +11/-3 |
