@@ -1037,3 +1037,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 124 | `1a0c069d` | 렌더러 RSI 서브패널 신설 — wilderRsi/formingRsi, 패널 분할·기준선·라인, rsiLevel/rsiZone 레이어, ma별 등장 알파 | 5파일 +312/-10 |
 | 125 | `811bacf4` | 차12 본편 씬 6파일 20컷 — srt 30.0격자 동기, RSI 패널·실측 색, 시장 7종 find-events 실측 | 8파일 +1259/-2 |
 | 126 | `953ae0fe` | 차12 컷리스트_본편 + DB 기록(요청46·repo_file·constraint·next_step 28) 준비 | 2파일 +86/-0 |
+| 127 | `176018c3` | 세이브 save/2026-08-30-2005 — 차12 본편 20컷 납품 — RSI 패널 신설, 씬 6파일, 실측 색·시장, 프레임 22/22 검증, zip 4개+미리보기 전달, 배치표 드라이브 업로드 | 5파일 +30/-5 |
