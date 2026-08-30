@@ -10,7 +10,7 @@
  * 프리뷰에서 아무 지점이나 스크럽해도 최종 렌더 결과와 어긋나지 않는다.
  */
 import { clamp, lerp, Ease, span } from './anim.js';
-import { formingBar, sma, ema } from '../market/candles.js';
+import { formingBar, sma, ema, wilderRsi, formingRsi } from '../market/candles.js';
 
 const DEFAULT_LAYOUT = {
   padLeft: 84,
@@ -38,6 +38,12 @@ export class Chart {
       ...m,
       values: m.type === 'ema' ? ema(bars, m.period) : sma(bars, m.period),
     }));
+    // RSI 서브패널 (차12 신설). height 는 플롯 전체 높이에서 패널이 차지하는 비율.
+    const rc = view.rsi;
+    this.rsiCfg = rc
+      ? { period: 10, height: 0.26, gap: 30, baseline: 50, levels: [], width: 4.5, color: '#8E44AD', range: [0, 100], ...rc }
+      : null;
+    this.rsi = this.rsiCfg ? wilderRsi(bars, this.rsiCfg.period) : null;
     this._plot();
   }
 
@@ -49,6 +55,19 @@ export class Chart {
       w: this.w - L.padLeft - L.padRight,
       h: this.h - L.padTop - L.padBottom,
     };
+    if (this.rsiCfg) {
+      const total = this.plot.h;
+      const rh = Math.round(total * this.rsiCfg.height);
+      this.plot.h = total - rh - this.rsiCfg.gap;
+      this.rsiRect = {
+        x: this.plot.x,
+        y: L.padTop + this.plot.h + this.rsiCfg.gap,
+        w: this.plot.w,
+        h: rh,
+      };
+      this.rsiRect.right = this.rsiRect.x + this.rsiRect.w;
+      this.rsiRect.bottom = this.rsiRect.y + this.rsiRect.h;
+    }
     this.plot.right = this.plot.x + this.plot.w;
     this.plot.bottom = this.plot.y + this.plot.h;
   }
@@ -132,7 +151,14 @@ export class Chart {
     const x = (i) => p.x + ((i - vp.left) / (vp.right - vp.left)) * p.w;
     const y = (price) => p.bottom - ((price - vp.lo) / (vp.hi - vp.lo)) * p.h;
     const barW = (p.w / (vp.right - vp.left)) * 0.66;
-    return { x, y, barW, vp, plot: p };
+    const s = { x, y, barW, vp, plot: p };
+    if (this.rsiRect) {
+      const r = this.rsiRect;
+      const [rlo, rhi] = this.rsiCfg.range;
+      s.rsiRect = r;
+      s.rsiY = (v) => r.bottom - ((clamp(v, rlo, rhi) - rlo) / (rhi - rlo)) * r.h;
+    }
+    return s;
   }
 
   /* ---------------- 그리기 ---------------- */
@@ -255,15 +281,18 @@ export class Chart {
     ctx.clip();
   }
 
-  drawMAs(s, reveal, alpha = 1) {
+  drawMAs(s, reveal, alpha = 1, maAlphas = null) {
     if (!this.overlays.length) return;
     const { ctx } = this;
     ctx.save();
     this.clipPlot(ctx);
-    ctx.globalAlpha = alpha;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
-    for (const ov of this.overlays) {
+    for (let oi = 0; oi < this.overlays.length; oi++) {
+      const ov = this.overlays[oi];
+      const oa = alpha * (maAlphas ? (maAlphas[oi] ?? 1) : 1);
+      if (oa <= 0.001) continue;
+      ctx.globalAlpha = oa;
       ctx.strokeStyle = ov.color ?? this.theme.ma ?? 'rgba(120,170,255,0.75)';
       ctx.lineWidth = ov.width ?? 3;
       ctx.beginPath();
@@ -397,12 +426,104 @@ export class Chart {
     return { price: bar.c, y, x: s.x(idx), color, bar };
   }
 
+  /** RSI 값 (형성 중인 캔들 반영). 레이어에서도 쓴다. */
+  rsiAt(reveal) {
+    if (!this.rsi) return null;
+    const idx = Math.min(this.bars.length - 1, Math.floor(reveal));
+    const p = clamp(reveal - idx, 0, 1);
+    if (p >= 1 || idx === 0) return this.rsi.values[idx];
+    const bar = formingBar(this.bars[idx], p);
+    return formingRsi(this.rsi, this.bars, idx, bar.c) ?? this.rsi.values[idx - 1];
+  }
+
+  /** RSI 서브패널 — 테두리·기준선·라인. 축이 꺼져 있어도 기준선 라벨은 그린다. */
+  drawRsi(s, reveal, alpha = 1) {
+    if (!this.rsi || alpha <= 0.001) return;
+    const { ctx, theme } = this;
+    const r = this.rsiRect;
+    const cfg = this.rsiCfg;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    // 패널 테두리 (위·아래 헤어라인)
+    ctx.strokeStyle = theme.gridStrong ?? theme.grid;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(r.x, Math.round(r.y) + 0.5);
+    ctx.lineTo(r.right, Math.round(r.y) + 0.5);
+    ctx.moveTo(r.x, Math.round(r.bottom) + 0.5);
+    ctx.lineTo(r.right, Math.round(r.bottom) + 0.5);
+    ctx.stroke();
+
+    // 중심선(50) — 옅은 점선
+    if (cfg.baseline != null) {
+      const y = Math.round(s.rsiY(cfg.baseline)) + 0.5;
+      ctx.strokeStyle = theme.grid;
+      ctx.setLineDash([8, 8]);
+      ctx.beginPath();
+      ctx.moveTo(r.x, y);
+      ctx.lineTo(r.right, y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // 기준선들 (55/45 등) + 오른쪽 끝 안쪽 라벨
+    for (const lv of cfg.levels) {
+      const y = Math.round(s.rsiY(lv.v)) + 0.5;
+      ctx.strokeStyle = lv.color ?? 'rgba(17,17,17,0.55)';
+      ctx.lineWidth = lv.width ?? 2;
+      if (lv.dash) ctx.setLineDash(lv.dash);
+      ctx.beginPath();
+      ctx.moveTo(r.x, y);
+      ctx.lineTo(r.right, y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      if (lv.label !== false) {
+        ctx.font = `600 24px ${theme.mono}`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = lv.color ?? 'rgba(17,17,17,0.75)';
+        ctx.fillText(String(lv.label ?? lv.v), r.right + 14, y);
+      }
+    }
+
+    // RSI 라인 (확정 캔들까지 + 형성 중인 꼬리)
+    ctx.beginPath();
+    ctx.rect(r.x, r.y, r.w, r.h);
+    ctx.clip();
+    ctx.strokeStyle = cfg.color;
+    ctx.lineWidth = cfg.width;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    let started = false;
+    const end = Math.min(this.bars.length - 1, Math.floor(reveal) - 1);
+    for (let i = Math.max(0, Math.floor(s.vp.left)); i <= end; i++) {
+      const v = this.rsi.values[i];
+      if (v == null) continue;
+      const xx = s.x(i);
+      const yy = s.rsiY(v);
+      if (!started) {
+        ctx.moveTo(xx, yy);
+        started = true;
+      } else ctx.lineTo(xx, yy);
+    }
+    const tipIdx = Math.min(this.bars.length - 1, Math.floor(reveal));
+    const tipP = clamp(reveal - tipIdx, 0, 1);
+    if (started && tipP > 0 && tipP < 1) {
+      const live = this.rsiAt(reveal);
+      if (live != null) ctx.lineTo(s.x(tipIdx - 1 + tipP), s.rsiY(live));
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
   /**
    * 한 프레임 전체를 그린다.
    * @returns {{scale, viewport, last}} 오버레이 레이어가 쓸 좌표 정보
    */
   frame({ reveal, zoom = 1, priceOffset = 0, alpha = 1, showGrid = true, showAxes = true, showLast = true,
-          showCandles = true, showMAs = true }) {
+          showCandles = true, showMAs = true, maAlphas = null, rsiAlpha = 1 }) {
     const vp = this.viewport(reveal, zoom, priceOffset);
     const s = this.makeScale(vp);
     this.drawBackground();
@@ -411,8 +532,9 @@ export class Chart {
         프리미어에 층으로 쌓으려면 '캔들만' · '이평선만' 클립이 각각 필요하다.
         좌표계(scale/viewport)는 그리지 않아도 그대로 계산되므로,
         차트를 다 끄고 오버레이 레이어만 렌더해도 위치가 어긋나지 않는다.  */
-    if (showMAs) this.drawMAs(s, reveal, alpha);
+    if (showMAs) this.drawMAs(s, reveal, alpha, maAlphas);
     if (showCandles) this.drawCandles(s, reveal, alpha);
+    this.drawRsi(s, reveal, alpha * rsiAlpha);
     let last = this.lastInfo(s, reveal);
     if (showLast) last = this.drawLastPrice(s, reveal, alpha) ?? last;
     if (showAxes) this.drawAxes(s, reveal, alpha);

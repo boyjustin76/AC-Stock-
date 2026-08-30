@@ -659,7 +659,8 @@ const LAYERS = {
     const draw = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.5), Ease.outCubic);
     const w = (L.width ?? 300) * draw;
     const cx = L.bar != null ? scale.x(L.bar) + (L.dx ?? 0) : L.x;
-    const cy = (L.price != null ? scale.y(resolvePrice(L.price, env)) : L.y) + (L.dy ?? 0);
+    const cy = (L.rsi != null && scale.rsiY ? scale.rsiY(L.rsi)
+      : L.price != null ? scale.y(resolvePrice(L.price, env)) : L.y) + (L.dy ?? 0);
     const x = cx - (L.align === 'center' ? (L.width ?? 300) / 2 : 0);
 
     withAlpha(ctx, v, () => {
@@ -690,7 +691,8 @@ const LAYERS = {
     if (v <= 0.001) return;
     const { theme, scale } = env;
     const cx = L.bar != null ? scale.x(L.bar) + (L.dx ?? 0) : L.x;
-    const cy = L.price != null ? scale.y(resolvePrice(L.price, env)) + (L.dy ?? 0) : L.y;
+    const cy = L.rsi != null && scale.rsiY ? scale.rsiY(L.rsi) + (L.dy ?? 0)
+      : L.price != null ? scale.y(resolvePrice(L.price, env)) + (L.dy ?? 0) : L.y;
     const rx = L.rx ?? 150;
     const ry = L.ry ?? 110;
     const draw = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.7), Ease.outCubic);
@@ -1056,6 +1058,86 @@ const LAYERS = {
   },
 
   /** 차트 위 짧은 주석 (외곽선 글씨 + 선택적 지시선) */
+  /**
+   * RSI 패널의 강조 기준선 (70/30 처럼 내레이션 타이밍에 맞춰 등장시킬 때).
+   * 상시 기준선(55/45/50)은 chart 의 rsi.levels 로 그린다 — 이 레이어는 등장/퇴장용.
+   */
+  rsiLevel(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const { theme, scale } = env;
+    if (!scale.rsiY) return;
+    const r = scale.rsiRect;
+    const y = Math.round(scale.rsiY(L.v)) + 0.5;
+    const grow = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.5), Ease.outExpo);
+    const color = L.color ?? theme.accent;
+
+    withAlpha(ctx, v, () => {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = L.width ?? 4;
+      if (L.dash) ctx.setLineDash(L.dash);
+      ctx.beginPath();
+      ctx.moveTo(r.x, y);
+      ctx.lineTo(r.x + r.w * grow, y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      if (L.label) {
+        const lp = span(env.t, (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.3), (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.3) + 0.4, Ease.outBack);
+        ctx.save();
+        ctx.globalAlpha *= clamp(lp);
+        ctx.font = `700 26px ${theme.font}`;
+        textBox(ctx, L.label, L.labelX ?? r.x + 20, y, {
+          bg: L.labelBg ?? 'rgba(255,255,255,0.92)',
+          stroke: hexA(color, 0.9),
+          color,
+          h: 42,
+          padX: 16,
+          align: L.labelAlign ?? 'left',
+        });
+        ctx.restore();
+      }
+    });
+  },
+
+  /** RSI 패널의 값 밴드 (과매수 70+ / 과매도 30- 강조 등) */
+  rsiZone(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const { theme, scale } = env;
+    if (!scale.rsiY) return;
+    const r = scale.rsiRect;
+    const a = scale.rsiY(L.from);
+    const b = scale.rsiY(L.to);
+    const top = Math.min(a, b);
+    const hgt = Math.abs(b - a);
+    const x0 = L.fromBar != null ? scale.x(L.fromBar) : r.x;
+    const x1 = L.toBar != null ? scale.x(L.toBar) : r.x + r.w;
+    const grow = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.7), Ease.outExpo);
+    const color = L.color ?? theme.accent;
+
+    withAlpha(ctx, v, () => {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(r.x, r.y, r.w, r.h);
+      ctx.clip();
+      const w = (x1 - x0) * grow;
+      ctx.fillStyle = hexA(color, L.opacity ?? 0.16);
+      ctx.fillRect(x0, top, w, hgt);
+      ctx.restore();
+      if (L.label) {
+        const lp = span(env.t, (L.in?.[0] ?? 0) + 0.3, (L.in?.[0] ?? 0) + 0.7, Ease.outBack);
+        ctx.save();
+        ctx.globalAlpha *= clamp(lp);
+        ctx.font = `700 26px ${theme.font}`;
+        textBox(ctx, L.label, L.labelX ?? x0 + 20, top + hgt / 2, {
+          bg: 'rgba(255,255,255,0.92)', stroke: hexA(color, 0.85), color, h: 42, padX: 16,
+          align: L.labelAlign ?? 'left',
+        });
+        ctx.restore();
+      }
+    });
+  },
+
   cmgNote(ctx, L, env) {
     const { v } = cue(env.t, L);
     if (v <= 0.001) return;
@@ -1063,7 +1145,8 @@ const LAYERS = {
     const size = L.size ?? 56;
     const rise = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.45, Ease.outCubic);
     const x = L.bar != null ? scale.x(L.bar) + (L.dx ?? 0) : L.x;
-    const y = (L.price != null ? scale.y(resolvePrice(L.price, env)) : L.y) + (L.dy ?? 0);
+    const y = (L.rsi != null && scale.rsiY ? scale.rsiY(L.rsi)
+      : L.price != null ? scale.y(resolvePrice(L.price, env)) : L.y) + (L.dy ?? 0);
 
     withAlpha(ctx, v, () => {
       ctx.translate(0, (1 - rise) * 18);

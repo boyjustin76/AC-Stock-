@@ -82,6 +82,7 @@ export class SceneRuntime {
         pricePad: c.pricePad ?? 0.16,
         include: c.include ?? null,
         ma: c.ma,
+        rsi: c.rsi,
       },
     });
     this.totalFrames = Math.round(scene.duration * this.fps);
@@ -120,6 +121,10 @@ export class SceneRuntime {
     const priceOffset = keyframe(c.priceOffset, t, 0);
     const chartAlpha = keyframe(c.alpha, t, 1);
 
+    // 이평선별 등장 알파 (c.ma[i].alpha 키프레임) · RSI 패널 등장 알파 (c.rsiAlpha)
+    const maAlphas = (c.ma ?? []).map((m) => keyframe(m.alpha, t, 1));
+    const rsiAlpha = keyframe(c.rsiAlpha, t, 1);
+
     const info = this.chart.frame({
       reveal,
       zoom,
@@ -130,6 +135,8 @@ export class SceneRuntime {
       showLast: c.showLast !== false,
       showCandles: c.showCandles !== false,
       showMAs: c.showMAs !== false,
+      maAlphas,
+      rsiAlpha,
     });
 
     const env = {

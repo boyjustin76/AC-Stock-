@@ -172,6 +172,51 @@ export function ema(bars, period) {
 }
 
 /**
+ * Wilder RSI. values[i] 는 i번 캔들 종가까지의 RSI (period 미만 구간은 null).
+ * avgG/avgL 을 같이 돌려줘서, 형성 중인 캔들의 실시간 RSI 를
+ * 마지막 확정값에서 한 걸음만 더 계산할 수 있게 한다.
+ */
+export function wilderRsi(bars, period) {
+  const n = bars.length;
+  const values = new Array(n).fill(null);
+  const avgG = new Array(n).fill(null);
+  const avgL = new Array(n).fill(null);
+  let g = 0;
+  let l = 0;
+  for (let i = 1; i < n; i++) {
+    const d = bars[i].c - bars[i - 1].c;
+    const up = Math.max(d, 0);
+    const dn = Math.max(-d, 0);
+    if (i <= period) {
+      g += up;
+      l += dn;
+      if (i === period) {
+        g /= period;
+        l /= period;
+      } else continue;
+    } else {
+      g = (avgG[i - 1] * (period - 1) + up) / period;
+      l = (avgL[i - 1] * (period - 1) + dn) / period;
+    }
+    avgG[i] = g;
+    avgL[i] = l;
+    values[i] = l === 0 ? 100 : 100 - 100 / (1 + g / l);
+  }
+  return { values, avgG, avgL, period };
+}
+
+/** 형성 중인 캔들의 실시간 RSI — 직전 확정 avgG/avgL 에서 한 걸음 */
+export function formingRsi(rsi, bars, idx, closeNow) {
+  const pg = rsi.avgG[idx - 1];
+  const pl = rsi.avgL[idx - 1];
+  if (pg == null || pl == null || !bars[idx - 1]) return null;
+  const d = closeNow - bars[idx - 1].c;
+  const g = (pg * (rsi.period - 1) + Math.max(d, 0)) / rsi.period;
+  const l = (pl * (rsi.period - 1) + Math.max(-d, 0)) / rsi.period;
+  return l === 0 ? 100 : 100 - 100 / (1 + g / l);
+}
+
+/**
  * 캔들 하나가 "실시간으로 만들어지는" 모습.
  * p=0 이면 시가만, p=1 이면 완성된 캔들.
  */
