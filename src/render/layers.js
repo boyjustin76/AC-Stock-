@@ -760,6 +760,43 @@ const LAYERS = {
   },
 
   /**
+   * RSI 라인 구간 덧칠 — 차12#1 최종본 실측 기법 (강한 추세에서 70 위에 머무는
+   * RSI 를 빨갛게 굵게 따라 긋는다). cmgTrace 의 RSI 판.
+   */
+  rsiTrace(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const { scale, chart } = env;
+    if (!scale.rsiY || !chart.rsi) return;
+    const vals = [];
+    for (let b = L.fromBar; b <= L.toBar; b++) {
+      const val = chart.rsi.values[b];
+      if (val != null) vals.push([b, val]);
+    }
+    if (vals.length < 2) return;
+    const mean = vals.reduce((s, x) => s + x[1], 0) / vals.length;
+    const k = L.flatten ?? 0; // 기본은 눕히지 않고 라인을 그대로 따라 긋는다
+    const draw = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.6), Ease.outCubic);
+    withAlpha(ctx, v * (L.opacity ?? 0.95), () => {
+      ctx.strokeStyle = L.color ?? '#FE0000';
+      ctx.lineWidth = L.width ?? 12;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      const n = Math.round((vals.length - 1) * draw);
+      for (let i = 0; i <= n; i++) {
+        const [b, val] = vals[i];
+        const p = val + (mean - val) * k;
+        const x = scale.x(b);
+        const y = scale.rsiY(p) + Math.sin(i * 1.7) * 1.5;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    });
+  },
+
+  /**
    * 손그림 큰 ✕ — 영역(기본: 플롯 전체)을 통째로 긋는 두 획.
    * 레퍼런스: 차10·차12 최종본의 빨간 X (실패/금지 강조). 획이 순서대로 그어진다.
    */
@@ -1086,10 +1123,11 @@ const LAYERS = {
         ctx.save();
         ctx.globalAlpha *= clamp(lp);
         ctx.font = `700 26px ${theme.font}`;
+        // 차12#1 최종본 실측: 색 배경 + 흰 글씨 알약 ('70선' 스타일)
         textBox(ctx, L.label, L.labelX ?? r.x + 20, y, {
-          bg: L.labelBg ?? 'rgba(255,255,255,0.92)',
+          bg: L.labelBg ?? color,
           stroke: hexA(color, 0.9),
-          color,
+          color: L.labelColor ?? '#FFFFFF',
           h: 42,
           padX: 16,
           align: L.labelAlign ?? 'left',
