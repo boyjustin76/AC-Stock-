@@ -232,7 +232,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/컷2_조용한배경.mp4` | 기타 |  |
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/컷3_공식대로_손실.mp4` | 기타 |  |
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/컷4_크로스신호하나.mp4` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/컷리스트_본편.txt` | 기타 |  |
 | `lab/ae/cut2-base.scenes.js` | 기타 |  |
+| `lab/cmg12/rsi-smoke.scenes.js` | 기타 |  |
 | `lab/premiere/baseline_open_save.prproj` | 기타 |  |
 | `lab/premiere/frames/06_60s.png` | 기타 |  |
 | `lab/premiere/frames/08_50s.png` | 기타 |  |
@@ -269,6 +271,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `src/tools/find-cross.mjs` | 기타 |  |
 | `log/worklog.db` | 데이터 | 작업 로그 원본 (SQLite) |
 | `src/tools/exp-capture.mjs` | 도구 | 캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다 |
+| `src/tools/find-events.mjs` | 도구 | MA 교차·배열 + RSI 레벨 교차·70+ 유지 구간 실측 (find-cross 확장판) |
 | `src/tools/profile-render.mjs` | 도구 | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
 | `tools` | 도구 | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
 | `tools/cutedit` | 도구 | 숏폼 컷편집 파이프라인 — transcribe(전사)·align_cut(대본 정렬)·build_cuts(컷·자막·내레이션 생성, 무음 스냅·침묵 압축) |
@@ -305,6 +308,12 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `log/build_worklog_page.py` | 스크립트 | DB → HTML 페이지 |
 | `src/tools/install-fonts.mjs` | 스크립트 | 폰트를 시스템에 등록 |
 | `scenes/cmg-20ma-runner.scenes.js` | 씬 | 차트명가 20일선 4컷. 새 대본은 이 파일을 본떠 만든다 |
+| `scenes/cmg12-buy.scenes.js` | 씬 | 차12 매수 관점 5컷 — seed161, 55선 재돌파 bar52, 1:2·분할·러너 |
+| `scenes/cmg12-fail.scenes.js` | 씬 | 차12 본론1·문제제시 5컷 — 씬별 시장 3종(파동·횡보·강추세) |
+| `scenes/cmg12-guide.scenes.js` | 씬 | 차12 소개·설정 4컷 — RSI 패널 첫 등장, 실측 색 원본(COLOR export) |
+| `scenes/cmg12-hook2.scenes.js` | 씬 | 차12 후킹 나머지 2컷 — 인트로 seed12 시장 이어붙임(앞 봉 불변) |
+| `scenes/cmg12-recap.scenes.js` | 씬 | 차12 요약 3컷 — 매수 시장 재사용, ①②③ |
+| `scenes/cmg12-sell.scenes.js` | 씬 | 차12 매도 관점 3컷 — seed68 5분봉, 45선 재이탈 bar49 |
 | `scenes/nq-basic.scenes.js` | 씬 | 다크 테마 NQ 6컷 (첫 버전, 브랜드 적용 전) |
 | `scenes/nq-overlay.scenes.js` | 씬 | 투명 배경 오버레이 3컷 |
 | `scenes/sl-11-4.scenes.js` | 씬 | 숏폼 차11-4 추세추종 5컷 — 1080x1080/30fps, 내레이션 46.77초에 동기 |
@@ -467,6 +476,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 위스퍼가 단어 안에 침묵을 삼킨다 | word_timestamps 가 긴 침묵을 앞 단어에 붙인다 — '누워버리면' 이 88.16~92.38(4.2초)로 나왔는데 실제 발화는 1초, 나머지는 무음. VAD 필터로도 안 잡힌다. 이대로 컷을 만들면 죽은 공백이 그대로 남는다 | ffmpeg silencedetect(-35dB, 0.8s+) 실측으로 단어 경계를 보정하고, 행 안 1.2초+ 공백은 스팬을 쪼개 잘라낸다. tools/cutedit/build_cuts.py 의 SILENCES 가 그 목록 |
 | 컨테이너에서 나가는 파일 한도 | SendUserFile 은 파일당 30MiB 를 거부한다. 드라이브 커넥터 create_file 은 base64 를 툴 호출에 실어야 해서 수 MB 만 돼도 컨텍스트를 태운다 — 영상 업로드 경로가 아니다 | 텍스트(자막·컷리스트)만 커넥터로 드라이브에 직접 올리고, 영상·음성은 zip 으로 묶어 SendUserFile(30MiB 미만 단위). 넘으면 재인코딩(참고영상 720p)이나 분할. 드라이브 폴더 실내용 확인은 embeddedfolderview(runbook 8)가 정답 — 커넥터 검색은 회사 계정 파일을 통째로 빼먹는다 |
 | 차트 라벨을 뷰포트 상단 근처에 두지 마라 | 뷰포트 상단은 '형성 중인 캔들'의 부분 고가를 따라 프레임마다 숨쉰다. cmgNote 를 상단 여백에 앵커하면 어느 프레임에선 멀쩡하고 어느 프레임에선 잘린다 (sl-11-4 컷3 에서 두 번 당함) | include 로 바닥을 고정한 뒤 하단 여백에 두는 게 안정적이다. 왼쪽 창 경계 근처는 align: 'left' + dx 로. 스틸은 라벨이 떠 있는 시각(in~out 사이)으로 찍어서 확인해라 |
+| 줌 컷의 절대가 라벨은 소리 없이 화면 밖으로 나간다 | 줌인 컷은 뷰포트 가격폭이 좁아지고 상단은 스무딩(_priceRange 가중평균)까지 얹혀서, 넓은 화면 기준으로 잡은 절대 가격 라벨이 통째로 프레임 위로 나가 버린다. 오류도 경고도 없어서 렌더가 '된 것처럼' 보인다 (차12 buy-entry '양봉 마감' — 코드 버그로 오인해 한참 헤맴) | 줌 컷 안의 라벨은 절대가 대신 기준 캔들 price + dy 픽셀 오프셋으로 앵커한다. 의심되면 스틸에서 라벨 유무부터 세라 — 안 보이면 위치 문제지 레이어 문제가 아니다 |
 
 ## 다음에 할 일
 
@@ -497,6 +507,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 25. **팀장 확정 2건 (사용자)** — ① 회차 조립 본류 — B(새 시퀀스)를 A(프리셋)에 중첩하는 구성이 맞는지 ② 편집자가 글자를 직접 고치는 일이 얼마나 잦은지(M7 의 우선순위를 정한다)  _(대기: 사용자가 팀장에게)_
 26. **SL 차11-4·11-5 조립 피드백 반영** — 사용자가 프리미어에서 소스 패키지로 조립한 뒤 나오는 지적 — 컷 타이밍·차트 연출·자막 줄바꿈 — 을 받아 scenes/sl-11-4·5 와 컷리스트를 고친다. 특히 11-5 '누워버리면' 침묵 컷(92.38 이음새)이 귀로 자연스러운지 확인 필요  _(대기: 사용자 조립 후)_
 27. **.aep/.mogrt 파일럿 — D 가 매뉴얼대로 실행** — 확인 3개는 답 받음(2026-08-29). 매뉴얼은 log/AE-LAB-MANUAL.md — 사용자가 출근해 AE 를 설치하고 D 세션에 전달하면 시작. D 는 옆가지 local/ae-lab 로 보고(log/AE-LAB.md)하고, 클라우드는 .mogrt(zip)·.aep dump 를 열어 판정 후 DB 반영. 파일럿 합격(A6) 뒤에 양산기 tools/ae/compile_jsx.py(scenes.js→build.jsx 자동 변환)를 짓는다. 근거: lab/ae/AEP-MOGRT-조사보고.txt, 바닥 스틸: lab/ae/cut2-base-r63-무주석.png  _(대기: 사용자 출근 후 (D 세션 + 사용자))_
+28. **차12 본편 클립 조립 피드백 반영** — 사용자가 컷리스트_본편.txt 대로 프리미어에 얹은 뒤 나오는 지적 — 컷 타이밍·라벨 위치·색·줌 동선 — 을 받아 scenes/cmg12-*.scenes.js 를 고친다. 특히 확인 요청: ① RSI 라인 색(#0FBDF8)·굵기가 최종본 톤과 맞는지 ② 55/45 검정 기준선 문법(전례 없음 — 새로 정한 것) ③ 말 구간 3곳(26.4~56.1 / 92.7~111.3 / 아웃트로)을 정말 비워도 되는지  _(대기: 사용자 조립 후)_
 
 ## 대본과 컷 싱크
 
@@ -664,6 +675,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 
 **45. 확인 3개 답변 수신 — ① AE 설치 가능(내 자리 + 팀장 자리) ② 팀장 습관 무관, 이어서 수정 가능한 프리미어/AE 용 파일이면 됨 ③ 파일럿은 sl-11-4 컷② 손익비. 캔들은 png/mp4 여도 됨(팀장도 스크린샷 위에 작업하는 스타일), 폰트 설치 완료. D 에게 전달할 Tasks 매뉴얼을 만들어 달라 — 사용자가 직접 할 일도 단계 사이에 끼워서, 매뉴얼만 보고 D 와 둘이 진행할 수 있게.**
 → log/AE-LAB-MANUAL.md 작성 (프리미어 매뉴얼 관례 그대로: 대원칙·마일스톤 A1~A6·사람 단계 §2·함정·보고 프로토콜). 토큰/API/MCP 발급은 불필요함을 명시(전부 로컬 앱 자동화). 유일한 클라우드 의존이던 무주석 바닥 스틸도 미리 렌더해 동봉 — lab/ae/cut2-base-r63-무주석.png (+재현 씬 cut2-base.scenes.js). 컷② 재현 스펙은 §5 에 표로 박음. 보고는 log/AE-LAB.md, 잡은 tools/ae/jobs/, 푸시는 옆가지 local/ae-lab 만. (매뉴얼 납품 — 출근 후 D 세션에 전달하면 시작)
+
+**46. 롱폼 차12(RSI+이평선 스캘핑) 본편 클립 — 차명12롱폼 음성자막-한국어.srt 에 맞춰, 롱폼 11화 방식과 숏폼 업그레이드를 다 적용해서. .prproj 직접 편집 말고 SL 11-4·11-5 의 mp4+zip 조합 전략으로.**
+→ srt 231큐(7:02) 전체를 대본 6단에 매핑, 인트로 4컷(3.4~15.5, 기존 납품)에 이어 컷5~26 20클립을 6파일로 설계(경계는 30.0 격자 반올림 — 인트로와 동일 규칙). 렌더러에 RSI 서브패널 신설(wilderRsi/formingRsi, 패널 분할, rsiLevel/rsiZone/rsiTrace 레이어, ma별 등장 알파, rsi 앵커). 색·문법은 차12#1 숏폼 최종본에서 픽셀 실측(10일선 주황·34일선 초록·RSI 하늘색 #0FBDF8·70선 빨강밴드·30선 파랑밴드·지표명 핑크 배지·RSI 빨간 덧칠). 시장 7종은 find-events(신설)로 시드 스윕 실측 — 매수 seed161(55 재돌파 bar52 양봉·1:2 도달·러너 +11R), 매도 seed68(45 재이탈 bar49 음봉), 횡보 seed96(교차 10회), 강추세 seed25(RSI70 위 45봉), 파동 seed2, 인트로 seed12 이어붙임(앞 봉 불변 검증). 숏폼 업그레이드 전부 적용: 심리스 줌(경계 reveal·줌폭 일치), 팀장 규칙 ②③④, 색박스 손익비, cmgTrace 접선, 헬드 패턴, 컷 안 줌 전환. (본편 20클립 + 컷리스트_본편.txt 납품 (아웃트로·말 구간 3곳 제외는 배치표에 명기))
 
 ## 문제와 해결
 
@@ -1019,3 +1033,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 120 | `a5530b29` | 세이브 save/2026-08-29-2039 — .aep/.mogrt 납품 가능성 조사 — 공식 자료 확인, 보고서 lab/ae/, DB 요청44·next_step27 | 6파일 +221/-3 |
 | 121 | `a1652c4f` | 세이브 기록 save/2026-08-29-2039 | 5파일 +11/-3 |
 | 122 | `22bcbd65` | 세이브 save/2026-08-29-2155 — AE 파일럿 매뉴얼(log/AE-LAB-MANUAL.md) + 무주석 바닥 스틸 — 확인 3개 답변 반영, DB 요청45·next_step27 갱신 | 8파일 +289/-10 |
+| 123 | `3c154c1e` | 세이브 기록 save/2026-08-29-2155 | 5파일 +11/-3 |
+| 124 | `1a0c069d` | 렌더러 RSI 서브패널 신설 — wilderRsi/formingRsi, 패널 분할·기준선·라인, rsiLevel/rsiZone 레이어, ma별 등장 알파 | 5파일 +312/-10 |
+| 125 | `811bacf4` | 차12 본편 씬 6파일 20컷 — srt 30.0격자 동기, RSI 패널·실측 색, 시장 7종 find-events 실측 | 8파일 +1259/-2 |
+| 126 | `953ae0fe` | 차12 컷리스트_본편 + DB 기록(요청46·repo_file·constraint·next_step 28) 준비 | 2파일 +86/-0 |

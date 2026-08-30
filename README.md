@@ -235,6 +235,12 @@ git restore --source=<해시> -- .              # 되돌리기
 | `log/worklog.html` | 브라우저로 보는 작업 로그 |
 | `package.json` | 의존성과 npm 스크립트 |
 | `scenes/cmg-20ma-runner.scenes.js` | 차트명가 20일선 4컷. 새 대본은 이 파일을 본떠 만든다 |
+| `scenes/cmg12-buy.scenes.js` | 차12 매수 관점 5컷 — seed161, 55선 재돌파 bar52, 1:2·분할·러너 |
+| `scenes/cmg12-fail.scenes.js` | 차12 본론1·문제제시 5컷 — 씬별 시장 3종(파동·횡보·강추세) |
+| `scenes/cmg12-guide.scenes.js` | 차12 소개·설정 4컷 — RSI 패널 첫 등장, 실측 색 원본(COLOR export) |
+| `scenes/cmg12-hook2.scenes.js` | 차12 후킹 나머지 2컷 — 인트로 seed12 시장 이어붙임(앞 봉 불변) |
+| `scenes/cmg12-recap.scenes.js` | 차12 요약 3컷 — 매수 시장 재사용, ①②③ |
+| `scenes/cmg12-sell.scenes.js` | 차12 매도 관점 3컷 — seed68 5분봉, 45선 재이탈 bar49 |
 | `scenes/nq-basic.scenes.js` | 다크 테마 NQ 6컷 (첫 버전, 브랜드 적용 전) |
 | `scenes/nq-overlay.scenes.js` | 투명 배경 오버레이 3컷 |
 | `scenes/sl-11-4.scenes.js` | 숏폼 차11-4 추세추종 5컷 — 1080x1080/30fps, 내레이션 46.77초에 동기 |
@@ -256,6 +262,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `src/render/server.mjs` | 렌더용 정적 서버 |
 | `src/render/theme.js` | 테마 프리셋. dark / chartmyeongga |
 | `src/tools/exp-capture.mjs` | 캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다 |
+| `src/tools/find-events.mjs` | MA 교차·배열 + RSI 레벨 교차·70+ 유지 구간 실측 (find-cross 확장판) |
 | `src/tools/install-fonts.mjs` | 폰트를 시스템에 등록 |
 | `src/tools/profile-render.mjs` | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
 | `tools` | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
