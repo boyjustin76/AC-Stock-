@@ -114,11 +114,13 @@ export default {
       chart: {
         ...chartBase,
         reveal: [
+          /* [v3] 연쇄 inOutCubic 이 펄스처럼 가속-감속을 반복해 정신없다는 피드백 —
+             중간 구간을 linear 로 펴서 속도가 계단식으로만 줄게 한다 */
           { t: 0, v: 46.5 },
-          { t: 1.0, v: 68, ease: 'inOutCubic' }, // 추세가 이어지다가 — 랠리 진입
-          { t: 2.2, v: 74, ease: 'inOutCubic' }, // 지표가 꺾이는 순간
-          { t: 3.8, v: 77.5, ease: 'inOutCubic' }, // 데드크로스가 그제야
-          { t: 5.2, v: 82, ease: 'inOutCubic' },
+          { t: 1.0, v: 66, ease: 'inOutQuad' }, // 추세가 이어지다가 — 랠리 진입
+          { t: 2.2, v: 74, ease: 'linear' }, // 지표가 꺾이는 순간
+          { t: 3.8, v: 77.5, ease: 'linear' }, // 데드크로스가 그제야
+          { t: 5.2, v: 82, ease: 'linear' },
           { t: 8.066667, v: 86, ease: 'linear' },
         ],
         zoom: [{ t: 0, v: 1 }],

@@ -27,7 +27,7 @@ const chartBase = {
   showGrid: false,
   showAxes: false,
   showLast: false,
-  layout: { padLeft: 0, padRight: 110, padTop: 0, padBottom: 0, rightGap: 5 },
+  layout: { padLeft: 0, padRight: 0, padTop: 0, padBottom: 0, rightGap: 5 },
   ma: [
     { type: 'sma', period: 10, width: 5, color: COLOR.ma10 },
     { type: 'sma', period: 34, width: 5, color: COLOR.ma34 },
@@ -69,7 +69,7 @@ export default {
         { type: 'cmgBadge', text: '정리 — 3단계', x: 84, y: 96, size: 44, color: '#E90054', in: [0.6, 0.3] },
         { type: 'cmgTrace', overlay: 0, fromBar: 44, toBar: 57, flatten: 0, width: 14, color: COLOR.ma10, in: [4.0, 0.5] },
         { type: 'cmgTrace', overlay: 1, fromBar: 44, toBar: 57, flatten: 0, width: 14, color: COLOR.ma34, in: [4.5, 0.5] },
-        { type: 'cmgNote', text: '① 배열 → 오늘의 방향 하나', bar: 43, price: 15665, size: 52, color: '#111111', in: [5.1, 0.3] },
+        { type: 'cmgNote', text: '① 배열 → 오늘의 방향 하나', bar: 43, price: 15617, size: 52, color: '#111111', in: [5.1, 0.3] },
       ],
     },
 
@@ -130,7 +130,7 @@ export default {
           growDur: 0.4,
           in: [5.8, 0.2],
         },
-        { type: 'cmgNote', text: '1 : 2 이상에서 기계적으로', bar: 42, price: 15672, size: 46, color: '#0DA82A', in: [6.7, 0.3] },
+        { type: 'cmgNote', text: '1 : 2 이상에서 기계적으로', bar: 42, price: 15648, size: 46, color: '#0DA82A', in: [6.7, 0.3] },
         /* 모든 신호가 아니라 세 조건이 겹칠 때만 */
         { type: 'cmgNote', text: '세 조건이 전부 겹칠 때만 진입', bar: 52, rsi: 26, size: 46, color: '#111111', in: [10.4, 0.3] },
         { type: 'cmgNote', text: "'절제된 매매'", bar: 42, price: 15395, size: 64, color: '#E90054', in: [16.2, 0.35] },

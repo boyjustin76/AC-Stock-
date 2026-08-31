@@ -61,7 +61,7 @@ export default {
       },
       layers: [
         { type: 'cmgTrace', overlay: 0, fromBar: 34, toBar: 46, flatten: 0, width: 15, color: COLOR.ma10, in: [0.8, 0.5], out: [3.6, 0.35] },
-        { type: 'cmgNote', text: '① 추세 먼저 필터', bar: 40, price: 15645, size: 50, color: COLOR.ma10, in: [1.3, 0.3], out: [3.6, 0.35] },
+        { type: 'cmgNote', text: '① 추세 먼저 필터', bar: 40, price: 15580, size: 50, color: COLOR.ma10, in: [1.3, 0.3], out: [3.6, 0.35] },
         { type: 'cmgCircle', bar: 48, rsi: 40.7, rx: 62, ry: 50, width: 10, color: '#E90054', drawDur: 0.5, in: [4.2, 0.2] },
         { type: 'cmgCircle', bar: 52, rsi: 60.5, rx: 58, ry: 48, width: 10, color: '#E90054', drawDur: 0.5, in: [5.3, 0.2] },
         { type: 'cmgNote', text: '② 진짜 눌림목만', bar: 41, rsi: 22, size: 48, color: '#E90054', in: [5.9, 0.3] },
@@ -81,8 +81,8 @@ export default {
         { type: 'cmgBadge', text: '1분 차트', x: 84, y: 96, size: 42, color: COLOR.badge, in: [2.5, 0.3] },
         { type: 'cmgNote', text: '10일선', bar: 50, price: 15588, size: 46, color: COLOR.ma10, in: [4.4, 0.3] },
         { type: 'cmgNote', text: '34일선', bar: 50, price: 15468, size: 46, color: COLOR.ma34, in: [5.4, 0.3] },
-        { type: 'cmgNote', text: '크로스가 아니라 배열', bar: 40, price: 15665, size: 52, color: '#111111', in: [8.3, 0.3] },
-        { type: 'cmgUnderline', bar: 40, price: 15665, dy: 48, width: 470, align: 'center', drawDur: 0.35, in: [9.0, 0.15] },
+        { type: 'cmgNote', text: '크로스가 아니라 배열', bar: 40, price: 15601, size: 52, color: '#111111', in: [8.3, 0.3] },
+        { type: 'cmgUnderline', bar: 40, price: 15601, dy: 48, width: 470, align: 'center', drawDur: 0.35, in: [9.0, 0.15] },
       ],
     },
 
@@ -100,7 +100,7 @@ export default {
         { type: 'cmgTrace', overlay: 0, fromBar: 44, toBar: 58, flatten: 0, width: 14, color: COLOR.ma10, in: [1.0, 0.5], out: [4.9, 0.35] },
         { type: 'cmgTrace', overlay: 1, fromBar: 44, toBar: 58, flatten: 0, width: 14, color: COLOR.ma34, in: [1.7, 0.5], out: [4.9, 0.35] },
         { type: 'cmgNote', text: '정배열', bar: 56, price: 15477, size: 52, color: '#111111', in: [2.6, 0.3] },
-        { type: 'cmgNote', text: '상승 추세 → 매수 관점만', bar: 44, price: 15680, size: 52, color: '#E90054', in: [5.9, 0.3] },
+        { type: 'cmgNote', text: '상승 추세 → 매수 관점만', bar: 44, price: 15636, size: 52, color: '#E90054', in: [5.9, 0.3] },
         /* 방향이 정해졌으니 이제 타이밍 — RSI 로 눌림목 */
         { type: 'cmgCircle', bar: 50, rsi: 45.7, rx: 76, ry: 54, width: 10, color: COLOR.rsi, drawDur: 0.5, in: [9.4, 0.2] },
         { type: 'cmgNote', text: '눌림목 타점은 RSI', bar: 42, rsi: 22, size: 46, color: COLOR.rsi, stroke: '#083244', in: [10.2, 0.3] },
@@ -149,8 +149,8 @@ export default {
         reveal: [
           { t: 0, v: 58 },
           { t: 3.0, v: 60, ease: 'linear' },
-          { t: 9.0, v: 74, ease: 'inOutCubic' },
-          { t: 13.866667, v: 92, ease: 'inOutCubic' }, // 러너 — 추세 끝까지
+          { t: 9.0, v: 74, ease: 'inOutQuad' }, // [v3] cubic → quad, 중반 폭주 완화
+          { t: 13.866667, v: 92, ease: 'inOutCubic' }, // 러너 — 추세 끝까지 (bar 90 익절 화살표가 12.9s 전에 드러나야 해서 cubic 유지)
         ],
         zoom: [
           { t: 0, v: 1.4 },

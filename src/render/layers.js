@@ -111,6 +111,14 @@ function strokeText(ctx, text, x, y, opt = {}) {
   ctx.restore();
 }
 
+/** 대략 휘도(0~1). 어두운 글자에 밝은 테두리를 골라 주기 위한 판정용 — #rrggbb 만 다룬다 */
+function luma(color) {
+  const m = /^#([0-9a-f]{6})$/i.exec(color ?? '');
+  if (!m) return 1;
+  const n = parseInt(m[1], 16);
+  return (((n >> 16) & 255) * 0.2126 + ((n >> 8) & 255) * 0.7152 + (n & 255) * 0.0722) / 255;
+}
+
 /** 오른쪽을 가리키는 화살표 모양 라벨 (매수 / 매도 태그) */
 function arrowTagPath(ctx, tipX, cy, w, h, dir = 1, headRatio = 0.49, radius = null) {
   const head = h * headRatio;
@@ -1183,8 +1191,11 @@ const LAYERS = {
     const size = L.size ?? 56;
     const rise = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.45, Ease.outCubic);
     const x = L.bar != null ? scale.x(L.bar) + (L.dx ?? 0) : L.x;
-    const y = (L.rsi != null && scale.rsiY ? scale.rsiY(L.rsi)
+    const yRaw = (L.rsi != null && scale.rsiY ? scale.rsiY(L.rsi)
       : L.price != null ? scale.y(resolvePrice(L.price, env)) : L.y) + (L.dy ?? 0);
+    // 뷰포트가 움직여도 글자가 화면 밖으로 소리 없이 나가지 않게 세로만 잡아 둔다
+    const y = Math.max(size * 0.85, Math.min(env.h - size * 0.85, yRaw));
+    const fill = L.color ?? '#FFFFFF';
 
     withAlpha(ctx, v, () => {
       ctx.translate(0, (1 - rise) * 18);
@@ -1192,8 +1203,9 @@ const LAYERS = {
       ctx.textAlign = L.align ?? 'center';
       ctx.textBaseline = 'middle';
       strokeText(ctx, L.text, x, y, {
-        fill: L.color ?? '#FFFFFF',
-        stroke: L.stroke ?? '#000000',
+        fill,
+        // 어두운 글자에 검정 테두리를 두르면 획이 뭉개진다 — 밝은 테두리로 바꿔 준다
+        stroke: L.stroke ?? (luma(fill) < 0.16 ? '#FFFFFF' : '#000000'),
         strokeWidth: L.strokeWidth ?? size * 0.16,
       });
     });

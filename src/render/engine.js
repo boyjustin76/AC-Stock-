@@ -21,7 +21,7 @@ function easeByName(name) {
 }
 
 /** 키프레임 보간: [{t, v, ease}] */
-function keyframe(list, t, fallback) {
+export function keyframe(list, t, fallback) {
   if (list == null) return fallback;
   if (typeof list === 'number') return list;
   if (!list.length) return fallback;

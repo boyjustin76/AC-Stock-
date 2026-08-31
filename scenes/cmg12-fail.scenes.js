@@ -26,7 +26,7 @@ const chartBase = {
   showGrid: false,
   showAxes: false,
   showLast: false,
-  layout: { padLeft: 0, padRight: 110, padTop: 0, padBottom: 0, rightGap: 5 },
+  layout: { padLeft: 0, padRight: 0, padTop: 0, padBottom: 0, rightGap: 5 },
   ma: [
     { type: 'sma', period: 10, width: 5, color: COLOR.ma10 },
     { type: 'sma', period: 34, width: 5, color: COLOR.ma34 },
@@ -187,15 +187,19 @@ export default {
       chart: {
         ...chartBase,
         reveal: [
+          /* [v3] 16초짜리 단일 inOutCubic 은 한참 느리다가 중반에 폭주한다 —
+             완만히 출발해 등속으로. rsiTrace(toBar 64)가 13초대에 리빌을 따라잡는 건 유지 */
           { t: 0, v: 40 },
-          { t: 16.0, v: 66, ease: 'inOutCubic' },
+          { t: 2.5, v: 44, ease: 'inOutQuad' },
+          { t: 13.0, v: 65, ease: 'linear' },
+          { t: 16.0, v: 66, ease: 'linear' },
           { t: 29.233333, v: 74, ease: 'linear' },
         ],
       },
       layers: [
         /* 뚜렷한 상승 추세 */
         { type: 'cmgTrace', overlay: 0, fromBar: 38, toBar: 60, flatten: 0, width: 15, color: COLOR.ma10, in: [5.4, 0.6], out: [8.9, 0.35] },
-        { type: 'cmgNote', text: '뚜렷한 상승 추세', bar: 44, price: 15690, size: 50, color: '#111111', in: [6.0, 0.3], out: [8.9, 0.35] },
+        { type: 'cmgNote', text: '뚜렷한 상승 추세', bar: 44, price: 15560, size: 50, color: '#111111', in: [6.0, 0.3], out: [8.9, 0.35] },
         /* RSI 70 돌파 후 안 꺾이고 유지 */
         { type: 'rsiLevel', v: 70, label: '70선', color: '#FE0000', width: 4, growDur: 0.5, in: [8.6, 0.2] },
         { type: 'rsiZone', from: 70, to: 100, color: '#FE0000', opacity: 0.16, in: [9.3, 0.3] },
@@ -256,8 +260,8 @@ export default {
         { type: 'cmgUnderline', bar: 49, price: 15750, dy: 50, width: 440, align: 'center', drawDur: 0.35, in: [3.8, 0.15], out: [8.2, 0.5] },
         { type: 'cmgCross', in: [5.5, 0.2], out: [8.2, 0.5] },
         /* 정리 — 구조적 모순 두 줄 */
-        { type: 'cmgNote', text: '횡보장 → 이평선의 가짜 신호', bar: 50, price: 16090, size: 48, color: '#111111', align: 'left', dx: -240, in: [8.0, 0.3] },
-        { type: 'cmgNote', text: '추세장 → RSI 역추세 손실', bar: 50, price: 15985, size: 48, color: '#111111', align: 'left', dx: -240, in: [10.5, 0.3] },
+        { type: 'cmgNote', text: '횡보장 → 이평선의 가짜 신호', bar: 50, price: 16050, size: 48, color: '#111111', align: 'left', dx: -240, in: [8.0, 0.3] },
+        { type: 'cmgNote', text: '추세장 → RSI 역추세 손실', bar: 50, price: 15960, size: 48, color: '#111111', align: 'left', dx: -240, in: [10.5, 0.3] },
         { type: 'cmgNote', text: '그럼 기준을 어떻게 다시 잡아야 할까?', bar: 58, price: 15600, size: 52, color: '#E90054', in: [17.3, 0.35] },
       ],
     },

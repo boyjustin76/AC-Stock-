@@ -31,7 +31,7 @@ const chartBase = {
   showGrid: false,
   showAxes: false,
   showLast: false,
-  layout: { padLeft: 0, padRight: 110, padTop: 0, padBottom: 0, rightGap: 5 },
+  layout: { padLeft: 0, padRight: 0, padTop: 0, padBottom: 0, rightGap: 5 },
   ma: [
     { type: 'sma', period: 10, width: 5, color: COLOR.ma10 },
     { type: 'sma', period: 34, width: 5, color: COLOR.ma34 },
@@ -128,9 +128,11 @@ export default {
         ...chartBase,
         include: [SV.stop + 14],
         reveal: [
+          /* [v3] 11초 단일 inOutCubic 폭주 완화 — 완만한 가속 후 등속 (1:2 도달 bar 65는 13.8s에 확정, flash 15.7 전 ✓) */
           { t: 0, v: 50.4 },
           { t: 4.0, v: 52, ease: 'linear' },
-          { t: 15.0, v: 68, ease: 'inOutCubic' },
+          { t: 8.0, v: 56, ease: 'inOutQuad' },
+          { t: 15.0, v: 68, ease: 'linear' },
           { t: 20.0, v: 74, ease: 'linear' },
         ],
         zoom: [
