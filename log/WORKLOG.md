@@ -1069,3 +1069,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 136 | `daa1b35e` | 세이브 save/2026-08-31-1607 — 차12 시퀀스 XML 납품 — FCP XML 경로 사용자 검증 완료, 갭 배치 22 clipitem | 4파일 +11/-1 |
 | 137 | `10594f27` | 세이브 기록 save/2026-08-31-1607 | 5파일 +11/-3 |
 | 138 | `6d956240` | 차12 정확.srt 재동기 — 인트로 포함 26컷 경계·타이밍 재산정, 배치표 v2, 정확판 srt 보관 | 9파일 +1166/-155 |
+| 139 | `1c409a22` | 세이브 save/2026-08-31-1828 — 차12 v2 — 정확.srt 재동기 26컷 재렌더·재납품, 배치표 v2·xml·zip4, 자막 진본 constraint | 4파일 +25/-3 |
