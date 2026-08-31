@@ -362,5 +362,12 @@
   "utc": "2026-08-31 04:41",
   "sha": "1c3301c",
   "summary": "하단 여백 135px + FCP XML 시퀀스 납품 — tools/premiere_xml.py 신설, sl-11-4 v9·11-5 v7"
+ },
+ {
+  "tag": "save/2026-08-31-1607",
+  "kst": "2026-08-31 16:07",
+  "utc": "2026-08-31 07:07",
+  "sha": "daa1b35",
+  "summary": "차12 시퀀스 XML 납품 — FCP XML 경로 사용자 검증 완료, 갭 배치 22 clipitem"
  }
 ]

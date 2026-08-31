@@ -1060,3 +1060,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 133 | `49ad92e4` | 세이브 기록 save/2026-08-31-1132 | 5파일 +11/-3 |
 | 134 | `1c3301c2` | 세이브 save/2026-08-31-1341 — 하단 여백 135px + FCP XML 시퀀스 납품 — tools/premiere_xml.py 신설, sl-11-4 v9·11-5 v7 | 8파일 +155/-12 |
 | 135 | `eaf92e5f` | 세이브 기록 save/2026-08-31-1341 | 5파일 +11/-3 |
+| 136 | `daa1b35e` | 세이브 save/2026-08-31-1607 — 차12 시퀀스 XML 납품 — FCP XML 경로 사용자 검증 완료, 갭 배치 22 clipitem | 4파일 +11/-1 |
