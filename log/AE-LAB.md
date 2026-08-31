@@ -104,3 +104,71 @@ node tools/ae/anchors.mjs        →  C:/aelab/anchors.json
 ```
 powershell -ExecutionPolicy Bypass -File tools\ae\run.ps1 -Job a1_smoke
 ```
+
+---
+
+## 2026-08-31 · A1 — 통신 스모크 · **통과**
+
+```
+powershell -ExecutionPolicy Bypass -File tools\ae\run.ps1 -Job a1_smoke
+```
+
+왕복 **0.3초**. 프리미어 M1 때와 같은 전송로가 AE 에도 그대로 통한다.
+
+### 타깃 — 실측
+
+```
+getSpecifier("aftereffects")   aftereffects-26.0
+getTargets(null)               photoshop-200.064 | premierepro-26.0 | ame-26.0 | aftereffects-26.0
+```
+
+짐작했던 `aftereffects-26.0` 이 맞았지만, **맞았다는 것도 실측으로 알았다.**
+`config.json` 의 `target` 은 계속 비워 둔다 — 버전이 올라가도 알아서 따라간다.
+
+### 측정값
+
+| | |
+|---|---|
+| app.version / buildName | 26.3x87 |
+| isoLanguage | **ko_KR** — 속성 이름이 한글이다. 프리미어에서 `비율 조정` 에 물린 것과 같은 함정이 온다 |
+| ExtendScript | 4.5.6 |
+| os | Windows/64 10.0 |
+| `app.project.items.addComp` | function (있다) |
+| `CompItem` | 있다 (mogrt API 의 그릇) |
+| `app.exitAfterLaunchAndEval` | true |
+| `beginSuppressDialogs` / `endSuppressDialogs` | 둘 다 호출됨 |
+
+### 벽 하나 — 파일 쓰기 거부 (예상대로)
+
+```
+ReferenceError: 권한이 거부되었습니다.
+[환경 설정] > [스크립팅 및 표현식] > [스크립트를 통한 파일 쓰기 및 네트워크 액세스 허용]
+```
+
+**이게 안 보일 뻔했다.** 매뉴얼 A1 은 "버전을 파일에 써라" 인데, 파일 쓰기 자체가 막히면
+파일이 안 생기고 그러면 아무 정보도 안 남는다. 잡이 측정값을 **반환값에도** 실었기 때문에
+로그 없이도 원인까지 왔다. 이 설계는 앞으로도 유지한다.
+
+#### ⚠ 함정 — 0바이트 파일이 생긴다. "파일이 있다" 는 증거가 아니다
+
+권한이 없어도 `f.open("w")` 은 **통과하고 빈 파일을 만든다.** 거부는 `f.write()` 에서 난다.
+
+```
+C:\aelab\log\a1.txt   0 bytes
+```
+
+그래서 `_lib.jsx` 의 `_write` 를 고쳤다 — 쓰고 나서 **길이가 0보다 큰지** 확인해야 성공이다.
+프리미어에서 배운 "성공 반환값은 증거가 아니다" 의 AE 판이다.
+
+#### ⚠ 함정 — pref 키로는 이 설정을 못 읽는다 (26.3)
+
+```
+app.preferences.getPrefAsLong("Main Pref Section v2", "Pref_SCRIPTING_FILE_NETWORK_SECURITY", ...)
+  → After Effects 오류: 환경 설정에서 섹션 이름 및 키를 찾을 수 없습니다.
+```
+
+널리 도는 그 키가 26.3 엔 없다. **설정 여부는 실제로 한 번 써 보고 길이를 재는 것으로만 판정한다.**
+그래서 A1 의 파일쓰기 시도가 곧 환경설정 판정이다.
+
+→ 사용자에게 체크를 요청했다. 켜진 뒤 A1 을 다시 돌려 `파일쓰기 결과` 가
+   `성공 (n bytes)` 로 바뀌는 것을 확인하고 A2 로 간다.
