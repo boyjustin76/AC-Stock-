@@ -186,6 +186,37 @@ SKELETON = """[제목]
 """
 
 
+# 트팩 편을 차명으로 가져오는 방식은 둘뿐이다. 원본이 얼마나 오래됐는지로 갈린다.
+#   모드 A  원본이 6개월 이상 묵었다 → 거의 그대로 옮긴다
+#           260808 1.13 · 260903 0.94 · 260910 0.87 · 260924 1.01  (간격 6~9개월)
+#   모드 B  원본이 최근이다 → 뼈대만 가져오고 문장은 새로 쓴다
+#           260828 진화한 세력들 0.59  (간격 0개월)
+# 겹침이 드러나면 안 되는 쪽이 모드 B 다. 같은 달에 나간 편을 그대로 옮기면 티가 난다.
+COPY_MODE_MONTHS = 6
+COPY_RATIO = {"A": (0.87, 1.13), "B": (0.50, 0.70)}
+
+POINT_SKELETON = """제목 : {title}
+{tone}
+① 훅 (Hook) :
+{hook}
+
+② 근거 (Evidence) :
+{evidence}
+
+③ 본론 (Body) :
+(차트보며)
+{body}
+
+④ 결과 (Conclusion) :
+{outro}
+"""
+
+POINT_OUTRO = {
+    "토크": "정리하자면\n(반말 단정 슬로건 한 줄)\n동의하면 구독과 좋아요\n반박하면 댓글도 환영입니다",
+    "기법": "정리하자면\n(무엇이 그대로이고 무엇이 달라졌는지)\n\n(다음 편으로 넘기는 질문)\n저를 구독하고 다음 영상을 기다려주세요",
+}
+
+
 # ── 이름 짓기 ──────────────────────────────────────────────────────
 # 폴더  YYMMDD_[SL_차XX_#X]숏폼제목
 # 파일  [SL]숏폼제목[롱폼제목#X].txt
@@ -390,6 +421,10 @@ def cmd_chapters(a):
 
 
 def cmd_brief(a):
+    if a.kind == "point":
+        return brief_point(a)
+    if a.ep is None or not a.chapter or a.no is None:
+        sys.exit("SL 지시서는 회차(ep)·--chapter·--no 가 있어야 합니다.")
     name, body = pick(a.ep, a.chapter)
     doc = long_doc(a.ep)
     made = siblings(a.ep)
@@ -449,6 +484,133 @@ def cmd_brief(a):
             evidence="(통념 → 역접 → 문제)",
             body="(구체적 기준·설정값·순서)",
             tease="(다음 편으로 넘기는 질문)").split("\n"):
+        print(f"    {line}")
+    print("  초안을 쓴 뒤 검사:  python3 tools/shortform.py check <파일>\n")
+
+
+def _read_any(path: Path) -> str:
+    """드라이브 대본은 인코딩이 제각각이다. BOM·CP949·UTF-16 을 다 본다."""
+    for enc in ("utf-8-sig", "cp949", "utf-16"):
+        try:
+            return path.read_text(encoding=enc)
+        except (UnicodeDecodeError, UnicodeError):
+            pass
+    return path.read_text(encoding="utf-8", errors="replace")
+
+
+def _srt_seconds(folder: Path) -> float | None:
+    """자막 마지막 타임코드 = 영상 길이."""
+    for srt in sorted(folder.glob("소스+원본/*.srt")) + sorted(folder.glob("*.srt")):
+        t = _read_any(srt)
+        m = re.findall(r"(\d\d):(\d\d):(\d\d)[,.](\d\d\d)", t)
+        if m:
+            h, mi, se, ms = m[-1]
+            return int(h) * 3600 + int(mi) * 60 + int(se) + int(ms) / 1000
+    return None
+
+
+def point_source(arg: str) -> dict:
+    """트팩 원본 한 편을 읽는다. 폴더를 줘도 되고 .txt 를 줘도 된다."""
+    path = Path(arg)
+    if path.is_dir():
+        folder = path
+        txts = sorted(folder.glob("*.txt"))
+        if not txts:
+            sys.exit(f"그 폴더에 .txt 가 없습니다: {folder}")
+        path = txts[0]
+    else:
+        folder = path.parent
+    if not path.exists():
+        sys.exit(f"원본이 없습니다: {path}")
+    raw = _read_any(path)
+    # 폴더 이름 어디에 있든 첫 YYMMDD_ 를 잡는다.
+    # 참고 폴더는 앞에 TF(참고)_ 가 붙는다 — TF(참고)_260322_[포인트]….
+    m = re.search(r"(\d{6})_", folder.name)
+    return {
+        "path": path, "folder": folder, "raw": raw,
+        "date": m.group(1) if m else None,
+        "chars": len(norm(spoken(raw))),
+        "sec": _srt_seconds(folder),
+    }
+
+
+def _months(a: str, b: str) -> int:
+    """YYMMDD 두 개 사이의 개월 수."""
+    return (int(b[:2]) * 12 + int(b[2:4])) - (int(a[:2]) * 12 + int(a[2:4]))
+
+
+def brief_point(a):
+    src = point_source(a.source)
+    genre = a.genre or "기법"
+    cps = POINT_CPS[genre]
+    clo, chi = POINT_CHARS[genre]
+    slo, shi = POINT_SEC
+    today = a.date or _today()
+
+    gap = _months(src["date"], today) if src["date"] else None
+    mode = None if gap is None else ("A" if gap >= COPY_MODE_MONTHS else "B")
+    rlo, rhi = COPY_RATIO[mode] if mode else (None, None)
+
+    print("═" * 74)
+    print(f"  포인트 작성 지시서 — [포인트_차]{a.title or '(제목 미정)'}")
+    print("═" * 74)
+    print(f"\n  원본   {src['folder'].name}")
+    print(f"         발화 {src['chars']}자" +
+          (f" · {src['sec']:.1f}초" if src["sec"] else " · 자막 없음"))
+    print(f"  목표   {clo}~{chi}자 = {clo/cps:.0f}~{chi/cps:.0f}초"
+          f"   (밴드 {slo}~{shi}초 · {genre}편 · 초당 {cps}자)")
+
+    print(f"\n  ─ 카피 모드 {mode or '판정 못 함'} ─")
+    if mode is None:
+        print("    원본 폴더 이름에서 YYMMDD 를 못 읽었습니다. 모드는 직접 판단하세요 —")
+        print(f"    원본이 {COPY_MODE_MONTHS}개월 이상 묵었으면 A, 아니면 B 다.")
+    elif mode == "A":
+        print(f"    원본이 {gap}개월 묵었다. 거의 그대로 옮긴다.")
+        print("    나간 편: 260808 1.13 · 260903 0.94 · 260910 0.87 · 260924 1.01")
+    else:
+        print(f"    원본이 {gap}개월밖에 안 됐다. 뼈대만 가져오고 문장은 새로 쓴다.")
+        print("    같은 달에 나간 편을 그대로 옮기면 티가 난다. 260828 편이 0.59 였다.")
+    if mode:
+        t_lo, t_hi = round(src["chars"] * rlo), round(src["chars"] * rhi)
+        print(f"    분량   원본 {src['chars']}자 × {rlo}~{rhi} = {t_lo}~{t_hi}자"
+              f"   (갈래 밴드와 겹치는 구간으로 잡는다)")
+
+    print("\n  ─ 반드시 지킬 것 (New 10편 기준) ─")
+    print("    · 첫 줄 «제목 : 제목». 원본 URL 을 들고 오는 편이면 URL 형으로 가고"
+          " 둘을 섞지 않는다. (섞은 편 0/10)")
+    print("    · 라벨 «① 훅 (Hook) : » — 콜론 뒤 공백 하나. (7/10)")
+    print("    · 4단 뼈대 훅 → 근거 → 본론 → 결과. 원본이 3단이어도 4단으로 다시 끼운다.")
+    print("    · 차트를 짚는 자리에 «(차트보며)» 지문.")
+    print("    · CTA 는 구독 유도. (10/10)")
+    if genre == "토크":
+        print("    · 2행에 «**라이브 방송 중 답변한다는 느낌으로». 이건 연기 지시다 —"
+              " 차명이 라이브를 한다는 뜻이 아니다.")
+        print("    · 종결을 구어로 — «~거든요» «~잖아요» «~단 말이죠» «그러니깐».")
+        print("    · 결론은 «정리하자면» → 반말 단정 → 동의하면 구독과 좋아요 /"
+              " 반박하면 댓글도 환영입니다.")
+    else:
+        print("    · 훅 «오늘은 ~ 알려드릴게요» 는 3/10 뿐이다. 선언형·질문형도 된다.")
+
+    print("\n  ─ 쓰면 안 되는 것 ─")
+    print("    · «영트모로 입장하세요» — 트팩 CTA 다. 차명은 절대 안 쓴다.")
+    print("    · 차명이 라이브를 한다는 투의 문장. 차명은 라이브를 하지 않는다.")
+    print("    · 자막·타이틀·로고 문구. 편집에서 들어간다.")
+    print("    · 원본 문장을 통째로. 10자 연속 겹침이 기준선 2.2% 를 넘으면 안 된다.")
+
+    print("\n  ─ 원본 ─")
+    for line in src["raw"].replace("\r\n", "\n").strip().split("\n"):
+        if line.strip():
+            print(f"    │ {line.strip()}")
+
+    print("\n  ─ 채워 넣을 틀 ─\n")
+    tone = "**라이브 방송 중 답변한다는 느낌으로\n" if genre == "토크" else ""
+    filled = POINT_SKELETON.format(
+        title=a.title or "(제목)", tone=tone,
+        hook="(무엇을 말할지 · 대화로 던져도 된다)",
+        evidence="(통념 → 하지만 → 그래서 안 통한다)",
+        body="(구체적 기준·설정값·순서)",
+        outro=POINT_OUTRO[genre])
+    for line in filled.split("\n"):
         print(f"    {line}")
     print("  초안을 쓴 뒤 검사:  python3 tools/shortform.py check <파일>\n")
 
@@ -543,10 +705,15 @@ def main():
     c.add_argument("ep", type=int)
     c.set_defaults(fn=cmd_chapters)
 
-    b = sub.add_parser("brief", help="챕터 하나로 숏폼을 쓰기 위한 작성 지시서")
-    b.add_argument("ep", type=int)
-    b.add_argument("--chapter", required=True, help="챕터 이름 일부 (예: '전략 1')")
-    b.add_argument("--no", type=int, required=True, help="이 회차의 몇 번째 숏폼인가")
+    b = sub.add_parser("brief", help="한 편을 쓰기 위한 작성 지시서")
+    b.add_argument("ep", type=int, nargs="?", help="SL 일 때 롱폼 회차")
+    b.add_argument("--kind", choices=("sl", "point"), default="sl")
+    b.add_argument("--chapter", help="SL — 챕터 이름 일부 (예: '전략 1')")
+    b.add_argument("--no", type=int, help="SL — 이 회차의 몇 번째 숏폼인가")
+    b.add_argument("--source", help="포인트 — 트팩 원본 폴더 또는 .txt 경로")
+    b.add_argument("--title", help="포인트 — 이 편 제목")
+    b.add_argument("--genre", choices=tuple(POINT_CPS), help="포인트 — 갈래 (기본 기법)")
+    b.add_argument("--date", help="포인트 — 방영 예정일 YYMMDD. 카피 모드 판정에 쓴다")
     b.set_defaults(fn=cmd_brief)
 
     k = sub.add_parser("check", help="초안이 규칙에 맞는지 검사")
