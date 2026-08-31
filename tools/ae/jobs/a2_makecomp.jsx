@@ -7,44 +7,50 @@
 $.evalFile(new File(String(File($.fileName).parent.fsName).split(String.fromCharCode(92)).join("/") + "/_lib.jsx"));
 logTo("a2");
 
-var NAME   = "차11-4_컷2_손익비";
-var W = 1080, H = 1080, FPS = 30, FRAMES = 176;
-var AEP    = LAB + "/pilot.aep";
+/*  AE 는 최상위 return 을 문법 오류로 잡는다(프리미어 ExtendScript 와 다르다).
+    그래서 본문을 함수로 감싼다 — 중간에서 빠져나가는 판정 가드를 쓰려면 이 형태여야 한다.  */
+function __main() {
 
-say("잡", "A2 컴포지션 생성");
-say("AE", app.version);
+    var NAME   = "차11-4_컷2_손익비";
+    var W = 1080, H = 1080, FPS = 30, FRAMES = 176;
+    var AEP    = LAB + "/pilot.aep";
 
-closeQuietly();
+    say("잡", "A2 컴포지션 생성");
+    say("AE", app.version);
 
-probe("app.newProject", function () { app.newProject(); return app.project ? "프로젝트 생김" : "null"; });
+    closeQuietly();
 
-var comp = null;
-probe("addComp", function () {
-    comp = app.project.items.addComp(NAME, W, H, 1, FRAMES / FPS, FPS);
-    return comp ? comp.name : "null";
-});
-if (!comp) { flush(); return fail("컴포지션이 안 만들어졌다"); }
+    probe("app.newProject", function () { app.newProject(); return app.project ? "프로젝트 생김" : "null"; });
 
-say("생성 직후", dumpComp(comp));
+    var comp = null;
+    probe("addComp", function () {
+        comp = app.project.items.addComp(NAME, W, H, 1, FRAMES / FPS, FPS);
+        return comp ? comp.name : "null";
+    });
+    if (!comp) { flush(); return fail("컴포지션이 안 만들어졌다"); }
 
-/*  저장 전에 기존 파일을 지운다 — 프리미어 M5 에서 앱이 출력 파일을 붙들고 있어
-    saveAs 가 false 를 준 전례가 있다. AE 는 다르겠지만 같은 값으로 막아 둔다.  */
-probe("기존 pilot.aep 삭제", function () {
-    var f = new File(AEP);
-    if (!f.exists) return "없었다";
-    return f.remove() ? "지웠다" : "못 지웠다(누가 붙들고 있다)";
-});
+    say("생성 직후", dumpComp(comp));
 
-probe("project.save", function () {
-    app.project.save(new File(AEP));
-    return "호출됨";
-});
+    /*  저장 전에 기존 파일을 지운다 — 프리미어 M5 에서 앱이 출력 파일을 붙들고 있어
+        saveAs 가 false 를 준 전례가 있다. AE 는 다르겠지만 같은 값으로 막아 둔다.  */
+    probe("기존 pilot.aep 삭제", function () {
+        var f = new File(AEP);
+        if (!f.exists) return "없었다";
+        return f.remove() ? "지웠다" : "못 지웠다(누가 붙들고 있다)";
+    });
 
-probe("파일 확인", function () {
-    var f = new File(AEP);
-    return f.exists ? f.length + " bytes" : "파일이 없다";
-});
-say("project.file", app.project.file ? String(app.project.file.fsName) : "null");
+    probe("project.save", function () {
+        app.project.save(new File(AEP));
+        return "호출됨";
+    });
 
-flush();
-done("저장까지 했다. 판정은 a2_verify 가 재열기로 한다");
+    probe("파일 확인", function () {
+        var f = new File(AEP);
+        return f.exists ? f.length + " bytes" : "파일이 없다";
+    });
+    say("project.file", app.project.file ? String(app.project.file.fsName) : "null");
+
+    flush();
+    return done("저장까지 했다. 판정은 a2_verify 가 재열기로 한다");
+}
+__main();

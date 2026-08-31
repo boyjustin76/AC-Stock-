@@ -64,4 +64,13 @@ const out = {
 console.log(JSON.stringify(out, null, 2));
 mkdirSync('C:/aelab', { recursive: true });
 writeFileSync('C:/aelab/anchors.json', JSON.stringify(out, null, 2), 'utf8');
-console.error('\nC:/aelab/anchors.json 에 썼다.');
+
+/*  AE 잡이 바로 읽을 수 있게 .jsx 로도 낸다. 런타임에 파일을 읽지 않아도 되고
+    (파일쓰기 권한과 무관하게 안전하다) ExtendScript 에 JSON 파서가 없는 판에서도 통한다.
+    저장소에 커밋되므로 좌표가 언제 바뀌었는지도 diff 로 남는다.  */
+const jsx =
+  '/*  tools/ae/anchors.mjs 가 생성한다. 손으로 고치지 마라 — node tools/ae/anchors.mjs 로 다시 낸다.\n' +
+  '    컷② reveal 63 · zoom 1 기준 실측 좌표. 1080x1080, 좌상단 원점.  */\n' +
+  'var ANCHORS = ' + JSON.stringify(out, null, 2) + ';\n';
+writeFileSync(new URL('./jobs/_anchors.jsx', import.meta.url), jsx, 'utf8');
+console.error('\nC:/aelab/anchors.json 과 tools/ae/jobs/_anchors.jsx 에 썼다.');
