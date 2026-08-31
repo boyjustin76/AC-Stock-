@@ -48,9 +48,9 @@ const chartBase = {
   showAxes: false,
   showLast: false,
   include: [BOX.top + 130, BOX.stop - 60],
-  /* 세이프 에어리어 실측(2026-08-31, 프리미어 조립): 숏폼 틀이 위 23px·아래 120px 를 가린다.
+  /* 세이프 에어리어 실측(2026-08-31, 프리미어 조립): 숏폼 틀이 위 23px·아래 135px 를 비운다(가림 120 + 여유 15, 2026-08-31 사용자 지시).
      차트·라벨을 1080x937 영역 안에 가두면 프리미어 기본 배치(540,960) 그대로 안 가려진다. */
-  layout: { padLeft: 0, padRight: 0, padTop: 23, padBottom: 120, rightGap: 6 },
+  layout: { padLeft: 0, padRight: 0, padTop: 23, padBottom: 135, rightGap: 6 },
   ma: [{ type: 'ema', period: 20, width: 5 }],
 };
 
