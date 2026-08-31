@@ -54,55 +54,9 @@ for (var j = 1; j <= comp.numLayers; j++) {
 for (var n = 0; n < names.length; n++) say("  레이어 " + names[n].split(":")[0], names[n].substr(names[n].indexOf(":") + 1));
 say("합계", comp.numLayers + " 레이어 · 불투명도 키 " + kf + " · 마스크 " + masks);
 
-/* ── 렌더큐 ── */
-probe("출력 모듈 템플릿", function () {
-    var rq = app.project.renderQueue;
-    var probe1 = rq.items.add(comp);
-    var t = probe1.outputModule(1).templates.join(" | ");
-    probe1.remove();
-    return t;
-});
-
-var pngTpl = null;
-probe("PNG 템플릿 고르기", function () {
-    var rq = app.project.renderQueue;
-    var p1 = rq.items.add(comp);
-    var ts = p1.outputModule(1).templates;
-    for (var k = 0; k < ts.length; k++) {
-        if (/png/i.test(ts[k])) { pngTpl = ts[k]; break; }
-    }
-    p1.remove();
-    return pngTpl ? pngTpl : "PNG 템플릿이 없다 — 아래에서 파일 확장자로만 시도한다";
-});
-
-probe("프레임 렌더", function () {
-    var d = new Folder(OUT);
-    if (!d.exists) d.create();
-    var rq = app.project.renderQueue;
-    /* 남아 있는 항목을 비운다 */
-    while (rq.numItems > 0) rq.item(1).remove();
-
-    for (var s = 0; s < SHOTS.length; s++) {
-        var t = SHOTS[s];
-        var item = rq.items.add(comp);
-        item.timeSpanStart = t;
-        item.timeSpanDuration = 1 / comp.frameRate;
-        var om = item.outputModule(1);
-        if (pngTpl) om.applyTemplate(pngTpl);
-        var tag = String(Math.round(t * 100) / 100).replace(".", "_");
-        om.file = new File(OUT + "/a3_" + tag + "s_[#####].png");
-    }
-    rq.render();
-    return rq.numItems + "개 항목 렌더 끝";
-});
-
-probe("만들어진 파일", function () {
-    var d = new Folder(OUT);
-    var fs = d.getFiles("*.png");
-    var t = [];
-    for (var k = 0; k < fs.length; k++) t.push(fs[k].name + " (" + fs[k].length + ")");
-    return t.length ? t.join(" | ") : "없다";
-});
+/*  렌더큐는 들어냈다. 한국어 판 출력 템플릿에 PNG 가 없어 .mp4 가 나오고,
+    두 번째부터는 덮어쓰기 대화상자(모달)를 띄워 잡을 죽인다 — 실측으로 두 번 물렸다.
+    프레임 뽑기는 a3_frame(saveFrameToPng)이 한다.  */
 
 flush();
 return done("재열기 + 프레임까지 끝. 그림 대조는 밖에서 한다");

@@ -11,7 +11,11 @@ function __main() {
 
 var AEP  = LAB + "/pilot.aep";
 var NAME = "차11-4_컷2_손익비";
-var OUT  = LAB + "/차11-4_손익비.mogrt";
+/*  ⚠ 실측: 두 번째 인자는 **파일이 아니라 폴더**다.
+    파일 경로처럼 "…/차11-4_손익비.mogrt" 를 주니 AE 가 **그 이름의 폴더를 만들고**
+    그 안에 "<motionGraphicsTemplateName>.mogrt" 를 썼다. 이름은 내가 아니라 템플릿 이름이 정한다.  */
+var OUTDIR = LAB + "/mogrt";
+var OUT    = OUTDIR + "/차11-4 손익비.mogrt";   /* = comp.motionGraphicsTemplateName + ".mogrt" */
 
 say("잡", "A5 mogrt 내보내기");
 
@@ -26,15 +30,24 @@ for (var i = 1; i <= app.project.numItems; i++) {
 if (!comp) { flush(); return fail("컴포지션이 없다"); }
 say("템플릿 이름", comp.motionGraphicsTemplateName);
 
-probe("기존 mogrt 삭제", function () {
+probe("출력 폴더 준비", function () {
+    var d = new Folder(OUTDIR);
+    if (!d.exists) d.create();
     var f = new File(OUT);
-    if (!f.exists) return "없었다";
-    return f.remove() ? "지웠다" : "못 지웠다";
+    if (f.exists) f.remove();
+    return d.fsName;
 });
 
+/*  ⚠ 실측: 이 호출은 **Adobe Fonts 동기화 경고 모달**을 띄운다.
+      "다음 2개의 글꼴이 Adobe와 동기화되지 않았습니다 — Gmarket Sans Bold / S-Core Dream 5 Medium.
+       모션 그래픽 템플릿이 Adobe에 없는 글꼴이 필요한 것으로 표시됩니다."
+    브랜드 폰트가 Adobe Fonts 가 아니라 로컬 설치라서 그렇다. 회사 PC 엔 다 깔려 있으니 내용은 문제가 아니다.
+    문제는 **모달이라 잡이 멈춘다**는 것. beginSuppressDialogs 로 넘어가는지 여기서 잰다.        */
+probe("beginSuppressDialogs", function () { app.beginSuppressDialogs(); return "켬"; });
 probe("exportAsMotionGraphicsTemplate", function () {
-    return String(comp.exportAsMotionGraphicsTemplate(true, OUT));
+    return String(comp.exportAsMotionGraphicsTemplate(true, OUTDIR));
 });
+probe("endSuppressDialogs", function () { app.endSuppressDialogs(false); return "끔"; });
 
 /* saveFrameToPng 과 같은 함정 — 직후에는 파일 정보가 아직 갱신 전이다 */
 $.sleep(400);

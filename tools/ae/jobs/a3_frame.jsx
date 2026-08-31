@@ -44,7 +44,7 @@ for (var s = 0; s < SHOTS.length; s++) {
             comp.saveFrameToPng(t, f);
             /*  ⚠ 쓰기가 곧바로 반영되지 않는다. 직후에 File.exists/length 를 보면 거짓 실패가 난다
                 (실측: "0장" 이라고 보고했는데 디스크엔 6장이 다 있었다). 조금 기다렸다 다시 만들어 잰다.  */
-            $.sleep(200);
+            $.sleep(600);   /* 200 은 첫 장에 모자랐다 — 크기를 절반으로 잘못 읽었다 */
             var g = new File(OUT + "/a3_" + tag + "s.png");
             if (!g.exists || g.length === 0) throw new Error("파일이 안 생겼거나 0바이트다");
             made.push(g.name);

@@ -185,7 +185,7 @@ function __main() {
         var bx = (anchor === "right") ? 'Math.max(' + X + ' - w, 6)' : String(X);
         return { size: head + '[w, ' + h + '];', pos: head + 'var bx = ' + bx + ';\n[bx + w / 2, ' + cy + '];' };
     }
-    function autoPlate(name, textName, anchor, X, cy, padX, h, rad, color) {
+    function autoPlate(name, textName, anchor, X, cy, padX, h, rad, color, fillName) {
         var L = newShape(name);
         var g = addGroup(L, "판");
         var rc = g.addProperty("ADBE Vector Shape - Rect");     /* 패스가 아니라 **파라메트릭 사각형** */
@@ -193,7 +193,7 @@ function __main() {
         var e = plateExpr(textName, anchor, X, cy, padX, h);
         rc.property("ADBE Vector Rect Size").expression = e.size;
         rc.property("ADBE Vector Rect Position").expression = e.pos;
-        addFill(g, color, null, "판칠");
+        addFill(g, color, null, fillName || "판칠");
         return L;
     }
     /** 글자를 판 한가운데에 붙들어 둔다 — 판과 같은 식을 쓰므로 둘이 같이 움직인다 */
@@ -244,7 +244,7 @@ function __main() {
         var it = app.project.importFile(new ImportOptions(f));
         it.name = "바닥_무주석_r63";
         var L = comp.layers.add(it);
-        L.name = "0_바닥스틸";
+        L.name = "바닥 스틸";
         return it.width + "x" + it.height;
     });
 
@@ -253,7 +253,7 @@ function __main() {
         · 촉 0.49·h · 모서리 0.08·h.  촉 끝은 캔들 왼쪽 gap(16) 만큼 떨어진다.        */
     function arrowTag(name, tipX, cy, label, size, bg) {
         /* 글씨를 먼저 만들어 잉크 크기를 재고, 그 값으로 버튼을 그린다 */
-        var T = textLayer(name + "_글씨", label, F_TAG, size, C.white, C.white, 0);
+        var T = textLayer(name + " 글씨", label, F_TAG, size, C.white, C.white, 0);
         var r = inkOf(T);
         var inkW = r.width, inkH = r.height;
         var h = inkH / 0.761;
@@ -286,7 +286,7 @@ function __main() {
 
     var buy = null;
     probe("1 매수 태그", function () {
-        buy = arrowTag("1_매수태그", A.x.bar42 - 16, A.y.entry, "매수", 32, C.buy);
+        buy = arrowTag("매수 태그", A.x.bar42 - 16, A.y.entry, "매수", 32, C.buy);
         fade(buy.shape, null, [5.0, 0.4]);
         fade(buy.text,  null, [5.0, 0.4]);
         return "촉 x=" + (A.x.bar42 - 16) + " · 버튼 " + Math.round(buy.w) + "x" + Math.round(buy.h);
@@ -299,13 +299,13 @@ function __main() {
         var th = 14;
         var top = Math.min(yLine, yFill), hh = Math.abs(yFill - yLine);
 
-        var L = newShape(no + "_" + name);
+        var L = newShape(label + " 박스");
         /*  ⚠ AE 셰이프 레이어는 **먼저 추가한 그룹이 위에** 그려진다 — 캔버스와 반대다.
         캔버스는 채움을 먼저 칠하고 그 위에 선을 얹으므로, AE 에서는 **선을 먼저 추가**해야 한다.
         반대로 두면 55% 반투명 채움이 굵은 선의 윗절반을 덮어 색이 흐려진다 — 프레임 대조로 잡았다.  */
         var g2 = addGroup(L, "선");
         addPath(g2, shapeFrom(rectVerts(x0, yLine - th / 2, wFull, th)));
-        addFill(g2, lineColor, null, "선칠");
+        addFill(g2, lineColor, null, label);   /* EGP 컨트롤 이름이 "<이름> 색상" 으로 나온다 */
         var g1 = addGroup(L, "채움");
         addPath(g1, shapeFrom(rectVerts(x0, top, wFull, hh)));
         addFill(g1, fillColor, 55, "채움칠");
@@ -313,9 +313,9 @@ function __main() {
         /*  라벨 — 글자폭은 AE 가 잰다. 게다가 **표현식으로 물려 둔다**:
             팀장이 프리미어에서 '익절' 을 '부분 익절' 로 바꾸면 판이 따라 커져야 한다.
             이게 A6 합격선이라 정적 크기로 두면 안 된다.  */
-        var T = textLayer(no + "_" + name + "_라벨", label, F_TAG, 40, C.white, C.white, 0);
+        var T = textLayer(label + " 라벨", label, F_TAG, 40, C.white, C.white, 0);
         var bh = 40 * 1.35;
-        var B = autoPlate(no + "_" + name + "_라벨판", T.name, "right", x0, yLine, 24, bh, 0, lineColor);
+        var B = autoPlate(label + " 라벨판", T.name, "right", x0, yLine, 24, bh, 0, lineColor);
         bindTextToPlate(T, "right", x0, yLine + 2, 24);
         var r = inkOf(T), bw = r.width + 48, bx = Math.max(x0 - bw, 6);
         B.moveAfter(T);
@@ -348,7 +348,7 @@ function __main() {
     probe("4 진입 라인", function () {
         var x0 = A.x.bar42, wFull = A.x.right - x0, th = 4;
         /* 72% 는 레이어 불투명도가 아니라 **칠** 불투명도로 준다 — 등장 페이드가 레이어 쪽을 쓰므로 */
-        var L = rectLayer("4_진입라인", x0, A.y.entry - th / 2, wFull, th, C.entry, C.entryOpacity);
+        var L = rectLayer("진입 라인", x0, A.y.entry - th / 2, wFull, th, C.entry, C.entryOpacity);
         growMask(L, [x0, A.y.entry - 20, 0.01, 40], [x0, A.y.entry - 20, wFull, 40], 0.3, 0.7);
         fade(L, [0.3, 0.2], [5.15, 0.35]);
         return "y=" + A.y.entry + " · 굵기 " + th + " · 칠 불투명도 " + C.entryOpacity;
@@ -357,11 +357,11 @@ function __main() {
     /* ── 5. 손익비 뱃지 ───────────────────────────────── */
     probe("5 손익비 뱃지", function () {
         var size = 46, x = 64, y = 1004;
-        var T = textLayer("5_손익비_글씨", "손익비  1 : 2", F_TAG, size, C.white, "#000000", size * 0.15);
+        var T = textLayer("손익비 문구", "손익비  1 : 2", F_TAG, size, C.white, "#000000", size * 0.15);
         var padX = size * 0.5, bh = size * 1.5, rad = 10;
         /* 둥근 사각형도 파라메트릭 사각형으로 — 글자에 물려 두면 문구를 바꿔도 판이 따라 커진다.
            border:false 라 검정 테두리는 없다. */
-        var B = autoPlate("5_손익비_판", T.name, "left", x, y, padX, bh, rad, C.accent);
+        var B = autoPlate("손익비 판", T.name, "left", x, y, padX, bh, rad, C.accent, "강조");
         bindTextToPlate(T, "left", x, y + 2, padX);
         var r = inkOf(T), bw = r.width + padX * 2, x0 = x, y0 = y - bh / 2;
         B.moveAfter(T);
@@ -372,7 +372,7 @@ function __main() {
 
     /* ── 6. 익절 버튼 ─────────────────────────────────── */
     probe("6 익절 버튼", function () {
-        var o = arrowTag("6_익절버튼", A.x.bar53 - 16, A.y.target, "익절", 32, C.tpBtn);
+        var o = arrowTag("익절 버튼", A.x.bar53 - 16, A.y.target, "익절", 32, C.tpBtn);
         fade(o.shape, [3.3, 0.35], [5.15, 0.35]);
         fade(o.text,  [3.3, 0.35], [5.15, 0.35]);
         return "촉 x=" + (A.x.bar53 - 16) + " · y=" + A.y.target;
@@ -385,9 +385,9 @@ function __main() {
         var yTop = A.y.missedHigh, yBase = A.y.target;
         var hh = yBase - yTop, ww = x1 - x0;
 
-        var L = newShape("7_놓친구간_빗금");
+        var L = newShape("놓친 구간 빗금");
         /* 사선 하나를 만들고 리피터로 42px 씩 복제한다 */
-        var g2 = addGroup(L);
+        var g2 = addGroup(L, "사선");
         var startX = x0 - hh;
         addPath(g2, shapeFrom([[startX, yBase], [startX + hh, yBase - hh]], false));
         addStroke(g2, C.accent, 6, false).property("ADBE Vector Stroke Opacity").setValue(28);
@@ -397,9 +397,9 @@ function __main() {
         rep.property("ADBE Vector Repeater Transform").property("ADBE Vector Repeater Position").setValue([42, 0]);
 
         /* 사선이 위, 10% 채움이 아래 — 먼저 추가한 것이 위다 (levelBox 주석 참조) */
-        var g1 = addGroup(L);
+        var g1 = addGroup(L, "바탕");
         addPath(g1, shapeFrom(rectVerts(x0, yTop, ww, hh)));
-        addFill(g1, C.accent, 10);
+        addFill(g1, C.accent, 10, "바탕칠");
 
         growMask(L, [x0, yBase - 0.01, ww, 0.01], [x0, yTop, ww, hh], 3.55, 4.45);   /* growDur 0.9 */
         fade(L, [3.55, 0.3], [5.15, 0.35]);
@@ -409,7 +409,7 @@ function __main() {
     /* ── 8. '놓친 구간' 글자 ──────────────────────────── */
     probe("8 놓친구간 글자", function () {
         var size = 58;
-        var T = textLayer("8_놓친구간_글자", "놓친 구간", F_NOTE, size, C.white, "#000000", size * 0.16);
+        var T = textLayer("놓친 구간 문구", "놓친 구간", F_NOTE, size, C.white, "#000000", size * 0.16);
         centerAt(T, A.x.bar57, A.y.note);
         fade(T, [4.05, 0.3], [5.15, 0.35]);
         /* 등장할 때 18px 아래에서 올라온다 */
@@ -435,7 +435,7 @@ function __main() {
             /* 렌더러와 같은 흔들림 식 */
             verts.push([x + wid * p, cy + Math.sin(p * 7.3 + 1.1) * 3.2 + Math.sin(p * 2.1) * 2.4]);
         }
-        var L = newShape("9_손그림밑줄");
+        var L = newShape("손그림 밑줄");
         var g = addGroup(L);
         addPath(g, shapeFrom(verts, false));
         addStroke(g, C.under, 12, true);

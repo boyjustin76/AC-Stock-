@@ -85,21 +85,21 @@ function link(targetProp, srcLayer, srcGroup, srcFill, label) {
         return "ok · 값 " + [Math.round(v[0] * 255), Math.round(v[1] * 255), Math.round(v[2] * 255)].join(",");
     });
 }
-link(fillColorOf("2_익절박스_라벨판", "판", "판칠"), "2_익절박스", "선", "선칠", "익절 라벨판 ← 익절 선");
-link(fillColorOf("3_손절박스_라벨판", "판", "판칠"), "3_손절박스", "선", "선칠", "손절 라벨판 ← 손절 선");
-link(strokeColorOf("7_놓친구간_빗금", "그룹 1"),      "5_손익비_판", "판", "판칠", "빗금 사선 ← 강조");
+link(fillColorOf("익절 라벨판", "판", "판칠"), "익절 박스", "선", "익절", "익절 라벨판 ← 익절 선");
+link(fillColorOf("손절 라벨판", "판", "판칠"), "손절 박스", "선", "손절", "손절 라벨판 ← 손절 선");
+link(strokeColorOf("놓친 구간 빗금", "사선"),        "손익비 판", "판", "강조", "빗금 사선 ← 강조");
 
 /* ── ② 노출 ────────────────────────────────────── */
 probe("템플릿 이름", function () { comp.motionGraphicsTemplateName = MGT; return comp.motionGraphicsTemplateName; });
 
 var 목록 = [
-    { 이름: "익절 라벨 문구",  p: function () { return srcText("2_익절박스_라벨"); } },
-    { 이름: "손절 라벨 문구",  p: function () { return srcText("3_손절박스_라벨"); } },
-    { 이름: "손익비 문구",     p: function () { return srcText("5_손익비_글씨"); } },
-    { 이름: "놓친 구간 문구",  p: function () { return srcText("8_놓친구간_글자"); } },
-    { 이름: "익절 색",         p: function () { return fillColorOf("2_익절박스", "선", "선칠"); } },
-    { 이름: "손절 색",         p: function () { return fillColorOf("3_손절박스", "선", "선칠"); } },
-    { 이름: "강조 색",         p: function () { return fillColorOf("5_손익비_판", "판", "판칠"); } }
+    { 이름: "익절 라벨 문구",  p: function () { return srcText("익절 라벨"); } },
+    { 이름: "손절 라벨 문구",  p: function () { return srcText("손절 라벨"); } },
+    { 이름: "손익비 문구",     p: function () { return srcText("손익비 문구"); } },
+    { 이름: "놓친 구간 문구",  p: function () { return srcText("놓친 구간 문구"); } },
+    { 이름: "익절 색",         p: function () { return fillColorOf("익절 박스", "선", "익절"); } },
+    { 이름: "손절 색",         p: function () { return fillColorOf("손절 박스", "선", "손절"); } },
+    { 이름: "강조 색",         p: function () { return fillColorOf("손익비 판", "판", "강조"); } }
 ];
 
 var 성공 = 0, 실패 = [];
@@ -120,14 +120,14 @@ for (var n = 0; n < 목록.length; n++) {
 probe("참고: 노출 불가 후보", function () {
     var t = [];
     var tries = [
-        ["레이어 위치", function () { return layerNamed("8_놓친구간_글자").property("ADBE Transform Group").property("ADBE Position"); }],
-        ["레이어 불투명도", function () { return layerNamed("8_놓친구간_글자").property("ADBE Transform Group").property("ADBE Opacity"); }],
-        ["마스크 패스", function () { return layerNamed("2_익절박스").property("ADBE Mask Parade").property(1).property("ADBE Mask Shape"); }],
-        ["칠 불투명도", function () { var L = layerNamed("2_익절박스"); var root = L.property("ADBE Root Vectors Group");
+        ["레이어 위치", function () { return layerNamed("놓친 구간 문구").property("ADBE Transform Group").property("ADBE Position"); }],
+        ["레이어 불투명도", function () { return layerNamed("놓친 구간 문구").property("ADBE Transform Group").property("ADBE Opacity"); }],
+        ["마스크 패스", function () { return layerNamed("익절 박스").property("ADBE Mask Parade").property(1).property("ADBE Mask Shape"); }],
+        ["칠 불투명도", function () { var L = layerNamed("익절 박스"); var root = L.property("ADBE Root Vectors Group");
               for (var a = 1; a <= root.numProperties; a++) if (root.property(a).name === "채움")
                   return root.property(a).property("ADBE Vectors Group").property("채움칠").property("ADBE Vector Fill Opacity");
               return null; }],
-        ["푸티지 교체(바닥스틸 소스)", function () { return layerNamed("0_바닥스틸"); }]
+        ["푸티지 교체(바닥스틸 소스)", function () { return layerNamed("바닥 스틸"); }]
     ];
     for (var k = 0; k < tries.length; k++) {
         var r;
