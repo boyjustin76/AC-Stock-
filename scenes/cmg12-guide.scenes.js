@@ -2,10 +2,11 @@
  * 차트명가 #12 — 소개·설정 4컷 (컷7~10) · 1080p/59.94 · RSI 서브패널 첫 등장
  *
  * 자막 원본: 차명12롱폼 음성자막-한국어.srt (30.0 격자 반올림)
- *   컷7  guide-intro  56.067~ 65.800 ( 9.7333s)  ㉛~㊱ 오늘 지표: 10일선·34일선·RSI
- *   컷8  guide-ma     65.800~ 76.500 (10.7000s)  ㊲~㊷ 이평선 = 추세 방향, 但 후행성
- *   컷9  guide-rsi    76.500~ 92.733 (16.2333s)  ㊸~㊿ RSI = 힘의 세기, 방향→타이밍 결합 원리
- *   컷10 guide-set   111.333~133.200 (21.8667s)  61~71 설정값: 10/34 이평선, RSI 기간 10, 55/45선
+ *   [정확.srt 재동기 2026-08-31]
+ *   컷7  guide-intro  60.600~ 70.333 ( 9.7333s)  ㉛~㊱ 오늘 지표: 10일선·34일선·RSI
+ *   컷8  guide-ma     70.333~ 81.200 (10.8667s)  ㊲~㊷ 이평선 = 추세 방향, 但 후행성
+ *   컷9  guide-rsi    81.200~ 97.967 (16.7667s)  ㊸~㊿ RSI = 힘의 세기, 방향→타이밍 결합 원리
+ *   컷10 guide-set   116.967~142.267 (25.3000s)  61~71 설정값: 10/34 이평선, RSI 기간 10, 55/45선
  *   (92.733~111.333 스캘핑 성격 설명은 말 구간 — 차트 지시가 없어 클립을 만들지 않는다)
  *
  * 시장: 매수 관점(cmg12-buy)과 같은 seed 161. 지표 소개를 실전 차트와 같은 화면에서 한다.
@@ -93,20 +94,20 @@ export default {
     {
       id: 'guide-ma',
       name: '컷8 이평선의 쓸모와 한계 (10.7000s)',
-      duration: 10.7,
+      duration: 10.866667,
       chart: {
         ...chartBase,
-        reveal: [{ t: 0, v: 60 }, { t: 10.7, v: 61, ease: 'linear' }],
+        reveal: [{ t: 0, v: 60 }, { t: 10.866667, v: 61, ease: 'linear' }],
       },
       layers: [
         /* 추세 방향 — 10일선 구간 덧칠 (팀장 접선 기법) */
-        { type: 'cmgTrace', overlay: 0, fromBar: 33, toBar: 45, flatten: 0, width: 15, color: COLOR.ma10, in: [3.4, 0.5], out: [6.1, 0.35] },
-        { type: 'cmgNote', text: '추세 방향', bar: 38, price: 15625, size: 48, color: COLOR.ma10, in: [3.9, 0.3], out: [6.1, 0.35] },
+        { type: 'cmgTrace', overlay: 0, fromBar: 33, toBar: 45, flatten: 0, width: 15, color: COLOR.ma10, in: [3.3, 0.5], out: [6.3, 0.35] },
+        { type: 'cmgNote', text: '추세 방향', bar: 38, price: 15625, size: 48, color: COLOR.ma10, in: [3.9, 0.3], out: [6.3, 0.35] },
         /* 후행성 — 가격이 먼저 꺾이고(42) 선은 4봉 늦게(46) 꺾인다 */
-        { type: 'cmgCircle', bar: 42, price: 15589, rx: 62, ry: 56, width: 10, drawDur: 0.5, in: [6.5, 0.2] },
-        { type: 'cmgCircle', bar: 46, price: 15560, rx: 62, ry: 56, width: 10, color: '#111111', drawDur: 0.5, in: [7.3, 0.2] },
-        { type: 'cmgNote', text: '가격 먼저, 선은 늦게', bar: 49, price: 15645, size: 50, color: '#111111', in: [7.95, 0.3] },
-        { type: 'cmgUnderline', bar: 49, price: 15645, dy: 46, width: 430, align: 'center', drawDur: 0.35, in: [9.25, 0.15] },
+        { type: 'cmgCircle', bar: 42, price: 15589, rx: 62, ry: 56, width: 10, drawDur: 0.5, in: [6.7, 0.2] },
+        { type: 'cmgCircle', bar: 46, price: 15560, rx: 62, ry: 56, width: 10, color: '#111111', drawDur: 0.5, in: [7.6, 0.2] },
+        { type: 'cmgNote', text: '가격 먼저, 선은 늦게', bar: 49, price: 15645, size: 50, color: '#111111', in: [8.2, 0.3] },
+        { type: 'cmgUnderline', bar: 49, price: 15645, dy: 46, width: 430, align: 'center', drawDur: 0.35, in: [9.6, 0.15] },
       ],
     },
 
@@ -114,10 +115,10 @@ export default {
     {
       id: 'guide-rsi',
       name: '컷9 RSI 와 결합 원리 (16.2333s)',
-      duration: 16.233333,
+      duration: 16.766667,
       chart: {
         ...chartBase,
-        reveal: [{ t: 0, v: 61 }, { t: 16.233333, v: 66, ease: 'linear' }],
+        reveal: [{ t: 0, v: 61 }, { t: 16.766667, v: 66, ease: 'linear' }],
       },
       layers: [
         { type: 'cmgBadge', text: 'RSI', x: 84, y: 860, size: 44, color: COLOR.badge, in: [0, 0], popDur: 0 },
@@ -125,11 +126,11 @@ export default {
         /* 세기가 수치로 — 눌림에서 힘이 빠지는 게 그대로 보인다 */
         { type: 'cmgCircle', bar: 48, rsi: 41, rx: 66, ry: 52, width: 10, color: COLOR.rsi, drawDur: 0.5, in: [2.9, 0.2], out: [6.2, 0.3] },
         /* 결합 원리 ① 방향은 이평선으로 */
-        { type: 'cmgTrace', overlay: 0, fromBar: 50, toBar: 62, flatten: 0, width: 15, color: COLOR.ma10, in: [6.9, 0.5], out: [13.2, 0.35] },
-        { type: 'cmgNote', text: '① 방향', bar: 55, price: 15505, size: 48, color: COLOR.ma10, in: [7.5, 0.3], out: [13.2, 0.35] },
+        { type: 'cmgTrace', overlay: 0, fromBar: 50, toBar: 62, flatten: 0, width: 15, color: COLOR.ma10, in: [6.9, 0.5], out: [13.6, 0.35] },
+        { type: 'cmgNote', text: '① 방향', bar: 55, price: 15505, size: 48, color: COLOR.ma10, in: [7.5, 0.3], out: [13.6, 0.35] },
         /* 결합 원리 ② 타이밍은 RSI 로 */
-        { type: 'cmgCircle', bar: 52, rsi: 60.5, rx: 60, ry: 50, width: 10, color: '#E90054', drawDur: 0.5, in: [10.3, 0.2] },
-        { type: 'cmgNote', text: '② 타이밍', bar: 46, rsi: 68, size: 48, color: '#E90054', in: [11.0, 0.3] },
+        { type: 'cmgCircle', bar: 52, rsi: 60.5, rx: 60, ry: 50, width: 10, color: '#E90054', drawDur: 0.5, in: [11.0, 0.2] },
+        { type: 'cmgNote', text: '② 타이밍', bar: 46, rsi: 68, size: 48, color: '#E90054', in: [11.8, 0.3] },
       ],
     },
 
@@ -137,19 +138,19 @@ export default {
     {
       id: 'guide-set',
       name: '컷10 설정값 (21.8667s)',
-      duration: 21.866667,
+      duration: 25.3,
       chart: {
         ...chartBase,
-        reveal: [{ t: 0, v: 66 }, { t: 21.866667, v: 70, ease: 'linear' }],
+        reveal: [{ t: 0, v: 66 }, { t: 25.3, v: 70, ease: 'linear' }],
       },
       layers: [
         { type: 'cmgNote', text: '10일선', bar: 59, price: 15630, size: 46, color: COLOR.ma10, in: [3.9, 0.3] },
-        { type: 'cmgNote', text: '34일선', bar: 59, price: 15505, size: 46, color: COLOR.ma34, in: [5.7, 0.3] },
+        { type: 'cmgNote', text: '34일선', bar: 59, price: 15505, size: 46, color: COLOR.ma34, in: [6.4, 0.3] },
         { type: 'cmgNote', text: 'RSI 기간 14 → 10', bar: 52, rsi: 85, size: 46, color: '#111111', in: [10.0, 0.3] },
         /* 55선·45선이 자막에 맞춰 그어진다 — 이후 모든 컷의 상시 기준선 */
-        { type: 'rsiLevel', v: 55, label: '55선', color: COLOR.line, width: 4, growDur: 0.6, in: [14.4, 0.2] },
-        { type: 'rsiLevel', v: 45, label: '45선', labelX: 176, color: COLOR.line, width: 4, growDur: 0.6, in: [15.6, 0.2] },
-        { type: 'cmgNote', text: '타점의 기준선', bar: 61, rsi: 30, size: 46, color: '#E90054', in: [19.8, 0.3] },
+        { type: 'rsiLevel', v: 55, label: '55선', color: COLOR.line, width: 4, growDur: 0.6, in: [20.5, 0.2] },
+        { type: 'rsiLevel', v: 45, label: '45선', labelX: 176, color: COLOR.line, width: 4, growDur: 0.6, in: [21.7, 0.2] },
+        { type: 'cmgNote', text: '타점의 기준선', bar: 61, rsi: 30, size: 46, color: '#E90054', in: [23.1, 0.3] },
       ],
     },
   ],

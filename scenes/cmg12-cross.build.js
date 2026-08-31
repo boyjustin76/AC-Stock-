@@ -60,7 +60,9 @@
 const FPS = 60000 / 1001; // 59.94005994 = 29.97 × 2
 
 /* 30.0 격자로 반올림한 컷 경계(초) — 프리미어 배치값과 같은 수를 쓴다 */
-const AT = { c1: 3.4, c2: 7.4, c3: 12.2, c4: 13.766667, end: 15.533333 };
+/* [정확.srt 재동기 2026-08-31] 새 컷편집 기준. c3=12.2 는 프리셋 고정 오프닝(타이틀 카드 끝)
+   가정 유지 — 내레이션만 +2.1초 밀렸고 템플릿 그래픽은 고정이라는 전제다. 어긋나면 여기만 고친다. */
+const AT = { c1: 5.533333, c2: 7.833333, c3: 12.2, c4: 15.9, end: 17.7 };
 const CUT = {
   rule: AT.c2 - AT.c1, // 4.0000  공식
   bed: AT.c3 - AT.c2, // 4.8000  배경
@@ -139,9 +141,9 @@ const SCENES = [
       ...chartBase,
       reveal: [
         { t: 0, v: 28 }, // 골든크로스(26)는 이미 지나 있다
-        { t: 1.0, v: 30, ease: 'linear' },
-        { t: 2.2, v: 35, ease: 'inOutCubic' }, // 데드크로스(33)가 여기서 드러난다
-        { t: CUT.rule, v: 42, ease: 'linear' },
+        { t: 0.5, v: 30, ease: 'linear' },
+        { t: 1.15, v: 35, ease: 'inOutCubic' }, // 데드크로스(33)가 여기서 드러난다
+        { t: CUT.rule, v: 40, ease: 'linear' },
       ],
     },
     layers: [
@@ -152,7 +154,7 @@ const SCENES = [
         price: 61302.1 - 190, // bar13 의 ema5 아래. '골든크로스' 라벨과 겹치지 않게 왼쪽으로 뺐다
         size: 44,
         color: '#0D9488',
-        in: [0.15, 0.3],
+        in: [0.05, 0.2],
       },
       {
         type: 'cmgNote',
@@ -161,16 +163,16 @@ const SCENES = [
         price: 61242.4 + 205, // bar20 의 ema20 위
         size: 44,
         color: '#F38808',
-        in: [0.35, 0.3],
+        in: [0.2, 0.2],
       },
       // 골든크로스 — 사라
-      { type: 'cmgCircle', bar: X.golden, price: X.goldenPrice, rx: 88, ry: 76, width: 12, drawDur: 0.6, in: [0.95, 0.2] },
-      { type: 'cmgNote', text: '골든크로스', bar: X.golden, price: X.goldenPrice - 330, size: 60, in: [1.25, 0.3] },
-      { ...buyTag, in: [1.5, 0.35] },
+      { type: 'cmgCircle', bar: X.golden, price: X.goldenPrice, rx: 88, ry: 76, width: 12, drawDur: 0.5, in: [0.35, 0.15] },
+      { type: 'cmgNote', text: '골든크로스', bar: X.golden, price: X.goldenPrice - 330, size: 60, in: [0.6, 0.25] },
+      { ...buyTag, in: [0.8, 0.3] },
       // 데드크로스 — 팔아라. 자막 ④(5.700s)에 맞춰 컷 시작 +2.3초
-      { type: 'cmgCircle', bar: X.dead, price: X.deadPrice, rx: 88, ry: 76, width: 12, drawDur: 0.6, in: [2.3, 0.2] },
-      { type: 'cmgNote', text: '데드크로스', bar: X.dead, price: X.deadPrice + 390, size: 60, in: [2.6, 0.3] },
-      { ...sellTag, in: [2.85, 0.35] },
+      { type: 'cmgCircle', bar: X.dead, price: X.deadPrice, rx: 88, ry: 76, width: 12, drawDur: 0.5, in: [1.3, 0.15] },
+      { type: 'cmgNote', text: '데드크로스', bar: X.dead, price: X.deadPrice + 390, size: 60, in: [1.55, 0.25] },
+      { ...sellTag, in: [1.75, 0.3] },
     ],
   },
 
@@ -184,7 +186,7 @@ const SCENES = [
       /*  이 구간은 프리셋 그래픽이 주인공이라 차트가 조용해야 한다.
           느리게만 흘려서 정지화면으로 보이지 않게 한다. 라벨은 하나도 안 붙인다.  */
       reveal: [
-        { t: 0, v: 42 },
+        { t: 0, v: 40 },
         { t: CUT.bed, v: 44, ease: 'linear' },
       ],
     },
@@ -200,7 +202,7 @@ const SCENES = [
       ...chartBase,
       reveal: [
         { t: 0, v: 44 },
-        { t: CUT.loss, v: 45, ease: 'linear' },
+        { t: CUT.loss, v: 45.3, ease: 'linear' },
       ],
     },
     layers: [
@@ -214,7 +216,7 @@ const SCENES = [
         color: 'rgba(0,0,0,0.72)',
         thickness: 4,
         growDur: 0.3,
-        in: [0.0, 0.15],
+        in: [0.2, 0.15],
       },
       {
         /*  진입~청산 사이의 실제 손실 밴드.
@@ -230,8 +232,8 @@ const SCENES = [
         fill: '#FEBABA',
         color: '#9F0000',
         thickness: 23,
-        growDur: 0.35,
-        in: [0.05, 0.2],
+        growDur: 0.4,
+        in: [0.5, 0.2],
       },
       {
         type: 'cmgNote',
@@ -240,7 +242,7 @@ const SCENES = [
         price: X.deadPrice - 900,
         size: 60,
         color: '#E90054',
-        in: [0.55, 0.25],
+        in: [1.9, 0.25],
       },
       {
         type: 'cmgUnderline',
@@ -250,7 +252,7 @@ const SCENES = [
         width: 392,
         align: 'center',
         drawDur: 0.35,
-        in: [0.95, 0.15],
+        in: [2.5, 0.15],
       },
     ],
   },
