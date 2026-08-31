@@ -690,6 +690,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 **49. 하단 흰 여백 15px 더. 그리고 zip 만 말고 프리미어 중첩시퀀스 파일도 — 넣으면 알아서 정리된 형태로.**
 → padBottom 120→135(1080x922) 재렌더. 시퀀스 파일은 .prproj 직접 쓰기 금지 규칙 대신 프리미어 공식 가져오기 포맷인 FCP7 XML(xmeml v4)로 — tools/premiere_xml.py 신설(컷 프레임 배치 + 내레이션 트랙, 갭 배치 @프레임 지원). 패키지에 sequence.xml 동봉: 가져오기만 하면 컷+음성 정렬된 1080x1080/30fps 시퀀스가 생기고, zip 을 C:\ 바로 아래 풀면 pathurl 이 일치해 미디어 연결까지 자동. 주의: 프리미어 실물 임포트는 아직 미검증 — 사용자 확인이 판정. (sl-11-4 v9 · sl-11-5 v7 납품 (sequence.xml 포함))
 
+**50. xml 가져오기 성공 확인. 차12도 시퀀스 xml 로.**
+→ FCP XML 경로 검증 완료(사용자 실물 확인) — 이제 표준 납품 경로다. 차12 본편 20컷을 배치표 30f# 타임코드 그대로 갭 포함 배치한 1920x1080/30fps 시퀀스 xml 생성(tools/premiere_xml.py --clips @프레임). clipitem 22(파일 20 + 중복 참조), 겹침 없음 검증. 사용법: C:/ch12_source 에 zip 4개를 전부 풀면 pathurl 일치로 미디어 연결까지 자동, 가져온 시퀀스를 컷편집 타임라인 0초에 중첩. (ch12_sequence.xml 납품)
+
 ## 문제와 해결
 
 ### 1. Playwright 브라우저 빌드 불일치  `fixed`
@@ -1056,3 +1059,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 132 | `ce8b6528` | 세이브 save/2026-08-31-1132 — 숏폼 세이프 에어리어 실측 반영 — sl-11-4 v8·11-5 v6 재렌더·재납품(1301/1382 검증), FX pool·constraint·요청48 | 3파일 +8/-2 |
 | 133 | `49ad92e4` | 세이브 기록 save/2026-08-31-1132 | 5파일 +11/-3 |
 | 134 | `1c3301c2` | 세이브 save/2026-08-31-1341 — 하단 여백 135px + FCP XML 시퀀스 납품 — tools/premiere_xml.py 신설, sl-11-4 v9·11-5 v7 | 8파일 +155/-12 |
+| 135 | `eaf92e5f` | 세이브 기록 save/2026-08-31-1341 | 5파일 +11/-3 |
