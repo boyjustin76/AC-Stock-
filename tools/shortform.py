@@ -14,9 +14,18 @@ log/worklog.db 의 shortform_rule 테이블에 회차별로 남아 있다.
 
     python3 tools/shortform.py check draft.txt
         써 놓은 초안이 규칙에 맞는지 검사한다.  분량·훅·CTA·질문 마감·파일 이름.
+        파일 이름에 '[포인트' 가 있으면 포인트 갈래로 검사한다 (--kind 로 지정 가능).
+        포인트는 SL 과 세는 법도 속도도 이름 규칙도 다르다 — log/SCRIPT-LAB.md §4~5.
+
+    python3 tools/shortform.py check draft.txt --kind point --genre 복제
+        트팩 원본을 근접 복제한 편은 대본만 봐서는 못 짚으니 직접 준다.
 
     python3 tools/shortform.py name 11 --no 4 --title "20일선 추세추종 매매법"
         회사 규칙대로 폴더·파일 이름을 만든다.  작업중이면 앞에 (중간) 이 붙는다.
+
+    python3 tools/shortform.py name --kind point --title "손절 기준 잡는 법"
+        포인트 편 이름.  YYMMDD_[포인트_차]제목 / [포인트_차]제목.txt
+        트팩이면 --channel 트팩 → [포인트].
 
 쓰지 않는 것: 일정표에서 '숏폼(포)' 로 표시된 편.  그건 롱폼 추출이 아니라
 외부 레퍼런스를 보고 따로 기획한 것이라 규칙이 다르다.
@@ -57,6 +66,94 @@ TARGET = {
     "②③ 본문": (225, 285),      # 307 - 훅 26 - CTA 26 = 255 가 한가운데
     "④ CTA":   (20, 35),        # 실측 11~39, 중앙값 26
 }
+
+# ── 포인트 갈래 ────────────────────────────────────────────────────
+# SL 과 다른 물건이다. SL 값(6.82자/초 · 45초 = 307자)을 포인트에 쓰면 안 된다.
+# 근거는 log/SCRIPT-LAB.md §4 — 차명 포인트_차 43편 전수, 자막 36편 실측.
+#
+# Old/New 를 섞으면 안 된다. 260725_포지션 중독 부터가 New 다(팀장 지시).  7월에
+# 첫 줄 형식이 갈아탔고 발화 속도도 달라져서, 전수 중앙값을 쓰면 Old 가 분포를
+# 끌어당긴다.  New 10편(260725~261001) 실측:
+#   영상 길이   중앙값 53.9초 (43.1~63.1)
+#   발화 글자   중앙값 362자  (267~495)
+#   발화 속도   중앙값 6.70자/초       ← SL 은 6.82
+#
+# 갈래마다 또 다르다. 토크편은 말이 빨라 같은 초에 글자가 더 들어간다.
+# 아래 값은 차명 자기 자막(.srt)만 써서 다시 쟀다.  '발화 글자수 ÷ 실제 영상 길이'.
+#   260725 토크  415자 / 60.0초 = 6.91      260806 기법  330자 / 47.6초 = 6.93
+#   260730 토크  495자 / 53.9초 = 9.19      260808 기법  482자 / 71.7초 = 6.72
+#                                            260810 기법  345자 / 53.1초 = 6.49
+POINT_CPS = {
+    "토크": 6.91,   # 6.91 과 9.19 중 낮은 쪽. 길게 잡아 두는 편이 안전하다
+    "기법": 6.72,   # 6.49·6.72·6.93 의 중앙값
+    "복제": 6.72,   # 기법과 같은 값을 쓴다 — 아래 주석 참고
+}
+# '복제'(모드 A)편은 차명 자기 자막이 없다. 260903·260910 폴더에 있는 .srt 는
+# TF(참고) 원본의 것이라 트팩 목소리의 길이다.  같은 사람이 읽는데 갈래만 다르다고
+# 속도를 따로 잡을 근거가 없어서 기법 값을 그대로 쓴다.  글자수 밴드만 따로 둔다.
+POINT_SEC = (43, 63)            # New 10편 실측 길이 범위 43.1~63.1 을 그대로 밴드로 쓴다
+POINT_CHARS = {                 # 갈래별 실측 발화 글자수
+    "토크": (415, 495),         # 260725 415자 · 260730 495자
+    "기법": (319, 482),
+    "복제": (267, 352),
+}
+
+# 발화가 아닌 줄. 세면 안 된다 — 촬영 때 읽지 않는다.
+DROP_LINE = re.compile(r"^\s*(제목\s*:|레퍼런스|\*\*)|https?://")
+LABEL = re.compile(r"^\s*[①②③④]\s*[^:\n]{0,30}:\s*")    # '① 훅 (Hook) : '
+STAGE = re.compile(r"\([^)\n]*\)")                        # (차트보며) 같은 지문
+
+
+def spoken(raw: str) -> str:
+    """실제로 입에서 나가는 말만 남긴다.
+
+    norm() 은 파일 전문을 센다.  SL 대본은 그래도 됐지만 포인트 대본은 제목 줄·
+    톤 지시 줄·원본 URL·「① 훅 (Hook) : 」 라벨·「(차트보며)」 지문이 파일 안에
+    같이 있어서, 그대로 세면 실제보다 11~14% 길게 나온다.
+
+    나간 편으로 확인했다 — 260810 후행스팬은 실제 53.1초인데 59초로, 260910
+    캔들 꼬리는 실제 43.1초인데 49초로 읽었다.
+    """
+    out = []
+    for line in raw.replace("\r\n", "\n").split("\n"):
+        if DROP_LINE.search(line):
+            continue
+        out.append(STAGE.sub("", LABEL.sub("", line)))
+    return "\n".join(out)
+
+
+def point_genre(raw: str) -> str:
+    """대본만 보고 갈래를 짚는다. '복제'는 원본을 봐야 알아서 못 짚는다."""
+    return "토크" if "라이브 방송 중" in raw else "기법"
+
+
+# 포인트 이름 규칙 — 차명 43편이 43/43 으로 지켰다. naming_rule 테이블에는 없다.
+#   폴더  YYMMDD_[포인트_차]제목      파일  [포인트_차]제목.txt
+#   트팩  YYMMDD_[포인트]제목         파일  [포인트]제목.txt
+P_FOLDER_RE = re.compile(r"^(?:\(중간\))?(\d{6})_\[포인트(?:_차)?\](.+)$")
+P_FILE_RE = re.compile(r"^(?:\(중간\))?\[포인트(?:_차)?\](.+)\.txt$")
+
+
+def check_point_name(path: Path) -> list[str]:
+    bad = []
+    if not P_FILE_RE.match(path.name):
+        bad.append(f"파일 이름 — [포인트_차]제목.txt 형태여야 합니다 (지금: {path.name})")
+    if not P_FOLDER_RE.match(path.parent.name):
+        bad.append(f"폴더 이름 — YYMMDD_[포인트_차]제목 형태여야 합니다 (지금: {path.parent.name})")
+    return bad
+
+
+# New 10편 중 몇 편이 지켰나. SL 의 CHECKS 와 모집단이 달라 따로 둔다.
+# 훅 「오늘은 ~ 알려드릴게요」는 여기서 3/10 뿐이라 선택이다. SL 에서는 필수다.
+POINT_CHECKS = [
+    ("라벨", r"[①②③④]\s*[^:\n]{0,30}:\s",
+     "「① 훅 (Hook) : 」 라벨 — 콜론 뒤 공백 하나", 7, 10),
+    ("구독", r"(구독|팔로우)", "CTA 는 구독 유도", 10, 10),
+    ("훅", r"오늘은[\s\S]{0,80}?(알려드릴게요|알려드리겠습니다|소개해\s?드릴게요)",
+     "훅이 「오늘은 …를 알려드릴게요」", 3, 10),
+    ("톤 지시", r"\*\*라이브 방송 중", "2행 톤 지시 (토크편만 붙는다)", 2, 10),
+]
+
 
 # 거의 모든 편에 나오는 고정 문구. 괄호 안은 25편 중 몇 편에 나왔는지.
 PHRASES = {
@@ -117,11 +214,78 @@ def file_name(ep: int, no: int, title: str, wip: bool = True) -> str:
     return f"{WIP if wip else ''}[SL]{title}[{long_title(ep)}#{no}].txt"
 
 
+def check_point(a, raw):
+    """포인트 갈래 검사. SL 과 세는 법도, 속도도, 이름 규칙도 다르다."""
+    genre = a.genre or point_genre(raw)
+    cps = POINT_CPS[genre]
+    lo, hi = POINT_CHARS[genre]
+    slo, shi = POINT_SEC
+    body = spoken(raw)
+    # 세는 것은 발화만, 규칙 검사는 파일 전문으로 한다. 라벨·톤 지시는 발화가
+    # 아니라 body 에서 지워졌지만, 있어야 할 자리에 있는지는 봐야 한다.
+    flat = re.sub(r"\s+", " ", raw)
+    n = len(norm(body))
+    n_raw = len(norm(raw))
+    est = n / cps
+
+    print(f"\n  {a.file}")
+    print(f"  갈래 {genre}{'' if a.genre else ' (대본에서 짚었습니다)'}"
+          f" · 초당 {cps}자 — New 10편 실측")
+    print(f"  발화 {n}자 → 약 {est:.0f}초"
+          f"   (파일 전문은 {n_raw}자 — 제목·라벨·지문·URL 은 읽지 않으므로 뺐다)\n")
+
+    missing = []
+    ok_len = slo <= est <= shi
+    print(f"    {'○' if ok_len else '△'}  분량   {n}자 / {est:.0f}초"
+          f"   (밴드 {slo}~{shi}초 · {genre}편 실측 {lo}~{hi}자)")
+    for _, pat, desc, hit, tot in POINT_CHECKS:
+        good = bool(re.search(pat, flat))
+        t = tier(hit, tot)
+        if not good and t == "필수":
+            missing.append(desc)
+        print(f"    {'○' if good else '·'}  {t}   {desc}   (New {hit}/{tot}편)")
+
+    # 첫 줄은 「제목 : 」 형이거나 원본 URL 형이거나. 섞은 편은 New 10편 중 0편이다.
+    mixed = bool(re.search(r"^\s*제목\s*:", raw, re.M)) and "http" in raw
+    if mixed:
+        missing.append("첫 줄 — 「제목 : 」 형과 URL 형을 섞었다. 섞은 편은 0/10 이다")
+    print(f"    {'·' if mixed else '○'}  필수   "
+          "「제목 : 」 형과 URL 형을 섞지 않는다   (섞은 편 0/10)")
+
+    if "영트모" in raw:
+        missing.append("「영트모로 입장하세요」 — 트팩 CTA 다. 차명은 쓰지 않는다")
+        print("    ·  필수   트팩 CTA(영트모)를 쓰지 않는다")
+
+    name_bad = check_point_name(Path(a.file))
+    print(f"    {'·' if name_bad else '○'}  필수   폴더·파일 이름이 회사 규칙에 맞는다   (43/43편)")
+    missing += name_bad
+
+    print()
+    if missing:
+        print("  손볼 곳:")
+        for m in missing:
+            print(f"    · {m}")
+    elif not ok_len:
+        print("  필수는 다 지켰습니다. 분량만 밴드 밖입니다 — "
+              f"{'덜어내세요' if est > shi else '더 쓰세요'}.")
+    else:
+        print("  필수·분량 모두 맞습니다.")
+    print("  · SL 규칙(6.82자/초 · 307자 · [SL_차XX_#X])은 여기에 쓰지 않았습니다."
+          " 근거는 log/SCRIPT-LAB.md §4~5.\n")
+
+
 def cmd_name(a):
     date = a.date or _today()
     wip = not a.final
-    fo = folder_name(a.ep, a.no, a.title, date, wip)
-    fi = file_name(a.ep, a.no, a.title, wip)
+    if a.kind == "point":
+        tag = "포인트_차" if a.channel == "차명" else "포인트"
+        fo = f"{WIP if wip else ''}{date}_[{tag}]{a.title}"
+        fi = f"{WIP if wip else ''}[{tag}]{a.title}.txt"
+    else:
+        if a.ep is None or a.no is None:
+            sys.exit("SL 은 회차(ep)와 --no 가 있어야 합니다.")
+        fo = folder_name(a.ep, a.no, a.title, date, wip)
+        fi = file_name(a.ep, a.no, a.title, wip)
     print(f"\n  폴더  {fo}")
     print(f"  파일  {fi}")
     print(f"\n  scripts/shortform/{fo}/{fi}\n")
@@ -324,6 +488,9 @@ def tier(hit, tot):
 
 def cmd_check(a):
     raw = Path(a.file).read_text(encoding="utf-8").replace("\r\n", "\n")
+    kind = a.kind or ("point" if "[포인트" in Path(a.file).name else "sl")
+    if kind == "point":
+        return check_point(a, raw)
     flat = re.sub(r"\s+", " ", raw)
     n = len(norm(raw))
     lo, hi = TARGET["총 분량"]
@@ -384,11 +551,19 @@ def main():
 
     k = sub.add_parser("check", help="초안이 규칙에 맞는지 검사")
     k.add_argument("file")
+    k.add_argument("--kind", choices=("sl", "point"),
+                   help="갈래. 없으면 파일 이름의 '[포인트' 로 짚는다")
+    k.add_argument("--genre", choices=tuple(POINT_CPS),
+                   help="포인트 갈래 세부. 없으면 대본에서 짚는다."
+                        " '복제'는 원본을 봐야 알 수 있어 직접 주어야 한다")
     k.set_defaults(fn=cmd_check)
 
     m = sub.add_parser("name", help="회사 규칙대로 폴더·파일 이름을 만든다")
-    m.add_argument("ep", type=int)
-    m.add_argument("--no", type=int, required=True)
+    m.add_argument("ep", type=int, nargs="?", help="SL 일 때 롱폼 회차")
+    m.add_argument("--kind", choices=("sl", "point"), default="sl")
+    m.add_argument("--channel", choices=("차명", "트팩"), default="차명",
+                   help="포인트일 때. 차명=[포인트_차] · 트팩=[포인트]")
+    m.add_argument("--no", type=int, help="SL 일 때 이 회차의 몇 번째 숏폼인가")
     m.add_argument("--title", required=True, help="숏폼 제목")
     m.add_argument("--date", help="YYMMDD. 없으면 오늘(KST)")
     m.add_argument("--final", action="store_true", help="확정본 — (중간) 을 붙이지 않는다")
