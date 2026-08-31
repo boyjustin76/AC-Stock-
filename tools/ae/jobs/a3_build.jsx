@@ -308,7 +308,7 @@ function __main() {
         addFill(g2, lineColor, null, label);   /* EGP 컨트롤 이름이 "<이름> 색상" 으로 나온다 */
         var g1 = addGroup(L, "채움");
         addPath(g1, shapeFrom(rectVerts(x0, top, wFull, hh)));
-        addFill(g1, fillColor, 55, "채움칠");
+        addFill(g1, fillColor, 55, label + " 영역");   /* 노출용 이름 — "익절 영역 색상" 으로 뜬다 */
 
         /*  라벨 — 글자폭은 AE 가 잰다. 게다가 **표현식으로 물려 둔다**:
             팀장이 프리미어에서 '익절' 을 '부분 익절' 로 바꾸면 판이 따라 커져야 한다.

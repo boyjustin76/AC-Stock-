@@ -99,7 +99,13 @@ var 목록 = [
     { 이름: "놓친 구간 문구",  p: function () { return srcText("놓친 구간 문구"); } },
     { 이름: "익절 색",         p: function () { return fillColorOf("익절 박스", "선", "익절"); } },
     { 이름: "손절 색",         p: function () { return fillColorOf("손절 박스", "선", "손절"); } },
-    { 이름: "강조 색",         p: function () { return fillColorOf("손익비 판", "판", "강조"); } }
+    { 이름: "강조 색",         p: function () { return fillColorOf("손익비 판", "판", "강조"); } },
+    /*  A6 실측: 선 색만 노출하면 팀장이 익절 색을 마젠타로 바꿨을 때
+        **연초록 영역 채움이 그대로 남아** 색이 어긋난다. 영역 채움도 같이 노출한다.
+        (선 색에 표현식으로 물릴 수는 없다 — #14FF36 → #BAFDC0 은 단순 밝기 관계가 아니라
+         브랜드 실측값 두 개다. 그래서 묶지 않고 따로 낸다.)                              */
+    { 이름: "익절 영역 색",    p: function () { return fillColorOf("익절 박스", "채움", "익절 영역"); } },
+    { 이름: "손절 영역 색",    p: function () { return fillColorOf("손절 박스", "채움", "손절 영역"); } }
 ];
 
 var 성공 = 0, 실패 = [];
@@ -125,7 +131,7 @@ probe("참고: 노출 불가 후보", function () {
         ["마스크 패스", function () { return layerNamed("익절 박스").property("ADBE Mask Parade").property(1).property("ADBE Mask Shape"); }],
         ["칠 불투명도", function () { var L = layerNamed("익절 박스"); var root = L.property("ADBE Root Vectors Group");
               for (var a = 1; a <= root.numProperties; a++) if (root.property(a).name === "채움")
-                  return root.property(a).property("ADBE Vectors Group").property("채움칠").property("ADBE Vector Fill Opacity");
+                  return root.property(a).property("ADBE Vectors Group").property("익절 영역").property("ADBE Vector Fill Opacity");
               return null; }],
         ["푸티지 교체(바닥스틸 소스)", function () { return layerNamed("바닥 스틸"); }]
     ];
