@@ -80,16 +80,21 @@ function __main() {
         pos0(L);
         return L;
     }
-    function addGroup(L) {
-        return L.property("ADBE Root Vectors Group").addProperty("ADBE Vector Group").property("ADBE Vectors Group");
+    /*  그룹·칠에 **이름을 준다.** 표현식으로 서로를 가리키려면 이름이 필요한데,
+        한국어 판 AE 의 기본 이름은 '그룹 1'·'칠 1' 이라 로케일에 물린다. 직접 붙여 고정한다.  */
+    function addGroup(L, nm) {
+        var g = L.property("ADBE Root Vectors Group").addProperty("ADBE Vector Group");
+        if (nm) g.name = nm;
+        return g.property("ADBE Vectors Group");
     }
     function addPath(g, shape) {
         var p = g.addProperty("ADBE Vector Shape - Group");
         p.property("ADBE Vector Shape").setValue(shape);
         return p;
     }
-    function addFill(g, color, opacity) {
+    function addFill(g, color, opacity, nm) {
         var f = g.addProperty("ADBE Vector Graphic - Fill");
+        if (nm) f.name = nm;
         f.property("ADBE Vector Fill Color").setValue(hex(color));
         if (opacity != null) f.property("ADBE Vector Fill Opacity").setValue(opacity);
         return f;
@@ -170,6 +175,37 @@ function __main() {
         tp.setValue(d);
         return L;
     }
+    /*  글자 뒤에 깔리는 판. **크기를 글자에 표현식으로 물린다** — 문구를 바꾸면 판이 따라 커진다.
+        anchor "right" = 판의 오른쪽 끝을 X 에 붙인다(익절·손절 라벨: 선 시작점 왼쪽에 붙음)
+        anchor "left"  = 판의 왼쪽 끝을 X 에 붙인다(손익비 뱃지)                                */
+    function plateExpr(textName, anchor, X, cy, padX, h) {
+        var head = 'var t = thisComp.layer("' + textName + '");\n' +
+                   'var r = t.sourceRectAtTime(time, false);\n' +
+                   'var w = r.width + ' + (padX * 2) + ';\n';
+        var bx = (anchor === "right") ? 'Math.max(' + X + ' - w, 6)' : String(X);
+        return { size: head + '[w, ' + h + '];', pos: head + 'var bx = ' + bx + ';\n[bx + w / 2, ' + cy + '];' };
+    }
+    function autoPlate(name, textName, anchor, X, cy, padX, h, rad, color) {
+        var L = newShape(name);
+        var g = addGroup(L, "판");
+        var rc = g.addProperty("ADBE Vector Shape - Rect");     /* 패스가 아니라 **파라메트릭 사각형** */
+        if (rad) rc.property("ADBE Vector Rect Roundness").setValue(rad);
+        var e = plateExpr(textName, anchor, X, cy, padX, h);
+        rc.property("ADBE Vector Rect Size").expression = e.size;
+        rc.property("ADBE Vector Rect Position").expression = e.pos;
+        addFill(g, color, null, "판칠");
+        return L;
+    }
+    /** 글자를 판 한가운데에 붙들어 둔다 — 판과 같은 식을 쓰므로 둘이 같이 움직인다 */
+    function bindTextToPlate(T, anchor, X, cy, padX) {
+        var bx = (anchor === "right") ? 'Math.max(' + X + ' - w, 6)' : String(X);
+        tr(T).property("ADBE Position").expression =
+            'var r = thisLayer.sourceRectAtTime(time, false);\n' +
+            'var w = r.width + ' + (padX * 2) + ';\n' +
+            'var bx = ' + bx + ';\n' +
+            '[bx + w / 2 - (r.left + r.width / 2), ' + cy + ' - (r.top + r.height / 2)];';
+    }
+
     function inkOf(L)  { return L.sourceRectAtTime(0, false); }
     function centerAt(L, cx, cy) {
         var r = inkOf(L);
@@ -267,20 +303,21 @@ function __main() {
         /*  ⚠ AE 셰이프 레이어는 **먼저 추가한 그룹이 위에** 그려진다 — 캔버스와 반대다.
         캔버스는 채움을 먼저 칠하고 그 위에 선을 얹으므로, AE 에서는 **선을 먼저 추가**해야 한다.
         반대로 두면 55% 반투명 채움이 굵은 선의 윗절반을 덮어 색이 흐려진다 — 프레임 대조로 잡았다.  */
-        var g2 = addGroup(L);
+        var g2 = addGroup(L, "선");
         addPath(g2, shapeFrom(rectVerts(x0, yLine - th / 2, wFull, th)));
-        addFill(g2, lineColor);
-        var g1 = addGroup(L);
+        addFill(g2, lineColor, null, "선칠");
+        var g1 = addGroup(L, "채움");
         addPath(g1, shapeFrom(rectVerts(x0, top, wFull, hh)));
-        addFill(g1, fillColor, 55);
+        addFill(g1, fillColor, 55, "채움칠");
 
-        /* 라벨 — 글자폭은 AE 가 잰다 */
+        /*  라벨 — 글자폭은 AE 가 잰다. 게다가 **표현식으로 물려 둔다**:
+            팀장이 프리미어에서 '익절' 을 '부분 익절' 로 바꾸면 판이 따라 커져야 한다.
+            이게 A6 합격선이라 정적 크기로 두면 안 된다.  */
         var T = textLayer(no + "_" + name + "_라벨", label, F_TAG, 40, C.white, C.white, 0);
-        var r = inkOf(T);
-        var bw = r.width + 24 * 2, bh = 40 * 1.35;
-        var bx = Math.max(x0 - bw, 6);
-        var B = rectLayer(no + "_" + name + "_라벨판", bx, yLine - bh / 2, bw, bh, lineColor);
-        centerAt(T, bx + bw / 2, yLine + 2);
+        var bh = 40 * 1.35;
+        var B = autoPlate(no + "_" + name + "_라벨판", T.name, "right", x0, yLine, 24, bh, 0, lineColor);
+        bindTextToPlate(T, "right", x0, yLine + 2, 24);
+        var r = inkOf(T), bw = r.width + 48, bx = Math.max(x0 - bw, 6);
         B.moveAfter(T);
         L.moveAfter(B);
         return { box: L, plate: B, text: T, x0: x0, wFull: wFull, top: top, hh: hh, th: th, bw: bw, bh: bh, bx: bx };
@@ -321,26 +358,12 @@ function __main() {
     probe("5 손익비 뱃지", function () {
         var size = 46, x = 64, y = 1004;
         var T = textLayer("5_손익비_글씨", "손익비  1 : 2", F_TAG, size, C.white, "#000000", size * 0.15);
-        var r = inkOf(T);
-        var padX = size * 0.5, bw = r.width + padX * 2, bh = size * 1.5, rad = 10;
-        /* 모서리 둥근 사각형 — 네 귀퉁이에 3차 접선을 준다 */
-        var k = 0.5523 * rad;
-        var x0 = x, y0 = y - bh / 2, x1 = x + bw, y1 = y + bh / 2;
-        var verts = [
-            [x0 + rad, y0], [x1 - rad, y0], [x1, y0 + rad], [x1, y1 - rad],
-            [x1 - rad, y1], [x0 + rad, y1], [x0, y1 - rad], [x0, y0 + rad]
-        ];
-        var zin = [], zout = [];
-        for (var i = 0; i < 8; i++) { zin.push([0, 0]); zout.push([0, 0]); }
-        zout[1] = [k, 0];  zin[2] = [0, -k];
-        zout[3] = [0, k];  zin[4] = [k, 0];
-        zout[5] = [-k, 0]; zin[6] = [0, k];
-        zout[7] = [0, -k]; zin[0] = [-k, 0];
-        var B = newShape("5_손익비_판");
-        var g = addGroup(B);
-        addPath(g, shapeFrom(verts, true, zin, zout));
-        addFill(g, C.accent);                       /* border:false — 검정 테두리 없음 */
-        centerAt(T, x0 + padX + r.width / 2, y + 2);
+        var padX = size * 0.5, bh = size * 1.5, rad = 10;
+        /* 둥근 사각형도 파라메트릭 사각형으로 — 글자에 물려 두면 문구를 바꿔도 판이 따라 커진다.
+           border:false 라 검정 테두리는 없다. */
+        var B = autoPlate("5_손익비_판", T.name, "left", x, y, padX, bh, rad, C.accent);
+        bindTextToPlate(T, "left", x, y + 2, padX);
+        var r = inkOf(T), bw = r.width + padX * 2, x0 = x, y0 = y - bh / 2;
         B.moveAfter(T);
         fade(T, [1.3, 0.3], [5.15, 0.35]);
         fade(B, [1.3, 0.3], [5.15, 0.35]);
