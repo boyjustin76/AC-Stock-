@@ -264,6 +264,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `src/tools/exp-capture.mjs` | 캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다 |
 | `src/tools/find-events.mjs` | MA 교차·배열 + RSI 레벨 교차·70+ 유지 구간 실측 (find-cross 확장판) |
 | `src/tools/install-fonts.mjs` | 폰트를 시스템에 등록 |
+| `src/tools/probe-labels.mjs` | 렌더 없이 라벨 클리핑 전수 감사 — 등장~퇴장 0.25초 간격으로 앵커 y 를 계산해 잘림 구간을 표로 |
 | `src/tools/profile-render.mjs` | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
 | `tools` | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
 | `tools/cutedit` | 숏폼 컷편집 파이프라인 — transcribe(전사)·align_cut(대본 정렬)·build_cuts(컷·자막·내레이션 생성, 무음 스냅·침묵 압축) |
