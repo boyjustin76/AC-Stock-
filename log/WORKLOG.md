@@ -1055,3 +1055,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 131 | `17b5a804` | 숏폼 세이프 에어리어(1080x937) 반영 — sl-11-4/5 padTop 23·padBottom 120, 배지 y 884, FX pool·DB 기록 | 4파일 +24/-3 |
 | 132 | `ce8b6528` | 세이브 save/2026-08-31-1132 — 숏폼 세이프 에어리어 실측 반영 — sl-11-4 v8·11-5 v6 재렌더·재납품(1301/1382 검증), FX pool·constraint·요청48 | 3파일 +8/-2 |
 | 133 | `49ad92e4` | 세이브 기록 save/2026-08-31-1132 | 5파일 +11/-3 |
+| 134 | `1c3301c2` | 세이브 save/2026-08-31-1341 — 하단 여백 135px + FCP XML 시퀀스 납품 — tools/premiere_xml.py 신설, sl-11-4 v9·11-5 v7 | 8파일 +155/-12 |
