@@ -214,6 +214,12 @@ config.json 의 그 안(variant)에 "emphasis": [{"text": "목표가", "color": 
 ```
 text 는 그 줄 안의 조각으로 찾는다 — 인덱스를 손으로 세지 마라. 같은 글자가 여러 번이면 nth 로 고른다. color 를 빼면 크기만 바뀐다. line: "main" 이면 아랫줄(노랑). build 에 뽑을 id 만 적으면 그것만 만든다. 넣은 뒤 build_log 의 폭 경고를 봐라 — 윗줄 오른쪽 끝이 1306 을 넘으면 관측 최대폭 밖이다. 키우는 대신 조사를 줄여라(규칙 25). emphasis 는 포토샵(ActionManager) 전용 — 컨테이너 thumbnail_png.py 로는 못 만든다
 
+**18. 썸네일 차트를 새 회차용으로 그리기** — 타이틀·틀·로고를 피해서 차트 씬을 만든다
+```
+scenes/thumb-ch12-A.scenes.js 를 본떠 새로 만든다 — 본편 씬의 market/seed 를 그대로 import 하면 썸네일과 영상이 같은 장을 보게 된다
+```
+네 가지를 꼭 지킨다 — ① duration 0.5 에 모든 레이어를 in: [-1, 0.2] 로 (t=0 스틸에서 cmgBadge·rsiLevel 은 in[0] 기준이라 안 그러면 사라진다, issue 19) ② chart.include 로 없는 값을 끼워 캔들을 타이틀 자리(아랫줄 x~1563 · y 250~446) 아래로 내린다 ③ 오른쪽 태그는 x 1563 보다 오른쪽에서 시작하게 봉 번호를 고른다 (규칙 26) ④ layout.padRight 40 · 배지는 (1560,1005) — 틀 26px 과 좌하단 로고를 피한다 (규칙 27). 다 그린 뒤 out/stills 의 png 를 눈으로 보고 나서 build_thumb 를 돌린다
+
 **18. 숏폼 컷편집 (원테이크 → 편별 내레이션+자막)** — 촬영본에서 NG·디렉팅 멘트를 걸러 편별로 자른다
 ```
 pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → align_cut.py → build_cuts.py
@@ -326,6 +332,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `scenes/thumb-ch11-B.scenes.js` | 씬 | 차11 썸네일 B안 — 박스권. 순수 range 시장(seed 7)으로 EMA20 이 화면 내내 눕는다 |
 | `scenes/thumb-ch11-C.scenes.js` | 씬 | 차11 썸네일 C안 — 통합. 박스 점선 + 추세 진입/청산을 한 컷에 |
 | `scenes/thumb-ch11.scenes.js` | 씬 | 차11 썸네일용 차트 2안 |
+| `scenes/thumb-ch12-A.scenes.js` | 씬 | 차12 썸네일 A안 — 진짜 눌림목. 본편 매수 챕터와 같은 seed 161, RSI 55 재돌파에 빨간 원 |
+| `scenes/thumb-ch12-B.scenes.js` | 씬 | 차12 썸네일 B안 — 골든크로스의 함정. 횡보 seed 96, 교차 다섯 곳에 빨간 원 + 손절 둘 |
+| `scenes/thumb-ch12-C.scenes.js` | 씬 | 차12 썸네일 C안 — 70·30의 함정. 강추세 seed 25, RSI 가 70선 위에서 안 꺾인다 |
 | `brand/fonts` | 애셋 | Gmarket Sans / S-Core Dream / 나눔고딕 / 경기천년제목 |
 | `brand/logo` | 애셋 | 차트명가 로고 7종 |
 | `brand/premiere` | 애셋 | 차트명가_메인프리셋(24버전).prproj |
@@ -521,6 +530,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 28. **차12 본편 클립 조립 피드백 반영** — 사용자가 컷리스트_본편.txt 대로 프리미어에 얹은 뒤 나오는 지적 — 컷 타이밍·라벨 위치·색·줌 동선 — 을 받아 scenes/cmg12-*.scenes.js 를 고친다. 특히 확인 요청: ① RSI 라인 색(#0FBDF8)·굵기가 최종본 톤과 맞는지 ② 55/45 검정 기준선 문법(전례 없음 — 새로 정한 것) ③ 말 구간 3곳(26.4~56.1 / 92.7~111.3 / 아웃트로)을 정말 비워도 되는지  _(대기: 사용자 조립 후)_
 29. **차12 인트로+후킹 병합본 조립 피드백 반영** — 컷4~6 해석은 총괄 해석으로 확정(2026-09-01, 요청 54) — 랠리 확대까지 완료. 이정찬이 기존 6클립을 지우고 intro-hook.mp4(프레임 166)를 얹은 뒤 나오는 지적 — 호흡·카메라 속도·라벨 타이밍 — 을 받아 scenes/cmg12-cross.build.js 를 고친다. 특히 확인 요청: ① 랠리 리빌 속도(12.9~16.6초 구간, 최대 약 8봉/초)가 여전히 빠른지 ② '익절 기준이 없다'를 왼쪽 상공(57봉)으로 옮긴 자리가 어색하지 않은지 ③ 상단 잘림 직전 페이드 퇴장(데드크로스 라벨· 매도 태그·가짜 신호, 16.2~18.2초)이 눈에 거슬리지 않는지 ④ (r6) 본편 이월 요소들의 퇴장 시점 — 특히 fail-combo 팬백과 buy-entry 줌인에서 이월 문장이 빠지는 타이밍  _(대기: 이정찬 조립 후)_
 30. **숏폼 .srt 이관 후속** — E 가 SCRIPT-AGENT-MANUAL.md §8 로 첫 srt 를 뽑으면 결과를 확인한다 (14자 규칙·절/구 분리·검사 통과 여부). 미결 2건: ① 이미 납품된 차11-4·5 srt 가 새 규칙 기준 소급 위반(14자 초과 5개·의존명사 시작 2개) — 재발행할지 이정찬 결정 ② E 로컬에 faster-whisper 설치 필요  _(대기: E 첫 작업 후 / 이정찬 결정)_
+31. **차12 썸네일 팀장 컨펌** — deliver/thumbnail/차12_RSI+이평선 스캘핑/ 에 6안(A·B·C 와 강조판 A2·B2·C2)이 png 로 있다. 고른 안이 정해지면 그 안의 .psd 를 다시 뽑아 같은 폴더에 넣는다 — png 만 넣은 이유는 회차당 psd 가 12MB 라 여섯 개면 72MB 이기 때문이다(폴더 README 에 재생성 명령을 적어 뒀다). 차11 때처럼 문구 수정 요청이 오면 config.json 의 sub/main 만 고쳐 다시 돌리면 된다  _(대기: 팀장 확인 후)_
 
 ## 대본과 컷 싱크
 
@@ -725,6 +735,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 **57. D 가 m1~m6 실험 성공 — AE 로 '레이어 다 쪼갠 걸로 모아놓은 컴포지션 만들기' 됨. D 에게 넘길 것 넘겨라: 이번에 추가한 것들, 차12 소스·모션, 작업물 폴더 전체 경로 등 꼼꼼하게. E 에게 전할 말도 정리.**
 → AE-LAB-MANUAL.md §8 신설(D 인수인계): 차12 씬 파일 7종 지도, 배치표 경로, 레이어 렌더 명령과 산출 경로 (out/cmg12/layers/1_candle~5_tag — out 은 gitignore 라 로컬 재렌더), 층 순서=tag 최상위(⑭), m6_build.jsx 구 경로 주의, 새 렌더러 문법 4종, motion_preset 3종 실측, 룰북·STYLE 포인터, 프로토콜. render-cmg12-layers.mjs 를 병합 클립(intro-hook 층당 1파일) 기준으로 재작성하고 실렌더 검증(5층 완료). next_step 27 을 파일럿 성공 후속(실전 컴포지션)으로 갱신. E·D 전달용 요약문은 대화로 제공. (D 인수인계 — 매뉴얼 §8 + 레이어 도구 갱신)
 
+**58. 차12 썸네일도 만들어 달라. 기획서 docx 기반으로.**
+→ 기획서에서 후킹 세 갈래를 뽑아 A·B·C 를 만들고 강조판 A2·B2·C2 까지 6안을 냈다 — A 진짜 눌림목만 잡는(해법·매수 타점) / B 골든크로스 사지 마세요(문제·횡보 가짜 신호) / C 70·30선은 버리세요(설정값·과매수 함정). 아랫줄은 기획서의 메인 그대로 이평선+RSI 매매법(C 만 스캘핑). 차트는 본편 씬(cmg12-*)의 seed 161·96·25 를 그대로 써서 썸네일과 영상이 같은 장을 보게 했다. 규칙 22 대로 빨강은 부정당하는 대상(골든크로스·70·30선)에만 붙이고 긍정문 A2 는 크기만 키웠다. 이번에 새로 걸린 함정 둘을 규칙·이슈로 남겼다: 타이틀 자리(규칙 26)와 틀·로고 안전 영역(규칙 27), 윗줄 최대폭 초과(이슈 18)와 t=0 스틸에서 배지가 사라지는 것(이슈 19). (deliver/thumbnail/차12_RSI+이평선 스캘핑/ 6안 · thumbnail_rule 26~27 · issue 18~19)
+
 ## 문제와 해결
 
 ### 1. Playwright 브라우저 빌드 불일치  `fixed`
@@ -829,6 +842,18 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 - 조치: tools/photoshop/dump_text_runs.jsx 를 새로 만들어 ActionManager 로 구간별로 읽는다
 - 확인: 10회차 재확인 — 섞인 줄 3개(#8·#10·#7)를 정확히 집어냈다
 
+### 18. 윗줄이 관측 최대폭을 넘었다  `fixed`
+- 증상: 차12 B 안 골든크로스에 사지 마세요 가 폭 1258 · 오른쪽 끝 1335 로 관측 최대폭 1306 을 넘었다. 빨강 강조판(B2)은 1.174배를 얹으면 1419 가 된다
+- 원인: 글자 크기가 고정 규격이라(규칙 4) 줄이 길면 폭으로만 늘어난다. 열두 자는 이 채널에서 처음이다
+- 조치: ① 조사 에 를 뺐다 — 골든크로스 사지 마세요 (1229). ② 강조 배율을 1.174 대신 #7 조합(#FF5353 · 1.087)으로 낮췄다 (규칙 23의 예외값)
+- 확인: B 1229 · B2 1275 — 둘 다 1306 안. build_log 의 폭 경고 사라짐
+
+### 19. t=0 스틸에서 배지·기준선 라벨이 안 보인다  `fixed`
+- 증상: 썸네일용 스틸(--stills 1, t=0.00s)에서 cmgBadge 와 rsiLevel 의 라벨이 통째로 사라진다. popDur: 0 을 줘도 그대로다
+- 원인: 두 레이어의 등장 스케일은 popDur 이 아니라 in[0] 을 기준으로 span(t, in0, in0+0.35) 로 계산된다. in 을 안 주면 in0=0 이라 t=0 에서 배율이 0 이다. 영상 컷은 t 가 0.35 를 넘겨서 안 드러났다
+- 조치: in: [-1, 0.2] 로 등장 시점을 t=0 앞으로 민다. 스틸 한 장을 뽑는 씬에서는 이게 기본이다
+- 확인: 차12 A·B·C 세 씬에서 RSI 배지와 70선 라벨이 정상 출력
+
 ## 판단과 근거
 
 - **렌더 방식** — 실시간 재생이 아니라 프레임 번호를 받아 그린다
@@ -923,22 +948,22 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 
 | 파일 | 포맷 | 프레임 | 크기 | 비고 |
 |---|---|---|---|---|
-| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | 0.8 MB | 29.97 기준 125f |
-| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | 1.0 MB | 29.97 기준 117f |
-| `out/cmg/cut3-fear.mp4` | mp4 | 152 | 1.1 MB | 29.97 기준 76f |
-| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | 3.4 MB | 29.97 기준 160f |
-| `out/cmg/_reel.mp4` | mp4 | 956 | 6.4 MB | 4컷 이어붙임, 29.97 기준 478f |
-| `out/01-open.mp4` | mp4 | 420 | 4.4 MB |  |
-| `out/02-structure.mp4` | mp4 | 450 | 4.3 MB |  |
-| `out/03-breakdown.mp4` | mp4 | 420 | 4.9 MB |  |
-| `out/04-entry.mp4` | mp4 | 420 | 3.7 MB |  |
-| `out/05-tpsl.mp4` | mp4 | 450 | 3.6 MB |  |
-| `out/06-result.mp4` | mp4 | 540 | 4.8 MB |  |
-| `out/_reel.mp4` | mp4 | 2700 | 25.6 MB | 다크 6컷 릴 45초 |
-| `out/ov-chart.mov` | qtrle | 300 | 38.5 MB | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
-| `out/ov-chart.webm` | vp9a | 300 | 3.2 MB | 전송용 압축본 |
-| `out/ov-tpsl.mov` | qtrle | 300 | 17.1 MB |  |
-| `out/ov-pnl.mov` | qtrle | 300 | 17.0 MB |  |
+| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | - | 29.97 기준 125f |
+| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | - | 29.97 기준 117f |
+| `out/cmg/cut3-fear.mp4` | mp4 | 152 | - | 29.97 기준 76f |
+| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | - | 29.97 기준 160f |
+| `out/cmg/_reel.mp4` | mp4 | 956 | - | 4컷 이어붙임, 29.97 기준 478f |
+| `out/01-open.mp4` | mp4 | 420 | - |  |
+| `out/02-structure.mp4` | mp4 | 450 | - |  |
+| `out/03-breakdown.mp4` | mp4 | 420 | - |  |
+| `out/04-entry.mp4` | mp4 | 420 | - |  |
+| `out/05-tpsl.mp4` | mp4 | 450 | - |  |
+| `out/06-result.mp4` | mp4 | 540 | - |  |
+| `out/_reel.mp4` | mp4 | 2700 | - | 다크 6컷 릴 45초 |
+| `out/ov-chart.mov` | qtrle | 300 | - | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
+| `out/ov-chart.webm` | vp9a | 300 | - | 전송용 압축본 |
+| `out/ov-tpsl.mov` | qtrle | 300 | - |  |
+| `out/ov-pnl.mov` | qtrle | 300 | - |  |
 
 ## 받아 온 자료
 
@@ -1112,3 +1137,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 153 | `c4c82e16` | 세이브 save/2026-09-01-1315 — r6 전 클립 재렌더·납품(버튼 최상위+경계이월) + 숏폼 srt E 이관(srt_rules.py 14자 규칙, 매뉴얼 §8, 요청 55·56) | 9파일 +219/-23 |
 | 154 | `7cd22fe5` | 세이브 기록 save/2026-09-01-1315 | 5파일 +11/-3 |
 | 155 | `47525517` | 세이브 save/2026-09-01-1329 — D 인수인계(AE-LAB-MANUAL §8, render-cmg12-layers 병합 클립 갱신·5층 검증) + 요청 57, next_step 27 실전 전환 | 7파일 +108/-28 |
+| 156 | `c3ddf5d4` | 세이브 기록 save/2026-09-01-1329 | 5파일 +11/-3 |

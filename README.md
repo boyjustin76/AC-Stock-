@@ -250,6 +250,9 @@ git restore --source=<해시> -- .              # 되돌리기
 | `scenes/thumb-ch11-B.scenes.js` | 차11 썸네일 B안 — 박스권. 순수 range 시장(seed 7)으로 EMA20 이 화면 내내 눕는다 |
 | `scenes/thumb-ch11-C.scenes.js` | 차11 썸네일 C안 — 통합. 박스 점선 + 추세 진입/청산을 한 컷에 |
 | `scenes/thumb-ch11.scenes.js` | 차11 썸네일용 차트 2안 |
+| `scenes/thumb-ch12-A.scenes.js` | 차12 썸네일 A안 — 진짜 눌림목. 본편 매수 챕터와 같은 seed 161, RSI 55 재돌파에 빨간 원 |
+| `scenes/thumb-ch12-B.scenes.js` | 차12 썸네일 B안 — 골든크로스의 함정. 횡보 seed 96, 교차 다섯 곳에 빨간 원 + 손절 둘 |
+| `scenes/thumb-ch12-C.scenes.js` | 차12 썸네일 C안 — 70·30의 함정. 강추세 seed 25, RSI 가 70선 위에서 안 꺾인다 |
 | `scripts/shortform` | 숏폼 대본 초안. 규칙대로 쓴 것 |
 | `src/cli.mjs` | 렌더 CLI. --all --scene --format --stills --reel |
 | `src/market/candles.js` | 시드 고정 캔들 생성기. 추세/박스권/돌파/눌림/급등락 |
