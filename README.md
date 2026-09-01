@@ -237,9 +237,9 @@ git restore --source=<해시> -- .              # 되돌리기
 | `package.json` | 의존성과 npm 스크립트 |
 | `scenes/cmg-20ma-runner.scenes.js` | 차트명가 20일선 4컷. 새 대본은 이 파일을 본떠 만든다 |
 | `scenes/cmg12-buy.scenes.js` | 차12 매수 관점 5컷 — seed161, 55선 재돌파 bar52, 1:2·분할·러너 |
+| `scenes/cmg12-cross.build.js` | 차12 인트로+후킹 연속 클립 1개(intro-hook, 구 컷1~6 병합 2026-09-01) + 레이어 분리 빌더. 랠리 확대 실측값·국면표 머리말 참조. 구 cmg12-hook2.scenes.js 는 흡수·삭제 |
 | `scenes/cmg12-fail.scenes.js` | 차12 본론1·문제제시 5컷 — 씬별 시장 3종(파동·횡보·강추세) |
 | `scenes/cmg12-guide.scenes.js` | 차12 소개·설정 4컷 — RSI 패널 첫 등장, 실측 색 원본(COLOR export) |
-| `scenes/cmg12-hook2.scenes.js` | 차12 후킹 나머지 2컷 — 인트로 seed12 시장 이어붙임(앞 봉 불변) |
 | `scenes/cmg12-recap.scenes.js` | 차12 요약 3컷 — 매수 시장 재사용, ①②③ |
 | `scenes/cmg12-sell.scenes.js` | 차12 매도 관점 3컷 — seed68 5분봉, 45선 재이탈 bar49 |
 | `scenes/nq-basic.scenes.js` | 다크 테마 NQ 6컷 (첫 버전, 브랜드 적용 전) |
