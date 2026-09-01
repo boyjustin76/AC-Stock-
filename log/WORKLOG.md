@@ -1116,3 +1116,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 154 | `7cd22fe5` | 세이브 기록 save/2026-09-01-1315 | 5파일 +11/-3 |
 | 155 | `47525517` | 세이브 save/2026-09-01-1329 — D 인수인계(AE-LAB-MANUAL §8, render-cmg12-layers 병합 클립 갱신·5층 검증) + 요청 57, next_step 27 실전 전환 | 7파일 +108/-28 |
 | 156 | `c3ddf5d4` | 세이브 기록 save/2026-09-01-1329 | 5파일 +11/-3 |
+| 157 | `41acd1f6` | 세이브 save/2026-09-01-1832 — r7 — guide-rsi ①방향 유지·fail-combo 겹침 해소(폭 판정 보충), 요청 58, 룰북 ⑩보충2 | 7파일 +34/-6 |
