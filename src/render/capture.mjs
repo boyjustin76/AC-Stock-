@@ -5,7 +5,7 @@
  */
 /** Playwright 로 씬을 프레임 단위 캡처해 인코더로 흘려 보낸다. */
 import { chromium } from 'playwright';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { startServer } from './server.mjs';
@@ -171,6 +171,54 @@ export async function renderSequence(stage, opts) {
   }
   await page.close();
   return { dir, frames: meta.totalFrames, meta };
+}
+
+/**
+ * 씬 하나를 **여러 알파 클립으로 갈라서** 렌더한다.
+ *
+ * 프리미어에 트랙으로 쌓으려는 용도다. mogrt 도 Dynamic Link 도 프리미어에서는
+ * 클립 하나로 들어와 레이어가 갈라지지 않는다 — 갈라진 트랙을 원하면 애초에
+ * 조각을 따로 뽑아 쌓는 수밖에 없다.
+ *
+ * 페이지는 한 번만 열고 패스만 갈아 끼운다(폰트 로딩이 패스마다 반복되지 않게).
+ * 좌표계는 무엇을 끄든 같게 계산되므로 조각을 겹치면 원본과 같은 그림이 된다.
+ *
+ * @param passes [{key, name, chart, layers}] — planPasses() 가 만든다
+ * @returns [{key, name, file, bytes, frames, ms}]
+ */
+export async function renderPasses(stage, opts) {
+  const {
+    config, sceneId, outDir, width, height, passes,
+    format = 'alpha', capture = 'canvas', onProgress,
+  } = opts;
+  const { page, meta } = await openScene(stage, { config, sceneId, width, height });
+  const fmt = FORMATS[format];
+  if (!fmt.alpha) throw new Error(`갈라 뽑기는 알파 포맷이어야 한다: ${format}`);
+  await mkdir(outDir, { recursive: true });
+
+  const clip = { x: 0, y: 0, width: meta.width, height: meta.height };
+  const out = [];
+  for (const ps of passes) {
+    const started = Date.now();
+    await page.evaluate(
+      (p) => window.__setPass({ chart: p.chart, layers: p.layers, transparent: true }),
+      { chart: ps.chart, layers: ps.layers },
+    );
+    const outFile = path.join(outDir, `${ps.key}.${fmt.ext}`);
+    const enc = startEncoder({
+      format, fps: meta.fps, fpsExpr: meta.fpsExpr,
+      outFile, width: meta.width, height: meta.height,
+    });
+    for (let f = 0; f < meta.totalFrames; f++) {
+      await enc.write(await grabFrame(page, f, { capture, clip, alpha: true }));
+      if (onProgress) onProgress(ps, f + 1, meta.totalFrames);
+    }
+    await enc.finish();
+    const { size } = await stat(outFile);
+    out.push({ ...ps, file: outFile, bytes: size, frames: meta.totalFrames, ms: Date.now() - started });
+  }
+  await page.close();
+  return { passes: out, meta };
 }
 
 /** 확인용 스틸컷 몇 장만 뽑는다 */

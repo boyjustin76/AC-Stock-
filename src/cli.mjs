@@ -13,11 +13,13 @@
  *   npm run render -- --scene 04-tpsl --format alpha   # 알파 채널 오버레이용
  *   npm run render -- --all --stills 5       # 확인용 스틸컷만
  *   npm run render -- --all --reel           # 전 씬을 이어 붙인 릴까지 생성
+ *   npm run render -- --scene cut2 --split   # 레이어별 알파 클립 + 프리미어 XML
  */
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { writeFile, mkdir } from 'node:fs/promises';
-import { withStage, renderScene, renderStills, renderSequence } from './render/capture.mjs';
+import { withStage, renderScene, renderStills, renderSequence, renderPasses } from './render/capture.mjs';
+import { planPasses, buildXml } from './render/split.mjs';
 import { concatFiles } from './render/encode.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -94,6 +96,41 @@ async function main() {
           transparent: format === 'alpha', capture,
         });
         console.log(`    스틸 ${files.length}장 → ${path.relative(ROOT, path.join(outDir, 'stills'))}\n`);
+        continue;
+      }
+
+      if (args.split) {
+        /*  레이어별 알파 클립으로 갈라 뽑고, 트랙에 쌓는 시퀀스 XML 까지 낸다.
+            프리미어에서 레이어를 갈라 쓰려면 이 길밖에 없다 — mogrt 도 Dynamic Link 도
+            프리미어 안에서는 클립 하나로 들어온다.  */
+        const dir = path.join(outDir, 'split', scene.id);
+        const passes = planPasses(scene);
+        let cur = '';
+        const r = await renderPasses(stage, {
+          config: configRel, sceneId: scene.id, outDir: dir, width, height, passes, capture,
+          onProgress: (ps, c, t) => {
+            if (ps.key !== cur) { cur = ps.key; process.stdout.write(`
+      ${ps.key} ${ps.name.padEnd(22)}`); }
+            process.stdout.write(`      ${ps.key} ${ps.name.padEnd(22)} ${bar(c, t, 18)}`);
+          },
+        });
+        const audio = args.audio
+          ? { file: path.resolve(ROOT, String(args.audio)), inFrame: Number(args['audio-in'] ?? 0),
+              outFrame: Number(args['audio-in'] ?? 0) + r.meta.totalFrames }
+          : null;
+        const xmlFile = path.join(dir, `${scene.id}.xml`);
+        await writeFile(xmlFile, buildXml({
+          name: scene.id, fps: r.meta.fps, width: r.meta.width, height: r.meta.height,
+          frames: r.meta.totalFrames, passes: r.passes, audio,
+        }), 'utf8');
+        const mb = r.passes.reduce((a, x) => a + x.bytes, 0) / 1048576;
+        console.log(`
+    ${r.passes.length}트랙 · ${mb.toFixed(1)}MB · ${r.meta.totalFrames}프레임`);
+        for (const x of r.passes) {
+          console.log(`      ${x.key}  ${x.name.padEnd(24)} ${(x.bytes / 1048576).toFixed(2).padStart(6)}MB  ${fmtDur(x.ms)}`);
+        }
+        console.log(`    XML → ${path.relative(ROOT, xmlFile)}
+`);
         continue;
       }
 
