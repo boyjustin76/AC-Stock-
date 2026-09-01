@@ -1107,6 +1107,61 @@ const LAYERS = {
     });
   },
 
+  /**
+   * 화면 좌표 고정 카드 텍스트 — 개념/설명 카드용.
+   * 팀장 최종본(차명#4) 실측 문법 (2026-09-01): 흰 외곽선+옅은 그림자의 검정 굵은
+   * 글씨, 키워드는 형광펜(#F8D890), 아직 차례가 안 온 항목은 예고 베이지(#F9E9BF)로
+   * 미리 떠 있다가 자기 내레이션에 본색이 된다(activeAt).
+   *   { type:'cmgText', y, x?(기본 중앙), size?, text | parts:[{text,color?,hl?}],
+   *     color?, preColor?, activeAt?, hlColor?, align?, in, out }
+   */
+  cmgText(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const { theme } = env;
+    const size = L.size ?? 88;
+    const x = L.x ?? env.w / 2;
+    const font = L.font ?? theme.font;
+    const weight = L.fontWeight ?? 700;
+    const parts = L.parts ?? [{ text: L.text }];
+    const pre = L.activeAt != null && env.t < L.activeAt;
+    const baseColor = pre ? (L.preColor ?? '#F9E9BF') : (L.color ?? '#111111');
+    const hlColor = L.hlColor ?? '#F8D890';
+
+    withAlpha(ctx, v, () => {
+      ctx.font = `${weight} ${size}px ${font}`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      const widths = parts.map((p) => ctx.measureText(p.text).width);
+      const total = widths.reduce((a, b) => a + b, 0);
+      const rise = span(env.t, L.in?.[0] ?? 0, (L.in?.[0] ?? 0) + Math.max(L.in?.[1] ?? 0.3, 0.01), Ease.outCubic);
+      const y = L.y + (1 - rise) * size * 0.35;
+      let cx = (L.align ?? 'center') === 'center' ? x - total / 2 : L.align === 'right' ? x - total : x;
+      /* 형광펜 — 본색 상태에서만 */
+      if (!pre) {
+        let hx = cx;
+        for (let i = 0; i < parts.length; i++) {
+          if (parts[i].hl) {
+            ctx.fillStyle = hlColor;
+            const pad = size * 0.1;
+            roundRect(ctx, hx - pad, y - size * 0.56, widths[i] + pad * 2, size * 1.12, size * 0.09);
+            ctx.fill();
+          }
+          hx += widths[i];
+        }
+      }
+      for (let i = 0; i < parts.length; i++) {
+        strokeText(ctx, parts[i].text, cx, y + size * 0.04, {
+          stroke: '#FFFFFF',
+          strokeWidth: L.strokeWidth ?? size * 0.18,
+          fill: pre ? baseColor : (parts[i].color ?? baseColor),
+          shadow: pre ? 0 : 8,
+        });
+        cx += widths[i];
+      }
+    });
+  },
+
   /** 차트 위 짧은 주석 (외곽선 글씨 + 선택적 지시선) */
   /**
    * RSI 패널의 강조 기준선 (70/30 처럼 내레이션 타이밍에 맞춰 등장시킬 때).

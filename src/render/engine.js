@@ -133,6 +133,9 @@ export class SceneRuntime {
     const maAlphas = (c.ma ?? []).map((m) => keyframe(m.alpha, t, 1));
     const rsiAlpha = keyframe(c.rsiAlpha, t, 1);
 
+    /* 카드 씬용: 차트를 흐려서 배경으로 깐다 (팀장 최종본의 워시 문법 — c.alpha 와 조합) */
+    const blurPx = keyframe(c.blurPx, t, 0);
+    if (blurPx > 0) ctx.filter = `blur(${blurPx}px)`;
     const info = this.chart.frame({
       reveal,
       zoom,
@@ -146,6 +149,7 @@ export class SceneRuntime {
       maAlphas,
       rsiAlpha,
     });
+    if (blurPx > 0) ctx.filter = 'none';
 
     const env = {
       t,

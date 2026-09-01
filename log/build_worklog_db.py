@@ -927,6 +927,19 @@ REQUESTS = [
      "이중 링도 교체로 정리). 룰북 ⑩ 보충2(폭 포함 판정·컷 중간에도 ⑧ 적용) 기록. "
      "guide-rsi·fail-combo 재렌더, 스틸 검증(1:35 ①② 공존, 2:46 겹침 해소), ch12r7_fix2.zip 납품.",
      "r7 — 두 클립만 교체. ①③은 이정찬 결정 대기(채우면 콘티부터)"),
+    (59, "말 구간 결정: 차트가 필요 없는 개념/논리 구간도 비우지 말고, 팀장(기존 제작자) 최종본을 실측·카피해서 "
+     "그 스타일대로 인포그래픽을 일단 다 만들어라(빼는 건 이정찬이 뺀다). + 추가 지시: 레퍼런스가 적어 획일화 "
+     "우려 — 팀장은 자율적이니, 작업물 폴더의 프로젝트 파일들을 열어 '스크린샷_*'와 안 겹치는 애셋 위주로 "
+     "어휘를 넓혀 확인하라.",
+     "①차명#4 최종본(7:32) 2초 간격 전수 스캔 + 대표 프레임 픽셀 실측: 워시 리스트 카드(블러+화이트 워시 차트 "
+     "위 큰 타이포, 항목 누적), 예고 베이지 #F9E9BF→본색 전환, 형광펜 #F8D890, 3패널 카드(테두리 #D81028, "
+     "헤더 #50504A), 한줄평·챕터 카드. ②회차 12편의 최종 .prproj 애셋 인구조사(스크린샷 제외): 종이 배경 12/12, "
+     "매수·매도 버튼 12/12, PPT 설명 카드 다수, 물음표/화살표 알파 모션, 실제 지수 차트 스샷, 스톡 풋티지 — "
+     "자율적 혼용 확인. ③구현: cmgText 레이어(형광펜·예고→본색·파츠 색) + chart.blurPx(engine) 신설, "
+     "scenes/cmg12-bridge.scenes.js 2클립 — bridge-intro(29.9333s, 프레임 860, 워시 리스트 문법: 원인→오늘 "
+     "배울 것 ①②③)·bridge-scalp(19.0s, 프레임 2939, 종이 배경+매수→익절 버튼 3쌍 반복 문법: 스윙✗→1분/5분봉 "
+     "→기계적 진입·청산). 룰북 §E(말 구간 어휘 카탈로그 12종 + 획일화 금지) 신설.",
+     "브리지 2클립 신설 — 배치표에 추가, 회차 내 카드 문법은 섞는다"),
 ]
 
 PHASES = [
@@ -1246,6 +1259,8 @@ REPO_FILES = {
         "AE 파일럿 A3 의 바닥. 재현 씬은 lab/ae/cut2-base.scenes.js"),
     "scenes/cmg12-cross.build.js": ("씬", "차12 인트로+후킹 연속 클립 1개(intro-hook, 구 컷1~6 병합 2026-09-01) "
         "+ 레이어 분리 빌더. 랠리 확대 실측값·국면표 머리말 참조. 구 cmg12-hook2.scenes.js 는 흡수·삭제"),
+    "scenes/cmg12-bridge.scenes.js": ("씬", "차12 말 구간 설명 카드 2클립 — bridge-intro(워시 리스트, 프레임 860)·"
+        "bridge-scalp(종이 배경+버튼 반복, 프레임 2939). 스타일은 차명#4 실측 카피, 룰북 §E"),
     "scenes/cmg12-guide.scenes.js": ("씬", "차12 소개·설정 4컷 — RSI 패널 첫 등장, 실측 색 원본(COLOR export)"),
     "scenes/cmg12-fail.scenes.js": ("씬", "차12 본론1·문제제시 5컷 — 씬별 시장 3종(파동·횡보·강추세)"),
     "scenes/cmg12-buy.scenes.js": ("씬", "차12 매수 관점 5컷 — seed161, 55선 재돌파 bar52, 1:2·분할·러너"),
@@ -1499,6 +1514,8 @@ LAYERS = [
     ("cmgLevel", "차트명가", "익절·손절 굵은 선 + 컬러 박스 라벨", "price, fillTo, fill, color, label, labelSize, thickness, fromBar, labelStyle('inzone' 은 변형)"),
     ("cmgArrow", "차트명가", "매수·매도 화살표 태그", "bar, price, dir('buy'|'sell'), label, size(기본 36), gap, popDur(0이면 등장 연출 없음), halo"),
     ("cmgBadge", "차트명가", "브랜드 배지 (손익비·종목 등)", "text, x, y, size, color, align, border"),
+    ("cmgText", "차트명가", "화면 좌표 고정 카드 텍스트 — 말 구간 설명 카드 (차명#4 실측 문법: 흰 외곽선 검정 "
+        "타이포, 형광펜 #F8D890, 예고 베이지 #F9E9BF→본색)", "y, x, size, text|parts[{text,color,hl}], activeAt, preColor, hlColor, align"),
     ("cmgNote", "차트명가", "차트 위 외곽선 주석", "text, bar, price, x, y, size, color"),
     ("cmgCircle", "차트명가", "손그림 색연필 원 강조", "bar, price, rx, ry, width, drawDur, turns"),
     ("cmgUnderline", "차트명가", "손그림 빨간 밑줄", "bar, price, dy, width, align, thickness, drawDur"),

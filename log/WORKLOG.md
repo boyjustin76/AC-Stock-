@@ -412,6 +412,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `cmgLevel` | 차트명가 | 익절·손절 굵은 선 + 컬러 박스 라벨 | price, fillTo, fill, color, label, labelSize, thickness, fromBar, labelStyle('inzone' 은 변형) |
 | `cmgArrow` | 차트명가 | 매수·매도 화살표 태그 | bar, price, dir('buy'|'sell'), label, size(기본 36), gap, popDur(0이면 등장 연출 없음), halo |
 | `cmgBadge` | 차트명가 | 브랜드 배지 (손익비·종목 등) | text, x, y, size, color, align, border |
+| `cmgText` | 차트명가 | 화면 좌표 고정 카드 텍스트 — 말 구간 설명 카드 (차명#4 실측 문법: 흰 외곽선 검정 타이포, 형광펜 #F8D890, 예고 베이지 #F9E9BF→본색) | y, x, size, text|parts[{text,color,hl}], activeAt, preColor, hlColor, align |
 | `cmgNote` | 차트명가 | 차트 위 외곽선 주석 | text, bar, price, x, y, size, color |
 | `cmgCircle` | 차트명가 | 손그림 색연필 원 강조 | bar, price, rx, ry, width, drawDur, turns |
 | `cmgUnderline` | 차트명가 | 손그림 빨간 밑줄 | bar, price, dy, width, align, thickness, drawDur |
@@ -727,6 +728,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 
 **58. 차12 롱폼 r6 조립 피드백 4건 — 로직 검토 후 의도/실수 분류하고, 실수는 고치고 의도는 설명하라: ①28:20~58:18 인포그래픽 없음 ②guide-rsi 1:35 '① 방향' 사라짐 왜? ③1:37~1:56 인포그래픽 없음 ④2:46 fail-combo '교차 = 반전 신호?'와 '교차 + RSI 30 = 매수?' 겹침 — 이전 게 사라져야.**
 → 분류: ①③=의도(배치표 v1부터 말 구간 — 대본에 차트 지시가 없는 전환/성격 설명 멘트라 비움, next_step 28 확인 요청 ③로 두 번 올렸던 항목. 설명 + 채울 경우의 콘티 제안 제시), ②=실수(⑧ 제정 이전 설계의 잔재 — 후속 없는 컷 중간 퇴장. r6 재검토가 컷 경계만 감사하고 컷 중간을 안 본 게 원인. out 제거로 ①·② 나란히 유지), ④=실수(카메라 퇴장 검산이 앵커 봉만 보고 글자 폭 450px 을 무시 — 팬백 후에도 문장 왼쪽 절반이 가장자리에 잔류. 팬백 중 페이드로 수정 + 이월 RSI 원(46)↔새 원(47) 이중 링도 교체로 정리). 룰북 ⑩ 보충2(폭 포함 판정·컷 중간에도 ⑧ 적용) 기록. guide-rsi·fail-combo 재렌더, 스틸 검증(1:35 ①② 공존, 2:46 겹침 해소), ch12r7_fix2.zip 납품. (r7 — 두 클립만 교체. ①③은 이정찬 결정 대기(채우면 콘티부터))
+
+**59. 말 구간 결정: 차트가 필요 없는 개념/논리 구간도 비우지 말고, 팀장(기존 제작자) 최종본을 실측·카피해서 그 스타일대로 인포그래픽을 일단 다 만들어라(빼는 건 이정찬이 뺀다). + 추가 지시: 레퍼런스가 적어 획일화 우려 — 팀장은 자율적이니, 작업물 폴더의 프로젝트 파일들을 열어 '스크린샷_*'와 안 겹치는 애셋 위주로 어휘를 넓혀 확인하라.**
+→ ①차명#4 최종본(7:32) 2초 간격 전수 스캔 + 대표 프레임 픽셀 실측: 워시 리스트 카드(블러+화이트 워시 차트 위 큰 타이포, 항목 누적), 예고 베이지 #F9E9BF→본색 전환, 형광펜 #F8D890, 3패널 카드(테두리 #D81028, 헤더 #50504A), 한줄평·챕터 카드. ②회차 12편의 최종 .prproj 애셋 인구조사(스크린샷 제외): 종이 배경 12/12, 매수·매도 버튼 12/12, PPT 설명 카드 다수, 물음표/화살표 알파 모션, 실제 지수 차트 스샷, 스톡 풋티지 — 자율적 혼용 확인. ③구현: cmgText 레이어(형광펜·예고→본색·파츠 색) + chart.blurPx(engine) 신설, scenes/cmg12-bridge.scenes.js 2클립 — bridge-intro(29.9333s, 프레임 860, 워시 리스트 문법: 원인→오늘 배울 것 ①②③)·bridge-scalp(19.0s, 프레임 2939, 종이 배경+매수→익절 버튼 3쌍 반복 문법: 스윙✗→1분/5분봉 →기계적 진입·청산). 룰북 §E(말 구간 어휘 카탈로그 12종 + 획일화 금지) 신설. (브리지 2클립 신설 — 배치표에 추가, 회차 내 카드 문법은 섞는다)
 
 ## 문제와 해결
 
@@ -1117,3 +1121,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 155 | `47525517` | 세이브 save/2026-09-01-1329 — D 인수인계(AE-LAB-MANUAL §8, render-cmg12-layers 병합 클립 갱신·5층 검증) + 요청 57, next_step 27 실전 전환 | 7파일 +108/-28 |
 | 156 | `c3ddf5d4` | 세이브 기록 save/2026-09-01-1329 | 5파일 +11/-3 |
 | 157 | `41acd1f6` | 세이브 save/2026-09-01-1832 — r7 — guide-rsi ①방향 유지·fail-combo 겹침 해소(폭 판정 보충), 요청 58, 룰북 ⑩보충2 | 7파일 +34/-6 |
+| 158 | `79a124be` | 세이브 기록 save/2026-09-01-1832 | 5파일 +11/-3 |
