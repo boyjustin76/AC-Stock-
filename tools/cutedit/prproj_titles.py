@@ -13,15 +13,13 @@
 레이어 이름(InstanceName)이 곧 화면 글자다 — 프리미어가 텍스트 레이어를
 내용으로 이름 짓는다. 줄바꿈까지 남아서 base64(소스 텍스트)를 풀 필요가 없다.
 
-**판정은 이름이 아니라 화면 위치·크기로 한다.** 차명07 실측:
+**판정은 이름이 아니라 자리로 한다.**
 
-    대제목    y 0.076   비율  71.6
-    소제목    y 0.139   비율  45.0     ← 전 회차 동일
-    챕터 범퍼  y 0.45~0.52 비율 180.2   ← 화면 한가운데, 압도적으로 크다
-    차트 주석  y 0.19~0.58 비율 85~150  ← 범퍼와 섞이기 쉬운 것들
+  소제목  대제목 폴더 **밖**의 텍스트. 차명07 실측 y 0.139 · 비율 45 (전 회차 동일).
+  범퍼    '09_필_단순 커지기' 프리셋 **두 개 밑**의 텍스트. 팀장 확인 사항이고,
+          프로젝트마다 이 짝이 늘 있다. 결과적으로 비율 180 · 화면 중앙이 된다.
 
-'커지기' 프리셋으로 잡으면 차트 주석(풀백(Pull Back)·과매도·익절)이 섞인다.
-비율로 걸러야 범퍼만 남는다.
+크기만으로 거르면 인용구·강조 숫자(비율 150~280)가 섞인다. 구조로 잡는다.
 
     python3 tools/cutedit/prproj_titles.py 프로젝트.prproj [...]
     python3 tools/cutedit/prproj_titles.py --json out.json 프로젝트.prproj [...]
@@ -47,8 +45,7 @@ RE_V = re.compile(r"<StartKeyframe>-?\d+,([\d.]+)")
 
 SUB_Y = (0.12, 0.16)          # 소제목 세로 자리
 SUB_SCALE = (40.0, 55.0)      # 소제목 크기
-BUMP_Y = (0.35, 0.65)         # 범퍼는 화면 한가운데
-BUMP_SCALE = 150.0            # 범퍼는 이보다 크다
+GROW_FX = "커지기"             # 09_필_단순 커지기 — 범퍼 위에 늘 두 개 붙는다
 CARD_GROUP = "대제목"
 
 
@@ -132,20 +129,45 @@ def cards(ls):
 
 
 def bumpers(ls):
-    """화면 한가운데 크게 뜨는 텍스트 = 챕터 범퍼."""
+    """챕터 범퍼 = '필_단순 커지기' 두 개 밑의 텍스트.
+
+    팀장 확인: 프로젝트마다 이 프리셋 짝이 늘 있고, 그 밑 T 가 범퍼다.
+    차명07 실측 —
+        Geometry2 '09_필_단순 커지기'
+        Geometry2 '09_필_단순 커지기'
+        Text      'MACD 기본 개념 / 차트 설정 방법'   (비율 180.17)
+
+    다만 한 범퍼 클립 안에 텍스트가 둘 들어 있는 경우가 있다(앞 범퍼에서 이어진
+    레이어). 그것도 화면에 뜨는 범퍼라 놓치면 안 된다. 그래서 두 걸음으로 잡는다 —
+
+      ① 커지기 짝 밑의 텍스트를 먼저 찾는다 (확실한 것)
+      ② ①의 비율을 그 프로젝트의 '범퍼 크기'로 삼고, 같은 크기의 텍스트를 더 줍는다
+
+    크기만으로 거르면 인용구·강조 숫자(비율 150~280)가 섞이므로 ①이 먼저다.
+    """
+    def _add(out, seen, j, l, how):
+        if l["text"] in seen:
+            return
+        seen.add(l["text"])
+        out.append({"문구": l["text"], "줄": _lines(l["text"]),
+                    "비율": l["scale"], "y": l["y"], "at": j, "판정": how})
+
     out, seen = [], set()
     for j, l in enumerate(ls):
         if l["kind"] != "Text" or not l["text"]:
             continue
-        if l["scale"] is None or l["scale"] < BUMP_SCALE:
-            continue
-        if l["y"] is None or not (BUMP_Y[0] <= l["y"] <= BUMP_Y[1]):
-            continue
-        if l["text"] in seen:
-            continue
-        seen.add(l["text"])
-        out.append({"문구": l["text"], "줄": _lines(l["text"]),
-                    "비율": l["scale"], "y": round(l["y"], 3), "at": j})
+        if sum(1 for k in range(max(0, j - 3), j) if GROW_FX in ls[k]["text"]) >= 2:
+            _add(out, seen, j, l, "커지기 짝")
+
+    sizes = [b["비율"] for b in out if b["비율"]]
+    if sizes:
+        base = max(set(sizes), key=sizes.count)      # 그 편의 범퍼 크기
+        for j, l in enumerate(ls):
+            if l["kind"] != "Text" or not l["text"] or l["scale"] is None:
+                continue
+            if abs(l["scale"] - base) < 0.5:
+                _add(out, seen, j, l, "같은 크기")
+    out.sort(key=lambda b: b["at"])
     return out
 
 
@@ -172,7 +194,8 @@ def main():
             if c["소제목"] and c["자리확인"]:
                 print(f"   카드   대={c['대제목'][:34]}  소={c['소제목'][:38]}", flush=True)
         for b in r["bumpers"]:
-            print(f"   범퍼   {' | '.join(b['줄'])}   (비율 {b['비율']:.0f})", flush=True)
+            sc = f"{b['비율']:.0f}" if b["비율"] is not None else "?"
+            print(f"   범퍼   {' | '.join(b['줄'])}   (비율 {sc})", flush=True)
     if out_json:
         io.open(out_json, "w", encoding="utf-8").write(
             json.dumps(res, ensure_ascii=False, indent=1))
