@@ -901,10 +901,15 @@ const LAYERS = {
     const price = resolvePrice(L.price, env);
     const y = scale.y(price);
     const p = chart.plot;
-    const grow = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.45), Ease.outExpo);
+    /* growEase: outExpo(기본)는 시작하자마자 90%까지 스냅한다 — 천천히 정성 들여 긋는 느낌이
+       필요하면 'outCubic' 등으로 바꾼다 (차12 인트로 손실 밴드 피드백) */
+    const grow = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.45), Ease[L.growEase] ?? Ease.outExpo);
     const color = L.color ?? theme.tp;
     const x0 = L.fromBar != null ? scale.x(L.fromBar) : (L.fromX ?? p.x);
-    const w = (p.right - x0) * grow;
+    /* toBar: 밴드를 특정 봉에서 끝낸다 (기본은 plot 오른쪽 끝까지).
+       toBar 가 화면 오른쪽 밖이면 기존과 동일하게 잘린다 — 컷 경계에서 이어받아도 안 튄다 */
+    const x1 = L.toBar != null ? Math.min(scale.x(L.toBar), p.right) : p.right;
+    const w = (x1 - x0) * grow;
 
     withAlpha(ctx, v, () => {
       ctx.save();
@@ -1193,8 +1198,9 @@ const LAYERS = {
     const x = L.bar != null ? scale.x(L.bar) + (L.dx ?? 0) : L.x;
     const yRaw = (L.rsi != null && scale.rsiY ? scale.rsiY(L.rsi)
       : L.price != null ? scale.y(resolvePrice(L.price, env)) : L.y) + (L.dy ?? 0);
-    // 뷰포트가 움직여도 글자가 화면 밖으로 소리 없이 나가지 않게 세로만 잡아 둔다
-    const y = Math.max(size * 0.85, Math.min(env.h - size * 0.85, yRaw));
+    // 뷰포트가 움직여도 글자가 화면 밖으로 소리 없이 나가지 않게 세로만 잡아 둔다.
+    // clamp: false — 카메라와 함께 자연스럽게 프레임 밖으로 나가야 하는(이월된) 라벨용
+    const y = L.clamp === false ? yRaw : Math.max(size * 0.85, Math.min(env.h - size * 0.85, yRaw));
     const fill = L.color ?? '#FFFFFF';
 
     withAlpha(ctx, v, () => {

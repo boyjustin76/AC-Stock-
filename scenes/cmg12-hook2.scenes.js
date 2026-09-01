@@ -17,6 +17,17 @@
  * 수익 실현이 아닌 손실 청산은 '손절' 태그(#9F0000 — 팀장 규칙 ③), 마무리 cmgCross.
  */
 
+import { INTRO_CARRY, still } from './cmg12-cross.build.js';
+
+/* 인트로에서 이어받은 손실 밴드·진입선은 하락이 끝난 47번 봉에서 멈춘다.
+   컷5 초반엔 47번이 화면 밖이라 인트로와 픽셀 동일 — 컷6에서 카메라가 앞으로
+   나아가도 옛 밴드가 새 랠리 위까지 덮지 않는다. */
+const CARRY = INTRO_CARRY.map((L) => ({
+  ...L,
+  ...(L.type === 'cmgLevel' ? { toBar: 47 } : {}),
+  ...(L.type === 'cmgNote' ? { clamp: false } : {}), // 컷6에서 카메라와 함께 위로 흘러 나간다
+}));
+
 const FPS = 60000 / 1001;
 
 /* 인트로와 같은 교차 실측값 */
@@ -85,22 +96,9 @@ export default {
         ],
       },
       layers: [
-        /* 컷4에서 이어받는 것들 — 다시 튀어나오지 않게 */
-        { type: 'cmgArrow', bar: X.golden, price: X.goldenPrice - 150, dir: 'buy', label: '매수', size: 36, gap: 18, popDur: 0 },
-        { type: 'cmgCircle', bar: X.golden, price: X.goldenPrice, rx: 94, ry: 78, width: 13, drawDur: 0, in: [0, 0], out: [0.3, 0.5] },
-        { type: 'cmgArrow', bar: X.dead, price: X.deadPrice + 150, dir: 'sell', label: '매도', size: 36, gap: 18, popDur: 0 },
-        {
-          // 진입가~청산가 손실 밴드 (컷3과 같은 값) — 하락이 드러나며 다시 자란다
-          type: 'cmgLevel',
-          price: X.exit,
-          fromBar: X.golden,
-          fillTo: X.entry,
-          fill: '#FEBABA',
-          color: '#9F0000',
-          thickness: 18,
-          growDur: 0.45,
-          in: [0.7, 0.25],
-        },
+        /* 컷4 끝 화면의 요소 전부를 정지 상태로 이어받는다 — 지우는 건 없고 더할 뿐
+           (밴드도 컷3부터 있던 그대로 — 다시 자라지 않는다) */
+        ...CARRY,
         { type: 'cmgCircle', bar: 39, price: 60600, rx: 210, ry: 270, width: 12, color: '#E90054', drawDur: 0.55, in: [0.9, 0.2] },
         { type: 'cmgNote', text: '가짜 신호', bar: 39, price: 61350, size: 56, color: '#E90054', in: [0.45, 0.3] },
       ],
@@ -126,6 +124,10 @@ export default {
         zoom: [{ t: 0, v: 1 }],
       },
       layers: [
+        /* 컷5 화면의 요소를 이어받는다 — 카메라가 오른쪽으로 흐르며 자연스럽게 프레임 밖으로 나간다 */
+        ...CARRY,
+        still({ type: 'cmgCircle', bar: 39, price: 60600, rx: 210, ry: 270, width: 12, color: '#E90054' }),
+        still({ type: 'cmgNote', text: '가짜 신호', bar: 39, price: 61350, size: 56, color: '#E90054', clamp: false }),
         /* 랠리 진입 — 골든크로스2 에서 공식대로 또 매수 */
         { type: 'cmgArrow', bar: Y.golden2 + 1, price: 59880, dir: 'buy', label: '매수', size: 36, gap: 18, in: [0.75, 0.35] },
         {
@@ -144,15 +146,16 @@ export default {
         { type: 'cmgCircle', bar: Y.dead2, price: 60070, rx: 96, ry: 80, width: 12, drawDur: 0.5, in: [3.7, 0.2] },
         { type: 'cmgArrow', bar: 79, price: 60000, dir: 'sell', label: '손절', color: '#9F0000', size: 36, gap: 18, in: [4.15, 0.35] },
         {
-          // 진입가~청산가 — 수익이었다가 손실로 뒤집힌 구간
+          // 진입가~청산가 — 수익이었다가 손실로 뒤집힌 구간 (컷3 밴드와 같은 두께·같은 속도감)
           type: 'cmgLevel',
           price: Y.exit2,
           fromBar: Y.golden2 + 1,
           fillTo: Y.entry2,
           fill: '#FEBABA',
           color: '#9F0000',
-          thickness: 18,
-          growDur: 0.5,
+          thickness: 23,
+          growDur: 1.0,
+          growEase: 'outCubic',
           in: [4.55, 0.25],
         },
         { type: 'cmgNote', text: '또 손실 전환', bar: 71, price: 59520, size: 56, color: '#E90054', in: [5.25, 0.3] },

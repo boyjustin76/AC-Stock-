@@ -30,10 +30,10 @@
  * 애니메이션(지그재그 + 매수/매도 태그) → 타이틀 카드가 화면의 주인공이라,
  * 거기에 라벨 붙은 차트를 깔면 매수/매도가 두 벌로 겹친다.
  *
- *   컷1  3.400~ 7.400  4.0000s  공식을 짚는다 — 원·라벨·태그 전부
- *   컷2  7.400~12.200  4.8000s  조용한 배경 — 캔들과 이평선만
- *   컷3 12.200~13.767  1.5667s  손실이 드러난다
- *   컷4 13.767~15.533  1.7667s  크로스 신호 하나로 파고든다
+ *   컷1  5.533~ 7.833  2.3000s  공식을 짚는다 — 원·라벨·태그 전부 등장
+ *   컷2  7.833~12.200  4.3667s  타이틀 구간 — 컷1 요소 유지 (비우지 않는다)
+ *   컷3 12.200~15.900  3.7000s  손실이 드러난다 (요소 유지 + 밴드 추가)
+ *   컷4 15.900~17.700  1.8000s  크로스 신호 하나로 파고든다 (카메라 재프레이밍)
  *
  * 길이는 자막 초를 시퀀스 timebase(30.0) 프레임으로 반올림한 값이다.
  * 프레임 번호로 옮기면 어긋난다 — 대본은 29.97, 컷 경계는 30.0 격자다
@@ -100,25 +100,38 @@ const chartBase = {
   ],
 };
 
-/* 컷1·컷3·컷4 에 걸쳐 이어지는 매수·매도 태그. in 을 안 주면 컷 경계에서 다시 안 튀어나온다 */
-const buyTag = {
-  type: 'cmgArrow',
-  bar: X.golden,
-  price: X.goldenPrice - 150,
-  dir: 'buy',
-  label: '매수',
-  size: 36,
-  gap: 18,
-};
-const sellTag = {
-  type: 'cmgArrow',
-  bar: X.dead,
-  price: X.deadPrice + 150,
-  dir: 'sell',
-  label: '매도',
-  size: 36,
-  gap: 18,
-};
+/* ── 컷을 넘어 살아남는 요소들 ──────────────────────────────────────────
+   컷을 나누는 기준은 '새 요소로 대체될 때'다. 그 전에는 요소를 지우지 않는다
+   (조정 레이어 방식 — 2026-08-31 컷2 깜빡임 반려). still() 은 등장 애니메이션을
+   전부 떼서, 앞 컷에서 이미 나온 요소가 컷 경계에서 다시 튀어나오지도
+   사라지지도 않게 한다. */
+export const still = (L) => ({ ...L, in: [-1, 0], out: undefined, drawDur: 0, popDur: 0, growDur: 0 });
+
+const buyTag = { type: 'cmgArrow', bar: X.golden, price: X.goldenPrice - 150, dir: 'buy', label: '매수', size: 36, gap: 18 };
+const sellTag = { type: 'cmgArrow', bar: X.dead, price: X.deadPrice + 150, dir: 'sell', label: '매도', size: 36, gap: 18 };
+const note5 = { type: 'cmgNote', text: '5 이평선', bar: 13, price: 61302.1 - 190, size: 44, color: '#0D9488' };
+const note20 = { type: 'cmgNote', text: '20 이평선', bar: 20, price: 61242.4 + 205, size: 44, color: '#F38808' };
+const goldenCircle = { type: 'cmgCircle', bar: X.golden, price: X.goldenPrice, rx: 88, ry: 76, width: 12 };
+const goldenNote = { type: 'cmgNote', text: '골든크로스', bar: X.golden, price: X.goldenPrice - 330, size: 60 };
+const deadCircle = { type: 'cmgCircle', bar: X.dead, price: X.deadPrice, rx: 88, ry: 76, width: 12 };
+const deadNote = { type: 'cmgNote', text: '데드크로스', bar: X.dead, price: X.deadPrice + 390, size: 60 };
+/* 컷3에서 태어나는 것들 */
+const entryLine = { type: 'cmgLevel', price: X.entry, fromBar: X.golden, color: 'rgba(0,0,0,0.72)', thickness: 4 };
+const lossBand = { type: 'cmgLevel', price: X.exit, fromBar: X.golden, fillTo: X.entry, fill: '#FEBABA', color: '#9F0000', thickness: 23 };
+const lossNote = { type: 'cmgNote', text: '수익이 아니라 손실', bar: X.dead + 4, price: X.deadPrice - 900, size: 60, color: '#E90054' };
+const lossUnder = { type: 'cmgUnderline', bar: X.dead + 4, price: X.deadPrice - 900, dy: 54, width: 392, align: 'center' };
+/* 컷4에서 '골든크로스' 라벨을 대체하는 문장 */
+const signalNote = { type: 'cmgNote', text: '크로스 신호 하나', bar: X.golden, price: X.goldenPrice - 330, size: 56 };
+
+/* 컷1 요소 전부 — 컷2·컷3이 정지 상태로 이어받는다 */
+const CUT1_SET = [note5, note20, goldenCircle, goldenNote, buyTag, deadCircle, deadNote, sellTag];
+
+/* 컷4가 끝났을 때 화면에 남아 있는 것들 — 컷5·컷6(cmg12-hook2)이 이어받는다.
+   goldenNote 는 signalNote 로 대체됐고, lossNote/lossUnder 는 컷4 줌인 때 넘겨준다(아래 참조). */
+export const INTRO_CARRY = [
+  note5, note20, goldenCircle, buyTag, deadCircle, deadNote, sellTag,
+  entryLine, lossBand, signalNote,
+].map(still);
 
 /* 레이어 층 정의 — 어느 타입이 어느 층으로 가는지 한 곳에서 정한다.
    아래에서 위로 쌓인다. 프리미어 트랙 번호와 순서가 같다. */
@@ -135,7 +148,7 @@ const SCENES = [
   /* ── ① "골든크로스에 사고 데드크로스에 팔아라." ─────────────────── */
   {
     id: 'cut1-rule',
-    name: '① 교과서 공식 (4.0000s)',
+    name: '① 교과서 공식',
     duration: CUT.rule,
     chart: {
       ...chartBase,
@@ -147,56 +160,42 @@ const SCENES = [
       ],
     },
     layers: [
-      {
-        type: 'cmgNote',
-        text: '5 이평선',
-        bar: 13,
-        price: 61302.1 - 190, // bar13 의 ema5 아래. '골든크로스' 라벨과 겹치지 않게 왼쪽으로 뺐다
-        size: 44,
-        color: '#0D9488',
-        in: [0.05, 0.2],
-      },
-      {
-        type: 'cmgNote',
-        text: '20 이평선',
-        bar: 20,
-        price: 61242.4 + 205, // bar20 의 ema20 위
-        size: 44,
-        color: '#F38808',
-        in: [0.2, 0.2],
-      },
+      /* '5 이평선'은 '골든크로스' 라벨과 겹치지 않게 왼쪽으로 뺀 자리다 */
+      { ...note5, in: [0.05, 0.2] },
+      { ...note20, in: [0.2, 0.2] },
       // 골든크로스 — 사라
-      { type: 'cmgCircle', bar: X.golden, price: X.goldenPrice, rx: 88, ry: 76, width: 12, drawDur: 0.5, in: [0.35, 0.15] },
-      { type: 'cmgNote', text: '골든크로스', bar: X.golden, price: X.goldenPrice - 330, size: 60, in: [0.6, 0.25] },
+      { ...goldenCircle, drawDur: 0.5, in: [0.35, 0.15] },
+      { ...goldenNote, in: [0.6, 0.25] },
       { ...buyTag, in: [0.8, 0.3] },
-      // 데드크로스 — 팔아라. 자막 ④(5.700s)에 맞춰 컷 시작 +2.3초
-      { type: 'cmgCircle', bar: X.dead, price: X.deadPrice, rx: 88, ry: 76, width: 12, drawDur: 0.5, in: [1.3, 0.15] },
-      { type: 'cmgNote', text: '데드크로스', bar: X.dead, price: X.deadPrice + 390, size: 60, in: [1.55, 0.25] },
+      // 데드크로스 — 팔아라
+      { ...deadCircle, drawDur: 0.5, in: [1.3, 0.15] },
+      { ...deadNote, in: [1.55, 0.25] },
       { ...sellTag, in: [1.75, 0.3] },
     ],
   },
 
-  /* ── ② 프리셋 인트로 애니메이션·타이틀 카드 뒤에 깔리는 배경 ────── */
+  /* ── ② 프리셋 인트로 애니메이션·타이틀 카드 구간 ──────────────── */
   {
     id: 'cut2-bed',
-    name: '② 조용한 배경 — 라벨 없음 (4.8000s)',
+    name: '② 타이틀 구간 — 컷1 요소 유지',
     duration: CUT.bed,
     chart: {
       ...chartBase,
-      /*  이 구간은 프리셋 그래픽이 주인공이라 차트가 조용해야 한다.
-          느리게만 흘려서 정지화면으로 보이지 않게 한다. 라벨은 하나도 안 붙인다.  */
+      /*  [2026-08-31 반려 수정] 원래 '프리셋 타이틀이 화면을 덮는다'는 가정으로 라벨을
+          비웠는데, 실제 편집본에서는 차트가 그대로 보여 요소가 사라졌다 되돌아오는
+          깜빡임이 됐다. 컷1 요소를 전부 정지 상태로 유지한다 — 새로 등장하는 것만 없다.  */
       reveal: [
         { t: 0, v: 40 },
         { t: CUT.bed, v: 44, ease: 'linear' },
       ],
     },
-    layers: [],
+    layers: CUT1_SET.map(still),
   },
 
   /* ── ③ "이 공식대로 수익이 나는 경우는 많지 않습니다" ──────────── */
   {
     id: 'cut3-loss',
-    name: '③ 공식대로 하면 손실 (1.5667s)',
+    name: '③ 공식대로 하면 손실',
     duration: CUT.loss,
     chart: {
       ...chartBase,
@@ -206,61 +205,24 @@ const SCENES = [
       ],
     },
     layers: [
-      { ...buyTag, popDur: 0 },
-      { ...sellTag, popDur: 0 },
-      {
-        // 진입가 — 얇은 검은 선
-        type: 'cmgLevel',
-        price: X.entry,
-        fromBar: X.golden,
-        color: 'rgba(0,0,0,0.72)',
-        thickness: 4,
-        growDur: 0.3,
-        in: [0.2, 0.15],
-      },
-      {
-        /*  진입~청산 사이의 실제 손실 밴드.
-            cmgProfit 은 높이가 '현재가'를 따라가서, 청산한 뒤에도 계속 깊어진다 —
-            실제 청산 손실(-348)보다 훨씬 커 보여서 그림이 거짓말을 한다.
-            cmgLevel 로 진입가~청산가 사이를 고정 밴드로 그린다.
-            색은 손절 토큰 실측값(brand_token 7·8)이지만 라벨은 달지 않는다 —
-            손절 주문이 아니라 데드크로스 청산이라 '손실 구간' 이라는 뜻만 남긴다.  */
-        type: 'cmgLevel',
-        price: X.exit,
-        fromBar: X.golden,
-        fillTo: X.entry,
-        fill: '#FEBABA',
-        color: '#9F0000',
-        thickness: 23,
-        growDur: 0.4,
-        in: [0.5, 0.2],
-      },
-      {
-        type: 'cmgNote',
-        text: '수익이 아니라 손실',
-        bar: X.dead + 4,
-        price: X.deadPrice - 900,
-        size: 60,
-        color: '#E90054',
-        in: [1.9, 0.25],
-      },
-      {
-        type: 'cmgUnderline',
-        bar: X.dead + 4,
-        price: X.deadPrice - 900,
-        dy: 54,
-        width: 392,
-        align: 'center',
-        drawDur: 0.35,
-        in: [2.5, 0.15],
-      },
+      /* 컷1·컷2의 요소는 그대로 — 새로 태어나는 건 손실 표현뿐 */
+      ...CUT1_SET.map(still),
+      /*  진입~청산 사이의 실제 손실 밴드 (진입선 + 밴드).
+          cmgProfit 은 높이가 '현재가'를 따라가서 청산 뒤에도 깊어진다 — 실제 손실(-348)보다
+          커 보이는 거짓말이라 cmgLevel 고정 밴드로 그린다. 라벨은 안 단다(손절 주문이 아니라
+          데드크로스 청산). growEase outCubic — 기본 outExpo 는 순간 스냅이라 '대충 그린 느낌'
+          이라는 피드백(2026-08-31)이 있었다. 천천히 정성 들여 긋는다.  */
+      { ...entryLine, growDur: 0.6, growEase: 'outCubic', in: [0.25, 0.15] },
+      { ...lossBand, growDur: 1.3, growEase: 'outCubic', in: [0.55, 0.3] },
+      { ...lossNote, in: [1.9, 0.25] },
+      { ...lossUnder, drawDur: 0.35, in: [2.5, 0.15] },
     ],
   },
 
   /* ── ④ "크로스 신호만 보고 진입했다가" ─────────────────────────── */
   {
     id: 'cut4-signal-only',
-    name: '④ 크로스 신호 하나 (1.7667s)',
+    name: '④ 크로스 신호 하나',
     duration: CUT.signal,
     chart: {
       ...chartBase,
@@ -276,19 +238,14 @@ const SCENES = [
       ],
     },
     layers: [
-      { ...buyTag, popDur: 0 },
-      {
-        type: 'cmgCircle',
-        bar: X.golden,
-        price: X.goldenPrice,
-        // 이 컷은 zoom 1.5 라 화면상 원이 커진다. 매수 태그를 덮지 않게 반지름을 줄였다
-        rx: 94,
-        ry: 78,
-        width: 13,
-        drawDur: 0.5,
-        in: [0.08, 0.2],
-      },
-      { type: 'cmgNote', text: '크로스 신호 하나', bar: X.golden, price: X.goldenPrice - 330, size: 56, in: [0.4, 0.3] },
+      /* 요소 유지 + 카메라만 되감아 파고든다. 원을 다시 그리지 않는다 */
+      ...[note5, note20, goldenCircle, buyTag, deadCircle, deadNote, sellTag, entryLine, lossBand].map(still),
+      /* '수익이 아니라 손실'은 줌인과 함께 짧게 넘겨준다 — 새 문장이 그 역할을 대체 */
+      { ...still(lossNote), out: [0.1, 0.35] },
+      { ...still(lossUnder), out: [0.1, 0.35] },
+      /* '골든크로스' 라벨이 같은 자리의 새 문장으로 교체된다 (크로스페이드) */
+      { ...still(goldenNote), out: [0.15, 0.3] },
+      { ...signalNote, in: [0.35, 0.3] },
     ],
   },
 ];
