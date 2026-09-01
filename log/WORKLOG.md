@@ -264,7 +264,6 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `log/save.py` | 기타 |  |
 | `package-lock.json` | 기타 |  |
 | `scenes/cmg12-cross.scenes.js` | 기타 |  |
-| `scenes/cmg12-hook2.scenes.js` | 기타 |  |
 | `scenes/cmg12-layer-candle.scenes.js` | 기타 |  |
 | `scenes/cmg12-layer-ma.scenes.js` | 기타 |  |
 | `scenes/cmg12-layer-mark.scenes.js` | 기타 |  |
@@ -1095,3 +1094,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 146 | `915e399d` | 세이브 기록 save/2026-09-01-1101 | 5파일 +11/-3 |
 | 147 | `87e5db16` | 세이브 save/2026-09-01-1130 — 룰북 신설(brand/EDIT-RULEBOOK.md) — 인트로 피드백 라운드 기록, 요청 53·제약·next_step 29, 사용자=이정찬(팀원) | 7파일 +100/-5 |
 | 148 | `de225bb0` | 세이브 기록 save/2026-09-01-1130 | 5파일 +11/-3 |
+| 149 | `4df0cdb1` | 세이브 save/2026-09-01-1238 — 인트로+후킹 병합(컷1~6→intro-hook 클립 1개, 랠리 확대 +1007→-208) — 요청 54, 룰북 ⑬, 해석 확정, ch12r5 납품 | 15파일 +233/-425 |
