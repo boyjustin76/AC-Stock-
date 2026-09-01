@@ -1138,3 +1138,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 154 | `7cd22fe5` | 세이브 기록 save/2026-09-01-1315 | 5파일 +11/-3 |
 | 155 | `47525517` | 세이브 save/2026-09-01-1329 — D 인수인계(AE-LAB-MANUAL §8, render-cmg12-layers 병합 클립 갱신·5층 검증) + 요청 57, next_step 27 실전 전환 | 7파일 +108/-28 |
 | 156 | `c3ddf5d4` | 세이브 기록 save/2026-09-01-1329 | 5파일 +11/-3 |
+| 157 | `aa358615` | 세이브 save/2026-09-01-1457 — 차12 썸네일 6안 — thumb-ch12 씬 3종, config 차12 전환, thumbnail_rule 26~27 · issue 18~19 · runbook 18 · next_step 31 | 16파일 +368/-47 |
