@@ -312,6 +312,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `log/build_worklog_page.py` | 스크립트 | DB → HTML 페이지 |
 | `src/tools/install-fonts.mjs` | 스크립트 | 폰트를 시스템에 등록 |
 | `scenes/cmg-20ma-runner.scenes.js` | 씬 | 차트명가 20일선 4컷. 새 대본은 이 파일을 본떠 만든다 |
+| `scenes/cmg12-bridge.scenes.js` | 씬 | 차12 말 구간 설명 카드 2클립 — bridge-intro(워시 리스트, 프레임 860)·bridge-scalp(종이 배경+버튼 반복, 프레임 2939). 스타일은 차명#4 실측 카피, 룰북 §E |
 | `scenes/cmg12-buy.scenes.js` | 씬 | 차12 매수 관점 5컷 — seed161, 55선 재돌파 bar52, 1:2·분할·러너 |
 | `scenes/cmg12-cross.build.js` | 씬 | 차12 인트로+후킹 연속 클립 1개(intro-hook, 구 컷1~6 병합 2026-09-01) + 레이어 분리 빌더. 랠리 확대 실측값·국면표 머리말 참조. 구 cmg12-hook2.scenes.js 는 흡수·삭제 |
 | `scenes/cmg12-fail.scenes.js` | 씬 | 차12 본론1·문제제시 5컷 — 씬별 시장 3종(파동·횡보·강추세) |
@@ -1122,3 +1123,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 156 | `c3ddf5d4` | 세이브 기록 save/2026-09-01-1329 | 5파일 +11/-3 |
 | 157 | `41acd1f6` | 세이브 save/2026-09-01-1832 — r7 — guide-rsi ①방향 유지·fail-combo 겹침 해소(폭 판정 보충), 요청 58, 룰북 ⑩보충2 | 7파일 +34/-6 |
 | 158 | `79a124be` | 세이브 기록 save/2026-09-01-1832 | 5파일 +11/-3 |
+| 159 | `ae6bfc2c` | 세이브 save/2026-09-01-1917 — 말 구간 브리지 2클립(cmgText·blurPx·종이+버튼) + 팀장 어휘 실측 카탈로그(룰북 §E), 요청 59 — 렌더 진행 중 | 10파일 +272/-4 |
