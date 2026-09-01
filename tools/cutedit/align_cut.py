@@ -6,10 +6,16 @@
 구현: 대본 문장을 뒤에서부터 훑으며, 다음 문장의 채택 위치보다 앞에 있는
 가장 늦은 후보를 고른다 (역방향 최장 사슬).
 """
-import json, re, sys
+import json, os, re, sys
 from difflib import SequenceMatcher
 
-S = "/tmp/claude-0/-home-user-AC-Stock-/2aa738bb-430f-52e0-bfd6-c6b618c5db6c/scratchpad"
+# 작업 폴더. 차11-4·5 때는 클라우드 스크래치가 박혀 있었다 —
+# 환경변수나 첫 인자로 받는다. 회차마다 폴더 하나를 잡고 거기에 다 넣는다.
+#   set CUTEDIT_DIR=...\ch11-6   또는   python tools/cutedit/xxx.py <폴더>
+S = os.environ.get("CUTEDIT_DIR") or (sys.argv[1] if len(sys.argv) > 1 else "")
+if not S or not os.path.isdir(S):
+    sys.exit("작업 폴더를 정하세요 — 환경변수 CUTEDIT_DIR 또는 첫 인자로 폴더 경로."
+             f" (지금: {S or '없음'})")
 
 def norm(t):
     return re.sub(r"[^0-9가-힣a-zA-Z]", "", t)

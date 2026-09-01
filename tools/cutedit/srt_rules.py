@@ -27,6 +27,10 @@ BAD_START = (
     '것', '수', '때', '만큼', '뿐', '데', '지', '채', '줄', '쪽', '터', '바',
     '듯', '척', '법이', '싶', '있는지',
 )
+# 의존명사는 아니지만 앞 어절에 붙어 한 덩어리로 읽히는 것들.
+# 금지까지는 아니고 벌점만 준다 — 규칙 ②(절/구 단위로 자연스럽게)를 돕는다.
+# 실제로 '욕심 | 없이 짧게 수익' 처럼 갈라지는 자리가 나왔다.
+WEAK_START = ('없이', '없는', '없을', '있는', '있을', '같은', '같이', '대로', '만한')
 # 이 어미로 끝나는 어절 뒤는 끊기 좋은 자리 (절 경계)
 GOOD_END = re.compile(r'(고|며|면|서|만|데|요|다|죠|까)[,.!?]?$')
 
@@ -50,6 +54,8 @@ def split_cue(sentence, max_len=MAX_LEN):
         s = 0
         if _bad_break(words[i]):
             s += 500  # 의존명사 분리 — 사실상 금지
+        elif words[i].lstrip('"\'').startswith(WEAK_START):
+            s += 40   # 앞말에 붙는 어절 — 다른 자리가 있으면 그쪽으로
         prev = words[i - 1]
         if prev.endswith((',', '.', '!', '?')):
             s -= 3  # 문장부호 뒤 — 최적
@@ -119,7 +125,9 @@ def check(path):
 
 if __name__ == '__main__':
     if len(sys.argv) >= 3 and sys.argv[1] == 'check':
-        ok = all(check(p) for p in sys.argv[2:])
+        # all(...) 은 첫 False 에서 멈춘다 — 뒤 파일이 검사되지 않는다.
+        # 실제로 차11-5 의 위반 4건이 이 때문에 묻혀 있었다.
+        ok = all([check(p) for p in sys.argv[2:]])
         sys.exit(0 if ok else 1)
     if len(sys.argv) >= 3 and sys.argv[1] == 'split':
         for c in split_cue(' '.join(sys.argv[2:])):
