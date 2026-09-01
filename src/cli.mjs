@@ -107,11 +107,12 @@ async function main() {
         const passes = planPasses(scene);
         let cur = '';
         const r = await renderPasses(stage, {
-          config: configRel, sceneId: scene.id, outDir: dir, width, height, passes, capture,
+          config: configRel, sceneId: scene.id, outDir: dir, width, height, passes, capture, hold: !!args.hold,
           onProgress: (ps, c, t) => {
             if (ps.key !== cur) { cur = ps.key; process.stdout.write(`
       ${ps.key} ${ps.name.padEnd(22)}`); }
-            process.stdout.write(`      ${ps.key} ${ps.name.padEnd(22)} ${bar(c, t, 18)}`);
+            process.stdout.write(`
+      ${ps.key} ${ps.name.padEnd(22)} ${bar(c, t, 18)}`);
           },
         });
         const audio = args.audio

@@ -189,7 +189,7 @@ export async function renderSequence(stage, opts) {
 export async function renderPasses(stage, opts) {
   const {
     config, sceneId, outDir, width, height, passes,
-    format = 'alpha', capture = 'canvas', onProgress,
+    format = 'alpha', capture = 'canvas', onProgress, hold = false,
   } = opts;
   const { page, meta } = await openScene(stage, { config, sceneId, width, height });
   const fmt = FORMATS[format];
@@ -201,8 +201,9 @@ export async function renderPasses(stage, opts) {
   for (const ps of passes) {
     const started = Date.now();
     await page.evaluate(
-      (p) => window.__setPass({ chart: p.chart, layers: p.layers, transparent: true }),
-      { chart: ps.chart, layers: ps.layers },
+      (p) => window.__setPass({ chart: p.chart, layers: p.layers, hold: p.hold, transparent: true }),
+      /* 바닥은 hold 대상이 아니다 — 차트 자체는 등장·퇴장이 없다 */
+      { chart: ps.chart, layers: ps.layers, hold: hold && !ps.chart },
     );
     const outFile = path.join(outDir, `${ps.key}.${fmt.ext}`);
     const enc = startEncoder({

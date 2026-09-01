@@ -37,6 +37,26 @@ function keyframe(list, t, fallback) {
   return list[list.length - 1].v;
 }
 
+/**
+ * 등장·퇴장을 걷어내고 **컷 내내 켜진** 레이어로 바꾼다.
+ *
+ * 왜 —
+ *   주석을 알파 클립으로 갈라 프리미어에 얹으면 싱크를 손으로 만질 수 있는데,
+ *   클립을 **밀면** 주석은 밀기 전 시각의 픽셀인 채 옮겨져 차트와 어긋난다
+ *   (차트가 컷 안에서 움직이므로 — src/tools/exp-drift.mjs 로 실측).
+ *   그런데 컷 내내 켜 두면 어느 프레임이든 그 시각의 올바른 위치에 그려져 있어,
+ *   **자르기(트림)** 로 등장 시점을 정하면 어긋남이 0 이다. 미는 대신 자르는 것이다.
+ *
+ * in 을 아주 이른 시각으로 밀어 두면 cue() 는 계속 1 을 주고, growDur·drawDur 로
+ * 도는 자라남·손그림도 컷이 시작하기 전에 이미 끝나 있다.
+ * `in` 이 없는 레이어(flash 처럼 at/dur 로 도는 것)는 건드리지 않는다 — 순간 효과라
+ * 켜 두는 게 뜻이 없다.
+ */
+function holdOn(layer) {
+  if (!layer.in) return layer;
+  return { ...layer, in: [-10, 0.001], out: null };
+}
+
 /** 씬에서 쓰는 이미지를 모두 미리 로드한다 (첫 프레임에 빠지지 않게) */
 async function preloadImages(scene) {
   const srcs = [...new Set((scene.layers ?? []).filter((l) => l.type === 'image' && l.src).map((l) => l.src))];
@@ -168,8 +188,9 @@ export class SceneRuntime {
     const list = this.scene.layers ?? [];
     for (let i = 0; i < list.length; i++) {
       if (pick && !pick.includes(i)) continue;
-      const layer = list[i];
+      let layer = list[i];
       if (layer.enabled === false) continue;
+      if (pass?.hold) layer = holdOn(layer);
       drawLayer(ctx, layer, env);
     }
 
