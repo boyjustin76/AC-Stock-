@@ -84,6 +84,10 @@ export default {
       },
       layers: [
         { type: 'cmgBadge', text: '정리 — 3단계', x: 84, y: 96, size: 44, color: '#E90054', popDur: 0 },
+        /* 컷24 끝 화면 이월(⑧) — ①은 ②(1.6)가 역할을 이어받을 때 크로스페이드(⑨) */
+        { type: 'cmgTrace', overlay: 0, fromBar: 44, toBar: 57, flatten: 0, width: 14, color: COLOR.ma10, in: [0, 0], out: [1.4, 0.4] },
+        { type: 'cmgTrace', overlay: 1, fromBar: 44, toBar: 57, flatten: 0, width: 14, color: COLOR.ma34, in: [0, 0], out: [1.4, 0.4] },
+        { type: 'cmgNote', text: '① 배열 → 오늘의 방향 하나', bar: 43, price: 15617, size: 52, color: '#111111', in: [0, 0], out: [1.4, 0.4] },
         { type: 'cmgCircle', bar: 52, rsi: 60.5, rx: 58, ry: 48, width: 10, color: '#E90054', drawDur: 0.5, in: [0.9, 0.2] },
         { type: 'cmgNote', text: '② 상승장 — 55선 재돌파 + 양봉', bar: 44, rsi: 74, size: 44, color: '#E90054', in: [1.6, 0.3] },
         { type: 'cmgNote', text: '하락장 — 45선 재이탈 + 음봉', bar: 44, rsi: 16, size: 44, color: '#111111', in: [4.6, 0.3] },
@@ -102,6 +106,10 @@ export default {
       },
       layers: [
         { type: 'cmgBadge', text: '정리 — 3단계', x: 84, y: 96, size: 44, color: '#E90054', popDur: 0 },
+        /* 컷25 끝 화면 이월(⑧) — ②는 ③(2.2)이 역할을 이어받을 때 크로스페이드(⑨) */
+        { type: 'cmgCircle', bar: 52, rsi: 60.5, rx: 58, ry: 48, width: 10, color: '#E90054', drawDur: 0, in: [0, 0], out: [2.0, 0.4] },
+        { type: 'cmgNote', text: '② 상승장 — 55선 재돌파 + 양봉', bar: 44, rsi: 74, size: 44, color: '#E90054', in: [0, 0], out: [2.0, 0.4] },
+        { type: 'cmgNote', text: '하락장 — 45선 재이탈 + 음봉', bar: 44, rsi: 16, size: 44, color: '#111111', in: [0, 0], out: [2.0, 0.4] },
         { type: 'cmgLevel', price: LV.entry, fromBar: 51, color: 'rgba(0,0,0,0.72)', thickness: 4, growDur: 0.35, in: [0.6, 0.2] },
         {
           type: 'cmgLevel',

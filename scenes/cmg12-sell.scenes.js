@@ -109,6 +109,15 @@ export default {
         ],
       },
       layers: [
+        /* 컷21 끝 화면 이월(⑧) — 배지·접선·'오직 매도'는 유지, 이름표는 반등
+           이야기(1.0~)로 넘어가며 크로스페이드(⑨) */
+        { type: 'cmgBadge', text: '5분 차트', x: 84, y: 96, size: 42, color: COLOR.badge, popDur: 0 },
+        { type: 'cmgTrace', overlay: 0, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma10, in: [0, 0] },
+        { type: 'cmgTrace', overlay: 1, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma34, in: [0, 0] },
+        { type: 'cmgNote', text: '10일선', bar: 40, price: 15628, size: 46, color: COLOR.ma10, in: [0, 0], out: [0.8, 0.4] },
+        { type: 'cmgNote', text: '34일선', bar: 40, price: 15822, size: 46, color: COLOR.ma34, in: [0, 0], out: [0.8, 0.4] },
+        { type: 'cmgNote', text: '역배열 = 하락 추세', bar: 24, price: 15648, size: 52, color: '#111111', in: [0, 0], out: [1.5, 0.4] },
+        { type: 'cmgNote', text: '오직 매도 관점으로만', bar: 30, rsi: 18, size: 44, color: '#E90054', in: [0, 0] },
         /* 반등이 나와도 매수 고려 X */
         { type: 'cmgCircle', bar: 45.5, price: 15715, rx: 170, ry: 120, width: 10, drawDur: 0.6, in: [1.0, 0.2] },
         { type: 'cmgNote', text: '반등에도 매수 금지', bar: 45, price: 15905, size: 48, color: '#111111', in: [1.7, 0.3] },
@@ -143,6 +152,15 @@ export default {
         ],
       },
       layers: [
+        /* 컷22 끝 화면 이월(⑧) — 접선·문장·원은 줌인(0~3.0)에 실어 보낸다(⑩보충),
+           배지는 '손익비'(12.0)와 크로스페이드(⑨) */
+        { type: 'cmgBadge', text: '5분 차트', x: 84, y: 96, size: 42, color: COLOR.badge, popDur: 0, out: [11.8, 0.4] },
+        { type: 'cmgTrace', overlay: 0, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma10, in: [0, 0], out: [1.0, 0.5] },
+        { type: 'cmgTrace', overlay: 1, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma34, in: [0, 0], out: [1.0, 0.5] },
+        { type: 'cmgNote', text: '오직 매도 관점으로만', bar: 30, rsi: 18, size: 44, color: '#E90054', in: [0, 0], out: [1.0, 0.5] },
+        { type: 'cmgCircle', bar: 46, rsi: 58.3, rx: 66, ry: 50, width: 10, color: COLOR.rsi, drawDur: 0, in: [0, 0], out: [1.0, 0.5] },
+        { type: 'cmgCircle', bar: 49, rsi: 43.2, rx: 58, ry: 48, width: 10, color: '#E90054', drawDur: 0, in: [0, 0], out: [1.5, 0.4] },
+        { type: 'cmgNote', text: '45선 재이탈', bar: 40, rsi: 68, size: 46, color: '#E90054', in: [0, 0], out: [1.5, 0.4] },
         /* 신호 캔들이 음봉으로 확실히 마감 */
         { type: 'cmgCircle', bar: 49, price: 15700, rx: 46, ry: 84, width: 10, drawDur: 0.5, in: [0.8, 0.2], out: [6.6, 0.4] },
         { type: 'cmgNote', text: '음봉 마감', bar: 43, price: 15840, size: 48, color: '#111111', in: [1.7, 0.3], out: [4.2, 0.4] },

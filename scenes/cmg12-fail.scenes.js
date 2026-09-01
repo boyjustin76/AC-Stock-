@@ -93,18 +93,34 @@ export default {
       duration: 9.366667,
       chart: {
         ...chartBase,
-        /* 조합이 일어난 자리(46~48)를 다시 잡는다 — 인트로 컷4와 같은 인서트 컷 문법 */
-        reveal: [{ t: 0, v: 56 }, { t: 9.366667, v: 57.5, ease: 'linear' }],
+        /* [룰북 ⑬] 원래 reveal 56에서 뚝 시작하는 되감기 점프컷+줌이었다(인트로 컷4와
+           같은 문법 — 반려됨). 컷11 끝(73)에서 이어받아 컷 안에서 조합 자리(46~48)로
+           부드럽게 팬백+줌인한다. 57 밖 요소들은 팬백에 실려 자연 퇴장(⑩) */
+        reveal: [
+          { t: 0, v: 73 },
+          { t: 2.0, v: 56, ease: 'inOutCubic' },
+          { t: 9.366667, v: 57.5, ease: 'linear' },
+        ],
         zoom: [
-          { t: 0, v: 1.1 },
-          { t: 1.2, v: 1.28, ease: 'inOutCubic' },
+          { t: 0, v: 1.0 },
+          { t: 2.0, v: 1.28, ease: 'inOutCubic' },
         ],
       },
       layers: [
-        /* 70/30선은 컷11에서 이어받아 정지 상태로 */
+        /* 컷11 끝 화면 전부 이월(⑧) — 지우는 건 없고, 팬백이 오른쪽 요소를 내보낸다.
+           '교차 = 반전 신호?'(58)·매도(68)·원(66)은 reveal<58 이 되면 프레임 밖 */
         { type: 'rsiLevel', v: 70, label: '70선', color: '#FE0000', width: 4, growDur: 0, labelDelay: -1 },
         { type: 'rsiLevel', v: 30, label: '30선', color: '#002EFE', width: 4, growDur: 0, labelDelay: -1 },
-        { type: 'cmgCircle', bar: 48, price: 15393.7, rx: 80, ry: 66, width: 11, drawDur: 0.5, in: [1.2, 0.2] },
+        { type: 'rsiZone', from: 70, to: 100, color: '#FE0000', opacity: 0.18, in: [0, 0] },
+        { type: 'rsiZone', from: 0, to: 30, color: '#002EFE', opacity: 0.16, in: [0, 0] },
+        { type: 'cmgCircle', bar: 48, price: 15393.7, rx: 80, ry: 66, width: 11, drawDur: 0, in: [0, 0] },
+        { type: 'cmgCircle', bar: 66, price: 15375.1, rx: 80, ry: 66, width: 11, drawDur: 0, in: [0, 0] },
+        { type: 'cmgNote', text: '교차 = 반전 신호?', bar: 58, price: 15512, size: 50, color: '#111111', in: [0, 0] },
+        { type: 'cmgArrow', bar: 68, price: 15504.8, dir: 'sell', label: '매도', size: 34, gap: 16, popDur: 0 },
+        { type: 'cmgCircle', bar: 46, rsi: 28.2, rx: 58, ry: 46, width: 9, color: '#002EFE', drawDur: 0, in: [0, 0] },
+        /* 이월 매수(46, RSI30 단독)는 조합 매수(48)가 역할을 이어받으며 교체(⑨) */
+        { type: 'cmgArrow', bar: 46, price: 15310.5, dir: 'buy', label: '매수', size: 34, gap: 16, popDur: 0, out: [5.5, 0.4] },
+        /* 여기부터 컷12의 새 요소 — 조합의 RSI 쪽 원만 새로 그린다(48 원은 이월분 재사용) */
         { type: 'cmgCircle', bar: 47, rsi: 29, rx: 66, ry: 50, width: 9, color: '#002EFE', drawDur: 0.5, in: [3.0, 0.2] },
         { type: 'cmgNote', text: '교차 + RSI 30 = 매수?', bar: 55, price: 15505, size: 52, color: '#111111', in: [4.8, 0.3] },
         { type: 'cmgArrow', bar: 48, price: 15297.8, dir: 'buy', label: '매수', size: 34, gap: 16, in: [5.7, 0.35] },
@@ -240,10 +256,15 @@ export default {
         ],
       },
       layers: [
-        /* 컷14에서 이어받기 */
+        /* 컷14 끝 화면 전부 이어받기(⑧) — 존·궤적·문장도 지우지 않는다 */
         { type: 'cmgArrow', bar: 36, price: 15408, dir: 'sell', label: '매도', size: 34, gap: 16, popDur: 0 },
         { type: 'cmgLevel', price: 15417.8, fromBar: 36, color: 'rgba(0,0,0,0.72)', thickness: 4, growDur: 0, in: [0, 0] },
         { type: 'rsiLevel', v: 70, label: '70선', color: '#FE0000', width: 4, growDur: 0, labelDelay: -1 },
+        { type: 'rsiZone', from: 70, to: 100, color: '#FE0000', opacity: 0.16, in: [0, 0] },
+        { type: 'rsiTrace', fromBar: 36, toBar: 64, width: 11, color: '#FE0000', drawDur: 0, in: [0, 0] },
+        { type: 'cmgNote', text: '70선 위에서 계속 버틴다', bar: 48, rsi: 30, size: 46, color: '#FE0000', in: [0, 0] },
+        /* '과매수라서 매도?'는 '단 한 번에 큰 손실'(3.2)이 역할을 이어받으며 교체(⑨) */
+        { type: 'cmgNote', text: '과매수라서 매도?', bar: 43, price: 15295, size: 50, color: '#111111', in: [0, 0], out: [2.9, 0.4] },
         /* 고점 갱신 상승에 밀린 손실 영역 — 진입가에서 위로 계속 자란다 */
         {
           type: 'cmgLevel',

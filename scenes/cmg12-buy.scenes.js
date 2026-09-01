@@ -78,6 +78,11 @@ export default {
         reveal: [{ t: 0, v: 56 }, { t: 15.233333, v: 60, ease: 'linear' }],
       },
       layers: [
+        /* 컷16 끝 화면 이월(⑧) — RSI 원 두 개와 '② 진짜 눌림목만'은 컷 내내 유지
+           (아래 패널이라 배열 이야기와 안 부딪힌다). 컷18이 다시 이어받는다 */
+        { type: 'cmgCircle', bar: 48, rsi: 40.7, rx: 62, ry: 50, width: 10, color: '#E90054', drawDur: 0, in: [0, 0] },
+        { type: 'cmgCircle', bar: 52, rsi: 60.5, rx: 58, ry: 48, width: 10, color: '#E90054', drawDur: 0, in: [0, 0] },
+        { type: 'cmgNote', text: '② 진짜 눌림목만', bar: 41, rsi: 22, size: 48, color: '#E90054', in: [0, 0] },
         { type: 'cmgBadge', text: '1분 차트', x: 84, y: 96, size: 42, color: COLOR.badge, in: [2.5, 0.3] },
         { type: 'cmgNote', text: '10일선', bar: 50, price: 15588, size: 46, color: COLOR.ma10, in: [4.4, 0.3] },
         { type: 'cmgNote', text: '34일선', bar: 50, price: 15468, size: 46, color: COLOR.ma34, in: [5.4, 0.3] },
@@ -96,6 +101,17 @@ export default {
         reveal: [{ t: 0, v: 60 }, { t: 12.866667, v: 61, ease: 'linear' }],
       },
       layers: [
+        /* 컷17 끝 화면 이월(⑧). 이름표는 '정배열'(2.6)이, '크로스가 아니라 배열'은
+           '상승 추세 →'(5.9)가, '②'는 '눌림목 타점은 RSI'(10.2, 같은 자리)가
+           역할을 이어받을 때 크로스페이드(⑨) */
+        { type: 'cmgBadge', text: '1분 차트', x: 84, y: 96, size: 42, color: COLOR.badge, popDur: 0 },
+        { type: 'cmgCircle', bar: 48, rsi: 40.7, rx: 62, ry: 50, width: 10, color: '#E90054', drawDur: 0, in: [0, 0] },
+        { type: 'cmgCircle', bar: 52, rsi: 60.5, rx: 58, ry: 48, width: 10, color: '#E90054', drawDur: 0, in: [0, 0] },
+        { type: 'cmgNote', text: '② 진짜 눌림목만', bar: 41, rsi: 22, size: 48, color: '#E90054', in: [0, 0], out: [10.0, 0.4] },
+        { type: 'cmgNote', text: '10일선', bar: 50, price: 15588, size: 46, color: COLOR.ma10, in: [0, 0], out: [2.4, 0.4] },
+        { type: 'cmgNote', text: '34일선', bar: 50, price: 15468, size: 46, color: COLOR.ma34, in: [0, 0], out: [2.4, 0.4] },
+        { type: 'cmgNote', text: '크로스가 아니라 배열', bar: 40, price: 15601, size: 52, color: '#111111', in: [0, 0], out: [5.7, 0.4] },
+        { type: 'cmgUnderline', bar: 40, price: 15601, dy: 48, width: 470, align: 'center', drawDur: 0, in: [0, 0], out: [5.7, 0.4] },
         /* 10일선이 34일선보다 위 — 두 선을 접선 덧칠로 나란히 강조 */
         { type: 'cmgTrace', overlay: 0, fromBar: 44, toBar: 58, flatten: 0, width: 14, color: COLOR.ma10, in: [1.0, 0.5], out: [4.9, 0.35] },
         { type: 'cmgTrace', overlay: 1, fromBar: 44, toBar: 58, flatten: 0, width: 14, color: COLOR.ma34, in: [1.7, 0.5], out: [4.9, 0.35] },
@@ -125,8 +141,16 @@ export default {
         ],
       },
       layers: [
-        { type: 'cmgCircle', bar: 48, rsi: 40.7, rx: 60, ry: 48, width: 10, color: '#E90054', drawDur: 0.5, in: [1.6, 0.2] },
-        { type: 'cmgCircle', bar: 52, rsi: 60.5, rx: 56, ry: 46, width: 10, color: '#E90054', drawDur: 0.5, in: [4.0, 0.2] },
+        /* 컷18 끝 화면 이월(⑧) — 원 두 개는 이미 그려져 있으니 다시 그리지 않는다.
+           문장들은 팬백+줌인(0~2.0)에 실어 보내거나 '55선 재돌파'(4.6)로 교체(⑨⑩보충) */
+        { type: 'cmgBadge', text: '1분 차트', x: 84, y: 96, size: 42, color: COLOR.badge, popDur: 0 },
+        { type: 'cmgCircle', bar: 48, rsi: 40.7, rx: 60, ry: 48, width: 10, color: '#E90054', drawDur: 0, in: [0, 0] },
+        { type: 'cmgCircle', bar: 52, rsi: 60.5, rx: 56, ry: 46, width: 10, color: '#E90054', drawDur: 0, in: [0, 0] },
+        { type: 'cmgNote', text: '정배열', bar: 56, price: 15477, size: 52, color: '#111111', in: [0, 0], out: [1.8, 0.4] },
+        /* 줌인 뒤 뷰포트 천장 위로 걸린다(probe 1.0초~) — 팬백 초반에 실어 보낸다(⑩보충) */
+        { type: 'cmgNote', text: '상승 추세 → 매수 관점만', bar: 44, price: 15636, size: 52, color: '#E90054', in: [0, 0], out: [0.65, 0.35] },
+        { type: 'cmgCircle', bar: 50, rsi: 45.7, rx: 76, ry: 54, width: 10, color: COLOR.rsi, drawDur: 0, in: [0, 0], out: [1.8, 0.4] },
+        { type: 'cmgNote', text: '눌림목 타점은 RSI', bar: 42, rsi: 22, size: 46, color: COLOR.rsi, stroke: '#083244', in: [0, 0], out: [4.4, 0.4] },
         { type: 'cmgNote', text: '55선 재돌파', bar: 44, rsi: 70, size: 46, color: '#E90054', in: [4.6, 0.3] },
         /* 돌파 캔들이 양봉으로 마감 */
         { type: 'cmgCircle', bar: 52, price: 15543, rx: 44, ry: 62, width: 10, drawDur: 0.5, in: [6.2, 0.2], out: [9.6, 0.4] },
@@ -159,6 +183,14 @@ export default {
         ],
       },
       layers: [
+        /* 컷19 끝 화면 이월(⑧) — 배지는 '손익비'(4.9)와 크로스페이드(⑨),
+           '다음 캔들 시가'는 익절 박스(3.8)가 이야기를 이어받으며 교체,
+           원·'55선 재돌파'는 카메라가 러너 구간으로 나아가며 자연 퇴장(⑩) */
+        { type: 'cmgBadge', text: '1분 차트', x: 84, y: 96, size: 42, color: COLOR.badge, popDur: 0, out: [4.7, 0.4] },
+        { type: 'cmgCircle', bar: 48, rsi: 40.7, rx: 60, ry: 48, width: 10, color: '#E90054', drawDur: 0, in: [0, 0] },
+        { type: 'cmgCircle', bar: 52, rsi: 60.5, rx: 56, ry: 46, width: 10, color: '#E90054', drawDur: 0, in: [0, 0] },
+        { type: 'cmgNote', text: '55선 재돌파', bar: 44, rsi: 70, size: 46, color: '#E90054', in: [0, 0] },
+        { type: 'cmgNote', text: '다음 캔들 시가', bar: 57.5, price: 15505, size: 40, color: '#111111', in: [0, 0], out: [3.6, 0.4] },
         { type: 'cmgArrow', bar: 53, price: 15546, dir: 'buy', label: '매수', size: 34, gap: 16, popDur: 0, out: [9.5, 0.5] },
         /* 진입 얇은 검은 선 + 손절 갈색 박스 (선과 테두리 포개짐 — 팀장 규칙 ④) */
         { type: 'cmgLevel', price: LV.entry, fromBar: 51, color: 'rgba(0,0,0,0.72)', thickness: 4, growDur: 0.35, in: [0.4, 0.2] },

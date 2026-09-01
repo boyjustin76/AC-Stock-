@@ -87,6 +87,14 @@ export class SceneRuntime {
     });
     this.totalFrames = Math.round(scene.duration * this.fps);
     this.images = {};
+
+    /*  팀장 규칙 ⑭ (2026-09-01, 이정찬 전달): 매수/매도/익절/손절 버튼은 무조건 레이어
+        맨 앞 — 배열 순서와 무관하게 cmgArrow 를 마지막에 그린다(같은 층 안에서는 배열
+        순서 유지, sort 는 안정 정렬). 버튼 위에 무언가를 얹어야 하면 순서를 바꾸지 말고
+        버튼을 잠깐 투명화한다. 반려 사례: 차12 병합 인트로에서 손절 태그가 뒤에 선언된
+        손실 밴드에 덮임. brand/EDIT-RULEBOOK.md ⑭  */
+    const zOf = (L) => (L.type === 'cmgArrow' ? 1 : 0);
+    this.drawOrder = [...(scene.layers ?? [])].sort((a, b) => zOf(a) - zOf(b));
   }
 
   /** 프레임 하나 그리기. frame 은 0-based */
@@ -156,7 +164,7 @@ export class SceneRuntime {
       images: this.images,
     };
 
-    for (const layer of this.scene.layers ?? []) {
+    for (const layer of this.drawOrder) {
       if (layer.enabled === false) continue;
       drawLayer(ctx, layer, env);
     }

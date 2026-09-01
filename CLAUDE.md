@@ -26,7 +26,7 @@
 1. **`log/worklog.db`** (SQLite) 가 작업 기록의 원본이다. 읽는 형태는 `log/WORKLOG.md`,
    보는 형태는 `log/worklog.html`. 셋 다 `log/build_worklog_db.py` 에서 만들어진다.
 2. `brand/STYLE.md` — 브랜드 스펙. 색·크기는 전부 레퍼런스 영상에서 실측한 값이다. 짐작으로 바꾸지 않는다.
-3. **`brand/EDIT-RULEBOOK.md` — 연출 룰북.** 피드백에서 확정된 규칙 13개. 컷을 짜기 전에 읽는다.
+3. **`brand/EDIT-RULEBOOK.md` — 연출 룰북.** 피드백에서 확정된 규칙 14개. 컷을 짜기 전에 읽는다.
    핵심 하나만 미리: **컷 경계에서 요소를 지우지 않는다** — 새 요소로 대체할 때까지 이월(조정 레이어 방식).
 4. `README.md` — 렌더러 사용법.
 

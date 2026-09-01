@@ -99,13 +99,14 @@ const chartBase = {
      늦게까지 사는 라벨엔 clamp:false (세로 클램프가 상단에 붙잡지 않게),
      끝난 거래의 밴드·선엔 toBar:47 (새 랠리 위까지 따라오지 않게). */
 
-/* 레이어 층 정의 — 아래에서 위로. 프리미어 트랙 번호와 순서가 같다 */
+/* 레이어 층 정의 — 아래에서 위로. 프리미어 트랙 번호와 순서가 같다.
+   버튼(tag)이 맨 위다 — 팀장 규칙 ⑭ '버튼은 무조건 레이어 맨 앞' (2026-09-01). */
 export const LAYERS = {
   candle: { 층: 1, 이름: '캔들', types: [], chart: { showMAs: false }, opaque: true },
   ma: { 층: 2, 이름: '이평선', types: [], chart: { showCandles: false } },
   mark: { 층: 3, 이름: '강조', types: ['cmgCircle', 'cmgLevel', 'cmgCross'], chart: { showCandles: false, showMAs: false } },
-  tag: { 층: 4, 이름: '매수매도', types: ['cmgArrow'], chart: { showCandles: false, showMAs: false } },
-  text: { 층: 5, 이름: '텍스트', types: ['cmgNote', 'cmgUnderline'], chart: { showCandles: false, showMAs: false } },
+  text: { 층: 4, 이름: '텍스트', types: ['cmgNote', 'cmgUnderline'], chart: { showCandles: false, showMAs: false } },
+  tag: { 층: 5, 이름: '매수매도', types: ['cmgArrow'], chart: { showCandles: false, showMAs: false } },
 };
 
 /**
