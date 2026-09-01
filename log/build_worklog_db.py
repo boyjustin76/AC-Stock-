@@ -908,6 +908,14 @@ REQUESTS = [
      "④기존 납품분 검사: 차11-4(15자 2개·의존명사 시작 1개)·차11-5(14자 초과 3개·의존명사 시작 1개) — "
      "새 규칙 기준 소급 위반, 다음 편부터 적용(재발행 여부는 이정찬 결정). CLAUDE.md 범위표에 이관 반영.",
      "E 인수인계 — srt 규칙·도구·검사까지. E는 매뉴얼 §8부터 읽는다"),
+    (57, "D 가 m1~m6 실험 성공 — AE 로 '레이어 다 쪼갠 걸로 모아놓은 컴포지션 만들기' 됨. D 에게 넘길 것 "
+     "넘겨라: 이번에 추가한 것들, 차12 소스·모션, 작업물 폴더 전체 경로 등 꼼꼼하게. E 에게 전할 말도 정리.",
+     "AE-LAB-MANUAL.md §8 신설(D 인수인계): 차12 씬 파일 7종 지도, 배치표 경로, 레이어 렌더 명령과 산출 경로 "
+     "(out/cmg12/layers/1_candle~5_tag — out 은 gitignore 라 로컬 재렌더), 층 순서=tag 최상위(⑭), "
+     "m6_build.jsx 구 경로 주의, 새 렌더러 문법 4종, motion_preset 3종 실측, 룰북·STYLE 포인터, 프로토콜. "
+     "render-cmg12-layers.mjs 를 병합 클립(intro-hook 층당 1파일) 기준으로 재작성하고 실렌더 검증(5층 완료). "
+     "next_step 27 을 파일럿 성공 후속(실전 컴포지션)으로 갱신. E·D 전달용 요약문은 대화로 제공.",
+     "D 인수인계 — 매뉴얼 §8 + 레이어 도구 갱신"),
 ]
 
 PHASES = [
@@ -1219,6 +1227,8 @@ REPO_FILES = {
     "lab/cutedit": ("기록", "CAM 촬영본 전사 원본(cam_transcript.json) — 컷 재현·재검증용"),
     "lab/ae/AEP-MOGRT-조사보고.txt": ("문서", ".aep/.mogrt 납품 가능성 조사 — 공식 자료 vs 우리 실측, "
         "결론: 파일 직접 쓰기 배제, ExtendScript 로 AE 가 굽게 한다 (next_step 27)"),
+    "tools/render-cmg12-layers.mjs": ("도구", "차12 병합 인트로(intro-hook)를 5층으로 렌더 — 1_candle(mp4 바닥)/"
+        "2_ma/3_mark/4_text/5_tag(QT RLE 알파). tag 최상위(규칙 ⑭). AE/프리미어 조립 소스"),
     "log/AE-LAB-MANUAL.md": ("매뉴얼", "AE .aep/.mogrt 파일럿(sl-11-4 컷② 손익비) — D 세션용 마일스톤 "
         "A1~A6 + 사용자 단계. 보고는 log/AE-LAB.md, 잡은 tools/ae/jobs/, 옆가지 local/ae-lab"),
     "lab/ae/cut2-base-r63-무주석.png": ("소재", "컷② 무주석 바닥 스틸 (reveal 63, 캔들+20일선만) — "
@@ -1741,12 +1751,13 @@ NEXT_STEPS = [
      "컷 타이밍·차트 연출·자막 줄바꿈 — 을 받아 scenes/sl-11-4·5 와 컷리스트를 고친다. "
      "특히 11-5 '누워버리면' 침묵 컷(92.38 이음새)이 귀로 자연스러운지 확인 필요",
      "사용자 조립 후"),
-    (27, ".aep/.mogrt 파일럿 — D 가 매뉴얼대로 실행", "확인 3개는 답 받음(2026-08-29). 매뉴얼은 "
-     "log/AE-LAB-MANUAL.md — 사용자가 출근해 AE 를 설치하고 D 세션에 전달하면 시작. D 는 옆가지 "
-     "local/ae-lab 로 보고(log/AE-LAB.md)하고, 클라우드는 .mogrt(zip)·.aep dump 를 열어 판정 후 "
-     "DB 반영. 파일럿 합격(A6) 뒤에 양산기 tools/ae/compile_jsx.py(scenes.js→build.jsx 자동 변환)를 "
-     "짓는다. 근거: lab/ae/AEP-MOGRT-조사보고.txt, 바닥 스틸: lab/ae/cut2-base-r63-무주석.png",
-     "사용자 출근 후 (D 세션 + 사용자)"),
+    (27, "AE 실전 — 차12 인트로 레이어 컴포지션 (파일럿 성공 후속)", "이정찬 보고(2026-09-01): D 가 m1~m6 "
+     "실험으로 '레이어 다 쪼갠 걸로 모아놓은 컴포지션 만들기' 성공. 인수인계는 AE-LAB-MANUAL §8 — "
+     "차12 씬 파일 지도, node tools/render-cmg12-layers.mjs (병합 intro-hook 층당 1파일, tag 최상위 ⑭), "
+     "새 렌더러 문법(growEase·toBar·clamp:false·cmgArrow z 강제), motion_preset 3종, 룰북 14개. "
+     "주의: m6_build.jsx 는 구 컷4개×층 경로 기준이라 파일 목록 수정 필요. 본편 20컷 레이어 분리는 "
+     "필요해지면 총괄이 확장. D 결과물이 오면 .aep/.mogrt 판정 후 양산기(scenes.js→jsx 변환) 논의",
+     "D 작업 후 (옆가지 local/ae-lab 보고)"),
     (28, "차12 본편 클립 조립 피드백 반영", "사용자가 컷리스트_본편.txt 대로 프리미어에 얹은 뒤 나오는 지적 — "
      "컷 타이밍·라벨 위치·색·줌 동선 — 을 받아 scenes/cmg12-*.scenes.js 를 고친다. 특히 확인 요청: "
      "① RSI 라인 색(#0FBDF8)·굵기가 최종본 톤과 맞는지 ② 55/45 검정 기준선 문법(전례 없음 — 새로 정한 것) "

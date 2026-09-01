@@ -209,3 +209,71 @@ definition.json 의 컨트롤 목록이 A4 노출과 일치. 이 mogrt 와 .aep 
   `log/build_worklog_db.py` 수정 금지 — DB 반영은 클라우드 몫이다.
 - 클라우드에 요청할 것이 생기면(무주석 스틸 등) `log/AE-LAB.md` 에 적고
   사용자에게 전달을 부탁해라.
+
+## 8. [이관 2026-09-01] 차12 소스·레이어·모션 지도 — m 실험 성공 이후 실전용
+
+m1~m6 으로 '레이어 다 쪼갠 걸로 컴포지션 만들기'가 됐으니(이정찬 확인),
+이제 실전 재료다. **진실은 항상 씬 파일이다** — 아래 경로가 전부 저장소 안에 있다.
+
+### 8-1. 씬 파일 (렌더의 원본 — 좌표·타이밍·색 전부 여기서 나온다)
+
+| 파일 | 담당 | 비고 |
+|---|---|---|
+| `scenes/cmg12-cross.build.js` | 인트로+후킹 **연속 클립 1개**(intro-hook, 23.1333s) | 컷1~6 병합(2026-09-01). **레이어 분리 빌더** — build('candle'/'ma'/'mark'/'tag'/'text') |
+| `scenes/cmg12-guide.scenes.js` | 컷7~10 소개·설정 | COLOR export 가 색 실측 원본 |
+| `scenes/cmg12-fail.scenes.js` | 컷11~15 문제제시 | 씬별 시장 3종 |
+| `scenes/cmg12-buy.scenes.js` | 컷16~20 매수 관점 | 진입/손절/익절 실측값 LV |
+| `scenes/cmg12-sell.scenes.js` | 컷21~23 매도 관점 | SV |
+| `scenes/cmg12-recap.scenes.js` | 컷24~26 요약 | |
+| `scenes/cmg12-layer-*.scenes.js` | 레이어 분리 진입점 5개 | build() 를 층별로 부른다 |
+
+배치표(어느 클립이 몇 프레임에 앉는지): `deliver/cutscene/차12_RSI+이평선 스캘핑/컷리스트_본편_정확판.txt`
+— 21클립, 시퀀스 30fps 프레임 번호까지. 인트로는 프레임 166, 길이 694프레임.
+
+### 8-2. 레이어 소스 만들기 (out/ 은 gitignore — 네 로컬에서 렌더한다)
+
+```bash
+node tools/render-cmg12-layers.mjs
+# → out/cmg12/layers/1_candle/intro-hook.mp4   (불투명 — 바닥)
+#   out/cmg12/layers/2_ma/intro-hook.mov       (QT RLE 알파)
+#   out/cmg12/layers/3_mark/intro-hook.mov     (강조원·밴드·진입선·큰 ✕)
+#   out/cmg12/layers/4_text/intro-hook.mov     (라벨·밑줄)
+#   out/cmg12/layers/5_tag/intro-hook.mov      (버튼 — 최상위)
+```
+
+- **[중요] 파일 구성이 바뀌었다**: 구 인트로는 컷 4개 × 층이었지만, 병합 후엔
+  **층당 파일 1개(intro-hook)** 다. `tools/premiere/jobs/m6_build.jsx` 는 구 경로
+  기준이니 재사용하려면 파일 목록만 고치면 된다.
+- **쌓는 순서 = 폴더 번호 그대로 (아래→위). 5_tag(버튼)가 무조건 최상위다 —
+  팀장 규칙 ⑭ '버튼은 무조건 레이어 맨 앞. 가릴 거면 차라리 잠깐 투명화'.**
+  AE 컴포지션에서도 같은 순서로 쌓아라.
+- 본편 20컷(guide~recap)은 아직 플랫 렌더만 있다(레이어 분리 빌더가 인트로에만
+  있음). 필요해지면 총괄에게 요청 — 같은 방식으로 확장한다. 플랫 재렌더는:
+  `node src/cli.mjs --config scenes/cmg12-<파트>.scenes.js --all --format mp4 --out out/<아무데나>`
+
+### 8-3. 이번에 추가된 렌더러 문법 (씬 파일을 읽을 때 만난다)
+
+- `growEase: 'outCubic'` — 손실 밴드가 1.0~1.3초에 걸쳐 정성 들여 자란다
+  (기본 outExpo 는 순간 스냅 — '대충 그린 느낌' 반려). 밴드 두께 23px 통일.
+- `toBar: N` — cmgLevel 이 N번 봉에서 멈춘다 (끝난 거래의 밴드가 새 구간까지 안 따라오게).
+- `clamp: false` — cmgNote 세로 클램프 해제 (카메라와 함께 화면 밖으로 나가야 하는 라벨).
+- 엔진이 **cmgArrow(버튼)를 배열 순서와 무관하게 맨 마지막에 그린다** (engine.js, 규칙 ⑭).
+- 이월 문법: 인접 컷이 앞 컷의 끝 화면을 `in:[0,0]`·drawDur 0 으로 이어받는다 (규칙 ⑧).
+
+### 8-4. 모션 실측 (motion_preset — AE 키프레임으로 옮길 때)
+
+```sql
+SELECT * FROM motion_preset;  -- log/worklog.db
+```
+1. 밑줄/강조바: 높이 1%→100%, **4프레임**, 선형→이즈 (차명11 최종본 실측)
+2. 아래에서 올라오기: y 111%→50%, **7프레임**, 선형→이즈
+3. 왼쪽 바운스 인: x -25.6%→54.4%→47.7%→50%, **15프레임**, 이즈 4단 오버슈트
+
+연출 규칙 전체는 **`brand/EDIT-RULEBOOK.md` (14개)** — AE 로 만들어도 똑같이 적용된다.
+브랜드 색·크기는 `brand/STYLE.md` (전부 실측값 — 짐작으로 바꾸지 마라).
+
+### 8-5. 프로토콜 (기존 그대로)
+
+- 보고는 `log/AE-LAB.md`, 푸시는 옆가지(`git push -u origin HEAD:local/ae-lab`),
+  본류 병합·DB 기록은 총괄. `src/render/`·`log/build_worklog_db.py` 수정 금지.
+- 자격증명은 사용자가 자기 터미널에서만.
