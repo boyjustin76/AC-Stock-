@@ -87,6 +87,11 @@ export class SceneRuntime {
     });
     this.totalFrames = Math.round(scene.duration * this.fps);
     this.images = {};
+    /*  패스 = '이번 렌더에 무엇을 그릴지'. null 이면 전부 그린다(기존 동작).
+        {chart:false, layers:[3,4]} 처럼 주면 그 조각만 그린다 — 프리미어에
+        트랙으로 쌓을 알파 클립을 뽑는 용도다. 좌표계는 무엇을 끄든 그대로
+        계산되므로(chart.frame 주석 참고) 조각들을 겹치면 원본과 같은 그림이 된다.  */
+    this.pass = null;
   }
 
   /** 프레임 하나 그리기. frame 은 0-based */
@@ -125,18 +130,21 @@ export class SceneRuntime {
     const maAlphas = (c.ma ?? []).map((m) => keyframe(m.alpha, t, 1));
     const rsiAlpha = keyframe(c.rsiAlpha, t, 1);
 
+    const pass = this.pass;
+    const floor = !pass || pass.chart !== false;
+
     const info = this.chart.frame({
       reveal,
       zoom,
       priceOffset,
       alpha: chartAlpha,
-      showGrid: c.showGrid !== false,
-      showAxes: c.showAxes !== false,
-      showLast: c.showLast !== false,
-      showCandles: c.showCandles !== false,
-      showMAs: c.showMAs !== false,
+      showGrid: floor && c.showGrid !== false,
+      showAxes: floor && c.showAxes !== false,
+      showLast: floor && c.showLast !== false,
+      showCandles: floor && c.showCandles !== false,
+      showMAs: floor && c.showMAs !== false,
       maAlphas,
-      rsiAlpha,
+      rsiAlpha: floor ? rsiAlpha : 0,
     });
 
     const env = {
@@ -156,7 +164,11 @@ export class SceneRuntime {
       images: this.images,
     };
 
-    for (const layer of this.scene.layers ?? []) {
+    const pick = pass?.layers ?? null;   // null = 전부
+    const list = this.scene.layers ?? [];
+    for (let i = 0; i < list.length; i++) {
+      if (pick && !pick.includes(i)) continue;
+      const layer = list[i];
       if (layer.enabled === false) continue;
       drawLayer(ctx, layer, env);
     }
@@ -209,6 +221,12 @@ export async function boot() {
     transparent: !!runtime.theme.transparent,
   };
   window.__renderFrame = (n) => runtime.renderFrame(n);
+  /** 패스 지정. {chart, layers, transparent} — 캡처 쪽에서 호출한다 */
+  window.__setPass = (p) => {
+    runtime.pass = p ?? null;
+    if (p && p.transparent) runtime.theme.transparent = true;
+    return true;
+  };
   window.__runtime = runtime;
   await document.fonts.ready;
   runtime.renderFrame(0);
