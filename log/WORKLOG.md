@@ -454,6 +454,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 
 | 항목 | 한계 | 대응 |
 |---|---|---|
+| ctx.filter 블러 비용 | ctx.filter='blur()' 를 켠 채 chart.frame() 을 부르면 캔들·꼬리·이평선 드로우콜 하나하나에 블러 패스가 따로 돈다 — 브리지 인트로 1794프레임에 80분 (프레임당 2.7초, r8~r9 때 '블러는 백그라운드로 돌린다'며 참고 지나갔던 그 느림의 정체) | engine.js 가 블러 씬에서는 차트를 오프스크린 캔버스에 완성한 뒤 그 한 장에만 blur 를 걸어 drawImage 로 합성한다 (2026-09-02 수정). 같은 클립이 212초 — 23배. 이제 블러 씬도 포그라운드 렌더면 충분하다 |
 | 저장소에 없는 것 | 템플릿 차트명가(롱)_하이라이트 - 복사본.psd(180MB)와 완성본 레퍼런스 PNG 10장은 저장소에 없다. out/ 도 .gitignore 라 뽑아 낸 썸네일 자체는 안 들어간다 | 셋 다 회사 드라이브에 있다 (drive_map 참고). 로컬 PC 에는 이미 있으니 문제가 안 된다. 저장소에 있는 것은 그 파일들에서 뽑아 낸 값과 픽셀이다 — thumbnail_rule · thumbnail_fx.json · brand/thumbnail/*.png |
 | psd-tools 레이어 뽑기 | composite() 가 투명한 빈 그림을 주는 레이어가 많다 (꺼져 있는 그룹 안, 아트보드 문서, 복제 직후) | topil() 은 레이어에 저장된 픽셀을 그대로 준다. 효과가 필요하면 그룹을 solo() 로 켠 뒤 composite. 원본 회차 그룹은 대부분 꺼져 있어서 복제본도 꺼진 채로 나온다 — 켜지 않으면 빈 그림이다 |
 | PSD 텍스트 EngineData | 스타일 구간 배열 RunArray 와 길이 배열 RunLengthArray 의 개수가 다르면 포토샵이 '프로그램 오류로 인하여 열 수 없습니다' 로 파일을 거부한다 | 글자를 바꿀 때 두 배열을 함께 손본다. 길이 합은 글자 수(문단 끝 \r 포함)와 같아야 한다. tools/psdedit.py 의 Template.check() 가 저장 전에 자동으로 잡는다 |
@@ -743,7 +744,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 → CAM 컷편집 풀해상도 2편이 스크래치에 생존 — 전송 상한(30MiB) 때문에 각 2파트로 무손실 분할(-c copy, 11-4: 22초 지점·11-5: 23초 지점)해 컷리스트와 함께 재전송, 4파트 저장 확인받음. 정리: 차12 조립 r9 확정 기록, next_step 28·29 재편(D 후속·브리지 톤앤매너), 룰북 결정 기록에 r9 확정 추가. 진행 중 한도 초기화로 1회 중단 — 저장소는 전부 커밋·푸시 상태여서 롤백 불요 확인. (차12 롱폼 3단계 사실상 완결 — 이후는 브리지 스타일 교체와 D 후속)
 
 **63. 차명10 스샷 3장([롱폼]차명10_양방향 매매법 프리미어 캡처) 기준으로 Bridge 계열의 팔레트·폰트 등 톤앤매너만 교체하라 — 전개 자체는 마음에 든다.**
-→ ①스샷 실측: 회색 바탕(~#C4C6C5) 위 차트 은은히, 경기천년바탕 Bold 흰 글자(외곽선 없음), 그림자 프리미어값(불투명 95·135°·거리 7·크기 12.8·블러 40), 키워드는 핑크 #EF2767 풀밴드 위 흰 글자. ②폰트 입수: 눈누 CDN woff → fonttools 로 TTF 변환 → brand/fonts/경기천년바탕_Bold.ttf + scene.html @font-face 'GyeonggiBatang'. ③렌더러: strokeText 그림자 확장(shadowColor/OffsetX/Y, 무외곽선이면 채움 글자에 직접), cmgText hlStyle:'band'(풀밴드+hlTextColor, 반높이 size×0.72), fill 레이어 신설(전체 화면 단색 덮개, 등장 연출 없음). ④씬: cmg12-bridge 를 T10 공통 const 로 재스타일 — 텍스트·타이밍·구성 유지, bridge-scalp 종이 배경→회색+워시 차트(ema5/20), ✗ 색 #D81028→#EF2767, 최종 줄 y862→854(밴드 하단 세이프 에어리어 검산). 룰북 §E-2 신설. 2클립 재렌더(r10) 후 교체 납품. (브리지 2클립만 교체(r10) — 이름·길이·배치 동일. 차명#4 문법은 §E 대안으로 보존)
+→ ①스샷 실측: 회색 바탕(~#C4C6C5) 위 차트 은은히, 경기천년바탕 Bold 흰 글자(외곽선 없음), 그림자 프리미어값(불투명 95·135°·거리 7·크기 12.8·블러 40), 키워드는 핑크 #EF2767 풀밴드 위 흰 글자. ②폰트 입수: 눈누 CDN woff → fonttools 로 TTF 변환 → brand/fonts/경기천년바탕_Bold.ttf + scene.html @font-face 'GyeonggiBatang'. ③렌더러: strokeText 그림자 확장(shadowColor/OffsetX/Y, 무외곽선이면 채움 글자에 직접), cmgText hlStyle:'band'(풀밴드+hlTextColor, 반높이 size×0.72), fill 레이어 신설(전체 화면 단색 덮개, 등장 연출 없음). ④씬: cmg12-bridge 를 T10 공통 const 로 재스타일 — 텍스트·타이밍·구성 유지, bridge-scalp 종이 배경→회색+워시 차트(ema5/20), ✗ 색 #D81028→#EF2767, 최종 줄 y862→854(밴드 하단 세이프 에어리어 검산). 룰북 §E-2 신설. ⑤렌더 중 이정찬이 80분 무반응으로 중단 — 원인은 ctx.filter 블러가 차트 드로우콜마다 도는 엔진 구조(constraint_note). 오프스크린 1장 합성으로 수정, 인트로 4800초→212초(23배). 2클립 재렌더(r10) 후 교체 납품. (브리지 2클립만 교체(r10) — 이름·길이·배치 동일. 차명#4 문법은 §E 대안으로 보존)
 
 ## 문제와 해결
 
@@ -1146,3 +1147,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 167 | `5663048b` | 세이브 save/2026-09-02-1847 — 마감 정리 — r9 확정 기록, 요청 62, next_step 28·29 재편(D 후속·브리지 톤앤매너) | 5파일 +27/-17 |
 | 168 | `adbdbb28` | 세이브 기록 save/2026-09-02-1847 | 5파일 +11/-3 |
 | 169 | `adb6bc4e` | 세이브 save/2026-09-02-1903 — 브리지 r10 차명10 재스타일 — 렌더러(밴드·그림자·fill)+경기천년바탕+룰북 §E-2+DB, 렌더 진행 중 | 9파일 +147/-51 |
+| 170 | `f740e442` | 세이브 기록 save/2026-09-02-1903 | 5파일 +11/-3 |

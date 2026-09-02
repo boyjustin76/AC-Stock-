@@ -134,9 +134,25 @@ export class SceneRuntime {
     const maAlphas = (c.ma ?? []).map((m) => keyframe(m.alpha, t, 1));
     const rsiAlpha = keyframe(c.rsiAlpha, t, 1);
 
-    /* 카드 씬용: 차트를 흐려서 배경으로 깐다 (팀장 최종본의 워시 문법 — c.alpha 와 조합) */
+    /* 카드 씬용: 차트를 흐려서 배경으로 깐다 (팀장 최종본의 워시 문법 — c.alpha 와 조합).
+       ctx.filter 를 켠 채 chart.frame() 을 부르면 캔들·꼬리·이평선 드로우콜 하나하나에
+       블러 패스가 돌아 프레임당 수 초가 걸린다(r10 실측 — 인트로 1794f 에 80분).
+       오프스크린에 차트를 완성한 뒤 그 한 장에만 블러를 건다. */
     const blurPx = keyframe(c.blurPx, t, 0);
-    if (blurPx > 0) ctx.filter = `blur(${blurPx}px)`;
+    let chartTargetCtx = null;
+    if (blurPx > 0) {
+      if (!this._blurLayer) {
+        this._blurLayer = document.createElement('canvas');
+        this._blurLayer.width = this.w;
+        this._blurLayer.height = this.h;
+        this._blurLayerCtx = this._blurLayer.getContext('2d', { alpha: true });
+      }
+      const octx = this._blurLayerCtx;
+      octx.setTransform(1, 0, 0, 1, 0, 0);
+      octx.clearRect(0, 0, this.w, this.h);
+      chartTargetCtx = this.chart.ctx;
+      this.chart.ctx = octx;
+    }
     const info = this.chart.frame({
       reveal,
       zoom,
@@ -150,7 +166,14 @@ export class SceneRuntime {
       maAlphas,
       rsiAlpha,
     });
-    if (blurPx > 0) ctx.filter = 'none';
+    if (blurPx > 0) {
+      this.chart.ctx = chartTargetCtx;
+      ctx.save();
+      ctx.filter = `blur(${blurPx}px)`;
+      ctx.drawImage(this._blurLayer, 0, 0);
+      ctx.restore();
+      ctx.filter = 'none';
+    }
 
     const env = {
       t,
