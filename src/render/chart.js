@@ -479,11 +479,16 @@ export class Chart {
       ctx.stroke();
       ctx.setLineDash([]);
       if (lv.label !== false) {
+        // 라벨은 패널 안쪽 오른쪽 끝 — 차트 밖(padRight)에 흰 열을 만들지 않는다
+        const txt = String(lv.label ?? lv.v);
         ctx.font = `600 24px ${theme.mono}`;
-        ctx.textAlign = 'left';
+        ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
+        const tw = ctx.measureText(txt).width;
+        ctx.fillStyle = 'rgba(255,255,255,0.88)';
+        ctx.fillRect(r.right - tw - 22, y - 16, tw + 24, 32);
         ctx.fillStyle = lv.color ?? 'rgba(17,17,17,0.75)';
-        ctx.fillText(String(lv.label ?? lv.v), r.right + 14, y);
+        ctx.fillText(txt, r.right - 14, y);
       }
     }
 

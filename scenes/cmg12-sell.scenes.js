@@ -2,10 +2,10 @@
  * 차트명가 #12 — 매도 관점 3컷 (컷21~23) · 5분 차트
  *
  * 자막 원본: 차명12롱폼 음성자막-한국어.srt (30.0 격자 반올림)
- *   컷21 sell-array 304.300~316.833 (12.5333s)  167~173 5분 차트, 10일선이 34일선 아래 = 역배열
- *   컷22 sell-rsi   316.833~333.967 (17.1333s)  174~182 매도 관점만 · 반등에도 매수 X ·
- *                                               RSI 45 위로 올라갔다 재이탈
- *   컷23 sell-entry 333.967~354.000 (20.0333s)  183~193 음봉 확인 → 매도 진입 → 손절·익절 1:2 → 분할
+ *   [정확.srt 재동기 2026-08-31]
+ *   컷21 sell-array 319.600~334.533 (14.9333s)  174~182 5분 차트 · 역배열 · 매도 관점으로만
+ *   컷22 sell-rsi   334.533~349.300 (14.7667s)  183~190 반등 무시 · RSI 45선 재이탈
+ *   컷23 sell-entry 349.300~369.300 (20.0000s)  191~201 음봉 확인 → 매도 진입 → 손절·익절 1:2 → 분할
  *
  * 시장 실측 (seed 68 · find-events):
  *   역배열 유지 전 구간 (s10 < s34)
@@ -31,7 +31,7 @@ const chartBase = {
   showGrid: false,
   showAxes: false,
   showLast: false,
-  layout: { padLeft: 0, padRight: 110, padTop: 0, padBottom: 0, rightGap: 5 },
+  layout: { padLeft: 0, padRight: 0, padTop: 216, padBottom: 162, rightGap: 0 },
   ma: [
     { type: 'sma', period: 10, width: 5, color: COLOR.ma10 },
     { type: 'sma', period: 34, width: 5, color: COLOR.ma34 },
@@ -78,18 +78,19 @@ export default {
     {
       id: 'sell-array',
       name: '컷21 역배열 확인 (12.5333s)',
-      duration: 12.533333,
+      duration: 14.933333,
       chart: {
         ...chartBase,
-        reveal: [{ t: 0, v: 44 }, { t: 12.533333, v: 48, ease: 'linear' }],
+        reveal: [{ t: 0, v: 44 }, { t: 14.933333, v: 48, ease: 'linear' }],
       },
       layers: [
-        { type: 'cmgBadge', text: '5분 차트', x: 84, y: 96, size: 42, color: COLOR.badge, in: [2.0, 0.3] },
+        { type: 'cmgBadge', text: '5분 차트', x: 84, y: 262, size: 42, color: COLOR.badge, in: [2.0, 0.3] },
         { type: 'cmgNote', text: '10일선', bar: 40, price: 15628, size: 46, color: COLOR.ma10, in: [4.5, 0.3] },
-        { type: 'cmgNote', text: '34일선', bar: 40, price: 15822, size: 46, color: COLOR.ma34, in: [5.5, 0.3] },
-        { type: 'cmgTrace', overlay: 0, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma10, in: [9.4, 0.5] },
-        { type: 'cmgTrace', overlay: 1, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma34, in: [9.9, 0.5] },
-        { type: 'cmgNote', text: '역배열 = 하락 추세', bar: 30, price: 15530, size: 52, color: '#111111', in: [10.4, 0.3] },
+        { type: 'cmgNote', text: '34일선', bar: 40, price: 15822, size: 46, color: COLOR.ma34, in: [5.7, 0.3] },
+        { type: 'cmgTrace', overlay: 0, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma10, in: [9.5, 0.5] },
+        { type: 'cmgTrace', overlay: 1, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma34, in: [10.0, 0.5] },
+        { type: 'cmgNote', text: '역배열 = 하락 추세', bar: 24, price: 15648, size: 52, color: '#111111', in: [10.6, 0.3] },
+        { type: 'cmgNote', text: '오직 매도 관점으로만', bar: 30, rsi: 18, size: 44, color: '#E90054', in: [12.9, 0.3] },
       ],
     },
 
@@ -97,25 +98,33 @@ export default {
     {
       id: 'sell-rsi',
       name: '컷22 45선 재이탈 (17.1333s)',
-      duration: 17.133333,
+      duration: 14.766667,
       chart: {
         ...chartBase,
         reveal: [
           { t: 0, v: 48 },
-          { t: 11.0, v: 49.5, ease: 'linear' },
-          { t: 14.0, v: 50.2, ease: 'inOutCubic' },
-          { t: 17.133333, v: 50.4, ease: 'linear' },
+          { t: 8.5, v: 49.5, ease: 'linear' },
+          { t: 12.0, v: 50.2, ease: 'inOutCubic' },
+          { t: 14.766667, v: 50.4, ease: 'linear' },
         ],
       },
       layers: [
-        { type: 'cmgNote', text: '오직 매도 관점만', bar: 32, price: 15530, size: 52, color: '#E90054', in: [0.6, 0.3] },
+        /* 컷21 끝 화면 이월(⑧) — 배지·접선·'오직 매도'는 유지, 이름표는 반등
+           이야기(1.0~)로 넘어가며 크로스페이드(⑨) */
+        { type: 'cmgBadge', text: '5분 차트', x: 84, y: 262, size: 42, color: COLOR.badge, popDur: 0 },
+        { type: 'cmgTrace', overlay: 0, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma10, in: [0, 0] },
+        { type: 'cmgTrace', overlay: 1, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma34, in: [0, 0] },
+        { type: 'cmgNote', text: '10일선', bar: 40, price: 15628, size: 46, color: COLOR.ma10, in: [0, 0], out: [0.8, 0.4] },
+        { type: 'cmgNote', text: '34일선', bar: 40, price: 15822, size: 46, color: COLOR.ma34, in: [0, 0], out: [0.8, 0.4] },
+        { type: 'cmgNote', text: '역배열 = 하락 추세', bar: 24, price: 15648, size: 52, color: '#111111', in: [0, 0], out: [1.5, 0.4] },
+        { type: 'cmgNote', text: '오직 매도 관점으로만', bar: 30, rsi: 18, size: 44, color: '#E90054', in: [0, 0] },
         /* 반등이 나와도 매수 고려 X */
-        { type: 'cmgCircle', bar: 45.5, price: 15715, rx: 170, ry: 120, width: 10, drawDur: 0.6, in: [2.8, 0.2] },
-        { type: 'cmgNote', text: '반등에도 매수 금지', bar: 45, price: 15905, size: 48, color: '#111111', in: [3.6, 0.3] },
+        { type: 'cmgCircle', bar: 45.5, price: 15715, rx: 170, ry: 120, width: 10, drawDur: 0.6, in: [1.0, 0.2] },
+        { type: 'cmgNote', text: '반등에도 매수 금지', bar: 45, price: 15905, size: 48, color: '#111111', in: [1.7, 0.3] },
         /* RSI — 45선 위로 올라왔다가 다시 하향 이탈 */
-        { type: 'cmgCircle', bar: 46, rsi: 58.3, rx: 66, ry: 50, width: 10, color: COLOR.rsi, drawDur: 0.5, in: [12.2, 0.2] },
-        { type: 'cmgCircle', bar: 49, rsi: 43.2, rx: 58, ry: 48, width: 10, color: '#E90054', drawDur: 0.5, in: [14.4, 0.2] },
-        { type: 'cmgNote', text: '45선 재이탈', bar: 40, rsi: 68, size: 46, color: '#E90054', in: [15.1, 0.3] },
+        { type: 'cmgCircle', bar: 46, rsi: 58.3, rx: 66, ry: 50, width: 10, color: COLOR.rsi, drawDur: 0.5, in: [9.8, 0.2] },
+        { type: 'cmgCircle', bar: 49, rsi: 43.2, rx: 58, ry: 48, width: 10, color: '#E90054', drawDur: 0.5, in: [12.3, 0.2] },
+        { type: 'cmgNote', text: '45선 재이탈', bar: 40, rsi: 68, size: 46, color: '#E90054', in: [12.9, 0.3] },
       ],
     },
 
@@ -123,15 +132,17 @@ export default {
     {
       id: 'sell-entry',
       name: '컷23 매도 진입과 청산 (20.0333s)',
-      duration: 20.033333,
+      duration: 20.0,
       chart: {
         ...chartBase,
         include: [SV.stop + 14],
         reveal: [
+          /* [v3] 11초 단일 inOutCubic 폭주 완화 — 완만한 가속 후 등속 (1:2 도달 bar 65는 13.8s에 확정, flash 15.7 전 ✓) */
           { t: 0, v: 50.4 },
           { t: 4.0, v: 52, ease: 'linear' },
-          { t: 15.0, v: 68, ease: 'inOutCubic' },
-          { t: 20.033333, v: 74, ease: 'linear' },
+          { t: 8.0, v: 56, ease: 'inOutQuad' },
+          { t: 15.0, v: 68, ease: 'linear' },
+          { t: 20.0, v: 74, ease: 'linear' },
         ],
         zoom: [
           { t: 0, v: 1 },
@@ -141,6 +152,15 @@ export default {
         ],
       },
       layers: [
+        /* 컷22 끝 화면 이월(⑧) — 접선·문장·원은 줌인(0~3.0)에 실어 보낸다(⑩보충),
+           배지는 '손익비'(12.0)와 크로스페이드(⑨) */
+        { type: 'cmgBadge', text: '5분 차트', x: 84, y: 262, size: 42, color: COLOR.badge, popDur: 0, out: [11.8, 0.4] },
+        { type: 'cmgTrace', overlay: 0, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma10, in: [0, 0], out: [1.0, 0.5] },
+        { type: 'cmgTrace', overlay: 1, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma34, in: [0, 0], out: [1.0, 0.5] },
+        { type: 'cmgNote', text: '오직 매도 관점으로만', bar: 30, rsi: 18, size: 44, color: '#E90054', in: [0, 0], out: [1.0, 0.5] },
+        { type: 'cmgCircle', bar: 46, rsi: 58.3, rx: 66, ry: 50, width: 10, color: COLOR.rsi, drawDur: 0, in: [0, 0], out: [1.0, 0.5] },
+        { type: 'cmgCircle', bar: 49, rsi: 43.2, rx: 58, ry: 48, width: 10, color: '#E90054', drawDur: 0, in: [0, 0], out: [1.5, 0.4] },
+        { type: 'cmgNote', text: '45선 재이탈', bar: 40, rsi: 68, size: 46, color: '#E90054', in: [0, 0], out: [1.5, 0.4] },
         /* 신호 캔들이 음봉으로 확실히 마감 */
         { type: 'cmgCircle', bar: 49, price: 15700, rx: 46, ry: 84, width: 10, drawDur: 0.5, in: [0.8, 0.2], out: [6.6, 0.4] },
         { type: 'cmgNote', text: '음봉 마감', bar: 43, price: 15840, size: 48, color: '#111111', in: [1.7, 0.3], out: [4.2, 0.4] },
@@ -175,7 +195,7 @@ export default {
           growDur: 0.4,
           in: [11.0, 0.2],
         },
-        { type: 'cmgBadge', text: '손익비  1 : 2', x: 84, y: 96, size: 44, color: '#E90054', in: [12.0, 0.3] },
+        { type: 'cmgBadge', text: '손익비  1 : 2', x: 84, y: 262, size: 44, color: '#E90054', in: [12.0, 0.3] },
         /* 1:2 도달 — 절반 분할 청산 후 추세를 더 길게 */
         { type: 'flash', at: 15.7, dur: 0.22, strength: 0.4, color: '#14FF36' },
         { type: 'cmgArrow', bar: 65, price: 15500, dir: 'buy', label: '익절 1/2', color: '#0DA82A', size: 32, gap: 16, in: [15.9, 0.35] },

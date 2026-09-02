@@ -112,6 +112,18 @@ export class SceneRuntime {
         트랙으로 쌓을 알파 클립을 뽑는 용도다. 좌표계는 무엇을 끄든 그대로
         계산되므로(chart.frame 주석 참고) 조각들을 겹치면 원본과 같은 그림이 된다.  */
     this.pass = null;
+
+    /*  팀장 규칙 ⑭ (2026-09-01, 이정찬 전달): 매수/매도/익절/손절 버튼은 무조건 레이어
+        맨 앞 — 배열 순서와 무관하게 cmgArrow 를 마지막에 그린다(같은 층 안에서는 배열
+        순서 유지, sort 는 안정 정렬). 버튼 위에 무언가를 얹어야 하면 순서를 바꾸지 말고
+        버튼을 잠깐 투명화한다. 반려 사례: 차12 병합 인트로에서 손절 태그가 뒤에 선언된
+        손실 밴드에 덮임. brand/EDIT-RULEBOOK.md ⑭
+        패스로 조각을 뽑을 때도 골라내려면 **원래 배열 번호**가 필요해 함께 싣는다.  */
+    const zOf = (L) => (L.type === 'cmgArrow' ? 2
+      : (L.type === 'cmgCircle' || L.type === 'cmgBadge') ? 1 : 0);
+    this.drawOrder = (scene.layers ?? [])
+      .map((L, i) => ({ L, i }))
+      .sort((a, b) => zOf(a.L) - zOf(b.L));
   }
 
   /** 프레임 하나 그리기. frame 은 0-based */
@@ -153,6 +165,9 @@ export class SceneRuntime {
     const pass = this.pass;
     const floor = !pass || pass.chart !== false;
 
+    /* 카드 씬용: 차트를 흐려서 배경으로 깐다 (팀장 최종본의 워시 문법 — c.alpha 와 조합) */
+    const blurPx = keyframe(c.blurPx, t, 0);
+    if (blurPx > 0) ctx.filter = `blur(${blurPx}px)`;
     const info = this.chart.frame({
       reveal,
       zoom,
@@ -166,6 +181,7 @@ export class SceneRuntime {
       maAlphas,
       rsiAlpha: floor ? rsiAlpha : 0,
     });
+    if (blurPx > 0) ctx.filter = 'none';
 
     const env = {
       t,
@@ -185,10 +201,9 @@ export class SceneRuntime {
     };
 
     const pick = pass?.layers ?? null;   // null = 전부
-    const list = this.scene.layers ?? [];
-    for (let i = 0; i < list.length; i++) {
-      if (pick && !pick.includes(i)) continue;
-      let layer = list[i];
+    for (const entry of this.drawOrder) {
+      if (pick && !pick.includes(entry.i)) continue;
+      let layer = entry.L;
       if (layer.enabled === false) continue;
       if (pass?.hold) layer = holdOn(layer);
       drawLayer(ctx, layer, env);

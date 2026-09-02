@@ -111,6 +111,14 @@ function strokeText(ctx, text, x, y, opt = {}) {
   ctx.restore();
 }
 
+/** 대략 휘도(0~1). 어두운 글자에 밝은 테두리를 골라 주기 위한 판정용 — #rrggbb 만 다룬다 */
+function luma(color) {
+  const m = /^#([0-9a-f]{6})$/i.exec(color ?? '');
+  if (!m) return 1;
+  const n = parseInt(m[1], 16);
+  return (((n >> 16) & 255) * 0.2126 + ((n >> 8) & 255) * 0.7152 + (n & 255) * 0.0722) / 255;
+}
+
 /** 오른쪽을 가리키는 화살표 모양 라벨 (매수 / 매도 태그) */
 function arrowTagPath(ctx, tipX, cy, w, h, dir = 1, headRatio = 0.49, radius = null) {
   const head = h * headRatio;
@@ -893,10 +901,15 @@ const LAYERS = {
     const price = resolvePrice(L.price, env);
     const y = scale.y(price);
     const p = chart.plot;
-    const grow = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.45), Ease.outExpo);
+    /* growEase: outExpo(기본)는 시작하자마자 90%까지 스냅한다 — 천천히 정성 들여 긋는 느낌이
+       필요하면 'outCubic' 등으로 바꾼다 (차12 인트로 손실 밴드 피드백) */
+    const grow = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.45), Ease[L.growEase] ?? Ease.outExpo);
     const color = L.color ?? theme.tp;
     const x0 = L.fromBar != null ? scale.x(L.fromBar) : (L.fromX ?? p.x);
-    const w = (p.right - x0) * grow;
+    /* toBar: 밴드를 특정 봉에서 끝낸다 (기본은 plot 오른쪽 끝까지).
+       toBar 가 화면 오른쪽 밖이면 기존과 동일하게 잘린다 — 컷 경계에서 이어받아도 안 튄다 */
+    const x1 = L.toBar != null ? Math.min(scale.x(L.toBar), p.right) : p.right;
+    const w = (x1 - x0) * grow;
 
     withAlpha(ctx, v, () => {
       ctx.save();
@@ -1094,6 +1107,61 @@ const LAYERS = {
     });
   },
 
+  /**
+   * 화면 좌표 고정 카드 텍스트 — 개념/설명 카드용.
+   * 팀장 최종본(차명#4) 실측 문법 (2026-09-01): 흰 외곽선+옅은 그림자의 검정 굵은
+   * 글씨, 키워드는 형광펜(#F8D890), 아직 차례가 안 온 항목은 예고 베이지(#F9E9BF)로
+   * 미리 떠 있다가 자기 내레이션에 본색이 된다(activeAt).
+   *   { type:'cmgText', y, x?(기본 중앙), size?, text | parts:[{text,color?,hl?}],
+   *     color?, preColor?, activeAt?, hlColor?, align?, in, out }
+   */
+  cmgText(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    const { theme } = env;
+    const size = L.size ?? 88;
+    const x = L.x ?? env.w / 2;
+    const font = L.font ?? theme.font;
+    const weight = L.fontWeight ?? 700;
+    const parts = L.parts ?? [{ text: L.text }];
+    const pre = L.activeAt != null && env.t < L.activeAt;
+    const baseColor = pre ? (L.preColor ?? '#F9E9BF') : (L.color ?? '#111111');
+    const hlColor = L.hlColor ?? '#F8D890';
+
+    withAlpha(ctx, v, () => {
+      ctx.font = `${weight} ${size}px ${font}`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      const widths = parts.map((p) => ctx.measureText(p.text).width);
+      const total = widths.reduce((a, b) => a + b, 0);
+      const rise = span(env.t, L.in?.[0] ?? 0, (L.in?.[0] ?? 0) + Math.max(L.in?.[1] ?? 0.3, 0.01), Ease.outCubic);
+      const y = L.y + (1 - rise) * size * 0.35;
+      let cx = (L.align ?? 'center') === 'center' ? x - total / 2 : L.align === 'right' ? x - total : x;
+      /* 형광펜 — 본색 상태에서만 */
+      if (!pre) {
+        let hx = cx;
+        for (let i = 0; i < parts.length; i++) {
+          if (parts[i].hl) {
+            ctx.fillStyle = hlColor;
+            const pad = size * 0.1;
+            roundRect(ctx, hx - pad, y - size * 0.56, widths[i] + pad * 2, size * 1.12, size * 0.09);
+            ctx.fill();
+          }
+          hx += widths[i];
+        }
+      }
+      for (let i = 0; i < parts.length; i++) {
+        strokeText(ctx, parts[i].text, cx, y + size * 0.04, {
+          stroke: '#FFFFFF',
+          strokeWidth: L.strokeWidth ?? size * 0.18,
+          fill: pre ? baseColor : (parts[i].color ?? baseColor),
+          shadow: pre ? 0 : 8,
+        });
+        cx += widths[i];
+      }
+    });
+  },
+
   /** 차트 위 짧은 주석 (외곽선 글씨 + 선택적 지시선) */
   /**
    * RSI 패널의 강조 기준선 (70/30 처럼 내레이션 타이밍에 맞춰 등장시킬 때).
@@ -1183,8 +1251,12 @@ const LAYERS = {
     const size = L.size ?? 56;
     const rise = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.45, Ease.outCubic);
     const x = L.bar != null ? scale.x(L.bar) + (L.dx ?? 0) : L.x;
-    const y = (L.rsi != null && scale.rsiY ? scale.rsiY(L.rsi)
+    const yRaw = (L.rsi != null && scale.rsiY ? scale.rsiY(L.rsi)
       : L.price != null ? scale.y(resolvePrice(L.price, env)) : L.y) + (L.dy ?? 0);
+    // 뷰포트가 움직여도 글자가 화면 밖으로 소리 없이 나가지 않게 세로만 잡아 둔다.
+    // clamp: false — 카메라와 함께 자연스럽게 프레임 밖으로 나가야 하는(이월된) 라벨용
+    const y = L.clamp === false ? yRaw : Math.max(size * 0.85, Math.min(env.h - size * 0.85, yRaw));
+    const fill = L.color ?? '#FFFFFF';
 
     withAlpha(ctx, v, () => {
       ctx.translate(0, (1 - rise) * 18);
@@ -1192,8 +1264,9 @@ const LAYERS = {
       ctx.textAlign = L.align ?? 'center';
       ctx.textBaseline = 'middle';
       strokeText(ctx, L.text, x, y, {
-        fill: L.color ?? '#FFFFFF',
-        stroke: L.stroke ?? '#000000',
+        fill,
+        // 어두운 글자에 검정 테두리를 두르면 획이 뭉개진다 — 밝은 테두리로 바꿔 준다
+        stroke: L.stroke ?? (luma(fill) < 0.16 ? '#FFFFFF' : '#000000'),
         strokeWidth: L.strokeWidth ?? size * 0.16,
       });
     });

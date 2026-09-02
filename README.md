@@ -2,7 +2,7 @@
 
 해외선물 유튜브 채널 **차트명가** 영상에 쓸 차트 모션그래픽 소스 영상을 코드로 렌더합니다.
 
-![범위](https://img.shields.io/badge/%EB%B2%94%EC%9C%84-%EB%A1%B1%ED%8F%BC%203%EB%8B%A8%EA%B3%84%20%2B%20%EC%88%8F%ED%8F%BC%201%EB%8B%A8%EA%B3%84-0B8C7F?style=flat-square) ![규격](https://img.shields.io/badge/%EA%B7%9C%EA%B2%A9-1920x1080%20%C2%B7%2059.94fps-555?style=flat-square) ![렌더](https://img.shields.io/badge/%EB%A0%8C%EB%8D%94-16%EC%B4%88%20%ED%81%B4%EB%A6%BD%20%3D%2027%EC%B4%88-555?style=flat-square) ![대본 인덱스](https://img.shields.io/badge/%EB%8C%80%EB%B3%B8%20%EC%9D%B8%EB%8D%B1%EC%8A%A4-13%ED%8E%B8-555?style=flat-square) ![레이어](https://img.shields.io/badge/%EB%A0%88%EC%9D%B4%EC%96%B4-22%EC%A2%85-555?style=flat-square)
+![범위](https://img.shields.io/badge/%EB%B2%94%EC%9C%84-%EB%A1%B1%ED%8F%BC%203%EB%8B%A8%EA%B3%84%20%2B%20%EC%88%8F%ED%8F%BC%201%EB%8B%A8%EA%B3%84-0B8C7F?style=flat-square) ![규격](https://img.shields.io/badge/%EA%B7%9C%EA%B2%A9-1920x1080%20%C2%B7%2059.94fps-555?style=flat-square) ![렌더](https://img.shields.io/badge/%EB%A0%8C%EB%8D%94-16%EC%B4%88%20%ED%81%B4%EB%A6%BD%20%3D%2027%EC%B4%88-555?style=flat-square) ![대본 인덱스](https://img.shields.io/badge/%EB%8C%80%EB%B3%B8%20%EC%9D%B8%EB%8D%B1%EC%8A%A4-13%ED%8E%B8-555?style=flat-square) ![레이어](https://img.shields.io/badge/%EB%A0%88%EC%9D%B4%EC%96%B4-23%EC%A2%85-555?style=flat-square)
 
 📊 **[작업 로그 대시보드](https://claude.ai/code/artifact/cfb762d2-2caf-4a18-8ec2-696b884ac0e1)** · [전체 기록](log/WORKLOG.md) · [새 세션 안내](CLAUDE.md)
 
@@ -149,7 +149,7 @@ python3 tools/shortform.py check 초안.txt                    # 규칙 + 이름
 | 대본 인덱스 | 13편 | 새 대본과 겹치는 회차를 전문 검색으로 찾는다 (차명14·15 2편은 아직 빈 템플릿) |
 | 회차 프리미어 파일 | 37건 | 레퍼런스 확인 (`.prproj` 를 직접 읽는다) |
 | 브랜드 실측값 | 30건 | 색·크기. 레퍼런스 프레임에서 픽셀 단위로 잰 값 |
-| 레이어 | 22종 | 컷을 짤 때 쓰는 재료 |
+| 레이어 | 23종 | 컷을 짤 때 쓰는 재료 |
 | 회사 모션 문법 | 3종 | 최종본 키프레임에서 뽑은 프레임 수·이징 |
 
 **최근 납품** — 20일선 눌림목 / 조기 익절 4컷, 956프레임 · 1920×1080 · 59.94fps  
@@ -186,12 +186,12 @@ git restore --source=<해시> -- .              # 되돌리기
 
 | 시각 (KST) | 슬롯 | 커밋 | 어디까지 |
 |---|---|---|---|
-| 2026-08-30 20:05 | `save/2026-08-30-2005` | `176018c` | 차12 본편 20컷 납품 — RSI 패널 신설, 씬 6파일, 실측 색·시장, 프레임 22/22 검증, zip 4개+미리보기 전달, 배치표 드라이브 업로드 |
-| 2026-08-29 21:55 | `save/2026-08-29-2155` | `22bcbd6` | AE 파일럿 매뉴얼(log/AE-LAB-MANUAL.md) + 무주석 바닥 스틸 — 확인 3개 답변 반영, DB 요청45·next_step27 갱신 |
-| 2026-08-29 20:39 | `save/2026-08-29-2039` | `a5530b2` | .aep/.mogrt 납품 가능성 조사 — 공식 자료 확인, 보고서 lab/ae/, DB 요청44·next_step27 |
-| 2026-08-29 04:13 | `save/2026-08-29-0413` | `5dda822` | 11-4 v7 — CTA 원 쌓임 순서 정정(타이틀>스크림>동그라미>차트). 두 편 최종: 11-4 v7 · 11-5 v5 |
-| 2026-08-29 04:05 | `save/2026-08-29-0405` | `ccde4f3` | 11-4 v6 — 이격음봉 세트 컷 경계 이어받기+페이드, CTA 원 등장 순서(캔들→원) |
-| 2026-08-29 03:59 | `save/2026-08-29-0359` | `6856476` | 11-5 v5 — cmgTrace 신설(선 구간 접선 덧칠, 팀장 기법), 누운 이평선 강조 적용 |
+| 2026-09-02 11:52 | `save/2026-09-02-1152` | `ed6cc82` | rightGap 5→0 전 씬(⑥ 보충 — 차트 오른쪽 끝까지) + 우측 끝 라벨 2건 보정 — r8 재렌더 중 |
+| 2026-09-02 11:30 | `save/2026-09-02-1130` | `49e0ec4` | 세이프 에어리어(룰북 ⑮, padTop216/padBottom162 전 씬) + z확장(동그라미·배지, ⑭) + recap 폰트 통일(⑯) + 브리지 버튼 정렬 — 요청 60, r8 렌더 중 |
+| 2026-09-01 19:17 | `save/2026-09-01-1917` | `ae6bfc2` | 말 구간 브리지 2클립(cmgText·blurPx·종이+버튼) + 팀장 어휘 실측 카탈로그(룰북 §E), 요청 59 — 렌더 진행 중 |
+| 2026-09-01 18:32 | `save/2026-09-01-1832` | `41acd1f` | r7 — guide-rsi ①방향 유지·fail-combo 겹침 해소(폭 판정 보충), 요청 58, 룰북 ⑩보충2 |
+| 2026-09-01 13:29 | `save/2026-09-01-1329` | `4752551` | D 인수인계(AE-LAB-MANUAL §8, render-cmg12-layers 병합 클립 갱신·5층 검증) + 요청 57, next_step 27 실전 전환 |
+| 2026-09-01 13:15 | `save/2026-09-01-1315` | `c4c82e1` | r6 전 클립 재렌더·납품(버튼 최상위+경계이월) + 숏폼 srt E 이관(srt_rules.py 14자 규칙, 매뉴얼 §8, 요청 55·56) |
 
 ---
 
@@ -200,6 +200,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | 경로 | 역할 |
 |---|---|
 | `README.md` | 렌더러 사용법 · 포맷 선택 기준 · 씬 설정 레퍼런스 |
+| `brand/EDIT-RULEBOOK.md` | 연출 룰북 — 피드백에서 확정된 규칙 12개 (반려 사례·코드 대응 포함). 피드백 라운드마다 여기에 쌓는다 |
 | `brand/SHORTFORM-FX-POOL.md` | 숏폼 1:1 박스 효과 pool 실측 22종 + 팀장 규칙 4개 (최종본 6편 전수 조사) |
 | `brand/STYLE.md` | 차트명가 브랜드 스펙. 색·레이아웃·폰트·스크립트 6단 구조 |
 | `brand/fonts` | Gmarket Sans / S-Core Dream / 나눔고딕 / 경기천년제목 |
@@ -224,7 +225,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `log/PREMIERE-LAB-MANUAL.md` | 프리미어 직접 편집 실험(D 세션) 매뉴얼 — 경로·마일스톤·함정·병합 프로토콜 |
 | `log/PREMIERE-LAB-REPORT.md` | D 의 M2~M6 총괄 보고 — 판정표·매뉴얼 정정·등재 요청·판단 요청 4건 |
 | `log/RENDER-REVIEW.md` | 렌더 속도 리뷰 의뢰서 — 코드 지도·실측·열린 질문 |
-| `log/SCRIPT-AGENT-MANUAL.md` | 대본 담당(E 세션) 인수인계 매뉴얼 — 자산 지도·숫자·작업 순서·병합 프로토콜 |
+| `log/SCRIPT-AGENT-MANUAL.md` | 대본 담당(E 세션) 인수인계 매뉴얼 — 자산 지도·숫자·작업 순서·병합 프로토콜 + §8 숏폼 .srt 추출 이관(2026-09-01, 자막 14자 규칙·도구·검사) |
 | `log/SCRIPT-LAB.md` | E 의 인계 보고서 — 포인트_차 실측 3종(카피 모드·기준선·New 형식), 기준선 오판 교훈, 미반영 피드백 3건과 참고 원고 |
 | `log/THUMBNAIL-REVIEW.md` | 썸네일 코드 검토 보고서 + 로컬 푸시 확인 절차 (2026-08-27) |
 | `log/WORKLOG.md` | 이 DB 에서 뽑은 작업 로그 |
@@ -235,10 +236,11 @@ git restore --source=<해시> -- .              # 되돌리기
 | `log/worklog.html` | 브라우저로 보는 작업 로그 |
 | `package.json` | 의존성과 npm 스크립트 |
 | `scenes/cmg-20ma-runner.scenes.js` | 차트명가 20일선 4컷. 새 대본은 이 파일을 본떠 만든다 |
+| `scenes/cmg12-bridge.scenes.js` | 차12 말 구간 설명 카드 2클립 — bridge-intro(워시 리스트, 프레임 860)·bridge-scalp(종이 배경+버튼 반복, 프레임 2939). 스타일은 차명#4 실측 카피, 룰북 §E |
 | `scenes/cmg12-buy.scenes.js` | 차12 매수 관점 5컷 — seed161, 55선 재돌파 bar52, 1:2·분할·러너 |
+| `scenes/cmg12-cross.build.js` | 차12 인트로+후킹 연속 클립 1개(intro-hook, 구 컷1~6 병합 2026-09-01) + 레이어 분리 빌더. 랠리 확대 실측값·국면표 머리말 참조. 구 cmg12-hook2.scenes.js 는 흡수·삭제 |
 | `scenes/cmg12-fail.scenes.js` | 차12 본론1·문제제시 5컷 — 씬별 시장 3종(파동·횡보·강추세) |
 | `scenes/cmg12-guide.scenes.js` | 차12 소개·설정 4컷 — RSI 패널 첫 등장, 실측 색 원본(COLOR export) |
-| `scenes/cmg12-hook2.scenes.js` | 차12 후킹 나머지 2컷 — 인트로 seed12 시장 이어붙임(앞 봉 불변) |
 | `scenes/cmg12-recap.scenes.js` | 차12 요약 3컷 — 매수 시장 재사용, ①②③ |
 | `scenes/cmg12-sell.scenes.js` | 차12 매도 관점 3컷 — seed68 5분봉, 45선 재이탈 bar49 |
 | `scenes/nq-basic.scenes.js` | 다크 테마 NQ 6컷 (첫 버전, 브랜드 적용 전) |
@@ -264,6 +266,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `src/tools/exp-capture.mjs` | 캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다 |
 | `src/tools/find-events.mjs` | MA 교차·배열 + RSI 레벨 교차·70+ 유지 구간 실측 (find-cross 확장판) |
 | `src/tools/install-fonts.mjs` | 폰트를 시스템에 등록 |
+| `src/tools/probe-labels.mjs` | 렌더 없이 라벨 클리핑 전수 감사 — 등장~퇴장 0.25초 간격으로 앵커 y 를 계산해 잘림 구간을 표로 |
 | `src/tools/profile-render.mjs` | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
 | `tools` | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
 | `tools/cutedit` | 숏폼 컷편집 파이프라인 — transcribe(전사)·align_cut(대본 정렬)·build_cuts(컷·자막·내레이션 생성, 무음 스냅·침묵 압축) |
@@ -277,6 +280,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/photoshop/run.ps1` | 포토샵을 COM 으로 띄워 .jsx 를 실행하는 드라이버 |
 | `tools/premiere` | 프리미어 자동화 (D 영역) — run.ps1(BridgeTalk 드라이버)·jobs/*.jsx·verify.py(되읽기 검사기)·presets/30fps sqpreset |
 | `tools/psdedit.py` | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
+| `tools/render-cmg12-layers.mjs` | 차12 병합 인트로(intro-hook)를 5층으로 렌더 — 1_candle(mp4 바닥)/2_ma/3_mark/4_text/5_tag(QT RLE 알파). tag 최상위(규칙 ⑭). AE/프리미어 조립 소스 |
 | `tools/thumbnail_png.py` | 롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장 |
 
 ## 컨텍스트가 날아갔을 때

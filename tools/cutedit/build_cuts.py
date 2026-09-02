@@ -85,22 +85,16 @@ def fmt_tc(t):
     return f"{h:02d}:{m:02d}:{s:06.3f}".replace(".", ",")
 
 def cue_chunks(sentence):
-    """대본 문장 → 자막 큐 조각 (기존 srt 실측: 큐당 8~12자, 2~4어절)."""
-    words = sentence.replace(",", ",†").split()  # 쉼표 뒤는 끊기 좋은 자리
-    chunks, cur = [], ""
-    for w in words:
-        w_clean = w.replace("†", "")
-        cand = (cur + " " + w_clean).strip()
-        if cur and len(re.sub(r"\s", "", cand)) > 12:
-            chunks.append(cur)
-            cur = w_clean
-        else:
-            cur = cand
-        if w.endswith("†") and cur:
-            chunks.append(cur); cur = ""
-    if cur:
-        chunks.append(cur)
-    return [re.sub(r"[.,]$", "", c).strip() for c in chunks if c.strip()]
+    """대본 문장 → 자막 큐 조각.
+
+    [2026-09-01 규칙 교체 — 이정찬 피드백] 큐는 띄어쓰기 포함 14자 최대,
+    절/구 단위로 끊고 관형형|의존명사 분리('~하는 | 것까지') 금지.
+    구현·검사는 srt_rules.py 가 진본이다 (python3 srt_rules.py check 파일.srt).
+    """
+    import os, sys
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from srt_rules import split_cue
+    return split_cue(sentence)
 
 FPS30 = 30.0
 results = {}

@@ -49,7 +49,9 @@ const chartBase = {
   showGrid: false,
   showAxes: false,
   showLast: false,
-  layout: { padLeft: 0, padRight: 0, padTop: 0, padBottom: 0, rightGap: 6 },
+  /* 세이프 에어리어 실측(2026-08-31, 프리미어 조립): 숏폼 틀이 위 23px·아래 135px 를 비운다(가림 120 + 여유 15, 2026-08-31 사용자 지시).
+     차트·라벨을 1080x937 영역 안에 가두면 프리미어 기본 배치(540,960) 그대로 안 가려진다. */
+  layout: { padLeft: 0, padRight: 0, padTop: 23, padBottom: 135, rightGap: 6 },
   ma: [{ type: 'ema', period: 20, width: 5 }],
 };
 
@@ -194,7 +196,7 @@ export default {
           type: 'cmgBadge',
           text: '손익비  1 : 2',
           x: 64,
-          y: 1004,
+          y: 869, // 플롯 하단 기준 유지 (945 - 76)
           size: 46,
           color: '#E90054',
           border: false,
