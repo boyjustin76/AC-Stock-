@@ -130,6 +130,60 @@ function strokeText(ctx, text, x, y, opt = {}) {
   ctx.restore();
 }
 
+/**
+ * 프리미어 그림자 패널 값을 받는 그림자 패스 (차명10 텍스트 프리셋 — prproj 직접 실측:
+ * "미국 본장 시간 추천" 소스 텍스트 블롭에 불투명 95.349 · 크기 12.791 · 글꼴 117.265 저장,
+ * 패널 표시 불투명 95 · 각도 135° · 거리 7.0 · 크기 12.8 · 블러 40).
+ * 매핑 상수는 차명10 완성본 mp4 의 체감(그림자 rgba(0,0,0,0.55~0.6)·블러 16~18px·
+ * 오프셋 ~5/5, 넓은 번짐 없음)에 맞춰 보정했다 — 검정 실루엣(스프레드=크기×0.35)을
+ * 오프셋 위치에 σ=블러×0.35 로 한 번 블러해 그린다.
+ * 사용: begin → 같은 도형을 fill(+stroke) → ctx.restore().
+ */
+let _shadowScratch = null;
+function premTextShadow(ctx, spec, bbox, draw) {
+  const opacity = spec.opacity ?? 0.95;
+  const angle = spec.angle ?? 135;
+  const distance = spec.distance ?? 7;
+  const size = spec.size ?? 12.8;
+  const blur = spec.blur ?? 40;
+  const sigma = blur * 0.35;
+  const spread = size * 0.35;
+  const rad = ((angle - 90) * Math.PI) / 180;
+  const margin = Math.ceil(sigma * 3 + spread + 2);
+  const w = Math.ceil(bbox.w + margin * 2);
+  const h = Math.ceil(bbox.h + margin * 2);
+  /* 전체 캔버스에 filter 를 거는 대신, 글자 크기만 한 스크래치에 실루엣을 만들고
+     그 조각에만 블러를 걸어 합성한다 (ctx.filter 비용은 그리는 면적에 비례 —
+     engine.js 차트 블러와 같은 처방. r11 실측: 레이어당 전체 캔버스 블러면 5배 느려짐) */
+  if (!_shadowScratch) _shadowScratch = document.createElement('canvas');
+  if (_shadowScratch.width < w) _shadowScratch.width = w;
+  if (_shadowScratch.height < h) _shadowScratch.height = h;
+  const s = _shadowScratch.getContext('2d');
+  s.setTransform(1, 0, 0, 1, 0, 0);
+  s.clearRect(0, 0, _shadowScratch.width, _shadowScratch.height);
+  s.save();
+  s.translate(margin - bbox.x, margin - bbox.y);
+  s.font = ctx.font;
+  s.textAlign = ctx.textAlign;
+  s.textBaseline = ctx.textBaseline;
+  s.fillStyle = '#000000';
+  s.strokeStyle = '#000000';
+  s.lineJoin = 'round';
+  s.miterLimit = 2;
+  s.lineWidth = Math.max(spread, 0.01);
+  draw(s, spread > 0);
+  s.restore();
+  ctx.save();
+  ctx.globalAlpha *= opacity * 0.7;
+  if (sigma > 0) ctx.filter = `blur(${sigma}px)`;
+  ctx.drawImage(
+    _shadowScratch, 0, 0, w, h,
+    bbox.x - margin + Math.cos(rad) * distance,
+    bbox.y - margin + Math.sin(rad) * distance, w, h,
+  );
+  ctx.restore();
+}
+
 /** 대략 휘도(0~1). 어두운 글자에 밝은 테두리를 골라 주기 위한 판정용 — #rrggbb 만 다룬다 */
 function luma(color) {
   const m = /^#([0-9a-f]{6})$/i.exec(color ?? '');
@@ -1171,14 +1225,15 @@ const LAYERS = {
       const rise = enter(env, L, L.in?.[0] ?? 0, (L.in?.[0] ?? 0) + Math.max(L.in?.[1] ?? 0.3, 0.01), Ease.outCubic);
       const y = L.y + (1 - rise) * size * 0.35;
       let cx = (L.align ?? 'center') === 'center' ? x - total / 2 : L.align === 'right' ? x - total : x;
-      /* 형광펜/밴드 — 본색 상태에서만 */
+      /* 형광펜/밴드 — 본색 상태에서만. 차명10 밴드(제목 상자)는 그림자 없는 평범한
+         핑크 박스, 그림자는 그 위 '텍스트'가 진다 (이정찬 2026-09-02 반려 확정) */
+      const sp = L.shadowPrem;
       if (!pre) {
         let hx = cx;
         for (let i = 0; i < parts.length; i++) {
           if (parts[i].hl) {
             ctx.fillStyle = hlColor;
             if (band) {
-              // 차명10: 글줄을 통째로 덮는 핑크 풀밴드
               const pad = size * 0.3;
               roundRect(ctx, hx - pad, y - size * 0.72, widths[i] + pad * 2, size * 1.44, size * 0.06);
             } else {
@@ -1190,13 +1245,27 @@ const LAYERS = {
           hx += widths[i];
         }
       }
+      /* 프리미어식 텍스트 그림자 — 밴드 위 제목 글자를 포함해 전 파트, 실루엣 한 번에
+         깔아 파트 경계에서 겹그림자가 없게 (박스 다음·본글자 이전에 그린다) */
+      if (sp && !pre) {
+        const ty = y + size * 0.04;
+        const bbox = { x: cx - size * 0.5, y: y - size * 1.0, w: total + size, h: size * 2.0 };
+        premTextShadow(ctx, sp, bbox, (s, hasSpread) => {
+          let sx = cx;
+          for (let i = 0; i < parts.length; i++) {
+            if (hasSpread) s.strokeText(parts[i].text, sx, ty);
+            s.fillText(parts[i].text, sx, ty);
+            sx += widths[i];
+          }
+        });
+      }
       for (let i = 0; i < parts.length; i++) {
         const onBand = band && !pre && parts[i].hl;
         strokeText(ctx, parts[i].text, cx, y + size * 0.04, {
           stroke: L.stroke ?? '#FFFFFF',
           strokeWidth: L.strokeWidth ?? size * 0.18,
           fill: pre ? baseColor : (onBand ? (L.hlTextColor ?? '#FFFFFF') : (parts[i].color ?? baseColor)),
-          shadow: pre ? 0 : (onBand ? 0 : (L.shadow ?? 8)),
+          shadow: pre || sp ? 0 : (onBand ? 0 : (L.shadow ?? 8)),
           shadowColor: L.shadowColor,
           shadowOffsetX: L.shadowOffsetX,
           shadowOffsetY: L.shadowOffsetY,

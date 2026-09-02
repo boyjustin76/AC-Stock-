@@ -7,8 +7,9 @@
  * 스타일 실측 원본 (r10 교체): [롱폼]차명10_양방향 매매법 프리미어 스샷 3장 (2026-09-02).
  *   "팔레트랑 폰트 등 톤앤매너만 바꿔주면 될듯. 전개 자체는 마음에 들어." (이정찬)
  *   — 회색 바탕(#C4C6C5 근사) 위 차트 은은히, 경기천년바탕 Bold 흰 글씨(외곽선 없음),
- *     키워드는 핑크 #EF2767 풀밴드 위 흰 글씨. 그림자는 프리미어 실측
- *     (불투명 95 · 각도 135° · 거리 7.0 · 크기 12.8 · 블러 40)의 캔버스 근사.
+ *     핑크 #EF2767 박스는 **제목 전용** (r10 반려 — 본문 키워드엔 안 쓴다), 제목도 그림자 포함.
+ *     그림자는 프리미어 속성 패널 그대로 (불투명 95 · 각도 135° · 거리 7.0 · 크기 12.8 · 블러 40,
+ *     layers.js premShadowBegin 이 스프레드까지 실루엣으로 재현).
  *   — 구현: cmgText hlStyle:'band' + fill 레이어(layers.js) + chart.blurPx/alpha (engine.js).
  *   (r7~r9 의 차명#4 문법 — 워시+형광펜 #F8D890·예고 베이지 #F9E9BF — 은 §E 대안 스타일로 보존)
  *
@@ -40,21 +41,24 @@ const washBase = {
   alpha: [{ t: 0, v: 0.55 }],
 };
 
-/* 차명10 카드 타이포 공통값 (스샷 실측) — 텍스트·타이밍은 그대로, 톤앤매너만 이걸로 */
+/* 차명10 카드 타이포 공통값 — 프리미어 속성 패널 스샷(2026-09-02) 그대로:
+   경기천년바탕 Bold · 흰 칠 · 선 없음 · 자간 0 · 그림자 불투명 95/135°/거리 7.0/크기 12.8/블러 40.
+   핑크 박스(#EF2767)는 **제목 전용** — 본문 키워드에 쓰지 않는다 (이정찬 r10 반려).
+   제목 줄도 같은 그림자를 진다 (박스가 프리미어 레이어처럼 그림자를 드리움). */
 const T10 = {
   font: "'GyeonggiBatang', '경기천년바탕', Pretendard, sans-serif",
   fontWeight: 700,
   color: '#FFFFFF',
   strokeWidth: 0,
-  shadow: 17,                       // 프리미어 블러 40 근사
-  shadowColor: 'rgba(0,0,0,0.58)',  // 불투명 95 근사
-  shadowOffsetX: 5,                 // 거리 7.0 · 각도 135°
-  shadowOffsetY: 5,
+  shadowPrem: { opacity: 0.95, angle: 135, distance: 7.0, size: 12.8, blur: 40 },
   hlStyle: 'band',
   hlColor: '#EF2767',
   hlTextColor: '#FFFFFF',
   preColor: 'rgba(255,255,255,0.5)',
 };
+/* 제목 줄 — 스샷의 글꼴 크기 117 그대로, 전체를 핑크 박스로 */
+const T10H = { ...T10, size: 117 };
+const title10 = (text) => ({ parts: [{ text, hl: true }] });
 
 /* 차명10 바탕 — 회색 덮개. 등장 연출 없음(컷 이월과 무관하게 상시) */
 const GROUND10 = { type: 'fill', color: '#C4C6C5', opacity: 0.82, in: [0, 0] };
@@ -104,26 +108,16 @@ export default {
         GROUND10,
         /* 카드1 "매매법 자체의 문제가 아닙니다" (자막 17~18) → 카드2로 교체(⑨) */
         { type: 'cmgText', ...T10, y: 500, size: 96, text: '매매법 자체의 문제가 아닙니다', in: [0.3, 0.35], out: [4.0, 0.4] },
-        /* 카드2 손실의 진짜 이유 (자막 19~25) */
-        { type: 'cmgText', ...T10, y: 360, size: 108, text: '손실의 진짜 이유', in: [4.5, 0.35], out: [15.6, 0.4] },
-        {
-          type: 'cmgText', ...T10, y: 560, size: 80, in: [5.8, 0.35], out: [15.6, 0.4],
-          parts: [{ text: '명확한 ' }, { text: '진입 · 청산 기준', hl: true }, { text: ' 없이 운영' }],
-        },
-        {
-          type: 'cmgText', ...T10, y: 720, size: 72, in: [11.5, 0.35], out: [15.6, 0.4],
-          parts: [{ text: '기준', hl: true }, { text: '에 따라 결과는 완전히 달라진다' }],
-        },
+        /* 카드2 손실의 진짜 이유 (자막 19~25) — 제목만 핑크 박스 */
+        { type: 'cmgText', ...T10H, y: 360, ...title10('손실의 진짜 이유'), in: [4.5, 0.35], out: [15.6, 0.4] },
+        { type: 'cmgText', ...T10, y: 560, size: 80, text: '명확한 진입 · 청산 기준 없이 운영', in: [5.8, 0.35], out: [15.6, 0.4] },
+        { type: 'cmgText', ...T10, y: 720, size: 72, text: '기준에 따라 결과는 완전히 달라진다', in: [11.5, 0.35], out: [15.6, 0.4] },
         /* 카드3 오늘 알려드릴 것 (자막 26~32) — 항목은 반투명 흰 예고 → 자기 큐에 본색 */
-        { type: 'cmgText', ...T10, y: 300, size: 104, text: '오늘 알려드릴 것', in: [16.1, 0.35] },
-        { type: 'cmgText', ...T10, y: 460, size: 84, text: '① 어떤 기준으로 매매하는가', align: 'left', x: 430, in: [16.7, 0.3], activeAt: 20.1 },
-        { type: 'cmgText', ...T10, y: 600, size: 84, text: '② 몇 분봉을 설정하는가', align: 'left', x: 430, in: [16.9, 0.3], activeAt: 21.9 },
-        { type: 'cmgText', ...T10, y: 740, size: 84, text: '③ 어떤 보조지표를 쓰는가', align: 'left', x: 430, in: [17.1, 0.3], activeAt: 23.2 },
-        {
-          /* 밴드 반높이 88×0.72=63 → y 854 여야 밴드 하단(917)이 세이프 에어리어(918) 안 */
-          type: 'cmgText', ...T10, y: 854, size: 88, in: [25.5, 0.4],
-          parts: [{ text: '이동평균선 + RSI ', hl: true }, { text: '눌림목 매매 전략' }],
-        },
+        { type: 'cmgText', ...T10H, y: 310, ...title10('오늘 알려드릴 것'), in: [16.1, 0.35] },
+        { type: 'cmgText', ...T10, y: 470, size: 84, text: '① 어떤 기준으로 매매하는가', align: 'left', x: 430, in: [16.7, 0.3], activeAt: 20.1 },
+        { type: 'cmgText', ...T10, y: 610, size: 84, text: '② 몇 분봉을 설정하는가', align: 'left', x: 430, in: [16.9, 0.3], activeAt: 21.9 },
+        { type: 'cmgText', ...T10, y: 750, size: 84, text: '③ 어떤 보조지표를 쓰는가', align: 'left', x: 430, in: [17.1, 0.3], activeAt: 23.2 },
+        { type: 'cmgText', ...T10, y: 872, size: 88, text: '이동평균선 + RSI 눌림목 매매 전략', in: [25.5, 0.4] },
       ],
     },
 
@@ -151,29 +145,20 @@ export default {
           type: 'cmgText', ...T10, y: 590, size: 108, in: [0.8, 0.35], out: [3.5, 0.4],
           parts: [{ text: '스윙 매매' }, { text: '  ✗', color: '#EF2767' }],
         },
-        /* 카드2 짧은 시간 · 반복 거래 — 매수→익절 버튼 세 쌍이 연달아 찍힌다 (자막 56~59) */
-        { type: 'cmgText', ...T10, y: 330, size: 76, text: '짧은 시간 · 반복 거래', in: [3.9, 0.35], out: [11.3, 0.4] },
+        /* 카드2 짧은 시간 · 반복 거래 — 제목 핑크 박스, 매수→익절 버튼 세 쌍 (자막 56~59) */
+        { type: 'cmgText', ...T10H, y: 320, ...title10('짧은 시간 · 반복 거래'), in: [3.9, 0.35], out: [11.3, 0.4] },
         { type: 'image', src: '/brand/thumbnail/btn_매수.png', x: 274, y: 455, width: 189, in: [4.4, 0.2], out: [11.3, 0.4] },
         { type: 'image', src: '/brand/thumbnail/btn_익절.png', x: 493, y: 455, width: 185, in: [4.7, 0.2], out: [11.3, 0.4] },
         { type: 'image', src: '/brand/thumbnail/btn_매수.png', x: 758, y: 455, width: 189, in: [5.2, 0.2], out: [11.3, 0.4] },
         { type: 'image', src: '/brand/thumbnail/btn_익절.png', x: 977, y: 455, width: 185, in: [5.5, 0.2], out: [11.3, 0.4] },
         { type: 'image', src: '/brand/thumbnail/btn_매수.png', x: 1242, y: 455, width: 189, in: [6.0, 0.2], out: [11.3, 0.4] },
         { type: 'image', src: '/brand/thumbnail/btn_익절.png', x: 1461, y: 455, width: 185, in: [6.3, 0.2], out: [11.3, 0.4] },
-        {
-          type: 'cmgText', ...T10, y: 700, size: 96, in: [7.0, 0.35], out: [11.3, 0.4],
-          parts: [{ text: '1분봉', hl: true }, { text: '  또는  ' }, { text: '5분봉', hl: true }],
-        },
+        { type: 'cmgText', ...T10, y: 700, size: 96, text: '1분봉  또는  5분봉', in: [7.0, 0.35], out: [11.3, 0.4] },
         { type: 'cmgText', ...T10, y: 840, size: 100, text: '초단타 · 스캘핑', in: [9.2, 0.35], out: [11.3, 0.4] },
         /* 카드3 기계적 진입·청산 (자막 60~63) */
         { type: 'cmgText', ...T10, y: 400, size: 72, text: '한 번에 큰 수익을 노리기보다', in: [11.5, 0.3] },
-        {
-          type: 'cmgText', ...T10, y: 560, size: 92, in: [13.4, 0.35],
-          parts: [{ text: '짧고 ' }, { text: '확실한 지점만', hl: true }],
-        },
-        {
-          type: 'cmgText', ...T10, y: 725, size: 92, in: [15.4, 0.35],
-          parts: [{ text: '기계적으로 ' }, { text: '진입 · 청산', hl: true }],
-        },
+        { type: 'cmgText', ...T10, y: 560, size: 92, text: '짧고 확실한 지점만', in: [13.4, 0.35] },
+        { type: 'cmgText', ...T10, y: 725, size: 92, text: '기계적으로 진입 · 청산', in: [15.4, 0.35] },
       ],
     },
   ],
