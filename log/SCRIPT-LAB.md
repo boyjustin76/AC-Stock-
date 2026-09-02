@@ -1,6 +1,8 @@
 # 대본 실험실 (E 세션) — 총괄 인계 보고서
 
-> 작성: 대본 담당 E 세션, 2026-08-28. 2026-08-31 갱신(§10 도구 구현·§4 속도 정정). 초안·완성 대본은 `scripts/shortform/` 에 있다.
+> 작성: 대본 담당 E 세션, 2026-08-28.
+> 갱신: 08-31(§10 도구·§4 속도 정정) · 09-01(§12 배너 · §13 srt 이관 · §14 롱폼 문구) · 09-02(§15 도구 목록).
+> 초안·완성 대본은 `scripts/shortform/` 에 있다.
 > 여기 적힌 숫자는 전부 드라이브 실측이다. 짐작으로 적은 것은 없다.
 
 ---
@@ -720,3 +722,57 @@ python tools/cutedit/prproj_titles.py 프로젝트.prproj            # 문구 �
 롱폼에서 차명10 의 옛 카드 방식을 버리고 차명11 을 기준으로 삼은 것이 같은 이유다.
 
 **전수는 모으되 판단은 최신 쪽에 싣는다.** 옛 편은 참고로만 쓴다.
+
+---
+
+## 15. 이번에 만들고 고친 도구 — 인수인계용 목록
+
+브랜치 `local/script-lab`. 본류 위로 리베이스해 둬서 그대로 병합하면 된다.
+**`log/build_worklog_db.py` 는 손대지 않았다.**
+
+| 파일 | 무엇 | 상태 |
+|---|---|---|
+| `tools/shortform.py` | 숏폼 대본 규칙·지시서·검사 | **포인트 갈래 추가** (§10) |
+| `tools/cutedit/srt_rules.py` | 자막 큐 나누기·검사 | **버그 2건 수정** (§13) |
+| `tools/cutedit/transcribe.py` | STT (faster-whisper) | 경로를 `CUTEDIT_DIR` 로 |
+| `tools/cutedit/align_cut.py` | 녹음↔대본 정렬 | 경로를 `CUTEDIT_DIR` 로 |
+| `tools/cutedit/build_cuts.py` | 컷리스트·내레이션·srt | 경로 + `WORD_FIXES` 비움 |
+| **`tools/cutedit/chapters.py`** | 롱폼 자막 무음 텀 → 챕터 | **새로 만듦** (§14-1) |
+| **`tools/cutedit/prproj_titles.py`** | `.prproj` → 소제목·챕터 범퍼 | **새로 만듦** (§14-2) |
+
+```bash
+# 숏폼 — 포인트 갈래
+python tools/shortform.py brief --kind point --source "<트팩 원본 폴더>" --title "제목" --date YYMMDD
+python tools/shortform.py check "<대본.txt>"            # [포인트 이면 자동으로 포인트 검사
+python tools/shortform.py name  --kind point --title "제목"
+
+# 숏폼 자막
+python tools/cutedit/srt_rules.py split "문장 하나"
+python tools/cutedit/srt_rules.py check 자막.srt        # 납품 전 필수
+
+# 롱폼
+python tools/cutedit/chapters.py gaps  자막.srt --min 1.0
+python tools/cutedit/chapters.py split 자막.srt --min 2.0
+python tools/cutedit/prproj_titles.py 프로젝트.prproj
+```
+
+**환경** — `pip install faster-whisper imageio-ffmpeg`.
+매뉴얼 §8 설치 목록에 `imageio-ffmpeg` 가 빠져 있다(`build_cuts.py` 가 임포트한다).
+파이프라인 3종은 작업 폴더를 `CUTEDIT_DIR` 환경변수나 첫 인자로 받는다.
+
+---
+
+## 16. 결정·승인 대기 (한자리에 모음)
+
+| # | 무엇 | 누가 | 근거 |
+|---|---|---|---|
+| 1 | 차11-4·5 자막 재발행 — **하지 않기로 결정됨**(이정찬 2026-09-01) | 종결 | §13 |
+| 2 | 차명12 소제목·챕터 범퍼 문구 확정 | 팀장/이정찬 | §14-5 |
+| 3 | SL #11-4·#11-5 상단 배너 문구 확정 + **프로젝트에 남은 260727 문구 교체** | 편집(D) | §12 |
+| 4 | 차명12 프로젝트의 범퍼 6개가 기획서 역할 설명인 채로 있음 — 교체 | 편집(D) | §14-5 |
+| 5 | 포인트 기준선·이름 규칙·카피 모드의 DB 반영 | 총괄 | §9 |
+| 6 | 다음 포인트_차 편 「손절 기준을 어디에 두느냐」 집필 | E | §0-8, §6, §7 |
+| 7 | 매뉴얼 §8 설치 목록에 `imageio-ffmpeg` 추가 | 총괄 | §15 |
+
+**미방영 대본 3편은 `(중간)` 접두와 임시 날짜를 그대로 둔다.** 방영일이 확정되면
+`tools/shortform.py name ... --final` 로 다시 뽑아 폴더·파일 이름을 바꾼다.
