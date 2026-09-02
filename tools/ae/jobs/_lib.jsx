@@ -70,3 +70,16 @@ function dumpComp(c) {
     t.push("레이어=" + c.numLayers);
     return t.join(" · ");
 }
+
+/**
+ * probe 의 형제 — 만든 **객체를 돌려주면서** 로그에는 요약만 적는다.
+ * probe 는 문자열만 돌려주므로 컴포지션·레이어를 받아 쓸 수가 없었다.
+ */
+function probeVal(k, make, describe) {
+    out.push(k + "\t…호출 직전"); flush();
+    var v = null, txt;
+    try { v = make(); txt = describe ? String(describe(v)) : String(v); }
+    catch (e) { txt = "ERR " + e.toString() + (e.line ? " @line " + e.line : ""); }
+    out[out.length - 1] = k + "\t" + txt; flush();
+    return v;
+}
