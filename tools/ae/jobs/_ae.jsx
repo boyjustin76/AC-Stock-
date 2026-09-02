@@ -175,31 +175,78 @@ function cueJS(t, L) {
 }
 
 /**
- * 불투명도를 **프레임 단위로 구워** 넣는다. fn(t) 는 0~1 을 준다.
+ * 불투명도를 **키 몇 개 + 이징**으로 넣는다. fn(t) 는 0~1 을 준다.
  *
  * 왜 표현식이 아니라 키프레임인가 —
  *   팀장이 손으로 끌어 싱크를 바꿀 수 있어야 한다. 표현식이면 식을 고쳐야 한다.
- * 왜 AE 이징이 아니라 굽는가 —
- *   렌더러의 등장은 outCubic 인데 AE 이지이즈로 근사했더니 페이드 중간에서
- *   60% vs 92% 로 벌어졌다(컷① 프레임 대조로 잡았다). 램프는 6~12프레임뿐이라
- *   프레임마다 찍어도 값이 싸고, 값이 안 변하는 구간은 키를 찍지 않는다.
+ * 왜 프레임마다 굽지 않는가 —
+ *   처음엔 그렇게 했다. 정확하지만 램프마다 키가 열 개씩 생겨 손대기 무섭다.
+ * 왜 그냥 이지이즈를 씌우지 않는가 —
+ *   렌더러 이징(outCubic·outBack)은 한쪽으로 치우쳤는데 이지이즈는 대칭이다.
+ *   씌웠더니 페이드 중간에서 60% vs 92% 로 벌어졌다.
+ *
+ * 그래서: 값이 변하는 구간의 양 끝에만 키를 두고, **이징 속도를 곡선의 미분값**으로
+ * 준다. B5 실측으로 이 방법이 키 2개에 오차 0.4~1.2% 임을 확인했다(이지이즈는 44~66%).
+ * 그래도 남는 오차는 **박은 뒤 되읽어 재고**, 허용치를 넘으면 제일 나쁜 지점에
+ * 키를 하나 더 넣는다 — 짐작으로 두지 않는다.
+ *
+ * @returns {keys, err} 넣은 키 수와 실측 최대 오차(%)
  */
-function bakeAlpha(L, fn, dur, fps) {
+function setAlpha(L, fn, dur, fps, tol) {
     var op = tr(L).property("ADBE Opacity");
     var n = Math.round(dur * fps);
-    var times = [], vals = [], prev = null;
-    for (var f = 0; f <= n; f++) {
-        var t = f / fps;
-        var v = Math.round(clampJS(fn(t)) * 10000) / 100;
-        var nx = (f < n) ? Math.round(clampJS(fn((f + 1) / fps)) * 10000) / 100 : null;
-        /* 값이 변하는 순간과 그 양쪽만 남긴다 — 평평한 구간은 키 두 개면 된다 */
-        if (prev === null || v !== prev || (nx !== null && nx !== v)) { times.push(t); vals.push(v); }
-        prev = v;
+    var TOL = tol == null ? 1.5 : tol;          /* % — 255 단계로 4 미만이라 안 보인다 */
+    var ex = [];
+    for (var f = 0; f <= n; f++) ex.push(clampJS(fn(f / fps)) * 100);
+
+    /* 값이 변하는 구간의 경계만 키로 잡는다 */
+    var idx = [0];
+    for (var i = 1; i <= n; i++) {
+        var chg = Math.abs(ex[i] - ex[i - 1]) > 1e-9;
+        var chgPrev = i > 1 && Math.abs(ex[i - 1] - ex[i - 2]) > 1e-9;
+        if (chg !== chgPrev) idx.push(chg ? i - 1 : i - 1);
     }
-    if (times.length === 1) { op.setValueAtTime(0, vals[0]); }
-    else op.setValuesAtTimes(times, vals);
-    /* 프레임마다 키가 있는 구간은 보간이 무의미하므로 이징을 건드리지 않는다 */
-    return op;
+    if (idx[idx.length - 1] !== n) idx.push(n);
+
+    var h = 1 / (fps * 4);
+    function put() {
+        while (op.numKeys > 0) op.removeKey(1);
+        var ts = [], vs = [];
+        for (var k = 0; k < idx.length; k++) { ts.push(idx[k] / fps); vs.push(ex[idx[k]]); }
+        if (ts.length === 1) { op.setValueAtTime(0, vs[0]); return; }
+        op.setValuesAtTimes(ts, vs);
+        /*  들어오는 쪽은 뒤쪽 기울기, 나가는 쪽은 앞쪽 기울기로 준다.
+            꺾이는 지점(등장 끝 같은 곳)에서 양쪽 기울기가 다른 걸 그대로 살린다.  */
+        for (var k2 = 1; k2 <= op.numKeys; k2++) {
+            var t = idx[k2 - 1] / fps;
+            var dIn  = (fn(t) - fn(Math.max(t - h, 0))) / h * 100;
+            var dOut = (fn(Math.min(t + h, dur)) - fn(t)) / h * 100;
+            try {
+                op.setTemporalEaseAtKey(k2, [new KeyframeEase(dIn, 33)], [new KeyframeEase(dOut, 33)]);
+            } catch (e) { /* 속도가 범위를 벗어나면 기본값으로 둔다 */ }
+        }
+    }
+    function worstAt() {
+        var w = -1, wi = -1;
+        for (var f2 = 0; f2 <= n; f2++) {
+            var d = Math.abs(op.valueAtTime(f2 / fps, false) - ex[f2]);
+            if (d > w) { w = d; wi = f2; }
+        }
+        return { err: w, at: wi };
+    }
+    put();
+    var r = worstAt();
+    for (var pass = 0; pass < 6 && r.err > TOL; pass++) {
+        /* 제일 나쁜 지점에 키를 하나 넣고 다시 잰다 */
+        var ins = r.at, put2 = false;
+        for (var q = 0; q < idx.length; q++) if (idx[q] === ins) put2 = true;
+        if (put2) break;
+        idx.push(ins);
+        idx.sort(function (a, b) { return a - b; });
+        put();
+        r = worstAt();
+    }
+    return { keys: op.numKeys, err: Math.round(r.err * 100) / 100 };
 }
 /** 그려지는 연출 — 트림 패스 (손그림 동그라미·밑줄) */
 function trimDraw(L, t0, t1) {

@@ -41,13 +41,21 @@ function clipToPlot(L) {
     m.property("ADBE Mask Shape").setValue(shapeFrom(rectVerts(p.x, p.y, p.w, p.h)));
     return m;
 }
-/** 등장·퇴장을 렌더러 cue() 그대로 굽는다 */
-function fadeL(layer, l) {
-    return bakeAlpha(layer, function (t) { return cueJS(t, l); }, CTX.dur, CTX.fps);
+/*  넣은 알파 키 수와 실측 오차를 모아 둔다 — 드라이버가 컷마다 보고한다 */
+var ALPHA = { keys: 0, err: 0 };
+function _alpha(layer, fn) {
+    var r = setAlpha(layer, fn, CTX.dur, CTX.fps);
+    ALPHA.keys += r.keys;
+    if (r.err > ALPHA.err) ALPHA.err = r.err;
+    return r;
 }
-/** cue 에 곱해지는 연출 알파까지 함께 굽는다 (라벨 팝처럼 alpha 를 한 번 더 곱하는 것들) */
+/** 등장·퇴장을 렌더러 cue() 그대로 */
+function fadeL(layer, l) {
+    return _alpha(layer, function (t) { return cueJS(t, l); });
+}
+/** cue 에 곱해지는 연출 알파까지 함께 (라벨 팝처럼 alpha 를 한 번 더 곱하는 것들) */
 function fadeMul(layer, l, extra) {
-    return bakeAlpha(layer, function (t) { return cueJS(t, l) * clampJS(extra(t)); }, CTX.dur, CTX.fps);
+    return _alpha(layer, function (t) { return cueJS(t, l) * clampJS(extra(t)); });
 }
 
 var TYPES = {};
@@ -295,10 +303,11 @@ TYPES.flash = function (L) {
     var c = color2(L.color, "#FFFFFF");
     var S = COMP.layers.addSolid(hex(c.hex), LN("플래시"), COMP.width, COMP.height, 1, CTX.dur);
     var str = num(L.strength, 0.85);
-    bakeAlpha(S, function (t) {
+    /* 플래시는 사인 곡선이라 이징 하나로 안 맞는다 — setAlpha 가 재 보고 키를 더 넣는다 */
+    _alpha(S, function (t) {
         var p = spanJS(t, at, at + dur, E.linear);
         return (p <= 0 || p >= 1) ? 0 : Math.sin(p * Math.PI) * str;
-    }, CTX.dur, CTX.fps);
+    });
     return [S];
 };
 
@@ -578,7 +587,7 @@ TYPES.titleCard = function (L) {
             addFill(g, "#04070C", Math.round(scrimAlpha((b + 0.5) / BANDS) * 1000) / 10, "스크림 띠");
         }
         /* 등장 이징이 outCubic 이 아니라 outQuart 다 */
-        bakeAlpha(S, function (t) { return titleCue(t, L); }, CTX.dur, CTX.fps);
+        _alpha(S, function (t) { return titleCue(t, L); });
         made.push(S);
     }
 
@@ -600,9 +609,9 @@ TYPES.titleCard = function (L) {
             var bl = fx(T).addProperty("ADBE Box Blur2");
             bl.property("ADBE Box Blur2-0001").expression = easeHead()
                 + "var p = _sp(time," + t0 + "," + t1 + ",_outQuart);\n(1-p)*10";
-            bakeAlpha(T, function (t) {
+            _alpha(T, function (t) {
                 return titleCue(t, L) * clampJS(spanJS(t, t0, t1, E.outQuart) * 1.2);
-            }, CTX.dur, CTX.fps);
+            });
             made.push(T);
         })(lines[i], i);
     }
@@ -618,7 +627,7 @@ TYPES.titleCard = function (L) {
             + "var p = _sp(time," + r0 + "," + r1 + ",_outExpo);\n[" + rw + "*p, 5]";
         rc.property("ADBE Vector Rect Position").setValue([cx, y + num(L.ruleGap, 120) + 2.5]);
         addFill(gr, num(L.kickerColor, TH.accent), null, "강조 밑줄");
-        bakeAlpha(R, function (t) { return titleCue(t, L); }, CTX.dur, CTX.fps);
+        _alpha(R, function (t) { return titleCue(t, L); });
         made.push(R);
     }
     return made;

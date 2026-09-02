@@ -29,6 +29,46 @@ import { makeTheme } from '../../src/render/theme.js';
 import { clamp } from '../../src/render/anim.js';
 import { keyframe } from '../../src/render/engine.js';
 
+/**
+ * 곡선 단순화 — 선형 보간으로 되살렸을 때 오차가 tol 을 넘지 않는 최소 점만 남긴다.
+ * (Ramer–Douglas–Peucker 를 1차원 값열에 쓴 것)
+ *
+ * 카메라를 프레임마다 박으면 컷 하나에 키가 2000개씩 생겨 사람이 손댈 수가 없다.
+ * 직선으로 움직이는 구간은 점 두 개면 되고, 휘는 데만 점이 남는다.
+ * AE 쪽은 **선형 보간**으로 박으므로 여기서 잰 오차가 곧 실제 오차다.
+ */
+function simplify(vals, tol) {
+  const keep = new Uint8Array(vals.length);
+  keep[0] = keep[vals.length - 1] = 1;
+  const stack = [[0, vals.length - 1]];
+  while (stack.length) {
+    const [a, b] = stack.pop();
+    if (b - a < 2) continue;
+    const slope = (vals[b] - vals[a]) / (b - a);
+    let worst = -1, wi = -1;
+    for (let i = a + 1; i < b; i++) {
+      const d = Math.abs(vals[i] - (vals[a] + slope * (i - a)));
+      if (d > worst) { worst = d; wi = i; }
+    }
+    if (worst > tol) { keep[wi] = 1; stack.push([a, wi], [wi, b]); }
+  }
+  const f = [], v = [];
+  for (let i = 0; i < vals.length; i++) if (keep[i]) { f.push(i); v.push(vals[i]); }
+  return { f, v };
+}
+/** 남긴 점으로 선형 보간했을 때의 실제 최대 오차 */
+function checkFit(vals, kept) {
+  let worst = 0, j = 0;
+  for (let i = 0; i < vals.length; i++) {
+    while (j + 1 < kept.f.length && kept.f[j + 1] < i) j++;
+    const a = kept.f[j], b = kept.f[Math.min(j + 1, kept.f.length - 1)];
+    const p = b === a ? 0 : (i - a) / (b - a);
+    const got = kept.v[j] + (kept.v[Math.min(j + 1, kept.v.length - 1)] - kept.v[j]) * p;
+    worst = Math.max(worst, Math.abs(got - vals[i]));
+  }
+  return worst;
+}
+
 const args = process.argv.slice(2);
 const file = args.find((a) => !a.startsWith('--')) ?? 'scenes/sl-11-4.scenes.js';
 const outDir = (args[args.indexOf('--out') + 1] && args.includes('--out')) ? args[args.indexOf('--out') + 1] : 'C:/aelab/ae';
@@ -91,7 +131,24 @@ for (const scene of project.scenes) {
     plot: { x: r2(p.x), y: r2(p.y), w: r2(p.w), h: r2(p.h), right: r2(p.right), bottom: r2(p.bottom) },
     /* 캔들 몸통 폭 = 봉 간격 × 0.66 (chart.js makeScale) */
     bodyRatio: 0.66,
-    cam: { X0, BW, Y0, K, LAST },
+    /*  허용 오차는 전부 **화면 픽셀 0.1** 로 환산해 잡는다.
+        X0·Y0 는 픽셀 그대로, BW 는 봉 번호(최대 ~130)를 곱해 쓰이고,
+        K 는 가격(~24000)을, LAST 는 K(~2)를 곱해 쓰인다.  */
+    cam: {
+      X0: simplify(X0, 0.1), BW: simplify(BW, 0.1 / 130),
+      Y0: simplify(Y0, 0.1), K: simplify(K, 0.1 / 24000),
+      LAST: simplify(LAST, 0.1 / 2),
+    },
+    camFit: (() => {
+      const raw = { X0, BW, Y0, K, LAST };
+      const scale = { X0: 1, BW: 130, Y0: 1, K: 24000, LAST: 2 };
+      const o = {};
+      for (const k of Object.keys(raw)) {
+        const s2 = simplify(raw[k], k === 'X0' || k === 'Y0' ? 0.1 : 0.1 / scale[k]);
+        o[k] = { keys: s2.f.length, of: frames, px: r2(checkFit(raw[k], s2) * scale[k]) };
+      }
+      return o;
+    })(),
     layers: (scene.layers ?? []).map((L, i) => {
       const o = { i, ...plain(L) };
       /*  cmgArrow 는 price 를 생략하면 그 봉의 종가에 붙는다. AE 쪽에는 봉 데이터가

@@ -66,6 +66,7 @@ function buildCut(cut) {
     COMP = app.project.items.addComp(SCENE.slug + " " + cut.id, SCENE.w, SCENE.h, 1,
                                      cut.frames / SCENE.fps, SCENE.fps);
     CTX.plot = cut.plot;
+    ALPHA.keys = 0; ALPHA.err = 0;
     CTX.dur  = cut.frames / SCENE.fps;
     CTX.fps  = SCENE.fps;
 
@@ -78,21 +79,35 @@ function buildCut(cut) {
     floor.name = "차트 바닥";
 
     /* ── 카메라 널 ── */
+    /*  카메라 널은 **기계 부품**이다. 사람이 만질 물건이 아니라서
+        shy + 잠금으로 두고 컴포지션에서 shy 를 숨긴다 — 타임라인에서 아예 사라진다.
+        (숨기지 않았더니 키 수천 개가 깔려서 "무서워서 못 건드리겠다" 는 말을 들었다.)  */
     var cam = COMP.layers.addNull(COMP.duration);
     cam.name = CAM_NAME;
-    cam.enabled = false;      /* 값만 나르는 레이어라 보이지 않게 */
+    cam.enabled = false;
     cam.shy = true;
-    var times = [];
-    for (var f = 0; f < cut.frames; f++) times.push(f / SCENE.fps);
+    COMP.hideShyLayers = true;
+
     /*  LAST 는 '지금 가격' — reveal 이 움직이면 같이 바뀐다. cmgProfit 이 쓴다.
         빠뜨렸더니 표현식이 없는 이펙트를 가리켜 사각형이 통째로 죽었다.  */
     var keys = ["X0", "BW", "Y0", "K", "LAST"];
+    var camKeys = 0;
     for (var s = 0; s < keys.length; s++) {
         var e = fx(cam).addProperty("ADBE Slider Control");
         e.name = keys[s];
-        /* 프레임마다 키가 있으니 보간 방식은 상관없다 — 이징을 따로 세팅하지 않는다 */
-        e.property(1).setValuesAtTimes(times, cut.cam[keys[s]]);
+        /*  내보내기가 미리 솎아 둔 점만 박는다(화면 오차 0.1px 안). 보간은 **선형** —
+            노드에서 오차를 잴 때 쓴 것과 같은 보간이라야 잰 값이 실제 값이 된다.  */
+        var kf = cut.cam[keys[s]];
+        var times = [];
+        for (var f = 0; f < kf.f.length; f++) times.push(kf.f[f] / SCENE.fps);
+        var pr = e.property(1);
+        pr.setValuesAtTimes(times, kf.v);
+        for (var k = 1; k <= pr.numKeys; k++) {
+            pr.setInterpolationTypeAtKey(k, KeyframeInterpolationType.LINEAR, KeyframeInterpolationType.LINEAR);
+        }
+        camKeys += pr.numKeys;
     }
+    cam.locked = true;
 
     /*  씬은 배열 순서대로 그린다(앞이 아래). AE 의 addShape 은 맨 위에 얹으므로
         씬 순서대로 넣으면 마지막 레이어가 위에 온다 — 같은 순서가 된다.            */
@@ -111,7 +126,8 @@ function buildCut(cut) {
             });
         })(L, no);
     }
-    return { comp: COMP, ok: okN, skipped: skipped };
+    return { comp: COMP, ok: okN, skipped: skipped, camKeys: camKeys,
+             alphaKeys: ALPHA.keys, alphaErr: ALPHA.err };
 }
 
 var total = 0, allSkipped = {};
@@ -120,7 +136,11 @@ for (var c = 0; c < SCENE.cuts.length; c++) {
     if (SPEC.cut !== "all" && cut.id !== SPEC.cut) continue;
     say("컷", cut.id + " · " + cut.frames + "f · 레이어 " + cut.layers.length);
     var r = probeVal("  컴포지션", function () { return buildCut(cut); },
-                     function (v) { return v ? v.comp.name + " · " + v.comp.numLayers + "레이어" : "실패"; });
+                     function (v) {
+                         return v ? v.comp.name + " · " + v.comp.numLayers + "레이어"
+                                  + " · 카메라키 " + v.camKeys + "(숨김)"
+                                  + " · 알파키 " + v.alphaKeys + " 오차 " + v.alphaErr + "%" : "실패";
+                     });
     if (r) {
         total += r.ok;
         for (var s2 = 0; s2 < r.skipped.length; s2++) allSkipped[r.skipped[s2]] = (allSkipped[r.skipped[s2]] || 0) + 1;
