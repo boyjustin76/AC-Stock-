@@ -14,25 +14,10 @@
 import { makeCandles } from '../market/candles.js';
 import { Chart } from '../render/chart.js';
 import { makeTheme } from '../render/theme.js';
-import { Ease, lerp, clamp } from '../render/anim.js';
+import { clamp } from '../render/anim.js';
+import { keyframe } from '../render/engine.js';
 import project from '../../scenes/sl-11-4.scenes.js';
 
-/* engine.js 의 keyframe() 과 같은 식 — 그쪽은 export 하지 않는다 */
-function keyframe(list, t, fallback) {
-  if (list == null) return fallback;
-  if (typeof list === 'number') return list;
-  if (!list.length) return fallback;
-  if (t <= list[0].t) return list[0].v;
-  for (let i = 1; i < list.length; i++) {
-    if (t <= list[i].t) {
-      const a = list[i - 1]; const b = list[i];
-      const p = b.t === a.t ? 1 : (t - a.t) / (b.t - a.t);
-      const e = typeof b.ease === 'function' ? b.ease : (Ease[b.ease ?? 'inOutCubic'] ?? Ease.inOutCubic);
-      return lerp(a.v, b.v, e(clamp(p)));
-    }
-  }
-  return list[list.length - 1].v;
-}
 
 const scene = project.scenes.find((s) => s.id === 'cut2-early-exit');
 const c = scene.chart;

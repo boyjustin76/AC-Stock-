@@ -20,8 +20,8 @@ function easeByName(name) {
   return Ease[name] ?? Ease.inOutCubic;
 }
 
-/** 키프레임 보간: [{t, v, ease}] */
-function keyframe(list, t, fallback) {
+/** 키프레임 보간: [{t, v, ease}] — 좌표를 재계산하는 바깥 도구들도 이걸 쓴다 */
+export function keyframe(list, t, fallback) {
   if (list == null) return fallback;
   if (typeof list === 'number') return list;
   if (!list.length) return fallback;
