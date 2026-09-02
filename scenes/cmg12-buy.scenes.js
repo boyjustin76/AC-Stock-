@@ -158,7 +158,7 @@ export default {
         { type: 'cmgNote', text: '양봉 마감', bar: 52, price: 15543, dy: -175, size: 48, color: '#111111', in: [6.9, 0.3], out: [9.6, 0.4] },
         /* 다음 캔들 시가에 매수 */
         { type: 'cmgArrow', bar: 53, price: 15546, dir: 'buy', label: '매수', size: 34, gap: 16, in: [10.0, 0.35] },
-        { type: 'cmgNote', text: '다음 캔들 시가', bar: 57.5, price: 15505, size: 40, color: '#111111', in: [10.7, 0.3] },
+        { type: 'cmgNote', text: '다음 캔들 시가', bar: 57.5, price: 15505, size: 40, color: '#111111', align: 'right', in: [10.7, 0.3] }, // rightGap 0 — 중앙정렬이면 오른쪽 넘침
       ],
     },
 
@@ -190,7 +190,7 @@ export default {
         { type: 'cmgCircle', bar: 48, rsi: 40.7, rx: 60, ry: 48, width: 10, color: '#E90054', drawDur: 0, in: [0, 0] },
         { type: 'cmgCircle', bar: 52, rsi: 60.5, rx: 56, ry: 46, width: 10, color: '#E90054', drawDur: 0, in: [0, 0] },
         { type: 'cmgNote', text: '55선 재돌파', bar: 44, rsi: 70, size: 46, color: '#E90054', in: [0, 0] },
-        { type: 'cmgNote', text: '다음 캔들 시가', bar: 57.5, price: 15505, size: 40, color: '#111111', in: [0, 0], out: [3.6, 0.4] },
+        { type: 'cmgNote', text: '다음 캔들 시가', bar: 57.5, price: 15505, size: 40, color: '#111111', align: 'right', in: [0, 0], out: [3.6, 0.4] },
         { type: 'cmgArrow', bar: 53, price: 15546, dir: 'buy', label: '매수', size: 34, gap: 16, popDur: 0, out: [9.5, 0.5] },
         /* 진입 얇은 검은 선 + 손절 갈색 박스 (선과 테두리 포개짐 — 팀장 규칙 ④) */
         { type: 'cmgLevel', price: LV.entry, fromBar: 51, color: 'rgba(0,0,0,0.72)', thickness: 4, growDur: 0.35, in: [0.4, 0.2] },

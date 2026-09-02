@@ -26,7 +26,7 @@ const chartBase = {
   showGrid: false,
   showAxes: false,
   showLast: false,
-  layout: { padLeft: 0, padRight: 0, padTop: 216, padBottom: 162, rightGap: 5 },
+  layout: { padLeft: 0, padRight: 0, padTop: 216, padBottom: 162, rightGap: 0 },
   ma: [
     { type: 'sma', period: 10, width: 5, color: COLOR.ma10 },
     { type: 'sma', period: 34, width: 5, color: COLOR.ma34 },
@@ -126,9 +126,9 @@ export default {
         { type: 'cmgArrow', bar: 46, price: 15310.5, dir: 'buy', label: '매수', size: 34, gap: 16, popDur: 0, out: [5.5, 0.4] },
         /* 여기부터 컷12의 새 요소 — 조합의 RSI 쪽 원만 새로 그린다(48 원은 이월분 재사용) */
         { type: 'cmgCircle', bar: 47, rsi: 29, rx: 66, ry: 50, width: 9, color: '#002EFE', drawDur: 0.5, in: [3.0, 0.2] },
-        { type: 'cmgNote', text: '교차 + RSI 30 = 매수?', bar: 55, price: 15505, size: 52, color: '#111111', in: [4.8, 0.3] },
+        { type: 'cmgNote', text: '교차 + RSI 30 = 매수?', bar: 51, price: 15505, size: 52, color: '#111111', in: [4.8, 0.3] }, // rightGap 0 — 55봉이면 오른쪽 넘침
         { type: 'cmgArrow', bar: 48, price: 15297.8, dir: 'buy', label: '매수', size: 34, gap: 16, in: [5.7, 0.35] },
-        { type: 'cmgUnderline', bar: 55, price: 15505, dy: 48, width: 470, align: 'center', color: '#E90054', drawDur: 0.35, in: [7.0, 0.15] },
+        { type: 'cmgUnderline', bar: 51, price: 15505, dy: 48, width: 470, align: 'center', color: '#E90054', drawDur: 0.35, in: [7.0, 0.15] },
       ],
     },
 

@@ -32,7 +32,7 @@ const washBase = {
   showGrid: false,
   showAxes: false,
   showLast: false,
-  layout: { padLeft: 0, padRight: 0, padTop: 216, padBottom: 162, rightGap: 5 },
+  layout: { padLeft: 0, padRight: 0, padTop: 216, padBottom: 162, rightGap: 0 },
   blurPx: [{ t: 0, v: 16 }],
   alpha: [{ t: 0, v: 0.15 }],
 };

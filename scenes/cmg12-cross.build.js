@@ -85,7 +85,7 @@ const chartBase = {
   showGrid: false,
   showAxes: false,
   showLast: false,
-  layout: { padLeft: 0, padRight: 0, padTop: 216, padBottom: 162, rightGap: 5 },
+  layout: { padLeft: 0, padRight: 0, padTop: 216, padBottom: 162, rightGap: 0 },
   ma: [
     { type: 'ema', period: 5, width: 5, color: '#0D9488' },
     { type: 'ema', period: 20, width: 5, color: '#F38808' },
