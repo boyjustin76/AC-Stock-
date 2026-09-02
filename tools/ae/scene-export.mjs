@@ -149,7 +149,14 @@ for (const scene of project.scenes) {
       }
       return o;
     })(),
-    layers: (scene.layers ?? []).map((L, i) => {
+    /*  팀장 규칙 ⑭ — 버튼(cmgArrow)은 무조건 맨 앞, 그다음 동그라미·배지.
+        engine.js 의 drawOrder 와 **같은 정렬**이라야 AE 쌓는 순서가 화면과 맞는다.
+        (sort 는 안정 정렬이라 같은 층 안에서는 배열 순서가 유지된다)              */
+    layers: (() => {
+      const zOf = (L) => (L.type === 'cmgArrow' ? 2
+        : (L.type === 'cmgCircle' || L.type === 'cmgBadge') ? 1 : 0);
+      return (scene.layers ?? []).map((L, i) => ({ L, i })).sort((a, b) => zOf(a.L) - zOf(b.L))
+        .map(({ L, i }) => {
       const o = { i, ...plain(L) };
       /*  cmgArrow 는 price 를 생략하면 그 봉의 종가에 붙는다. AE 쪽에는 봉 데이터가
           없으므로 여기서 풀어서 넘긴다 — 좌표는 렌더러가 정한다는 약속대로다.  */
@@ -168,13 +175,16 @@ for (const scene of project.scenes) {
         o.pts = raw.map(([b, val]) => [b, r2(val + (mean - val) * k2)]);
       }
       return o;
-    }),
+        });
+    })(),
   });
 }
 
 const out = {
   _설명: 'tools/ae/scene-export.mjs 가 만든 좌표. x = X0 + 봉*BW, y = Y0 - 가격*K (프레임별). AE 는 좌상단 원점 — 캔버스와 같다.',
   slug,
+  /* 회사 폴더 규칙에 맞춘 꾸러미 이름 — sl-11-4 → ch11-4_ae */
+  packName: slug.replace(/^sl-/, 'ch') + '_ae',
   title: project.title,
   w: project.width,
   h: project.height,

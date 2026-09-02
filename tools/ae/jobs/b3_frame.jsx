@@ -19,7 +19,7 @@ var SPEC = (function () {
 
 function __main() {
 
-var AEP = LAB + "/ae/" + SPEC.slug + ".aep";
+var AEP = LAB + "/pack/" + SPEC.slug + "/" + SPEC.slug + ".aep";
 
 say("잡", "B3 프레임 뽑기 — " + SPEC.slug + " / " + SPEC.cut);
 

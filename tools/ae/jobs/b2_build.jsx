@@ -29,8 +29,12 @@ $.evalFile(new File(LAB + "/ae/" + SPEC.slug + ".jsx"));
 
 function __main() {
 
-var FLOOR = LAB + "/floor/split";
-var AEP   = LAB + "/ae/" + SPEC.slug + ".aep";
+/*  **포터블 구조로 짓는다.**  <팩>/<슬러그>.aep 와 <팩>/footage/<컷>.mov 를 나란히 두면,
+    AE 는 절대경로가 안 맞을 때 프로젝트 파일 기준 상대경로로 다시 찾는다.
+    그래서 이 폴더째 어디로 옮겨도 "파일 없음" 이 안 뜬다 — 압축해서 그대로 넘기면 된다.  */
+var PACK  = LAB + "/pack/" + (SCENE.packName || SPEC.slug);
+var FLOOR = PACK + "/footage";
+var AEP   = PACK + "/" + SPEC.slug + ".aep";   /* 파일 이름은 씬 파일과 맞춘다 — 추적용 */
 
 say("잡", "B2 컴포지션 짓기 — " + SPEC.slug + " / " + SPEC.cut);
 probe("좌표", function () {
@@ -71,7 +75,7 @@ function buildCut(cut) {
     CTX.fps  = SCENE.fps;
 
     /* ── 바닥: 차트만 담은 알파 무비 ── */
-    var fp = new File(FLOOR + "/" + cut.id + "/p00.mov");
+    var fp = new File(FLOOR + "/" + cut.id + ".mov");
     if (!fp.exists) throw new Error("바닥이 없다: " + fp.fsName);
     var item = app.project.importFile(new ImportOptions(fp));
     item.name = "바닥 " + cut.id;
@@ -109,8 +113,8 @@ function buildCut(cut) {
     }
     cam.locked = true;
 
-    /*  씬은 배열 순서대로 그린다(앞이 아래). AE 의 addShape 은 맨 위에 얹으므로
-        씬 순서대로 넣으면 마지막 레이어가 위에 온다 — 같은 순서가 된다.            */
+    /*  내보내기가 이미 **그리는 순서**로 정렬해 준다(팀장 규칙 ⑭ — 버튼이 맨 위).
+        AE 의 addShape 은 맨 위에 얹으므로, 그 순서대로 넣으면 화면 순서와 같아진다.  */
     var okN = 0, skipped = [];
     for (var i = 0; i < cut.layers.length; i++) {
         var L = cut.layers[i];

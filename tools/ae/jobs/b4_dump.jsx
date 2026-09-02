@@ -16,7 +16,7 @@ var SPEC = (function () {
 
 function __main() {
 
-var AEP = LAB + "/ae/" + SPEC.slug + ".aep";
+var AEP = LAB + "/pack/" + SPEC.slug + "/" + SPEC.slug + ".aep";
 var NAME = SPEC.slug + " " + SPEC.cut;
 say("잡", "B4 덤프 — " + NAME);
 
