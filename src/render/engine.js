@@ -93,7 +93,8 @@ export class SceneRuntime {
         순서 유지, sort 는 안정 정렬). 버튼 위에 무언가를 얹어야 하면 순서를 바꾸지 말고
         버튼을 잠깐 투명화한다. 반려 사례: 차12 병합 인트로에서 손절 태그가 뒤에 선언된
         손실 밴드에 덮임. brand/EDIT-RULEBOOK.md ⑭  */
-    const zOf = (L) => (L.type === 'cmgArrow' ? 1 : 0);
+    const zOf = (L) => (L.type === 'cmgArrow' ? 2
+      : (L.type === 'cmgCircle' || L.type === 'cmgBadge') ? 1 : 0);
     this.drawOrder = [...(scene.layers ?? [])].sort((a, b) => zOf(a) - zOf(b));
   }
 

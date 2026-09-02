@@ -32,7 +32,7 @@ const washBase = {
   showGrid: false,
   showAxes: false,
   showLast: false,
-  layout: { padLeft: 0, padRight: 0, padTop: 0, padBottom: 0, rightGap: 5 },
+  layout: { padLeft: 0, padRight: 0, padTop: 216, padBottom: 162, rightGap: 5 },
   blurPx: [{ t: 0, v: 16 }],
   alpha: [{ t: 0, v: 0.15 }],
 };
@@ -93,11 +93,11 @@ export default {
         },
         /* 카드3 오늘 알려드릴 것 (자막 26~32) — 항목은 예고 베이지 → 자기 큐에 본색 */
         { type: 'cmgText', y: 300, size: 104, text: '오늘 알려드릴 것', in: [16.1, 0.35] },
-        { type: 'cmgText', y: 470, size: 84, text: '① 어떤 기준으로 매매하는가', align: 'left', x: 430, in: [16.7, 0.3], activeAt: 20.1 },
-        { type: 'cmgText', y: 615, size: 84, text: '② 몇 분봉을 설정하는가', align: 'left', x: 430, in: [16.9, 0.3], activeAt: 21.9 },
-        { type: 'cmgText', y: 760, size: 84, text: '③ 어떤 보조지표를 쓰는가', align: 'left', x: 430, in: [17.1, 0.3], activeAt: 23.2 },
+        { type: 'cmgText', y: 460, size: 84, text: '① 어떤 기준으로 매매하는가', align: 'left', x: 430, in: [16.7, 0.3], activeAt: 20.1 },
+        { type: 'cmgText', y: 600, size: 84, text: '② 몇 분봉을 설정하는가', align: 'left', x: 430, in: [16.9, 0.3], activeAt: 21.9 },
+        { type: 'cmgText', y: 740, size: 84, text: '③ 어떤 보조지표를 쓰는가', align: 'left', x: 430, in: [17.1, 0.3], activeAt: 23.2 },
         {
-          type: 'cmgText', y: 915, size: 88, in: [25.5, 0.4],
+          type: 'cmgText', y: 862, size: 88, in: [25.5, 0.4],
           parts: [{ text: '이동평균선 + RSI ', hl: true }, { text: '눌림목 매매 전략' }],
         },
       ],
@@ -128,17 +128,17 @@ export default {
         },
         /* 카드2 짧은 시간 · 반복 거래 — 매수→익절 버튼 세 쌍이 연달아 찍힌다 (자막 56~59) */
         { type: 'cmgText', y: 330, size: 76, text: '짧은 시간 · 반복 거래', in: [3.9, 0.35], out: [11.3, 0.4] },
-        { type: 'image', src: '/brand/thumbnail/btn_매수.png', x: 480, y: 455, width: 189, in: [4.4, 0.2], out: [11.3, 0.4] },
-        { type: 'image', src: '/brand/thumbnail/btn_익절.png', x: 700, y: 455, width: 185, in: [4.7, 0.2], out: [11.3, 0.4] },
-        { type: 'image', src: '/brand/thumbnail/btn_매수.png', x: 950, y: 455, width: 189, in: [5.2, 0.2], out: [11.3, 0.4] },
-        { type: 'image', src: '/brand/thumbnail/btn_익절.png', x: 1170, y: 455, width: 185, in: [5.5, 0.2], out: [11.3, 0.4] },
-        { type: 'image', src: '/brand/thumbnail/btn_매수.png', x: 1420, y: 455, width: 189, in: [6.0, 0.2], out: [11.3, 0.4] },
-        { type: 'image', src: '/brand/thumbnail/btn_익절.png', x: 1640, y: 455, width: 185, in: [6.3, 0.2], out: [11.3, 0.4] },
+        { type: 'image', src: '/brand/thumbnail/btn_매수.png', x: 274, y: 455, width: 189, in: [4.4, 0.2], out: [11.3, 0.4] },
+        { type: 'image', src: '/brand/thumbnail/btn_익절.png', x: 493, y: 455, width: 185, in: [4.7, 0.2], out: [11.3, 0.4] },
+        { type: 'image', src: '/brand/thumbnail/btn_매수.png', x: 758, y: 455, width: 189, in: [5.2, 0.2], out: [11.3, 0.4] },
+        { type: 'image', src: '/brand/thumbnail/btn_익절.png', x: 977, y: 455, width: 185, in: [5.5, 0.2], out: [11.3, 0.4] },
+        { type: 'image', src: '/brand/thumbnail/btn_매수.png', x: 1242, y: 455, width: 189, in: [6.0, 0.2], out: [11.3, 0.4] },
+        { type: 'image', src: '/brand/thumbnail/btn_익절.png', x: 1461, y: 455, width: 185, in: [6.3, 0.2], out: [11.3, 0.4] },
         {
           type: 'cmgText', y: 700, size: 96, in: [7.0, 0.35], out: [11.3, 0.4],
           parts: [{ text: '1분봉', hl: true }, { text: '  또는  ' }, { text: '5분봉', hl: true }],
         },
-        { type: 'cmgText', y: 875, size: 100, text: '초단타 · 스캘핑', in: [9.2, 0.35], out: [11.3, 0.4] },
+        { type: 'cmgText', y: 840, size: 100, text: '초단타 · 스캘핑', in: [9.2, 0.35], out: [11.3, 0.4] },
         /* 카드3 기계적 진입·청산 (자막 60~63) */
         { type: 'cmgText', y: 400, size: 72, text: '한 번에 큰 수익을 노리기보다', in: [11.5, 0.3] },
         {

@@ -21,6 +21,9 @@ function arg(name, dflt) {
 const configPath = arg('config');
 const onlyScene = arg('scene', null);
 const MARGIN = Number(arg('margin', 60));
+/* 세이프 에어리어(룰북 ⑮): 상단 20%(216px)·하단 15%(162px)는 프리셋 타이틀·자막 몫 */
+const TOP = Number(arg('top', MARGIN));
+const BOTTOM = Number(arg('bottom', MARGIN));
 
 if (!configPath) {
   console.error('사용법: node src/tools/probe-labels.mjs --config scenes/xxx.scenes.js');
@@ -76,7 +79,7 @@ for (const scene of project.scenes) {
       const y = (L.rsi != null && s.rsiY ? s.rsiY(L.rsi) : s.y(L.price)) + (L.dy ?? 0);
       minY = Math.min(minY, y);
       maxY = Math.max(maxY, y);
-      const clipped = y < MARGIN || y > H - MARGIN;
+      const clipped = y < TOP || y > H - BOTTOM;
       if (clipped && !cur) cur = [t, t];
       else if (clipped && cur) cur[1] = t;
       else if (!clipped && cur) { clipSpans.push(cur); cur = null; }

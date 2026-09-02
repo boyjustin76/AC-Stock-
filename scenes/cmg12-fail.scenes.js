@@ -26,7 +26,7 @@ const chartBase = {
   showGrid: false,
   showAxes: false,
   showLast: false,
-  layout: { padLeft: 0, padRight: 0, padTop: 0, padBottom: 0, rightGap: 5 },
+  layout: { padLeft: 0, padRight: 0, padTop: 216, padBottom: 162, rightGap: 5 },
   ma: [
     { type: 'sma', period: 10, width: 5, color: COLOR.ma10 },
     { type: 'sma', period: 34, width: 5, color: COLOR.ma34 },
