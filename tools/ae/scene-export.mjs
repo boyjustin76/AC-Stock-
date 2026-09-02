@@ -93,7 +93,13 @@ for (const scene of project.scenes) {
     /* 캔들 몸통 폭 = 봉 간격 × 0.66 (chart.js makeScale) */
     bodyRatio: 0.66,
     cam: { X0, BW, Y0, K },
-    layers: (scene.layers ?? []).map((L, i) => ({ i, ...plain(L) })),
+    layers: (scene.layers ?? []).map((L, i) => {
+      const o = { i, ...plain(L) };
+      /*  cmgArrow 는 price 를 생략하면 그 봉의 종가에 붙는다. AE 쪽에는 봉 데이터가
+          없으므로 여기서 풀어서 넘긴다 — 좌표는 렌더러가 정한다는 약속대로다.  */
+      if (o.type === 'cmgArrow' && o.price == null && bars[o.bar]) o.price = bars[o.bar].c;
+      return o;
+    }),
   });
 }
 

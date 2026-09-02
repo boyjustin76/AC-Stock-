@@ -14,6 +14,7 @@
  *   npm run render -- --all --stills 5       # 확인용 스틸컷만
  *   npm run render -- --all --reel           # 전 씬을 이어 붙인 릴까지 생성
  *   npm run render -- --scene cut2 --split   # 레이어별 알파 클립 + 프리미어 XML
+ *   npm run render -- --all --split --floor  # 차트만 담은 알파 무비 (AE 바닥용)
  */
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -104,7 +105,9 @@ async function main() {
             프리미어에서 레이어를 갈라 쓰려면 이 길밖에 없다 — mogrt 도 Dynamic Link 도
             프리미어 안에서는 클립 하나로 들어온다.  */
         const dir = path.join(outDir, 'split', scene.id);
-        const passes = planPasses(scene);
+        /*  --floor 는 바닥(차트만) 하나만 뽑는다. AE 컴포지션의 바닥으로 쓴다 —
+            주석은 AE 네이티브로 다시 그리므로 차트 픽셀만 있으면 된다.  */
+        const passes = args.floor ? planPasses(scene, []) : planPasses(scene);
         let cur = '';
         const r = await renderPasses(stage, {
           config: configRel, sceneId: scene.id, outDir: dir, width, height, passes, capture, hold: !!args.hold,
