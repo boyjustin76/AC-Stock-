@@ -20,10 +20,8 @@ var SPEC = (function () {
 function __main() {
 
 var AEP = LAB + "/ae/" + SPEC.slug + ".aep";
-var DIR = LAB + "/ae/frames/" + SPEC.cut;
-var NAME = SPEC.slug + " " + SPEC.cut;
 
-say("잡", "B3 프레임 뽑기 — " + NAME);
+say("잡", "B3 프레임 뽑기 — " + SPEC.slug + " / " + SPEC.cut);
 
 closeQuietly();
 probe("열기", function () {
@@ -33,34 +31,47 @@ probe("열기", function () {
     return app.project.numItems + "항목";
 });
 
-var comp = null;
+/*  컷 하나면 그 컴포지션만, all 이면 전부 — 프로젝트를 한 번만 열면 되니 훨씬 싸다.  */
+var comps = [];
 for (var i = 1; i <= app.project.numItems; i++) {
     var it = app.project.item(i);
-    if (it instanceof CompItem && it.name === NAME) comp = it;
+    if (!(it instanceof CompItem)) continue;
+    if (SPEC.cut === "all" || it.name === SPEC.slug + " " + SPEC.cut) comps.push(it);
 }
-if (!comp) { flush(); return fail("컴포지션이 없다: " + NAME); }
-say("컴포지션", dumpComp(comp));
+if (!comps.length) { flush(); return fail("컴포지션이 없다: " + SPEC.slug + " " + SPEC.cut); }
 
-var d = new Folder(DIR);
-if (!d.exists) d.create();
+var total = 0;
+for (var c = 0; c < comps.length; c++) {
+    var comp = comps[c];
+    var cutId = comp.name.replace(SPEC.slug + " ", "");
+    var DIR = LAB + "/ae/frames/" + cutId;
+    var d = new Folder(DIR);
+    if (!d.exists) d.create();
 
-var list = SPEC.frames.split(",");
-var okN = 0;
-for (var k = 0; k < list.length; k++) {
-    (function (fn) {
-        probe("f" + fn, function () {
-            var t = Number(fn) / comp.frameRate;
-            var out = new File(DIR + "/f" + fn + ".png");
-            comp.saveFrameToPng(t, out);
-            $.sleep(600);          /* 200ms 는 첫 프레임에서 모자랐다 (파일럿 실측) */
-            okN++;
-            return "t=" + (Math.round(t * 1000) / 1000) + "s";
-        });
-    })(String(Number(list[k])));
+    /*  컷마다 길이가 달라 고정 프레임 번호는 못 쓴다. 길이의 25·50·75·95% 를 뽑는다.
+        컷 하나만 지정했을 때는 _build.txt 세 번째 칸으로 직접 줄 수 있다.  */
+    var list;
+    if (SPEC.cut !== "all" && SPEC.frames) {
+        list = SPEC.frames.split(",");
+    } else {
+        var n = Math.round(comp.duration * comp.frameRate);
+        list = [Math.round(n * 0.25), Math.round(n * 0.5), Math.round(n * 0.75), Math.round(n * 0.95)];
+    }
+    var okN = 0, got = [];
+    for (var k = 0; k < list.length; k++) {
+        var fn = Number(list[k]);
+        try {
+            comp.saveFrameToPng(fn / comp.frameRate, new File(DIR + "/f" + fn + ".png"));
+            $.sleep(400);          /* 200ms 는 첫 프레임에서 모자랐다 (파일럿 실측) */
+            okN++; got.push(fn);
+        } catch (e) { got.push("f" + fn + " ERR " + e.toString()); }
+    }
+    total += okN;
+    say("  " + cutId, okN + "/" + list.length + " · " + got.join(","));
 }
-say("뽑음", okN + "/" + list.length + " → " + DIR);
+say("뽑음", total + "장 → " + LAB + "/ae/frames/");
 
 flush();
-return done(okN + "장");
+return done(total + "장");
 }
 __main();

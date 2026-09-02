@@ -43,11 +43,18 @@ for (const f of frames) {
   if (!existsSync(a)) { console.log(`   f${f}  AE 프레임이 없다: ${a}`); continue; }
   if (!existsSync(r)) { console.log(`   f${f}  렌더러 프레임이 없다: ${r}`); continue; }
 
-  /* 알파를 흰 바탕에 얹는다 */
+  /*  알파를 흰 바탕에 얹는다.
+      ⚠ AE 의 saveFrameToPng 는 **알파가 미리 곱해진(premultiplied)** PNG 를 낸다.
+      그냥 얹으면 반투명한 곳이 전부 검정 쪽으로 어두워진다 — 9% 주황 띠가
+      정확히 '검정 9%' 값으로 나와서 잡았다.
+      unpremultiply 로 되돌린 뒤 얹으면 맞긴 한데, 8비트에서 나눴다 다시 곱하느라
+      1레벨쯤 반올림 오차가 생긴다. 미리 곱해진 채로 바로 더하는 게 정확하다:
+          결과 = 미리곱한색 + 흰바탕 × (1 - 알파)                                   */
   const flat = `${OUT}/ae_f${f}.png`;
-  ff(['-y', '-hide_banner', '-loglevel', 'error',
-      '-f', 'lavfi', '-i', 'color=c=white:s=1080x1080', '-i', a,
-      '-filter_complex', '[0][1]overlay=format=rgb', '-frames:v', '1', flat]);
+  const bg = "255*(1-alpha(X,Y)/255)";
+  ff(['-y', '-hide_banner', '-loglevel', 'error', '-i', a,
+      '-vf', `format=rgba,geq=r='r(X,Y)+${bg}':g='g(X,Y)+${bg}':b='b(X,Y)+${bg}':a=255,format=rgb24`,
+      '-frames:v', '1', flat]);
 
   const p = ff(['-hide_banner', '-i', flat, '-i', r, '-filter_complex', 'psnr', '-f', 'null', '-']);
   const psnr = (p.stderr.match(/average:([0-9.]+)/) ?? [])[1];

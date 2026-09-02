@@ -50,6 +50,17 @@ probe("폰트", function () {
 closeQuietly();
 app.newProject();
 
+/*  색 합성 공간을 캔버스와 맞춘다.
+    렌더러는 브라우저 캔버스라 **sRGB 값 그대로** 섞는다. AE 가 선형 감마로 섞거나
+    작업 색공간이 걸려 있으면 반투명 합성이 미묘하게 어긋난다 — 스크림·영역 채움·
+    빗금처럼 알파를 쓰는 것 전부에 걸린다.  */
+probe("색 설정", function () {
+    var before = "선형=" + app.project.linearBlending + " 공간='" + app.project.workingSpace + "' 비트=" + app.project.bitsPerChannel;
+    app.project.linearBlending = false;
+    app.project.workingSpace = "";          /* 색 관리 끔 = sRGB 값 그대로 */
+    return before + "  →  선형=" + app.project.linearBlending + " 공간='" + app.project.workingSpace + "'";
+});
+
 /** 컷 하나 */
 function buildCut(cut) {
     COMP = app.project.items.addComp(SCENE.slug + " " + cut.id, SCENE.w, SCENE.h, 1,
@@ -73,7 +84,9 @@ function buildCut(cut) {
     cam.shy = true;
     var times = [];
     for (var f = 0; f < cut.frames; f++) times.push(f / SCENE.fps);
-    var keys = ["X0", "BW", "Y0", "K"];
+    /*  LAST 는 '지금 가격' — reveal 이 움직이면 같이 바뀐다. cmgProfit 이 쓴다.
+        빠뜨렸더니 표현식이 없는 이펙트를 가리켜 사각형이 통째로 죽었다.  */
+    var keys = ["X0", "BW", "Y0", "K", "LAST"];
     for (var s = 0; s < keys.length; s++) {
         var e = fx(cam).addProperty("ADBE Slider Control");
         e.name = keys[s];

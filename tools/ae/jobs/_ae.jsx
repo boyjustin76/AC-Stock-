@@ -151,26 +151,54 @@ function addRect(g, sizeExpr, posExpr, roundness) {
 
 /* ── 시간 ───────────────────────────────────────────── */
 
-/** 등장/퇴장 불투명도. inSpec=[t,dur] 또는 null(처음부터), outSpec=[t,dur] */
-function fade(L, inSpec, outSpec, dur, fps) {
+/*  ── 이징: src/render/anim.js 를 JSX 로 옮긴 것 ──
+    표현식용은 easeHead() 가 문자열로 낸다. 이쪽은 **키프레임을 구울 때** 쓴다.  */
+var E = {
+    linear:    function (p) { return p; },
+    outCubic:  function (p) { return 1 - Math.pow(1 - p, 3); },
+    outQuart:  function (p) { return 1 - Math.pow(1 - p, 4); },
+    outExpo:   function (p) { return p >= 1 ? 1 : 1 - Math.pow(2, -10 * p); },
+    outBack:   function (p) { return 1 + 2.2 * Math.pow(p - 1, 3) + 1.2 * Math.pow(p - 1, 2); },
+    inOutQuad: function (p) { return p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; }
+};
+function clampJS(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
+function spanJS(t, a, b, e) {
+    if (b <= a) return t >= b ? 1 : 0;
+    return e(clampJS((t - a) / (b - a)));
+}
+/** anim.js cue() 그대로 — 등장은 outCubic, 퇴장은 inOutQuad 다 */
+function cueJS(t, L) {
+    var i = L["in"], o = L["out"];
+    var enter = (i && i.length) ? spanJS(t, i[0], i[0] + i[1], E.outCubic) : 1;
+    var exit  = (o && o.length) ? 1 - spanJS(t, o[0], o[0] + o[1], E.inOutQuad) : 1;
+    return Math.min(enter, exit);
+}
+
+/**
+ * 불투명도를 **프레임 단위로 구워** 넣는다. fn(t) 는 0~1 을 준다.
+ *
+ * 왜 표현식이 아니라 키프레임인가 —
+ *   팀장이 손으로 끌어 싱크를 바꿀 수 있어야 한다. 표현식이면 식을 고쳐야 한다.
+ * 왜 AE 이징이 아니라 굽는가 —
+ *   렌더러의 등장은 outCubic 인데 AE 이지이즈로 근사했더니 페이드 중간에서
+ *   60% vs 92% 로 벌어졌다(컷① 프레임 대조로 잡았다). 램프는 6~12프레임뿐이라
+ *   프레임마다 찍어도 값이 싸고, 값이 안 변하는 구간은 키를 찍지 않는다.
+ */
+function bakeAlpha(L, fn, dur, fps) {
     var op = tr(L).property("ADBE Opacity");
-    /*  씬은 labelDelay -1 처럼 **컷 시작 전**을 가리키는 값도 쓴다("처음부터 켜져 있어라").
-        음수 시각에 키를 찍으면 AE 가 받아 주지 않으므로, 컷 안으로 끌어들인다.  */
-    if (inSpec && inSpec[0] + inSpec[1] <= 0) inSpec = null;
-    if (inSpec && inSpec[0] < 0) inSpec = [0, inSpec[0] + inSpec[1]];
-    if (inSpec) {
-        op.setValueAtTime(inSpec[0], 0);
-        op.setValueAtTime(inSpec[0] + inSpec[1], 100);
-    } else {
-        op.setValueAtTime(0, 100);
+    var n = Math.round(dur * fps);
+    var times = [], vals = [], prev = null;
+    for (var f = 0; f <= n; f++) {
+        var t = f / fps;
+        var v = Math.round(clampJS(fn(t)) * 10000) / 100;
+        var nx = (f < n) ? Math.round(clampJS(fn((f + 1) / fps)) * 10000) / 100 : null;
+        /* 값이 변하는 순간과 그 양쪽만 남긴다 — 평평한 구간은 키 두 개면 된다 */
+        if (prev === null || v !== prev || (nx !== null && nx !== v)) { times.push(t); vals.push(v); }
+        prev = v;
     }
-    if (outSpec) {
-        op.setValueAtTime(outSpec[0], 100);
-        op.setValueAtTime(Math.min(outSpec[0] + outSpec[1], dur - 1 / fps), 0);
-    }
-    for (var i = 1; i <= op.numKeys; i++) {
-        try { op.setTemporalEaseAtKey(i, [new KeyframeEase(0, 40)], [new KeyframeEase(0, 40)]); } catch (e) {}
-    }
+    if (times.length === 1) { op.setValueAtTime(0, vals[0]); }
+    else op.setValuesAtTimes(times, vals);
+    /* 프레임마다 키가 있는 구간은 보간이 무의미하므로 이징을 건드리지 않는다 */
     return op;
 }
 /** 그려지는 연출 — 트림 패스 (손그림 동그라미·밑줄) */
@@ -210,16 +238,19 @@ function textLayer(name, str, font, size, fillHex, strokeHex, strokeW) {
 }
 function inkOf(L) { return L.sourceRectAtTime(0, false); }
 
-/** 글자는 잉크 박스 **중심**을 좌표에 맞춘다 — 캔버스의 textAlign center + textBaseline middle 과 같다 */
+/**
+ * 글자는 잉크 박스 **중심**을 좌표에 맞춘다 — 캔버스의 textAlign center + textBaseline middle 과 같다.
+ *
+ * 앵커를 잉크 중심에 두고 Position 을 좌표에 둔다. Position 만 보정하는 방법도 같은
+ * 그림이 나오지만, 그렇게 하면 크기·회전이 [0,0] 을 축으로 돌아서 팝 연출을 못 건다.
+ */
 function trackTextCenter(L, xExpr, yExpr) {
     var off = fx(L).addProperty("ADBE Point Control");
     off.name = "손보정";
     off.property(1).setValue([0, 0]);
-    tr(L).property("ADBE Anchor Point").setValue([0, 0]);
+    tr(L).property("ADBE Anchor Point").expression =
+        'var r = thisLayer.sourceRectAtTime(time, false);\n[r.left + r.width/2, r.top + r.height/2]';
     tr(L).property("ADBE Position").expression =
-        camHead()
-        + 'var o = effect("손보정")(1);\n'
-        + 'var r = thisLayer.sourceRectAtTime(time, false);\n'
-        + '[(' + xExpr + ') - (r.left + r.width/2) + o[0], (' + yExpr + ') - (r.top + r.height/2) + o[1]]';
+        camHead() + 'var o = effect("손보정")(1);\n[(' + xExpr + ') + o[0], (' + yExpr + ') + o[1]]';
     return L;
 }

@@ -63,20 +63,19 @@ for (const scene of project.scenes) {
   const frames = Math.round(scene.duration * fps);
   const p = chart.plot;
 
-  const X0 = [], BW = [], Y0 = [], K = [];
+  const X0 = [], BW = [], Y0 = [], K = [], LAST = [];
   for (let f = 0; f < frames; f++) {
     const t = f / fps;
-    const vp = chart.viewport(
-      clamp(keyframe(c.reveal, t, bars.length), 0.001, bars.length),
-      keyframe(c.zoom, t, 1),
-      keyframe(c.priceOffset, t, 0),
-    );
+    const reveal = clamp(keyframe(c.reveal, t, bars.length), 0.001, bars.length);
+    const vp = chart.viewport(reveal, keyframe(c.zoom, t, 1), keyframe(c.priceOffset, t, 0));
     const bw = p.w / (vp.right - vp.left);
     const k = p.h / (vp.hi - vp.lo);
     X0.push(r2(p.x - vp.left * bw));
     BW.push(r2(bw));
     Y0.push(r2(p.bottom + vp.lo * k));
     K.push(Math.round(k * 1e6) / 1e6);   /* 가격 1단위당 픽셀 — 작은 수라 자리를 더 준다 */
+    /*  '지금 가격'도 프레임마다 바뀐다(reveal 이 움직이므로). cmgProfit 이 쓴다.  */
+    LAST.push(r2(chart.lastInfo(chart.makeScale(vp), reveal)?.price ?? vp.lo));
   }
   const rng = (a) => Math.max(...a) - Math.min(...a);
   const still = rng(X0) < 0.5 && rng(BW) < 0.01 && rng(Y0) < 0.5;
@@ -92,12 +91,25 @@ for (const scene of project.scenes) {
     plot: { x: r2(p.x), y: r2(p.y), w: r2(p.w), h: r2(p.h), right: r2(p.right), bottom: r2(p.bottom) },
     /* 캔들 몸통 폭 = 봉 간격 × 0.66 (chart.js makeScale) */
     bodyRatio: 0.66,
-    cam: { X0, BW, Y0, K },
+    cam: { X0, BW, Y0, K, LAST },
     layers: (scene.layers ?? []).map((L, i) => {
       const o = { i, ...plain(L) };
       /*  cmgArrow 는 price 를 생략하면 그 봉의 종가에 붙는다. AE 쪽에는 봉 데이터가
           없으므로 여기서 풀어서 넘긴다 — 좌표는 렌더러가 정한다는 약속대로다.  */
       if (o.type === 'cmgArrow' && o.price == null && bars[o.bar]) o.price = bars[o.bar].c;
+      /*  cmgTrace 는 이평선 값을 따라 긋는다. AE 에는 봉 데이터가 없으므로
+          (봉, 가격) 점을 여기서 풀어 넘긴다 — flatten 까지 적용한 최종 좌표다.  */
+      if (o.type === 'cmgTrace') {
+        const ov = chart.overlays?.[o.overlay ?? 0];
+        const raw = [];
+        for (let b = o.fromBar; b <= o.toBar; b++) {
+          const val = ov?.values?.[b];
+          if (val != null) raw.push([b, val]);
+        }
+        const mean = raw.reduce((a, x) => a + x[1], 0) / (raw.length || 1);
+        const k2 = o.flatten ?? 0.75;
+        o.pts = raw.map(([b, val]) => [b, r2(val + (mean - val) * k2)]);
+      }
       return o;
     }),
   });
