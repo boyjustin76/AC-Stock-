@@ -106,19 +106,25 @@ function strokeText(ctx, text, x, y, opt = {}) {
   ctx.save();
   ctx.lineJoin = 'round';
   ctx.miterLimit = 2;
-  if (opt.shadow) {
-    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+  const hasStroke = (opt.strokeWidth ?? 9) > 0;
+  const setShadow = () => {
+    ctx.shadowColor = opt.shadowColor ?? 'rgba(0,0,0,0.35)';
     ctx.shadowBlur = opt.shadow === true ? 10 : opt.shadow;
-    ctx.shadowOffsetY = 4;
-  }
-  if ((opt.strokeWidth ?? 9) > 0) {
+    ctx.shadowOffsetX = opt.shadowOffsetX ?? 0;
+    ctx.shadowOffsetY = opt.shadowOffsetY ?? 4;
+  };
+  if (opt.shadow) setShadow();
+  if (hasStroke) {
     ctx.strokeStyle = opt.stroke ?? '#000000';
     ctx.lineWidth = opt.strokeWidth ?? 9;
     ctx.strokeText(text, x, y);
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
   }
-  ctx.shadowColor = 'transparent';
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetY = 0;
+  // 외곽선이 없는 표기(차명10 문법)는 그림자를 채움 글자에 직접 건다
+  if (opt.shadow && !hasStroke) setShadow();
   ctx.fillStyle = opt.fill ?? '#FFFFFF';
   ctx.fillText(text, x, y);
   ctx.restore();
@@ -152,6 +158,16 @@ function arrowTagPath(ctx, tipX, cy, w, h, dir = 1, headRatio = 0.49, radius = n
 }
 
 const LAYERS = {
+  /** 화면 전체 단색 덮개 — 말 구간 카드의 바탕(차명10 회색 등). 등장 연출 없음, cue 알파만 */
+  fill(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    withAlpha(ctx, v * (L.opacity ?? 1), () => {
+      ctx.fillStyle = L.color ?? '#C6C7C5';
+      ctx.fillRect(0, 0, env.w, env.h);
+    });
+  },
+
   /** 화면 전체 타이틀 카드 (인트로/챕터 전환) */
   titleCard(ctx, L, env) {
     const { v } = cue(env.t, L, { inEase: Ease.outQuart });
@@ -1127,6 +1143,10 @@ const LAYERS = {
    * 미리 떠 있다가 자기 내레이션에 본색이 된다(activeAt).
    *   { type:'cmgText', y, x?(기본 중앙), size?, text | parts:[{text,color?,hl?}],
    *     color?, preColor?, activeAt?, hlColor?, align?, in, out }
+   * 차명10 문법 (2026-09-02 스샷 실측): hlStyle:'band' 로 켠다 — 회색 바탕 위
+   * 경기천년바탕 Bold 흰 글씨(외곽선 없음, strokeWidth:0), 키워드는 핑크(#EF2767)
+   * 풀밴드 위 흰 글씨(hlTextColor). 그림자는 프리미어 값(불투명95·135°·거리7·크기12.8·
+   * 블러40)의 캔버스 근사 — shadow/shadowColor/shadowOffsetX/shadowOffsetY 로 넘긴다.
    */
   cmgText(ctx, L, env) {
     const { v } = cue(env.t, L);
@@ -1140,6 +1160,7 @@ const LAYERS = {
     const pre = L.activeAt != null && env.t < L.activeAt;
     const baseColor = pre ? (L.preColor ?? '#F9E9BF') : (L.color ?? '#111111');
     const hlColor = L.hlColor ?? '#F8D890';
+    const band = L.hlStyle === 'band';
 
     withAlpha(ctx, v, () => {
       ctx.font = `${weight} ${size}px ${font}`;
@@ -1150,25 +1171,35 @@ const LAYERS = {
       const rise = enter(env, L, L.in?.[0] ?? 0, (L.in?.[0] ?? 0) + Math.max(L.in?.[1] ?? 0.3, 0.01), Ease.outCubic);
       const y = L.y + (1 - rise) * size * 0.35;
       let cx = (L.align ?? 'center') === 'center' ? x - total / 2 : L.align === 'right' ? x - total : x;
-      /* 형광펜 — 본색 상태에서만 */
+      /* 형광펜/밴드 — 본색 상태에서만 */
       if (!pre) {
         let hx = cx;
         for (let i = 0; i < parts.length; i++) {
           if (parts[i].hl) {
             ctx.fillStyle = hlColor;
-            const pad = size * 0.1;
-            roundRect(ctx, hx - pad, y - size * 0.56, widths[i] + pad * 2, size * 1.12, size * 0.09);
+            if (band) {
+              // 차명10: 글줄을 통째로 덮는 핑크 풀밴드
+              const pad = size * 0.3;
+              roundRect(ctx, hx - pad, y - size * 0.72, widths[i] + pad * 2, size * 1.44, size * 0.06);
+            } else {
+              const pad = size * 0.1;
+              roundRect(ctx, hx - pad, y - size * 0.56, widths[i] + pad * 2, size * 1.12, size * 0.09);
+            }
             ctx.fill();
           }
           hx += widths[i];
         }
       }
       for (let i = 0; i < parts.length; i++) {
+        const onBand = band && !pre && parts[i].hl;
         strokeText(ctx, parts[i].text, cx, y + size * 0.04, {
-          stroke: '#FFFFFF',
+          stroke: L.stroke ?? '#FFFFFF',
           strokeWidth: L.strokeWidth ?? size * 0.18,
-          fill: pre ? baseColor : (parts[i].color ?? baseColor),
-          shadow: pre ? 0 : 8,
+          fill: pre ? baseColor : (onBand ? (L.hlTextColor ?? '#FFFFFF') : (parts[i].color ?? baseColor)),
+          shadow: pre ? 0 : (onBand ? 0 : (L.shadow ?? 8)),
+          shadowColor: L.shadowColor,
+          shadowOffsetX: L.shadowOffsetX,
+          shadowOffsetY: L.shadowOffsetY,
         });
         cx += widths[i];
       }
