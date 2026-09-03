@@ -23,8 +23,10 @@
 
 ## 여기부터
 
-1. **`log/worklog.db`** (SQLite) 가 작업 기록의 원본이다. 읽는 형태는 `log/WORKLOG.md`,
-   보는 형태는 `log/worklog.html`. 셋 다 `log/build_worklog_db.py` 에서 만들어진다.
+1. **`log/worklog.db`** (SQLite) 가 작업 기록의 원본이다. 읽는 형태는 `log/WORKLOG.md`
+   (db+md 는 `log/build_worklog_db.py`), 보는 형태는 `log/worklog.html`
+   (`log/build_worklog_page.py`). 루트 `README.md` 는 `log/build_readme.py`.
+   `log/save.py` 가 세이브마다 셋을 차례로 돌린다 — 손으로 고치지 않는다.
 2. `brand/STYLE.md` — 브랜드 스펙. 색·크기는 전부 레퍼런스 영상에서 실측한 값이다. 짐작으로 바꾸지 않는다.
 3. **`brand/EDIT-RULEBOOK.md` — 연출 룰북.** 피드백에서 확정된 규칙 16개. 컷을 짜기 전에 읽는다.
    ⑮ 세이프 에어리어(세로 위 20%·아래 15% 여백)와 ⑭ 버튼/동그라미 최상위는 렌더러가 강제한다.

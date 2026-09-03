@@ -22,7 +22,13 @@
 | 4 | **썸네일 툴체인** — 포토샵 COM 빌드 | `tools/photoshop/build_thumb.jsx`·`config.json`·`run.ps1` + 컨테이너 대체 경로 `tools/thumbnail_png.py`·`psdedit.py` | B |
 | 5 | **컷편집·숏폼 도구** | `tools/cutedit/*.py`(STT 컷·srt 규칙·챕터·범퍼 실측)·`tools/shortform.py` | E |
 
-가로지르는 것: **기록 시스템**(`log/build_worklog_db.py` 가 worklog.db·WORKLOG.md·worklog.html·README.md 를 전부 생성, `log/save.py` 가 세이브/로드) — 총괄. **스펙 문서**(`brand/STYLE.md`·`brand/EDIT-RULEBOOK.md`) — 실측 기반, 코드가 일부 강제.
+가로지르는 것: **기록 시스템** — `log/save.py` 가 세이브마다 `log/build_worklog_db.py`(worklog.db + WORKLOG.md) → `log/build_worklog_page.py`(worklog.html) → `log/build_readme.py`(README.md) 를 차례로 돌린다. 전부 총괄. **스펙 문서**(`brand/STYLE.md`·`brand/EDIT-RULEBOOK.md`) — 실측 기반, 코드가 일부 강제.
+
+주인 지도 각주 (2026-09-03 전수 스윕으로 확정, git 추적 289파일 전수 분류 완료):
+- D 는 `tools/ae/`·`lab/ae/` 외에 **`tools/premiere/`·`lab/premiere/`** 도 소유 — 프리미어 직접 편집 랩(M1~M6). 단 이 계열은 AE 채택으로 **보류** 상태라 §3 바이패스.
+- `brand/` 하위 logo/·reference/·sfx/·texture/·premiere/·SHORTFORM-FX-POOL.md, `scenes/nq-*`, `tools/premiere_xml.py`·`tools/render-cmg12-layers.mjs`, `log/build_readme.py`·`build_worklog_page.py` — 전부 총괄.
+- `tools/cutedit/` 는 E 가 개발·유지하되 STT 컷편집 자체는 저장소(총괄) 소관, E 이관분은 srt 추출(2026-09-01) — 경계는 CLAUDE.md 범위표.
+- `tools/thumbnail_png.py` 는 B 기준 소유 / 총괄 유지보수 (컨테이너 전용 경로).
 
 ## 2. 리뷰 관점 — 효율성. 이 여섯 갈래로 낭비를 찾아라
 
@@ -36,7 +42,10 @@
    이런 어긋남이었다 — request 52~65 참조)
 2. **중복·사장 코드**: 같은 일을 두 곳이 하는 자리(예: 썸네일 로컬 JSX ↔ 컨테이너 파이썬
    경로, 씬 좌표 계산의 렌더러/AE 이중화), 이제 안 쓰는데 살아 있는 코드. 삭제/단일화
-   제안까지.
+   제안까지. 알려진 출발점 하나: **컨테이너 썸네일 경로는 지금 죽어 있다** —
+   `tools/thumbnail_png.py` 는 차12 config(6안 전부 `scene` 키 없음)에서 즉시 종료하고,
+   titleBox 격자박스도 안 읽는다(폭 1185/1120 하드코딩 잔존). 두 경로를 유지할 가치가
+   있는가부터 물어라.
 3. **렌더·실행 시간**: 블러 80분 사고(constraint 1) 같은 게 또 숨어 있는가? 씬당 렌더
    시간을 늘리는 낭비 패턴, --stills 로 잡을 수 있는데 실렌더로 잡는 절차.
 4. **수작업 루프**: 사람이 매 회차 반복하는데 도구화 안 된 절차(대본→씬 변환, 검증,
@@ -52,18 +61,30 @@
 
 ## 3. 바이패스 — 열지도 마라
 
+(2026-09-03 전수 스윕으로 각 항목의 "현행 코드가 참조 안 함"을 grep 확인한 목록이다)
+
 - `tools/legacy/` — 1세대 썸네일 도구(폭 역산). 실행 금지 격리.
-- `brand/thumbnail/legacy/`
-- `tools/ae/anchors.mjs`·`tools/ae/jobs/_anchors.jsx`·`tools/ae/jobs/a1~a5*.jsx` — A 계열 파일럿. B 계열로 대체됨.
-- `lab/ae/pilot.aep`·`lab/ae/차11-4 손익비.mogrt`·`lab/ae/cut2-base.scenes.js`·`lab/ae/a3/`·`lab/ae/a6/`·`lab/ae/AEP-MOGRT-조사보고.txt` — 파일럿 증거물.
-- `src/tools/exp-drift.mjs`·`exp-survey.mjs` — 초기 조사용, 현행 미사용.
-- `scenes/thumb-ch11.scenes.js` — 구판 (thumb-ch11-A/B/C 로 대체).
-- `scenes/cmg-*.scenes.js` 중 차11 이전 회차분 — 문법 견본으로만 존재.
-- **생성물**: `log/worklog.db`·`log/worklog.html`·`log/WORKLOG.md`·`README.md` — 리뷰는
-  생성기(`log/build_worklog_db.py`)를 본다. 생성물의 오류는 곧 생성기의 오류다.
+- `brand/thumbnail/legacy/` — 참조는 tools/legacy 안에서만.
+- `tools/ae/anchors.mjs`·`tools/ae/jobs/_anchors.jsx`·`tools/ae/jobs/a1~a5*.jsx`(11개) — A 계열 파일럿. B 계열로 대체됨.
+- `lab/ae/pilot.aep`·`차11-4 손익비.mogrt`·`cut2-base.scenes.js`·`cut2-base-r63-무주석.png`·`a3/`·`a6/`·`AEP-MOGRT-조사보고.txt` — 파일럿 증거물.
+- **`tools/premiere/`(35파일)·`lab/premiere/`(23파일)** — 프리미어 직접 편집 랩(M1~M6).
+  AE 채택으로 보류된 계열이라 코드 리뷰 제외. 단 "보류 계열을 저장소에 유지하는 비용"
+  자체는 §2-2 관점에서 지적 가능.
+- `src/tools/exp-drift.mjs`·`exp-survey.mjs`·`find-cross.mjs`·`profile-render.mjs` — 초기
+  조사용/대체됨(profile-render 는 자기 헤더가 exp-capture 로 대체됐다고 명시), 현행 미사용.
+- `scenes/nq-overlay.scenes.js`·`lab/cmg12/rsi-smoke.scenes.js` — 초기 데모/스모크, 참조 0.
+- **생성물**: `log/worklog.db`·`WORKLOG.md`(← build_worklog_db.py)·`worklog.html`(← build_worklog_page.py)·`README.md`(← build_readme.py)·`log/data/checkpoints.json`(← save.py) —
+  리뷰는 생성기를 본다. 생성물의 오류는 곧 생성기의 오류다.
 - `deliver/` — 납품 결과물(픽셀). 코드 리뷰 대상 아님.
 - `scripts/shortform/` — 콘텐츠 산출물. 규칙 리뷰는 `shortform_rule` 테이블과 `tools/shortform.py` 로.
 - 지난 회차 대본·프리미어 파일 데이터(`log/data/scripts.json` 등) — 데이터이지 설계가 아님.
+
+**배선이 남은 구세대 셋 — 내용 리뷰는 건너뛰되 배선은 지적 대상**:
+- `scenes/nq-basic.scenes.js` — 브랜드 이전 첫 씬인데 `src/cli.mjs`·`engine.js` 의
+  **config 미지정 기본값**으로 아직 배선돼 있다.
+- `scenes/cmg-20ma-runner.scenes.js` — 문법 견본 + `src/tools/exp-capture.mjs`(벤치)·
+  `profile-render.mjs` 가 기준 씬으로 참조.
+- `scenes/thumb-ch11.scenes.js`(구판) — `exp-capture.mjs` 의 투명 씬 검증 경로가 참조.
 
 ## 4. 저장소 밖 — 검증 불가로 치고 넘어가라
 
