@@ -1,0 +1,15 @@
+{
+  "_설명": "tools/ae/*.jsx 가 읽는 설정. 경로는 슬래시(/)로 쓴다 — 역슬래시는 JSX 문자열에서 이스케이프로 먹힌다.",
+
+  "labDir": "C:/aelab",
+  "_labDir": "실험 폴더. 잡 파일·로그·산출물이 전부 여기 떨어진다. 저장소 밖이다.",
+
+  "target": "",
+  "_target": "비워 두면 bridge.jsx 가 BridgeTalk.getSpecifier(targetApp) 로 실측해서 쓴다. 짐작으로 박지 않는다(매뉴얼 §3-2). A1 이 실측한 값을 나중에 여기 적는다.",
+
+  "targetApp": "aftereffects",
+  "_targetApp": "getSpecifier 에 넘길 앱 이름. 프리미어 때 'premierepro' → 'premierepro-26.0' 이 나왔다.",
+
+  "timeoutSec": 600,
+  "_timeoutSec": "AE 첫 기동이 오래 걸린다. 넉넉히 준다."
+}
