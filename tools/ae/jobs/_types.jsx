@@ -75,7 +75,7 @@ TYPES.cmgLevel = function (L) {
     var nm = label ? label : ("수평선 " + L.price);
 
     var x0 = xOf(L.fromBar, num(L.fromX, p.x));
-    var grow = "_sp(time," + IN + "," + (IN + GROW) + ",_outExpo)";
+    var grow = enterX(L, IN, IN + GROW, "_outExpo");
     var w = "((" + p.right + " - " + x0 + ") * " + grow + ")";
     var y1 = "py(" + L.price + ")";
 
@@ -112,7 +112,7 @@ TYPES.cmgLevel = function (L) {
         trackText(T, x0 + " + " + w + " * " + num(L.labelFrac, 0.55),
                      "(" + y1 + " + " + y2b + ")/2", "center");
         /* 렌더러: cue × clamp(span(in+labelDelay, +0.4, outCubic)) */
-        fadeMul(T, L, function (t) { return spanJS(t, IN + lDelay, IN + lDelay + 0.4, E.outCubic); });
+        fadeMul(T, L, function (t) { return enterJS(L, t, IN + lDelay, IN + lDelay + 0.4, E.outCubic); });
         made.push(T);
         return made;
     }
@@ -142,7 +142,7 @@ TYPES.cmgLevel = function (L) {
         (화살표 태그와 같은 함정이다. AE 는 나중에 만든 레이어가 위다.)  */
     B.moveAfter(T2);
     /* 렌더러: cue × clamp(span(in+labelDelay, +0.35, outBack)) — 살짝 튀어나온다 */
-    var labelA = function (t) { return spanJS(t, IN + lDelay, IN + lDelay + 0.35, E.outBack); };
+    var labelA = function (t) { return enterJS(L, t, IN + lDelay, IN + lDelay + 0.35, E.outBack); };
     fadeMul(B, L, labelA);
 
     /* 글자는 판과 같은 식을 써서 함께 움직인다 */
@@ -191,7 +191,7 @@ TYPES.cmgCircle = function (L) {
     /* 그려지는 비율을 표현식으로 — 렌더러의 span(t, in, in+drawDur, outCubic) 그대로 */
     var trim = S.property("ADBE Root Vectors Group").addProperty("ADBE Vector Filter - Trim");
     trim.property("ADBE Vector Trim End").expression =
-        easeHead() + "_sp(time," + IN + "," + (IN + DRAW) + ",_outCubic) * 100";
+        easeHead() + enterX(L, IN, IN + DRAW, "_outCubic") + " * 100";
 
     trackPoint(S, "px(" + L.bar + ") + " + num(L.dx, 0),
                   "py(" + L.price + ") + " + num(L.dy, 0));
@@ -232,7 +232,7 @@ TYPES.cmgArrow = function (L) {
     /*  촉을 원점에 두고 로컬 좌표로 그린다. pop 은 폭 w 만 키운다 —
         2차 베지어를 3차로 옮길 때 접선 = 2/3·(제어점 − 꼭짓점).                      */
     pathProp.expression = easeHead()
-        + "var pop = " + (POP <= 0 ? "1" : "_sp(time," + IN + "," + (IN + POP) + ",_outBack)") + ";\n"
+        + "var pop = " + (POP <= 0 ? "1" : enterX(L, IN, IN + POP, "_outBack")) + ";\n"
         + "var w = " + W + " * pop, h = " + h + ", hd = " + head_ + ", r = " + rad + ", d = " + d + ";\n"
         + "var x0 = -d*w, x1 = -d*hd, top = -h/2, bot = h/2, k = 2/3;\n"
         + "var pts = [[0,0],[x1,top],[x0+d*r,top],[x0,top+r],[x0,bot-r],[x0+d*r,bot],[x1,bot]];\n"
@@ -270,7 +270,7 @@ TYPES.cmgArrow = function (L) {
 
     /* 글씨는 몸통 한가운데에서 촉 쪽으로 0.04·h. pop 중에는 몸통도 좁으므로 같은 식을 쓴다. */
     var bodyOff = easeHead()
-        + "var pop = " + (POP <= 0 ? "1" : "_sp(time," + IN + "," + (IN + POP) + ",_outBack)") + ";\n"
+        + "var pop = " + (POP <= 0 ? "1" : enterX(L, IN, IN + POP, "_outBack")) + ";\n"
         + "var w = " + W + " * pop;\n"
         + "var bcx = -" + d + "*(" + head_ + " + (w - " + head_ + ")/2) + " + d + "*" + (h * 0.04) + ";\n";
     var offT = fx(T).addProperty("ADBE Point Control");
@@ -288,7 +288,7 @@ TYPES.cmgArrow = function (L) {
     fadeL(S, L);
     /*  렌더러는 pop 이 0.5 를 넘은 뒤에야 글씨를 그리고, clamp((pop-0.5)*3) 을 곱한다.  */
     fadeMul(T, L, function (t) {
-        var pop = POP <= 0 ? 1 : spanJS(t, IN, IN + POP, E.outBack);
+        var pop = POP <= 0 ? 1 : enterJS(L, t, IN, IN + POP, E.outBack);
         return pop > 0.5 ? (pop - 0.5) * 3 : 0;
     });
     return [S, T];
@@ -310,7 +310,7 @@ TYPES.cmgNote = function (L) {
     var x = L.bar != null ? "px(" + L.bar + ") + " + num(L.dx, 0) : String(num(L.x, 0));
     var y = (L.price != null ? "py(" + L.price + ")" : String(num(L.y, 0))) + " + " + num(L.dy, 0);
     /* 올라오며 등장 — translate(0, (1-rise)*18) 를 그대로 옮긴다 */
-    var rise = "(1 - _sp(time," + IN + "," + (IN + 0.45) + ",_outCubic)) * 18";
+    var rise = "(1 - " + enterX(L, IN, IN + 0.45, "_outCubic") + ") * 18";
     /* 캔버스 textAlign 그대로 — 기본은 가운데, 씬이 'left' 를 주면 왼끝을 좌표에 맞춘다 */
     trackText(T, x, "(" + y + ") + " + rise, num(L.align, "center"));
     /* trackText 는 camHead 만 넣는다 — 이징이 필요하니 앞에 덧댄다 */
@@ -347,7 +347,7 @@ TYPES.cmgBadge = function (L) {
     var size = num(L.size, 46);
     var col = color2(L.color, TH.accent);
     var padX = size * 0.5, bh = size * 1.5;
-    var pop = "_sp(time," + IN + "," + (IN + 0.35) + ",_outBack)";
+    var pop = enterX(L, IN, IN + 0.35, "_outBack");
 
     var T = textLayer(LN("배지 " + L.text), L.text, F_TAG, size,
                       TH.labelText, TH.labelStroke, size * 0.15);
@@ -410,7 +410,7 @@ TYPES.cmgUnderline = function (L) {
     addStroke(g, color2(L.color, "#C0272D").hex, num(L.thickness, 12), true, null, "밑줄");
     var trim = S.property("ADBE Root Vectors Group").addProperty("ADBE Vector Filter - Trim");
     trim.property("ADBE Vector Trim End").expression =
-        easeHead() + "_sp(time," + IN + "," + (IN + DRAW) + ",_outCubic) * 100";
+        easeHead() + enterX(L, IN, IN + DRAW, "_outCubic") + " * 100";
 
     var x = L.bar != null ? "px(" + L.bar + ") + " + num(L.dx, 0) : String(num(L.x, 0));
     var y = (L.price != null ? "py(" + L.price + ")" : String(num(L.y, 0))) + " + " + num(L.dy, 0);
@@ -429,7 +429,7 @@ TYPES.cmgMissed = function (L) {
     var col = color2(L.color, TH.accent);
     var x0 = xOf(L.fromBar, p.x), x1 = xOf(L.toBar, p.right);
     var yF = "py(" + L.from + ")", yT = "py(" + L.to + ")";
-    var grow = "_sp(time," + IN + "," + (IN + GROW) + ",_outExpo)";
+    var grow = enterX(L, IN, IN + GROW, "_outExpo");
     var hE = "(Math.abs(" + yT + " - " + yF + ") * " + grow + ")";
     var yb = "Math.max(" + yF + ", " + yT + ")";
     var wE = "((" + x1 + ") - (" + x0 + "))";
@@ -476,7 +476,7 @@ TYPES.zone = function (L) {
     var p = CTX.plot;
     var IN = tIn(L), GROW = num(L.growDur, 0.7);
     var col = color2(L.color, TH.ma);
-    var grow = "_sp(time," + IN + "," + (IN + GROW) + ",_outExpo)";
+    var grow = enterX(L, IN, IN + GROW, "_outExpo");
     var w = "(" + p.w + " * " + grow + ")";
     var yA = "py(" + L.from + ")", yB = "py(" + L.to + ")";
     var top = "Math.min(" + yA + ", " + yB + ")", hgt = "Math.abs(" + yB + " - " + yA + ")";
@@ -519,7 +519,7 @@ TYPES.cmgCross = function (L) {
         addStroke(g, col.hex, num(L.width, 34), true, null, nm);
         var tm = g.addProperty("ADBE Vector Filter - Trim");
         tm.property("ADBE Vector Trim End").expression = easeHead()
-            + "var d = _sp(time," + IN + "," + (IN + DRAW) + ",_outCubic);\n" + prog + " * 100";
+            + "var d = " + enterX(L, IN, IN + DRAW, "_outCubic") + ";\n" + prog + " * 100";
         return g;
     }
     /* 둘째 획을 먼저 넣어야 첫째 획이 위에 온다 (렌더러가 그린 순서와 같아진다) */
@@ -553,7 +553,7 @@ TYPES.cmgTrace = function (L) {
     addStroke(g, col.hex, num(L.width, 16), true, null, "궤적");
     var tm = S.property("ADBE Root Vectors Group").addProperty("ADBE Vector Filter - Trim");
     tm.property("ADBE Vector Trim End").expression =
-        easeHead() + "_sp(time," + IN + "," + (IN + DRAW) + ",_outCubic) * 100";
+        easeHead() + enterX(L, IN, IN + DRAW, "_outCubic") + " * 100";
     var op = num(L.opacity, 0.92);
     fadeMul(S, L, function () { return op; });
     return [S];
@@ -642,13 +642,13 @@ TYPES.titleCard = function (L) {
             /* riseText: 46px 아래에서 올라오며 blur 10 → 0, 알파는 p*1.2 를 clamp */
             tr(T).property("ADBE Anchor Point").setValue([0, 0]);
             tr(T).property("ADBE Position").expression = easeHead()
-                + "var p = _sp(time," + t0 + "," + t1 + ",_outQuart);\n"
+                + "var p = " + enterX(L, t0, t1, "_outQuart") + ";\n"
                 + "[" + cx + ", " + (baseY + k * lh) + " + (1-p)*46]";
             var bl = fx(T).addProperty("ADBE Box Blur2");
             bl.property("ADBE Box Blur2-0001").expression = easeHead()
-                + "var p = _sp(time," + t0 + "," + t1 + ",_outQuart);\n(1-p)*10";
+                + "var p = " + enterX(L, t0, t1, "_outQuart") + ";\n(1-p)*10";
             _alpha(T, function (t) {
-                return titleCue(t, L) * clampJS(spanJS(t, t0, t1, E.outQuart) * 1.2);
+                return titleCue(t, L) * clampJS(enterJS(L, t, t0, t1, E.outQuart) * 1.2);
             });
             made.push(T);
         })(lines[i], i);
@@ -662,7 +662,7 @@ TYPES.titleCard = function (L) {
         var rc = gr.addProperty("ADBE Vector Shape - Rect");
         var r0 = IN + 0.25, r1 = IN + 0.95;
         rc.property("ADBE Vector Rect Size").expression = easeHead()
-            + "var p = _sp(time," + r0 + "," + r1 + ",_outExpo);\n[" + rw + "*p, 5]";
+            + "var p = " + enterX(L, r0, r1, "_outExpo") + ";\n[" + rw + "*p, 5]";
         rc.property("ADBE Vector Rect Position").setValue([cx, y + num(L.ruleGap, 120) + 2.5]);
         addFill(gr, num(L.kickerColor, TH.accent), null, "강조 밑줄");
         _alpha(R, function (t) { return titleCue(t, L); });

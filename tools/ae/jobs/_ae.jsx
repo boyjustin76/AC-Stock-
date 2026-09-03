@@ -188,6 +188,31 @@ function spanJS(t, a, b, e) {
     if (b <= a) return t >= b ? 1 : 0;
     return e(clampJS((t - a) / (b - a)));
 }
+
+/**
+ * 이월 요소 판정 — 렌더러 layers.js 의 isStill() 을 그대로 옮긴 것이다.
+ *
+ * 클립 경계에서 이어받은 요소는 씬에 `in: [0,0]`(또는 `[-1,0]`)로 선언된다. 그런 요소는
+ * 등장 연출(팝·라이즈·그리기·라벨 지연)을 **재생하지 않고 완성 상태로 시작**한다 —
+ * 같은 요소가 클립마다 다시 등장하면 컷 경계에서 깜빡임으로 보이기 때문이다(룰북 ⑧ 보충).
+ *
+ * ⚠ 이 규칙은 등장 **연출**에만 걸린다. 불투명도(cue)는 따로 간다.
+ */
+function isStill(L) {
+    var i = L["in"];
+    var a = (i && i.length) ? i[0] : 0;
+    var b = (i && i.length > 1) ? i[1] : 0;
+    return a <= 0 && b <= 0;
+}
+/** 표현식용 등장 진행도. 이월이면 상수 "1" 을 낸다 (렌더러 enter() 와 같다) */
+function enterX(L, t0, t1, ease) {
+    if (isStill(L)) return "1";
+    return "_sp(time," + t0 + "," + t1 + "," + ease + ")";
+}
+/** 키를 구울 때 쓰는 등장 진행도 */
+function enterJS(L, t, t0, t1, e) {
+    return isStill(L) ? 1 : spanJS(t, t0, t1, e);
+}
 /** anim.js cue() 그대로 — 등장은 outCubic, 퇴장은 inOutQuad 다 */
 function cueJS(t, L) {
     var i = L["in"], o = L["out"];
