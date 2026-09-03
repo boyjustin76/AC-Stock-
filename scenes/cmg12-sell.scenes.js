@@ -31,7 +31,7 @@ const chartBase = {
   showGrid: false,
   showAxes: false,
   showLast: false,
-  layout: { padLeft: 0, padRight: 0, padTop: 0, padBottom: 0, rightGap: 5 },
+  layout: { padLeft: 0, padRight: 0, padTop: 216, padBottom: 162, rightGap: 0 },
   ma: [
     { type: 'sma', period: 10, width: 5, color: COLOR.ma10 },
     { type: 'sma', period: 34, width: 5, color: COLOR.ma34 },
@@ -84,7 +84,7 @@ export default {
         reveal: [{ t: 0, v: 44 }, { t: 14.933333, v: 48, ease: 'linear' }],
       },
       layers: [
-        { type: 'cmgBadge', text: '5분 차트', x: 84, y: 96, size: 42, color: COLOR.badge, in: [2.0, 0.3] },
+        { type: 'cmgBadge', text: '5분 차트', x: 84, y: 262, size: 42, color: COLOR.badge, in: [2.0, 0.3] },
         { type: 'cmgNote', text: '10일선', bar: 40, price: 15628, size: 46, color: COLOR.ma10, in: [4.5, 0.3] },
         { type: 'cmgNote', text: '34일선', bar: 40, price: 15822, size: 46, color: COLOR.ma34, in: [5.7, 0.3] },
         { type: 'cmgTrace', overlay: 0, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma10, in: [9.5, 0.5] },
@@ -111,7 +111,7 @@ export default {
       layers: [
         /* 컷21 끝 화면 이월(⑧) — 배지·접선·'오직 매도'는 유지, 이름표는 반등
            이야기(1.0~)로 넘어가며 크로스페이드(⑨) */
-        { type: 'cmgBadge', text: '5분 차트', x: 84, y: 96, size: 42, color: COLOR.badge, popDur: 0 },
+        { type: 'cmgBadge', text: '5분 차트', x: 84, y: 262, size: 42, color: COLOR.badge, popDur: 0 },
         { type: 'cmgTrace', overlay: 0, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma10, in: [0, 0] },
         { type: 'cmgTrace', overlay: 1, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma34, in: [0, 0] },
         { type: 'cmgNote', text: '10일선', bar: 40, price: 15628, size: 46, color: COLOR.ma10, in: [0, 0], out: [0.8, 0.4] },
@@ -154,7 +154,7 @@ export default {
       layers: [
         /* 컷22 끝 화면 이월(⑧) — 접선·문장·원은 줌인(0~3.0)에 실어 보낸다(⑩보충),
            배지는 '손익비'(12.0)와 크로스페이드(⑨) */
-        { type: 'cmgBadge', text: '5분 차트', x: 84, y: 96, size: 42, color: COLOR.badge, popDur: 0, out: [11.8, 0.4] },
+        { type: 'cmgBadge', text: '5분 차트', x: 84, y: 262, size: 42, color: COLOR.badge, popDur: 0, out: [11.8, 0.4] },
         { type: 'cmgTrace', overlay: 0, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma10, in: [0, 0], out: [1.0, 0.5] },
         { type: 'cmgTrace', overlay: 1, fromBar: 34, toBar: 46, flatten: 0, width: 14, color: COLOR.ma34, in: [0, 0], out: [1.0, 0.5] },
         { type: 'cmgNote', text: '오직 매도 관점으로만', bar: 30, rsi: 18, size: 44, color: '#E90054', in: [0, 0], out: [1.0, 0.5] },
@@ -195,7 +195,7 @@ export default {
           growDur: 0.4,
           in: [11.0, 0.2],
         },
-        { type: 'cmgBadge', text: '손익비  1 : 2', x: 84, y: 96, size: 44, color: '#E90054', in: [12.0, 0.3] },
+        { type: 'cmgBadge', text: '손익비  1 : 2', x: 84, y: 262, size: 44, color: '#E90054', in: [12.0, 0.3] },
         /* 1:2 도달 — 절반 분할 청산 후 추세를 더 길게 */
         { type: 'flash', at: 15.7, dur: 0.22, strength: 0.4, color: '#14FF36' },
         { type: 'cmgArrow', bar: 65, price: 15500, dir: 'buy', label: '익절 1/2', color: '#0DA82A', size: 32, gap: 16, in: [15.9, 0.35] },

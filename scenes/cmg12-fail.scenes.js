@@ -26,7 +26,7 @@ const chartBase = {
   showGrid: false,
   showAxes: false,
   showLast: false,
-  layout: { padLeft: 0, padRight: 0, padTop: 0, padBottom: 0, rightGap: 5 },
+  layout: { padLeft: 0, padRight: 0, padTop: 216, padBottom: 162, rightGap: 0 },
   ma: [
     { type: 'sma', period: 10, width: 5, color: COLOR.ma10 },
     { type: 'sma', period: 34, width: 5, color: COLOR.ma34 },
@@ -115,16 +115,20 @@ export default {
         { type: 'rsiZone', from: 0, to: 30, color: '#002EFE', opacity: 0.16, in: [0, 0] },
         { type: 'cmgCircle', bar: 48, price: 15393.7, rx: 80, ry: 66, width: 11, drawDur: 0, in: [0, 0] },
         { type: 'cmgCircle', bar: 66, price: 15375.1, rx: 80, ry: 66, width: 11, drawDur: 0, in: [0, 0] },
-        { type: 'cmgNote', text: '교차 = 반전 신호?', bar: 58, price: 15512, size: 50, color: '#111111', in: [0, 0] },
+        /*  [2026-09-01 반려] 앵커(58봉)는 팬백으로 화면 밖이 되지만 글자 폭(~450px)의
+            왼쪽 절반이 오른쪽 가장자리에 걸려 남는다 — '교차 + RSI 30 = 매수?'(4.8)와
+            겹침. 퇴장 판정은 앵커가 아니라 폭까지 봐야 한다(⑩ 보충). 팬백에 실어 페이드.  */
+        { type: 'cmgNote', text: '교차 = 반전 신호?', bar: 58, price: 15512, size: 50, color: '#111111', in: [0, 0], out: [1.6, 0.4] },
         { type: 'cmgArrow', bar: 68, price: 15504.8, dir: 'sell', label: '매도', size: 34, gap: 16, popDur: 0 },
-        { type: 'cmgCircle', bar: 46, rsi: 28.2, rx: 58, ry: 46, width: 9, color: '#002EFE', drawDur: 0, in: [0, 0] },
+        /* 이월 RSI 원(46)은 조합의 새 원(47, 3.0)과 같은 역할·거의 같은 자리 — 교체(⑨) */
+        { type: 'cmgCircle', bar: 46, rsi: 28.2, rx: 58, ry: 46, width: 9, color: '#002EFE', drawDur: 0, in: [0, 0], out: [2.8, 0.4] },
         /* 이월 매수(46, RSI30 단독)는 조합 매수(48)가 역할을 이어받으며 교체(⑨) */
         { type: 'cmgArrow', bar: 46, price: 15310.5, dir: 'buy', label: '매수', size: 34, gap: 16, popDur: 0, out: [5.5, 0.4] },
         /* 여기부터 컷12의 새 요소 — 조합의 RSI 쪽 원만 새로 그린다(48 원은 이월분 재사용) */
         { type: 'cmgCircle', bar: 47, rsi: 29, rx: 66, ry: 50, width: 9, color: '#002EFE', drawDur: 0.5, in: [3.0, 0.2] },
-        { type: 'cmgNote', text: '교차 + RSI 30 = 매수?', bar: 55, price: 15505, size: 52, color: '#111111', in: [4.8, 0.3] },
+        { type: 'cmgNote', text: '교차 + RSI 30 = 매수?', bar: 51, price: 15505, size: 52, color: '#111111', in: [4.8, 0.3] }, // rightGap 0 — 55봉이면 오른쪽 넘침
         { type: 'cmgArrow', bar: 48, price: 15297.8, dir: 'buy', label: '매수', size: 34, gap: 16, in: [5.7, 0.35] },
-        { type: 'cmgUnderline', bar: 55, price: 15505, dy: 48, width: 470, align: 'center', color: '#E90054', drawDur: 0.35, in: [7.0, 0.15] },
+        { type: 'cmgUnderline', bar: 51, price: 15505, dy: 48, width: 470, align: 'center', color: '#E90054', drawDur: 0.35, in: [7.0, 0.15] },
       ],
     },
 

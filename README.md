@@ -2,7 +2,7 @@
 
 해외선물 유튜브 채널 **차트명가** 영상에 쓸 차트 모션그래픽 소스 영상을 코드로 렌더합니다.
 
-![범위](https://img.shields.io/badge/%EB%B2%94%EC%9C%84-%EB%A1%B1%ED%8F%BC%203%EB%8B%A8%EA%B3%84%20%2B%20%EC%88%8F%ED%8F%BC%201%EB%8B%A8%EA%B3%84-0B8C7F?style=flat-square) ![규격](https://img.shields.io/badge/%EA%B7%9C%EA%B2%A9-1920x1080%20%C2%B7%2059.94fps-555?style=flat-square) ![렌더](https://img.shields.io/badge/%EB%A0%8C%EB%8D%94-16%EC%B4%88%20%ED%81%B4%EB%A6%BD%20%3D%2027%EC%B4%88-555?style=flat-square) ![대본 인덱스](https://img.shields.io/badge/%EB%8C%80%EB%B3%B8%20%EC%9D%B8%EB%8D%B1%EC%8A%A4-13%ED%8E%B8-555?style=flat-square) ![레이어](https://img.shields.io/badge/%EB%A0%88%EC%9D%B4%EC%96%B4-22%EC%A2%85-555?style=flat-square)
+![범위](https://img.shields.io/badge/%EB%B2%94%EC%9C%84-%EB%A1%B1%ED%8F%BC%203%EB%8B%A8%EA%B3%84%20%2B%20%EC%88%8F%ED%8F%BC%201%EB%8B%A8%EA%B3%84-0B8C7F?style=flat-square) ![규격](https://img.shields.io/badge/%EA%B7%9C%EA%B2%A9-1920x1080%20%C2%B7%2059.94fps-555?style=flat-square) ![렌더](https://img.shields.io/badge/%EB%A0%8C%EB%8D%94-16%EC%B4%88%20%ED%81%B4%EB%A6%BD%20%3D%2027%EC%B4%88-555?style=flat-square) ![대본 인덱스](https://img.shields.io/badge/%EB%8C%80%EB%B3%B8%20%EC%9D%B8%EB%8D%B1%EC%8A%A4-13%ED%8E%B8-555?style=flat-square) ![레이어](https://img.shields.io/badge/%EB%A0%88%EC%9D%B4%EC%96%B4-23%EC%A2%85-555?style=flat-square)
 
 📊 **[작업 로그 대시보드](https://claude.ai/code/artifact/cfb762d2-2caf-4a18-8ec2-696b884ac0e1)** · [전체 기록](log/WORKLOG.md) · [새 세션 안내](CLAUDE.md)
 
@@ -149,7 +149,7 @@ python3 tools/shortform.py check 초안.txt                    # 규칙 + 이름
 | 대본 인덱스 | 13편 | 새 대본과 겹치는 회차를 전문 검색으로 찾는다 (차명14·15 2편은 아직 빈 템플릿) |
 | 회차 프리미어 파일 | 37건 | 레퍼런스 확인 (`.prproj` 를 직접 읽는다) |
 | 브랜드 실측값 | 30건 | 색·크기. 레퍼런스 프레임에서 픽셀 단위로 잰 값 |
-| 레이어 | 22종 | 컷을 짤 때 쓰는 재료 |
+| 레이어 | 23종 | 컷을 짤 때 쓰는 재료 |
 | 회사 모션 문법 | 3종 | 최종본 키프레임에서 뽑은 프레임 수·이징 |
 
 **최근 납품** — 20일선 눌림목 / 조기 익절 4컷, 956프레임 · 1920×1080 · 59.94fps  
@@ -187,11 +187,11 @@ git restore --source=<해시> -- .              # 되돌리기
 | 시각 (KST) | 슬롯 | 커밋 | 어디까지 |
 |---|---|---|---|
 | 2026-09-03 10:12 | `save/2026-09-03-1012` | `730cd4d` | 격자박스 도입 — 썸네일 좌상단 타이틀을 상자에 맞춰 17% 축소, 차12 6안 재빌드 (규칙 28·29, 요청 59) |
-| 2026-09-01 14:57 | `save/2026-09-01-1457` | `aa35861` | 차12 썸네일 6안 — thumb-ch12 씬 3종, config 차12 전환, thumbnail_rule 26~27 · issue 18~19 · runbook 18 · next_step 31 |
-| 2026-09-01 13:29 | `save/2026-09-01-1329` | `4752551` | D 인수인계(AE-LAB-MANUAL §8, render-cmg12-layers 병합 클립 갱신·5층 검증) + 요청 57, next_step 27 실전 전환 |
-| 2026-09-01 13:15 | `save/2026-09-01-1315` | `c4c82e1` | r6 전 클립 재렌더·납품(버튼 최상위+경계이월) + 숏폼 srt E 이관(srt_rules.py 14자 규칙, 매뉴얼 §8, 요청 55·56) |
-| 2026-09-01 13:01 | `save/2026-09-01-1301` | `d18bdca` | 룰북 ⑭(버튼 최상위 — 렌더러 강제) + 본편 전수 재검토(⑧ 경계이월 11곳·⑬ fail-combo 팬백 재작성) — r6 재렌더 진행 중 |
-| 2026-09-01 12:38 | `save/2026-09-01-1238` | `4df0cdb` | 인트로+후킹 병합(컷1~6→intro-hook 클립 1개, 랠리 확대 +1007→-208) — 요청 54, 룰북 ⑬, 해석 확정, ch12r5 납품 |
+| 2026-09-03 09:32 | `save/2026-09-03-0932` | `38e2f35` | 브리지 r12 납품 — 기울임꼴 + 그림자 우하단 (r11 반려 2건 반영) |
+| 2026-09-03 00:52 | `save/2026-09-03-0052` | `c47ae30` | 브리지 r11 납품 — 박스 제목 전용·그림자는 텍스트만 (차명10 prproj 프리셋 직접 실측) + 텍스트 그림자 스크래치 블러 |
+| 2026-09-02 20:34 | `save/2026-09-02-2034` | `b70c2bd` | 브리지 r10 납품 + 블러 80분 원인 수정 (오프스크린 1장 블러, 23배) |
+| 2026-09-02 19:03 | `save/2026-09-02-1903` | `adb6bc4` | 브리지 r10 차명10 재스타일 — 렌더러(밴드·그림자·fill)+경기천년바탕+룰북 §E-2+DB, 렌더 진행 중 |
+| 2026-09-02 18:47 | `save/2026-09-02-1847` | `5663048` | 마감 정리 — r9 확정 기록, 요청 62, next_step 28·29 재편(D 후속·브리지 톤앤매너) |
 
 ---
 
@@ -236,6 +236,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `log/worklog.html` | 브라우저로 보는 작업 로그 |
 | `package.json` | 의존성과 npm 스크립트 |
 | `scenes/cmg-20ma-runner.scenes.js` | 차트명가 20일선 4컷. 새 대본은 이 파일을 본떠 만든다 |
+| `scenes/cmg12-bridge.scenes.js` | 차12 말 구간 설명 카드 2클립 — bridge-intro(워시 리스트, 프레임 860)·bridge-scalp(종이 배경+버튼 반복, 프레임 2939). 스타일은 차명#4 실측 카피, 룰북 §E |
 | `scenes/cmg12-buy.scenes.js` | 차12 매수 관점 5컷 — seed161, 55선 재돌파 bar52, 1:2·분할·러너 |
 | `scenes/cmg12-cross.build.js` | 차12 인트로+후킹 연속 클립 1개(intro-hook, 구 컷1~6 병합 2026-09-01) + 레이어 분리 빌더. 랠리 확대 실측값·국면표 머리말 참조. 구 cmg12-hook2.scenes.js 는 흡수·삭제 |
 | `scenes/cmg12-fail.scenes.js` | 차12 본론1·문제제시 5컷 — 씬별 시장 3종(파동·횡보·강추세) |

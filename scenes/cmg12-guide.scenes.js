@@ -48,7 +48,7 @@ export const chartBase = {
   showGrid: false,
   showAxes: false,
   showLast: false,
-  layout: { padLeft: 0, padRight: 0, padTop: 0, padBottom: 0, rightGap: 5 },
+  layout: { padLeft: 0, padRight: 0, padTop: 216, padBottom: 162, rightGap: 0 },
   ma: [
     { type: 'sma', period: 10, width: 5, color: COLOR.ma10 },
     { type: 'sma', period: 34, width: 5, color: COLOR.ma34 },
@@ -136,9 +136,11 @@ export default {
         { type: 'cmgNote', text: '힘의 세기', bar: 44, rsi: 82, size: 46, color: COLOR.rsi, stroke: '#083244', in: [1.4, 0.3] },
         /* 세기가 수치로 — 눌림에서 힘이 빠지는 게 그대로 보인다 */
         { type: 'cmgCircle', bar: 48, rsi: 41, rx: 66, ry: 52, width: 10, color: COLOR.rsi, drawDur: 0.5, in: [2.9, 0.2], out: [6.2, 0.3] },
-        /* 결합 원리 ① 방향은 이평선으로 */
-        { type: 'cmgTrace', overlay: 0, fromBar: 50, toBar: 62, flatten: 0, width: 15, color: COLOR.ma10, in: [6.9, 0.5], out: [13.6, 0.35] },
-        { type: 'cmgNote', text: '① 방향', bar: 55, price: 15505, size: 48, color: COLOR.ma10, in: [7.5, 0.3], out: [13.6, 0.35] },
+        /* 결합 원리 ① 방향은 이평선으로 — ②와 짝이므로 컷 끝까지 남는다.
+           [2026-09-01 반려] 원래 13.6에 지웠는데 후속 요소가 없는 중간 퇴장이라
+           룰북 ⑧ 위반(r6 재검토가 컷 경계만 보고 컷 중간을 놓친 것). */
+        { type: 'cmgTrace', overlay: 0, fromBar: 50, toBar: 62, flatten: 0, width: 15, color: COLOR.ma10, in: [6.9, 0.5] },
+        { type: 'cmgNote', text: '① 방향', bar: 55, price: 15505, size: 48, color: COLOR.ma10, in: [7.5, 0.3] },
         /* 결합 원리 ② 타이밍은 RSI 로 */
         { type: 'cmgCircle', bar: 52, rsi: 60.5, rx: 60, ry: 50, width: 10, color: '#E90054', drawDur: 0.5, in: [11.0, 0.2] },
         { type: 'cmgNote', text: '② 타이밍', bar: 46, rsi: 68, size: 48, color: '#E90054', in: [11.8, 0.3] },
