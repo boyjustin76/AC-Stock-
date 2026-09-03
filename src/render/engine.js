@@ -13,7 +13,7 @@ import { makeCandles } from '../market/candles.js';
 import { Chart } from './chart.js';
 import { drawLayer } from './layers.js';
 import { makeTheme } from './theme.js';
-import { Ease, lerp, clamp } from './anim.js';
+import { Ease, lerp, clamp, span } from './anim.js';
 
 function easeByName(name) {
   if (typeof name === 'function') return name;
@@ -215,6 +215,66 @@ export class SceneRuntime {
       ctx.filter = 'none';
     }
 
+    /*  chart.phases (차12 r13 실사 문법): 같은 bars 에서 reveal(·zoom·priceOffset)만
+        다른 정지 차트를 크로스디졸브로 교체한다 — 실제 최종본이 "나중 시점 스크린샷"으로
+        디졸브하던 컷 안 진행의 엔진 등가물. 배경이 불투명이라 위에 그리면 곧 디졸브다.
+          chart: { reveal: 92, phases: [{ reveal: 128, in: [9.0, 0.5] }] }
+        - 좌표계는 등장 전에도 항상 계산해 env.phases[k] 로 노출한다. 레이어에
+          phase: 1 을 적으면 그 국면의 scale/viewport 로 앵커된다 (0 = 기본 차트).
+        - env 의 최상위 scale/viewport/last 는 언제나 기본 차트(phase 0)다.
+        - blurPx 와의 조합은 지원하지 않는다(카드 씬은 phases 를 쓸 일이 없다).
+        - phases 미선언 씬은 이 블록을 스치지도 않는다 — 기존 경로 그대로.  */
+    const phaseInfos = [info];
+    const phasesCfg = Array.isArray(c.phases) ? c.phases : null;
+    if (phasesCfg && floor && blurPx <= 0) {
+      const showFlags = {
+        alpha: chartAlpha,
+        showGrid: c.showGrid !== false,
+        showAxes: c.showAxes !== false,
+        showLast: c.showLast !== false,
+        showCandles: c.showCandles !== false,
+        showMAs: c.showMAs !== false,
+        maAlphas,
+        rsiAlpha,
+      };
+      for (const ph of phasesCfg) {
+        const pReveal = clamp(ph.reveal ?? reveal, 0.001, this.bars.length);
+        const pZoom = ph.zoom ?? zoom;
+        const pOff = ph.priceOffset ?? priceOffset;
+        const [ps = 0, pd = 0] = ph.in ?? [];
+        const a = ph.in ? span(t, ps, ps + Math.max(pd, 1e-4), Ease.inOutQuad) : 1;
+        if (a <= 0) {
+          // 아직 안 나옴 — 레이어 앵커용 좌표만 계산
+          const vp = this.chart.viewport(pReveal, pZoom, pOff);
+          const s = this.chart.makeScale(vp);
+          phaseInfos.push({ scale: s, viewport: vp, last: this.chart.lastInfo(s, pReveal) });
+        } else if (a >= 1) {
+          // 완전 교체 — 본 캔버스에 그대로 덮어 그린다
+          phaseInfos.push(this.chart.frame({ reveal: pReveal, zoom: pZoom, priceOffset: pOff, ...showFlags }));
+        } else {
+          // 디졸브 중 — 오프스크린 한 장에 완성해 알파로 얹는다
+          if (!this._phaseLayer) {
+            this._phaseLayer = document.createElement('canvas');
+            this._phaseLayer.width = this.w;
+            this._phaseLayer.height = this.h;
+            this._phaseLayerCtx = this._phaseLayer.getContext('2d', { alpha: true });
+          }
+          const pctx = this._phaseLayerCtx;
+          pctx.setTransform(1, 0, 0, 1, 0, 0);
+          pctx.clearRect(0, 0, this.w, this.h);
+          const prev = this.chart.ctx;
+          this.chart.ctx = pctx;
+          const pi = this.chart.frame({ reveal: pReveal, zoom: pZoom, priceOffset: pOff, ...showFlags });
+          this.chart.ctx = prev;
+          ctx.save();
+          ctx.globalAlpha = a;
+          ctx.drawImage(this._phaseLayer, 0, 0);
+          ctx.restore();
+          phaseInfos.push(pi);
+        }
+      }
+    }
+
     const env = {
       t,
       frame,
@@ -230,6 +290,7 @@ export class SceneRuntime {
       bars: this.bars,
       scene: this.scene,
       images: this.images,
+      phases: phaseInfos, // [0] = 기본 차트, [k] = chart.phases[k-1] 의 좌표계
     };
 
     const pick = pass?.layers ?? null;   // null = 전부
@@ -238,7 +299,13 @@ export class SceneRuntime {
       let layer = entry.L;
       if (layer.enabled === false) continue;
       if (pass?.hold) layer = holdOn(layer);
-      drawLayer(ctx, layer, env);
+      // layer.phase: k — 그 국면의 좌표계로 앵커 (chart.phases 참고)
+      let envL = env;
+      if (layer.phase != null && phaseInfos[layer.phase]) {
+        const pi = phaseInfos[layer.phase];
+        envL = { ...env, scale: pi.scale, viewport: pi.viewport, last: pi.last };
+      }
+      drawLayer(ctx, layer, envL);
     }
 
     // 씬 전체 페이드 인/아웃

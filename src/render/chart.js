@@ -210,6 +210,7 @@ export class Chart {
     const { ticks } = this.priceTicks(s.vp);
     ctx.strokeStyle = theme.grid;
     ctx.lineWidth = 1;
+    if (theme.gridStyle === 'dot') ctx.setLineDash([2, 4]);
     for (const v of ticks) {
       const yy = Math.round(s.y(v)) + 0.5;
       ctx.beginPath();
@@ -227,6 +228,7 @@ export class Chart {
       ctx.lineTo(xx, p.bottom);
       ctx.stroke();
     }
+    ctx.setLineDash([]);
     ctx.restore();
   }
 
@@ -236,7 +238,8 @@ export class Chart {
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.fillStyle = theme.axisText;
-    ctx.font = `500 24px ${theme.mono}`;
+    const afs = theme.axisFontPx ?? 24;
+    ctx.font = `500 ${afs}px ${theme.mono}`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     const { ticks, step } = this.priceTicks(s.vp);
@@ -247,7 +250,7 @@ export class Chart {
 
     // 시간축
     ctx.textAlign = 'center';
-    ctx.font = `500 22px ${theme.mono}`;
+    ctx.font = `500 ${theme.axisFontPx ? Math.round(afs * 0.92) : 22}px ${theme.mono}`;
     const tstep = 12;
     const from = Math.ceil(s.vp.left / tstep) * tstep;
     for (let i = from; i <= Math.min(s.vp.right, this.bars.length - 1); i += tstep) {
@@ -337,9 +340,9 @@ export class Chart {
       const yh = s.y(bar.h);
       const yl = s.y(bar.l);
 
-      // 심지
+      // 심지 — theme.wickWidth 가 있으면 고정폭(실사 문법), 없으면 기존 몸통 비례폭
       ctx.strokeStyle = color;
-      ctx.lineWidth = Math.max(1.5, w * 0.13);
+      ctx.lineWidth = theme.wickWidth ?? Math.max(1.5, w * 0.13);
       ctx.beginPath();
       ctx.moveTo(Math.round(x) + 0.5, yh);
       ctx.lineTo(Math.round(x) + 0.5, yl);
@@ -350,6 +353,13 @@ export class Chart {
       const bh = Math.max(2, Math.abs(yc - yo));
       ctx.fillStyle = bull ? theme.upFill : theme.downFill;
       ctx.fillRect(Math.round(x - w / 2), Math.round(top), Math.round(w), Math.round(bh));
+      // 몸통 외곽선 (실사 문법 옵트인)
+      if (theme.candleBorder) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = theme.candleBorder;
+        ctx.strokeRect(Math.round(x - w / 2) + 0.5, Math.round(top) + 0.5,
+          Math.round(w) - 1, Math.max(1, Math.round(bh) - 1));
+      }
 
       // 형성 중인 캔들은 살짝 발광 (밝은 테마에서는 지저분해지므로 생략)
       if (bar.forming && !theme.flat) {
@@ -445,15 +455,23 @@ export class Chart {
     ctx.save();
     ctx.globalAlpha = alpha;
 
-    // 패널 테두리 (위·아래 헤어라인)
-    ctx.strokeStyle = theme.gridStrong ?? theme.grid;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(r.x, Math.round(r.y) + 0.5);
-    ctx.lineTo(r.right, Math.round(r.y) + 0.5);
-    ctx.moveTo(r.x, Math.round(r.bottom) + 0.5);
-    ctx.lineTo(r.right, Math.round(r.bottom) + 0.5);
-    ctx.stroke();
+    // 패널 테두리 — 기본은 위·아래 헤어라인.
+    // theme.rsiFrame 이면 4변 실선 프레임(팀장 지적 ④: 경계가 안 보인다).
+    if (theme.rsiFrame) {
+      ctx.strokeStyle = theme.panelBorder ?? theme.gridStrong ?? theme.grid;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(Math.round(r.x) + 0.5, Math.round(r.y) + 0.5,
+        Math.round(r.w) - 1, Math.round(r.h) - 1);
+    } else {
+      ctx.strokeStyle = theme.gridStrong ?? theme.grid;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(r.x, Math.round(r.y) + 0.5);
+      ctx.lineTo(r.right, Math.round(r.y) + 0.5);
+      ctx.moveTo(r.x, Math.round(r.bottom) + 0.5);
+      ctx.lineTo(r.right, Math.round(r.bottom) + 0.5);
+      ctx.stroke();
+    }
 
     // 중심선(50) — 옅은 점선
     if (cfg.baseline != null) {
@@ -537,8 +555,15 @@ export class Chart {
         프리미어에 층으로 쌓으려면 '캔들만' · '이평선만' 클립이 각각 필요하다.
         좌표계(scale/viewport)는 그리지 않아도 그대로 계산되므로,
         차트를 다 끄고 오버레이 레이어만 렌더해도 위치가 어긋나지 않는다.  */
-    if (showMAs) this.drawMAs(s, reveal, alpha, maAlphas);
-    if (showCandles) this.drawCandles(s, reveal, alpha);
+    /*  theme.maOnTop (실사 문법): 실제 플랫폼처럼 지표 라인이 캔들 위를 지난다.
+        기본(키 없음)은 기존 순서 — MA 가 캔들 아래. */
+    if (this.theme.maOnTop) {
+      if (showCandles) this.drawCandles(s, reveal, alpha);
+      if (showMAs) this.drawMAs(s, reveal, alpha, maAlphas);
+    } else {
+      if (showMAs) this.drawMAs(s, reveal, alpha, maAlphas);
+      if (showCandles) this.drawCandles(s, reveal, alpha);
+    }
     this.drawRsi(s, reveal, alpha * rsiAlpha);
     let last = this.lastInfo(s, reveal);
     if (showLast) last = this.drawLastPrice(s, reveal, alpha) ?? last;

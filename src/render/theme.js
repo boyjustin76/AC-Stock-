@@ -101,7 +101,37 @@ export const CHARTMYEONGGA = {
   mono: "'JetBrains Mono', 'SF Mono', Menlo, monospace",
 };
 
-const PRESETS = { dark: DARK, chartmyeongga: CHARTMYEONGGA };
+/**
+ * 실사(스크린샷) 문법 프리셋 — 차12 r13 재작용.
+ * 근거: 차명#2 최종본 프레임 실측(2026-09-03). 본문 차트는 흰 배경 풀블리드에
+ * 국내식 빨강/파랑 캔들(1px 심지), 굵고 매끈한 이평선이 캔들 위, RSI 는 얇은 파랑 선 +
+ * 회색 점선 기준선 + 헤어라인 구분. 축·그리드·눈금은 화면에 없다.
+ * 여기 키들은 전부 옵트인 — 다른 프리셋(기존 씬 61개)은 키가 없어 기존 경로 그대로다.
+ */
+export const CMG_MT5 = {
+  ...CHARTMYEONGGA,
+  name: 'cmgMt5',
+
+  // 실측 캔들색 (차명#2 픽셀 군집): 상승 빨강 / 하락 파랑 — 국내 플랫폼 관례
+  candleScheme: 'korea',
+  up: '#E32119',
+  upFill: '#E32119',
+  down: '#1D1DC9',
+  downFill: '#1D1DC9',
+  long: '#E32119',
+  short: '#1D1DC9',
+
+  // 실사 문법 스위치
+  maOnTop: true,      // 이평선을 캔들 위에 (팀장 지적 ③의 근본 해결)
+  wickWidth: 2,       // 심지 고정폭 px (몸통 폭 비례 금지)
+  candleBorder: 1,    // 몸통 외곽선 px (0/미지정 = 없음)
+  gridStyle: 'dot',   // showGrid 를 켰을 때 점선 그리드
+  axisFontPx: 20,     // 축 라벨 크기 (기존 24px 하드코딩 대체)
+  rsiFrame: true,     // RSI 패널 4변 실선 프레임 (팀장 지적 ④)
+  panelBorder: 'rgba(0,0,0,0.42)', // RSI 프레임/구분선 색 — 실측 헤어라인 회색보다 또렷하게
+};
+
+const PRESETS = { dark: DARK, chartmyeongga: CHARTMYEONGGA, cmgMt5: CMG_MT5 };
 
 export function usePreset(name) {
   return PRESETS[name] ?? DARK;
