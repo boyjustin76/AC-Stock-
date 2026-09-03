@@ -56,9 +56,9 @@ export default {
         { type: 'cmgNote', bar: 150, rsi: 96, text: '70 넘으면 과매수 → 매도?', size: 42, color: COLOR.sl, in: [0, 0], out: [2.4, 0.4] },
         { type: 'cmgNote', bar: 150, rsi: 8, text: '30 아래면 과매도 → 매수?', size: 42, color: COLOR.sell, in: [0, 0], out: [2.4, 0.4] },
         /* "조합하면 정답?" — ①②③ 알약 누적 */
-        { type: 'cmgBadge', text: '① 골든크로스', x: 96, y: 300, size: 44, color: COLOR.badge, border: false, in: [2.8, 0.3] },
-        { type: 'cmgBadge', text: '② RSI 30 과매도', x: 96, y: 380, size: 44, color: COLOR.badge, border: false, in: [4.2, 0.3] },
-        { type: 'cmgBadge', text: '= 매수 신호?', x: 96, y: 460, size: 44, color: COLOR.line, border: false, in: [5.8, 0.3] },
+        { type: 'cmgBadge', text: '① 골든크로스', x: 96, y: 300, size: 44, color: COLOR.badge, border: false, popDur: 0.13, in: [2.8, 0.3] },
+        { type: 'cmgBadge', text: '② RSI 30 과매도', x: 96, y: 380, size: 44, color: COLOR.badge, border: false, popDur: 0.13, in: [4.2, 0.3] },
+        { type: 'cmgBadge', text: '= 매수 신호?', x: 96, y: 460, size: 44, color: COLOR.line, border: false, popDur: 0.13, in: [5.8, 0.3] },
       ],
     },
 

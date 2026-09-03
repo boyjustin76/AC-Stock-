@@ -37,7 +37,7 @@ export default {
       chart: stillSell,
       layers: [
         rsiChip(),
-        { type: 'cmgBadge', text: '5분 차트', x: 96, y: 300, size: 42, color: COLOR.badge, border: false, in: [1.6, 0.3] },
+        { type: 'cmgBadge', text: '5분 차트', x: 96, y: 300, size: 42, color: COLOR.badge, border: false, popDur: 0.13, in: [1.6, 0.3] },
         { type: 'cmgTrace', overlay: 0, fromBar: 170, toBar: 202, flatten: 0, width: 14, color: COLOR.ma10, drawDur: IN.draw, in: [4.2, 0.2], out: [9.8, 0.35] },
         { type: 'cmgTrace', overlay: 1, fromBar: 170, toBar: 202, flatten: 0, width: 14, color: COLOR.ma34, drawDur: IN.draw, in: [4.9, 0.2], out: [9.8, 0.35] },
         { type: 'cmgNote', bar: 182, price: 29300, text: '역배열 — 10일선이 34일선 아래', size: 46, color: COLOR.line, in: [6.0, IN.fade] },
@@ -74,26 +74,26 @@ export default {
       chart: {
         ...stillSell,
         include: [LV.stop + 4],
-        phases: [{ reveal: 214, in: [12.6, 0.5] }],
+        phases: [{ reveal: 214, in: [12.6, 1.0] }],
       },
       layers: [
         rsiChip(),
         { type: 'cmgBadge', text: '5분 차트', x: 96, y: 300, size: 42, color: COLOR.badge, border: false, popDur: 0, out: [8.3, 0.4] },
         /* 이월 (⑧) — 신호 원 둘. 국면 전환(12.6)과 함께 퇴장 — 앵커가 국면0 좌표라서 */
-        { type: 'cmgCircle', bar: 199, rsi: 44.1, rx: 56, ry: 44, width: 9, color: COLOR.pencil, drawDur: 0, in: [0, 0], out: [12.6, 0.5] },
-        { type: 'cmgNote', bar: 172, rsi: 12, text: '45선 재이탈', size: 46, color: COLOR.sell, in: [0, 0], out: [12.6, 0.5] },
+        { type: 'cmgCircle', bar: 199, rsi: 44.1, rx: 56, ry: 44, width: 9, color: COLOR.pencil, drawDur: 0, in: [0, 0], out: [12.6, 1.0] },
+        { type: 'cmgNote', bar: 172, rsi: 12, text: '45선 재이탈', size: 46, color: COLOR.sell, in: [0, 0], out: [12.6, 1.0] },
         /* 음봉 마감 확인 */
-        { type: 'cmgCircle', bar: 199, price: 29218, rx: 40, ry: 56, width: 9, color: COLOR.pencil, drawDur: IN.draw, in: [1.6, 0.2], out: [12.6, 0.5] },
-        { type: 'cmgNote', bar: 199, price: 29246, text: '음봉 마감', size: 46, color: COLOR.line, in: [2.4, IN.fade], out: [12.6, 0.5] },
+        { type: 'cmgCircle', bar: 199, price: 29218, rx: 40, ry: 56, width: 9, color: COLOR.pencil, drawDur: IN.draw, in: [1.6, 0.2], out: [12.6, 1.0] },
+        { type: 'cmgNote', bar: 199, price: 29246, text: '음봉 마감', size: 46, color: COLOR.line, in: [2.4, IN.fade], out: [12.6, 1.0] },
         /* 국면0 — 진입과 손익 구조 */
-        { type: 'cmgArrow', bar: 200, price: LV.entry, dir: 'sell', label: '매도', size: 34, gap: 16, popDur: IN.pop, in: [4.6, 0.2], out: [12.6, 0.5] },
-        { type: 'cmgLevel', price: LV.entry, fromBar: 198, color: 'rgba(0,0,0,0.72)', thickness: 4, growDur: 0.35, in: [6.4, 0.2], out: [12.6, 0.5] },
-        { type: 'cmgLevel', price: LV.stop, fromBar: 198, fillTo: LV.entry, fill: COLOR.slFill, color: COLOR.sl, label: '손절', labelSize: 36, thickness: 11, growDur: 0.4, in: [6.8, 0.2], out: [12.6, 0.5] },
-        { type: 'cmgLevel', price: LV.target, fromBar: 198, fillTo: LV.entry, fill: COLOR.tpFill, color: COLOR.tp, label: '익절', labelSize: 36, thickness: 11, growDur: 0.4, in: [8.6, 0.2], out: [12.6, 0.5] },
-        { type: 'cmgBadge', text: '손익비  1 : 2', x: 96, y: 300, size: 44, color: COLOR.badge, border: false, in: [8.5, 0.3] },
+        { type: 'cmgArrow', bar: 200, price: LV.entry, dir: 'sell', label: '매도', size: 34, gap: 16, popDur: IN.pop, in: [4.6, 0.2], out: [12.6, 1.0] },
+        { type: 'cmgLevel', price: LV.entry, fromBar: 198, color: 'rgba(0,0,0,0.72)', thickness: 4, growDur: 0.35, in: [6.4, 0.2], out: [12.6, 1.0] },
+        { type: 'cmgLevel', price: LV.stop, fromBar: 198, fillTo: LV.entry, fill: COLOR.slFill, color: COLOR.sl, label: '손절', labelSize: 36, thickness: 11, growDur: 0.4, in: [6.8, 0.2], out: [12.6, 1.0] },
+        { type: 'cmgLevel', price: LV.target, fromBar: 198, fillTo: LV.entry, fill: COLOR.tpFill, color: COLOR.tp, label: '익절', labelSize: 36, thickness: 11, growDur: 0.4, in: [8.6, 0.2], out: [12.6, 1.0] },
+        { type: 'cmgBadge', text: '손익비  1 : 2', x: 96, y: 300, size: 44, color: COLOR.badge, border: false, popDur: 0.13, in: [8.5, 0.3] },
         /* 국면1 — 진행 스틸: 1:2 도달·분할 */
-        { type: 'cmgArrow', phase: 1, bar: 200, price: LV.entry, dir: 'sell', label: '매도', size: 30, gap: 14, popDur: 0, in: [12.6, 0.5] },
-        { type: 'cmgLevel', phase: 1, price: LV.entry, fromBar: 198, color: 'rgba(0,0,0,0.72)', thickness: 4, growDur: 0, in: [12.6, 0.5] },
+        { type: 'cmgArrow', phase: 1, bar: 200, price: LV.entry, dir: 'sell', label: '매도', size: 30, gap: 14, popDur: 0, in: [12.6, 1.0] },
+        { type: 'cmgLevel', phase: 1, price: LV.entry, fromBar: 198, color: 'rgba(0,0,0,0.72)', thickness: 4, growDur: 0, in: [12.6, 1.0] },
         { type: 'cmgArrow', phase: 1, bar: 205, price: 29146.25, dir: 'buy', label: '익절 1/2', color: '#0DA82A', size: 30, gap: 14, popDur: IN.pop, in: [14.2, 0.2] },
         { type: 'cmgNote', x: 1200, y: 470, text: '남은 절반은 추세 끝까지', size: 44, color: '#0DA82A', in: [16.2, IN.fade] },
       ],

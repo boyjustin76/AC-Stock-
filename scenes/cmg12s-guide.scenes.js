@@ -37,9 +37,9 @@ export default {
       },
       layers: [
         rsiChip({ in: [5.9, 0.3] }),
-        { type: 'cmgBadge', text: '10일선', x: 96, y: 300, size: 40, color: COLOR.ma10, border: false, in: [2.2, 0.3] },
-        { type: 'cmgBadge', text: '34일선', x: 96, y: 372, size: 40, color: COLOR.ma34, border: false, in: [4.0, 0.3] },
-        { type: 'cmgBadge', text: 'RSI (기간 10)', x: 96, y: 444, size: 40, color: COLOR.rsi, border: false, in: [6.2, 0.3] },
+        { type: 'cmgBadge', text: '10일선', x: 96, y: 300, size: 40, color: COLOR.ma10, border: false, popDur: 0.13, in: [2.2, 0.3] },
+        { type: 'cmgBadge', text: '34일선', x: 96, y: 372, size: 40, color: COLOR.ma34, border: false, popDur: 0.13, in: [4.0, 0.3] },
+        { type: 'cmgBadge', text: 'RSI (기간 10)', x: 96, y: 444, size: 40, color: COLOR.rsi, border: false, popDur: 0.13, in: [6.2, 0.3] },
       ],
     },
 
@@ -96,9 +96,9 @@ export default {
         { type: 'cmgNote', x: 960, y: 320, text: '방향은 이동평균선 · 타이밍은 RSI', size: 56, color: COLOR.line, in: [0, 0], out: [3.2, 0.4] },
         { type: 'cmgUnderline', x: 960, y: 368, width: 760, align: 'center', drawDur: 0, in: [0, 0], out: [3.2, 0.4] },
         /* 설정 3종 — 핑크 알약 누적 (①②③ 문법) */
-        { type: 'cmgBadge', text: '① 이동평균선 10 · 34', x: 96, y: 300, size: 44, color: COLOR.badge, border: false, in: [4.0, 0.3] },
-        { type: 'cmgBadge', text: '② RSI 기간 14 → 10', x: 96, y: 380, size: 44, color: COLOR.badge, border: false, in: [9.8, 0.3] },
-        { type: 'cmgBadge', text: '③ 기준선 70·30 → 55·45', x: 96, y: 460, size: 44, color: COLOR.badge, border: false, in: [15.6, 0.3] },
+        { type: 'cmgBadge', text: '① 이동평균선 10 · 34', x: 96, y: 300, size: 44, color: COLOR.badge, border: false, popDur: 0.13, in: [4.0, 0.3] },
+        { type: 'cmgBadge', text: '② RSI 기간 14 → 10', x: 96, y: 380, size: 44, color: COLOR.badge, border: false, popDur: 0.13, in: [9.8, 0.3] },
+        { type: 'cmgBadge', text: '③ 기준선 70·30 → 55·45', x: 96, y: 460, size: 44, color: COLOR.badge, border: false, popDur: 0.13, in: [15.6, 0.3] },
         /* 55/45 점선을 손그림 원으로 짚는다 */
         { type: 'cmgCircle', bar: 203, rsi: 55, rx: 54, ry: 30, width: 8, color: COLOR.pencil, drawDur: IN.draw, in: [17.4, 0.2] },
         { type: 'cmgCircle', bar: 203, rsi: 45, rx: 54, ry: 30, width: 8, color: COLOR.pencil, drawDur: IN.draw, in: [18.4, 0.2] },

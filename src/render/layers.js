@@ -1158,7 +1158,9 @@ const LAYERS = {
     const { theme } = env;
     const color = L.color ?? theme.accent;
     const size = L.size ?? 46;
-    const pop = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.35, Ease.outBack);
+    /* 등장 팝 길이 — 실측(차명 최종본 prproj ①③: 4f=0.133s)에 맞추려면 popDur 를 준다.
+       기본 0.35 는 기존 씬 호환용 그대로. */
+    const pop = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.popDur ?? 0.35), Ease.outBack);
 
     withAlpha(ctx, v, () => {
       const tagFont = L.font ?? theme.fontTag ?? theme.fontBody ?? theme.font;

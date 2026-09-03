@@ -26,7 +26,7 @@ export default {
       chart: stillDone,
       layers: [
         rsiChip(),
-        { type: 'cmgBadge', text: '① 배열로 방향을 정한다', x: 96, y: 300, size: 46, color: COLOR.badge, border: false, in: [1.2, 0.3] },
+        { type: 'cmgBadge', text: '① 배열로 방향을 정한다', x: 96, y: 300, size: 46, color: COLOR.badge, border: false, popDur: 0.13, in: [1.2, 0.3] },
         { type: 'cmgTrace', overlay: 0, fromBar: 176, toBar: 218, flatten: 0, width: 14, color: COLOR.ma10, drawDur: 0.6, in: [3.4, 0.2] },
         { type: 'cmgNote', bar: 196, price: 29396, text: '정배열이면 매수만 · 역배열이면 매도만', size: 44, color: COLOR.line, in: [5.2, IN.fade] },
       ],
@@ -42,7 +42,7 @@ export default {
         rsiChip(),
         /* 이월 (⑧) */
         { type: 'cmgBadge', text: '① 배열로 방향을 정한다', x: 96, y: 300, size: 46, color: COLOR.badge, border: false, popDur: 0 },
-        { type: 'cmgBadge', text: '② 55 재돌파 / 45 재이탈', x: 96, y: 380, size: 46, color: COLOR.badge, border: false, in: [1.2, 0.3] },
+        { type: 'cmgBadge', text: '② 55 재돌파 / 45 재이탈', x: 96, y: 380, size: 46, color: COLOR.badge, border: false, popDur: 0.13, in: [1.2, 0.3] },
         { type: 'cmgCircle', bar: 199, rsi: 55.1, rx: 56, ry: 44, width: 9, color: COLOR.pencil, drawDur: IN.draw, in: [3.4, 0.2] },
         { type: 'cmgNote', bar: 176, rsi: 90, text: '캔들 색까지 확인하고 진입', size: 42, color: COLOR.line, in: [5.4, IN.fade] },
       ],
@@ -60,7 +60,7 @@ export default {
         { type: 'cmgBadge', text: '① 배열로 방향을 정한다', x: 96, y: 300, size: 46, color: COLOR.badge, border: false, popDur: 0 },
         { type: 'cmgBadge', text: '② 55 재돌파 / 45 재이탈', x: 96, y: 380, size: 46, color: COLOR.badge, border: false, popDur: 0 },
         { type: 'cmgCircle', bar: 199, rsi: 55.1, rx: 56, ry: 44, width: 9, color: COLOR.pencil, drawDur: 0, in: [0, 0] },
-        { type: 'cmgBadge', text: '③ 손절 짧게 · 익절 1:2', x: 96, y: 460, size: 46, color: COLOR.badge, border: false, in: [1.4, 0.3] },
+        { type: 'cmgBadge', text: '③ 손절 짧게 · 익절 1:2', x: 96, y: 460, size: 46, color: COLOR.badge, border: false, popDur: 0.13, in: [1.4, 0.3] },
         { type: 'cmgLevel', price: 29430.5, fromBar: 198, fillTo: 29436.5, fill: COLOR.slFill, color: COLOR.sl, thickness: 8, growDur: 0.4, in: [3.6, 0.2] },
         { type: 'cmgLevel', price: 29448.5, fromBar: 198, fillTo: 29436.5, fill: COLOR.tpFill, color: COLOR.tp, thickness: 8, growDur: 0.4, in: [4.2, 0.2] },
         { type: 'cmgNote', x: 1210, y: 640, text: '이유 없는 진입도, 미련 있는 청산도 없다', size: 44, color: COLOR.line, in: [8.4, IN.fade] },
