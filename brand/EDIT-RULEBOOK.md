@@ -136,8 +136,8 @@
 |---|---|---|
 | 바탕 | 회색 ~#C4C6C5, 그 아래 차트가 은은히 비침 | `fill` 레이어 (opacity 0.82) + chart alpha 0.55·blur 16 |
 | 서체 | 경기천년바탕 Bold, 본문·제목 공통 (저장값 117.265) | brand/fonts/경기천년바탕_Bold.ttf + scene.html @font-face 'GyeonggiBatang' |
-| 글자 | 흰색, **외곽선 없음**, 자간 0 | `cmgText` strokeWidth 0 |
-| 그림자 | **텍스트에만** (제목 포함). 불투명 95 · 각도 135° · 거리 7.0 · 크기 12.8 · 블러 40 | `cmgText.shadowPrem` → layers.js premTextShadow (완성본 체감 보정: σ=블러×0.35, 스프레드=크기×0.35, 알파=불투명×0.7) |
+| 글자 | 흰색, **외곽선 없음**, 자간 0, **기울임꼴 ON** (패널 T-이탤릭 버튼 — r11 반려로 확인) | `cmgText` strokeWidth 0 + italic:true (글리프만 베이스라인 전단 ~14°, 박스는 똑바로) |
+| 그림자 | **텍스트에만** (제목 포함), **우하단에만 떨어짐** — 사방 후광 금지. 불투명 95 · 각도 135° · 거리 7.0 · 크기 12.8 · 블러 40 | `cmgText.shadowPrem` → layers.js premTextShadow (σ=블러×0.15, 스프레드=크기×0.3, 알파=불투명×0.7 — σ가 오프셋을 넘으면 후광이 된다) |
 | 핑크 박스 | **제목 전용** #EF2767 (r10 반려 — 본문 키워드엔 안 쓴다). 박스 자체는 그림자 없는 민짜 | `cmgText` hlStyle:'band' — 제목 줄 전체를 hl 로 (`T10H`+`title10()`) |
 | 본문 | 밴드·색 강조 없이 흰 글자 + 그림자만 | `T10` spread |
 | 예고 항목 | (차명10 에는 없음 — activeAt 논리는 차명#4 계승) | preColor rgba(255,255,255,0.5), 예고 동안 그림자 없음 |

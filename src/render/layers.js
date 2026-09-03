@@ -134,9 +134,9 @@ function strokeText(ctx, text, x, y, opt = {}) {
  * 프리미어 그림자 패널 값을 받는 그림자 패스 (차명10 텍스트 프리셋 — prproj 직접 실측:
  * "미국 본장 시간 추천" 소스 텍스트 블롭에 불투명 95.349 · 크기 12.791 · 글꼴 117.265 저장,
  * 패널 표시 불투명 95 · 각도 135° · 거리 7.0 · 크기 12.8 · 블러 40).
- * 매핑 상수는 차명10 완성본 mp4 의 체감(그림자 rgba(0,0,0,0.55~0.6)·블러 16~18px·
- * 오프셋 ~5/5, 넓은 번짐 없음)에 맞춰 보정했다 — 검정 실루엣(스프레드=크기×0.35)을
- * 오프셋 위치에 σ=블러×0.35 로 한 번 블러해 그린다.
+ * 그림자는 우하단(각도 135°)에만 떨어져야 한다 — 블러 σ 가 오프셋보다 크면 사방으로
+ * 번져 후광이 되므로 σ=블러×0.15, 스프레드=크기×0.3 으로 매핑해 글자의 좌상단은
+ * 깨끗하게 남긴다 (r11 반려: '그림자가 우하단에만 있음').
  * 사용: begin → 같은 도형을 fill(+stroke) → ctx.restore().
  */
 let _shadowScratch = null;
@@ -146,8 +146,8 @@ function premTextShadow(ctx, spec, bbox, draw) {
   const distance = spec.distance ?? 7;
   const size = spec.size ?? 12.8;
   const blur = spec.blur ?? 40;
-  const sigma = blur * 0.35;
-  const spread = size * 0.35;
+  const sigma = blur * 0.15;
+  const spread = size * 0.3;
   const rad = ((angle - 90) * Math.PI) / 180;
   const margin = Math.ceil(sigma * 3 + spread + 2);
   const w = Math.ceil(bbox.w + margin * 2);
@@ -1247,10 +1247,15 @@ const LAYERS = {
       }
       /* 프리미어식 텍스트 그림자 — 밴드 위 제목 글자를 포함해 전 파트, 실루엣 한 번에
          깔아 파트 경계에서 겹그림자가 없게 (박스 다음·본글자 이전에 그린다) */
+      /* 기울임꼴(프리미어 T-이탤릭 버튼) — 글리프만 베이스라인 기준으로 전단.
+         박스(배경)는 프리미어와 같이 똑바로 둔다 */
+      const skew = L.italic ? (L.italicSkew ?? Math.tan((14 * Math.PI) / 180)) : 0;
+      const ty = y + size * 0.04;
+      const lean = (c) => { if (skew) c.transform(1, 0, -skew, 1, skew * ty, 0); };
       if (sp && !pre) {
-        const ty = y + size * 0.04;
-        const bbox = { x: cx - size * 0.5, y: y - size * 1.0, w: total + size, h: size * 2.0 };
+        const bbox = { x: cx - size * 0.8, y: y - size * 1.0, w: total + size * 1.6, h: size * 2.0 };
         premTextShadow(ctx, sp, bbox, (s, hasSpread) => {
+          lean(s);
           let sx = cx;
           for (let i = 0; i < parts.length; i++) {
             if (hasSpread) s.strokeText(parts[i].text, sx, ty);
@@ -1259,9 +1264,11 @@ const LAYERS = {
           }
         });
       }
+      ctx.save();
+      lean(ctx);
       for (let i = 0; i < parts.length; i++) {
         const onBand = band && !pre && parts[i].hl;
-        strokeText(ctx, parts[i].text, cx, y + size * 0.04, {
+        strokeText(ctx, parts[i].text, cx, ty, {
           stroke: L.stroke ?? '#FFFFFF',
           strokeWidth: L.strokeWidth ?? size * 0.18,
           fill: pre ? baseColor : (onBand ? (L.hlTextColor ?? '#FFFFFF') : (parts[i].color ?? baseColor)),
@@ -1272,6 +1279,7 @@ const LAYERS = {
         });
         cx += widths[i];
       }
+      ctx.restore();
     });
   },
 

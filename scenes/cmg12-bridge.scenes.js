@@ -48,6 +48,7 @@ const washBase = {
 const T10 = {
   font: "'GyeonggiBatang', '경기천년바탕', Pretendard, sans-serif",
   fontWeight: 700,
+  italic: true,                     // 패널의 기울임꼴(T 이탤릭) 버튼 ON — r11 반려로 확인
   color: '#FFFFFF',
   strokeWidth: 0,
   shadowPrem: { opacity: 0.95, angle: 135, distance: 7.0, size: 12.8, blur: 40 },
