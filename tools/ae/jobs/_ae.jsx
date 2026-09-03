@@ -343,7 +343,59 @@ function inkOf(L) { return L.sourceRectAtTime(0, false); }
  * ⚠ align 을 빠뜨렸다가 컷③ 문구 둘이 글자 폭의 절반만큼 왼쪽으로 밀려 화면 밖으로
  *    잘렸다. 씬에서 align:'left' 를 쓰는 건 흔치 않아 눈에 안 띄었다.
  */
-function trackText(L, xExpr, yExpr, align) {
+/**
+ * 이 레이어가 찍는 글자의 **실측 치수**. scene-export 가 크로미움 안에서 재 붙인다.
+ * (총괄 승인 2026-09-03, 길 A) 못 잰 층에는 없다 — 그럴 땐 예전 방식으로 돈다.
+ */
+function tmOf(L, str) {
+    var a = L.tm;
+    if (!a || !a.length) return null;
+    var s = String(str);
+    for (var i = 0; i < a.length; i++) if (String(a[i].text) === s) return a[i];
+    return null;
+}
+/**
+ * 캔버스 y 를 AE 점 텍스트의 Position y 로 옮기는 보정.
+ *
+ * 캔버스는 textBaseline 'middle' 로 찍고 AE 점 텍스트의 원점은 알파벳 베이스라인이다.
+ * 그 사이 거리를 폰트에서 재 온 값이 dy 다 — 글자 내용과 무관한 폰트 값이라 층마다
+ * 하나면 된다(39건 실측에서 잉크 기준과 폰트 기준이 전부 일치했다).
+ *
+ * 예전에는 잉크 상자 중심을 y 에 맞추고 `+2` 를 손으로 더했다. 잉크는 글자마다
+ * 비대칭이고 획(stroke) 번짐까지 품어 5px 가까이 어긋났다.
+ * 못 잰 층은 null 을 돌려주고, 부르는 쪽이 예전 방식으로 돈다.
+ */
+function baseDY(L, str) {
+    var t = tmOf(L, str);
+    if (!t) return null;
+    if (t.dy == null) return null;
+    return t.dy;
+}
+/**
+ * 세로 자리 한 줄. yExpr 은 **캔버스가 넘기는 y 그대로**다 (캔버스가 +2 를 더하는
+ * 자리면 그 +2 까지 담아서 준다 — 그건 캔버스 것이지 보정이 아니다).
+ * dy 를 잰 층은 베이스라인을 바로 놓고, 못 잰 층은 예전처럼 잉크 중심을 맞춘다.
+ */
+function yOf(dy, yExpr) {
+    if (dy == null) return "(" + yExpr + ") - (_r.top + _r.height/2) + o[1]";
+    return "(" + yExpr + ") + " + dy + " + o[1]";
+}
+/**
+ * 판 폭 보정. 캔버스는 판을 **전진폭**(measureText().width)으로 짓는데 AE 는
+ * sourceRectAtTime 으로 재니 **잉크폭**이 나온다 — 획 번짐과 사이드베어링만큼 넓다.
+ * 그 차이를 상수로 더해 두면 판이 캔버스와 같아지고, 나중에 글자를 고쳐도 판은
+ * 여전히 식으로 따라 커진다(A6 합격선을 지킨다).
+ * 실측: '손익비  1 : 2' 에서 잉크 263.8 vs 전진 256.86 → 판이 6.9 넓고,
+ * 가운데 정렬이라 글자가 그 절반인 3.5px 밀렸다. 오래 못 잡던 그 값이다.
+ */
+function advAdj(L, str, T) {
+    var t = tmOf(L, str);
+    if (!t) return 0;
+    if (t.advance == null) return 0;
+    return t.advance - inkOf(T).width;
+}
+
+function trackText(L, xExpr, yExpr, align, dy) {
     var off = fx(L).addProperty("ADBE Point Control");
     off.name = "손보정";
     off.property(1).setValue([0, 0]);
@@ -369,11 +421,16 @@ function trackText(L, xExpr, yExpr, align) {
     tp.setValue(doc);
 
     tr(L).property("ADBE Anchor Point").setValue([0, 0]);
+    /*  세로: 실측 dy 가 있으면 그걸 더해 베이스라인을 바로 놓는다. 없으면 예전처럼
+        잉크 상자 중심을 맞춘다 — 정확하진 않아도 아무것도 없는 것보다 낫다.  */
+    var yPos;
+    if (dy == null) {
+        yPos = 'var r = thisLayer.sourceRectAtTime(time, false);\n'
+             + '[(' + xExpr + ') + o[0], (' + yExpr + ') - (r.top + r.height/2) + o[1]]';
+    } else {
+        yPos = '[(' + xExpr + ') + o[0], (' + yExpr + ') + ' + dy + ' + o[1]]';
+    }
     tr(L).property("ADBE Position").expression =
-        camHead()
-        + 'var o = effect("손보정")(1);\n'
-        + 'var r = thisLayer.sourceRectAtTime(time, false);\n'
-        + '[(' + xExpr + ') + o[0], '
-        + '(' + yExpr + ') - (r.top + r.height/2) + o[1]]';
+        camHead() + 'var o = effect("손보정")(1);\n' + yPos;
     return L;
 }

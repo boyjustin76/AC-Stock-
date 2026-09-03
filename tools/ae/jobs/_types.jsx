@@ -110,7 +110,7 @@ TYPES.cmgLevel = function (L) {
         var T = textLayer(LN(nm + " 라벨"), label, F_TAG, lSize,
                           num(L.labelColor, TH.labelText), TH.labelStroke, lSize * 0.075);
         trackText(T, x0 + " + " + w + " * " + num(L.labelFrac, 0.55),
-                     "(" + y1 + " + " + y2b + ")/2", "center");
+                     "(" + y1 + " + " + y2b + ")/2", "center", baseDY(L, label));
         /* 렌더러: cue × clamp(span(in+labelDelay, +0.4, outCubic)) */
         fadeMul(T, L, function (t) { return enterJS(L, t, IN + lDelay, IN + lDelay + 0.4, E.outCubic); });
         made.push(T);
@@ -125,9 +125,11 @@ TYPES.cmgLevel = function (L) {
     var padX = num(L.labelPadX, 24);
     var bh = num(L.labelHeight, lSize * 1.35);
 
+    /* 판 폭은 캔버스와 같이 **전진폭** 기준으로 (advAdj 주석 참고) */
+    var lAdj = advAdj(L, label, T2);
     var bwCalc = 'var _t = thisComp.layer("' + T2.name + '");\n'
                + 'var _r = _t.sourceRectAtTime(time, false);\n'
-               + 'var bw = _r.width + ' + (padX * 2) + ';\n';
+               + 'var bw = _r.width + ' + (padX * 2 + lAdj) + ';\n';
     var bxCalc = 'var bx = ' + (eq(L.labelSide, "right") ? anchor : "(" + anchor + " - bw)") + ';\n'
                + (L.labelClamp === false ? ''
                   : 'bx = Math.min(Math.max(bx, ' + (p.x + 6) + '), ' + p.right + ' - bw - 6);\n');
@@ -155,7 +157,7 @@ TYPES.cmgLevel = function (L) {
         + 'var _r = thisLayer.sourceRectAtTime(time, false);\n'
         + 'var bw = _r.width + ' + (padX * 2) + ';\n'
         + bxCalc
-        + '[bx + bw/2 - (_r.left + _r.width/2) + o[0], (' + y1 + ') + 2 - (_r.top + _r.height/2) + o[1]]';
+        + '[bx + bw/2 + o[0], ' + yOf(baseDY(L, label), "(" + y1 + ") + 2") + ']';
     fadeMul(T2, L, labelA);
 
     made.push(B);
@@ -280,7 +282,7 @@ TYPES.cmgArrow = function (L) {
     tr(T).property("ADBE Position").expression = camHead() + bodyOff
         + 'var o = effect("손보정")(1);\n'
         + 'var _r = thisLayer.sourceRectAtTime(time, false);\n'
-        + '[(' + tipX + ') + bcx - (_r.left + _r.width/2) + o[0], (' + cy + ') + 2 - (_r.top + _r.height/2) + o[1]]';
+        + '[(' + tipX + ') + bcx - (_r.left + _r.width/2) + o[0], ' + yOf(baseDY(L, label), "(" + cy + ") + 2") + ']';
 
     /*  글씨를 먼저 만들었으므로 나중에 만든 셰이프가 **위**에 온다 — 글씨를 덮는다.
         셰이프를 글씨 밑으로 내린다 (파일럿에서도 같은 데 물렸다).  */
@@ -312,7 +314,7 @@ TYPES.cmgNote = function (L) {
     /* 올라오며 등장 — translate(0, (1-rise)*18) 를 그대로 옮긴다 */
     var rise = "(1 - " + enterX(L, IN, IN + 0.45, "_outCubic") + ") * 18";
     /* 캔버스 textAlign 그대로 — 기본은 가운데, 씬이 'left' 를 주면 왼끝을 좌표에 맞춘다 */
-    trackText(T, x, "(" + y + ") + " + rise, num(L.align, "center"));
+    trackText(T, x, "(" + y + ") + " + rise, num(L.align, "center"), baseDY(L, L.text));
     /* trackText 는 camHead 만 넣는다 — 이징이 필요하니 앞에 덧댄다 */
     var pos = tr(T).property("ADBE Position");
     pos.expression = easeHead() + pos.expression;
@@ -351,8 +353,9 @@ TYPES.cmgBadge = function (L) {
 
     var T = textLayer(LN("배지 " + L.text), L.text, F_TAG, size,
                       TH.labelText, TH.labelStroke, size * 0.15);
+    var rB = inkOf(T);
     var bwCalc = 'var _r = thisComp.layer("' + T.name + '").sourceRectAtTime(time, false);\n'
-               + 'var bw = _r.width + ' + (padX * 2) + ';\n';
+               + 'var bw = _r.width + ' + (padX * 2 + advAdj(L, L.text, T)) + ';\n';
     var align = num(L.align, "left");
     /* 중첩 삼항 금지 — _ae.jsx trackText 주석 참고 */
     var bx = String(L.x);
@@ -378,10 +381,19 @@ TYPES.cmgBadge = function (L) {
         표현식으로 두면 **자기 참조**라 값이 망가진다(글자가 화면 밖으로 밀렸다).
         그래서 지을 때 재서 박는다. 글자를 바꾸면 판은 식으로 따라 커지지만 이 앵커는
         그대로다 — 배지는 가운데 정렬이라 어긋나야 폭 변화의 절반이다.              */
-    var rB = inkOf(T);
-    tr(T).property("ADBE Anchor Point").setValue([rB.left + rB.width / 2, rB.top + rB.height / 2]);
+    var aX = rB.left + rB.width / 2, aY = rB.top + rB.height / 2;
+    tr(T).property("ADBE Anchor Point").setValue([aX, aY]);
+    /*  앵커가 잉크 중심이니 Position 은 '잉크 중심을 어디에 둘까'다. 캔버스가 두는 것은
+        **전진 상자**의 중심(= 글자 레이어의 원점, 가운데 정렬)이므로 앵커만큼 되돌린다.
+        세로도 같다 — 캔버스는 y+2 에 middle 로 찍으니 거기에 dy 를 더한 게 베이스라인이다.  */
+    var bdy = baseDY(L, L.text);
+    /*  bx 는 **빌드 때 만든 문자열**이다 (AE 표현식 안에 bx 라는 변수는 없다).
+        식별자로 내보냈다가 글자가 통째로 사라졌다 — 반드시 이어 붙인다.  */
+    var bxPos = bx + ' + bw/2' + (aX ? ' + ' + aX : '');
+    var byPos = String(L.y + 2 + aY);
+    if (bdy != null) byPos = String(L.y + 2) + ' + ' + bdy + ' + ' + aY;
     tr(T).property("ADBE Position").expression = head() + bwCalc
-        + 'var o = effect("손보정")(1);\n[' + bx + ' + bw/2 + o[0], ' + (L.y + 2) + ' + o[1]]';
+        + 'var o = effect("손보정")(1);\n[' + bxPos + ' + o[0], ' + byPos + ' + o[1]]';
     tr(T).property("ADBE Scale").expression = easeHead() + "var p = " + pop + ";\n[p*100, p*100]";
 
     fadeL(B, L);

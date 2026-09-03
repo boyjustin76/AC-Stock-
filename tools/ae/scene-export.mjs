@@ -28,6 +28,7 @@ import { Chart } from '../../src/render/chart.js';
 import { makeTheme } from '../../src/render/theme.js';
 import { clamp } from '../../src/render/anim.js';
 import { keyframe } from '../../src/render/engine.js';
+import { measureProject } from './text-metrics.mjs';
 
 /**
  * 곡선 단순화 — 선형 보간으로 되살렸을 때 오차가 tol 을 넘지 않는 최소 점만 남긴다.
@@ -89,6 +90,11 @@ function plain(v) {
   }
   return v;
 }
+
+/*  글자 치수 — 렌더러가 실제로 찍은 fillText 호출을 크로미움 안에서 재 온다.
+    좌표만 내보내고 치수를 깜빡하면 조용히 어긋나므로 여기서 같이 낸다.
+    (총괄 승인 2026-09-03, 길 A — src/ 는 건드리지 않고 런타임에 감싼다)  */
+const TM = await measureProject(file, project);
 
 const cuts = [];
 for (const scene of project.scenes) {
@@ -162,6 +168,23 @@ for (const scene of project.scenes) {
       /*  cmgArrow 는 price 를 생략하면 그 봉의 종가에 붙는다. AE 쪽에는 봉 데이터가
           없으므로 여기서 풀어서 넘긴다 — 좌표는 렌더러가 정한다는 약속대로다.  */
       if (o.type === 'cmgArrow' && o.price == null && bars[o.bar]) o.price = bars[o.bar].c;
+      /*  이 층이 실제로 찍은 글자의 치수. 캔버스 textBaseline 'middle' 과 AE 점
+          텍스트의 알파벳 베이스라인 차이(dy)가 핵심이다 — 글자 내용과 무관한 폰트
+          값이라 층마다 하나면 된다. 못 잰 층에는 안 붙는다(AE 가 예전 방식으로 돈다). */
+      const tm = (TM[scene.id] ?? {})[i];
+      if (tm && tm.length) {
+        const seen = {};
+        o.tm = tm.filter((k) => (seen[k.text] ? false : (seen[k.text] = 1))).map((k) => ({
+          text: k.text,
+          align: k.align,
+          baseline: k.baseline,
+          /* 알파벳 베이스라인까지의 세로 보정 — AE Position 에 그대로 더한다 */
+          dy: r2(k.toAlphabetic.font),
+          advance: r2(k.advance),
+          /* CTM 이 축정렬이 아니면(기울임) AE 쪽에서 따로 다뤄야 한다 — 표시만 남긴다 */
+          skew: (Math.abs(k.ctm[1]) > 1e-6 || Math.abs(k.ctm[2]) > 1e-6) ? k.ctm.slice(0, 4) : undefined,
+        }));
+      }
       /*  cmgTrace 는 이평선 값을 따라 긋는다. AE 에는 봉 데이터가 없으므로
           (봉, 가격) 점을 여기서 풀어 넘긴다 — flatten 까지 적용한 최종 좌표다.  */
       if (o.type === 'cmgTrace') {
