@@ -234,6 +234,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `lab/cutedit` | 기록 | CAM 촬영본 전사 원본(cam_transcript.json) — 컷 재현·재검증용 |
 | `.gitignore` | 기타 |  |
 | `CLAUDE.md` | 기타 |  |
+| `brand/FX-WHITELIST.md` | 기타 |  |
 | `data/nq/NQ_1d.json` | 기타 |  |
 | `data/nq/NQ_1m.json` | 기타 |  |
 | `data/nq/NQ_5m.json` | 기타 |  |
@@ -286,6 +287,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `lab/premiere/m5_intro2.prproj` | 기타 |  |
 | `lab/premiere/m5_relink.prproj` | 기타 |  |
 | `lab/premiere/m6_build.prproj` | 기타 |  |
+| `lab/prproj-kf-parse.py` | 기타 |  |
 | `log/AE-LAB.md` | 기타 |  |
 | `log/PREMIERE-LAB.md` | 기타 |  |
 | `log/REDTEAM-BRIEF.md` | 기타 |  |
@@ -1302,3 +1304,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 243 | `4ce6f247` | 차12 r13: 실사 문법 렌더 기반 — cmgMt5 프리셋·chart 옵트인 키·chart.phases | 3파일 +140/-18 |
 | 244 | `252b4fda` | 차12 r13: 실데이터 시나리오 스캐너 scan-nq.mjs | 1파일 +136/-0 |
 | 245 | `c8ea9580` | 차12 r13: loadBars 를 브라우저/Node 겸용 async 로 — 씬은 페이지에서 실행된다 | 1파일 +23/-13 |
+| 246 | `90cb3601` | 세이브 save/2026-09-03-1925 — 차12 r13 기법 실측 완료 — 최종본 10편 전수(시트·픽셀·YDIF) + prproj 11편 키프레임 전수 → brand/FX-WHITELIST.md 화이트리스트 확정 | 6파일 +1590/-2 |
