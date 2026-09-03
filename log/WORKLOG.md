@@ -284,6 +284,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `lab/premiere/m6_build.prproj` | 기타 |  |
 | `log/AE-LAB.md` | 기타 |  |
 | `log/PREMIERE-LAB.md` | 기타 |  |
+| `log/REDTEAM-BRIEF.md` | 기타 |  |
 | `log/build_readme.py` | 기타 |  |
 | `log/save.py` | 기타 |  |
 | `package-lock.json` | 기타 |  |
@@ -1279,3 +1280,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 231 | `c863a19d` | 세이브 save/2026-09-03-1626 — D 결재 2건 승인(z 손잡이·sl-11-4 컷③⑤) + 길 A 완료 접수 — 룰북 ⑭ 보충, 요청 70, ae-lab 병합 | 5파일 +87/-37 |
 | 232 | `dad07175` | 세이브 기록 save/2026-09-03-1626 | 5파일 +11/-3 |
 | 233 | `426ec3fd` | lab/ae/full 을 v6 로 갱신 — 저장소 사본이 09-02 판에 멈춰 있었다 | 4파일 +400/-36 |
+| 234 | `cf7bac82` | 세이브 save/2026-09-03-1644 — 시즌1 레드팀 준비 중간 — D v6 합류, REDTEAM-BRIEF 초안(효율성 렌즈), next_step 32 — 검증 워크플로 진행 중 | 5파일 +137/-2 |
