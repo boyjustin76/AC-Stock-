@@ -1144,3 +1144,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 156 | `c3ddf5d4` | 세이브 기록 save/2026-09-01-1329 | 5파일 +11/-3 |
 | 157 | `aa358615` | 세이브 save/2026-09-01-1457 — 차12 썸네일 6안 — thumb-ch12 씬 3종, config 차12 전환, thumbnail_rule 26~27 · issue 18~19 · runbook 18 · next_step 31 | 16파일 +368/-47 |
 | 158 | `be4409d0` | 세이브 기록 save/2026-09-01-1457 | 5파일 +11/-3 |
+| 159 | `730cd4d3` | 세이브 save/2026-09-03-1012 — 격자박스 도입 — 썸네일 좌상단 타이틀을 상자에 맞춰 17% 축소, 차12 6안 재빌드 (규칙 28·29, 요청 59) | 14파일 +167/-17 |
