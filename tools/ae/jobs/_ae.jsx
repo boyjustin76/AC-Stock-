@@ -42,6 +42,28 @@ function color2(c, fallback) {
     }
     return { hex: s, opacity: null };
 }
+/**
+ * 휘도(0~1). 렌더러 layers.js 의 luma() 를 그대로 옮긴 것이다 — 계수까지 같아야 한다.
+ * 어두운 글자에 검정 테두리를 두르면 획이 뭉개지므로, 렌더러는 luma < 0.16 이면
+ * 테두리를 흰색으로 바꾼다. 이 규칙을 안 옮겼더니 #9F0000(휘도 0.133) "손절" 두 개에
+ * AE 에서만 검은 후광이 생겼다 — 픽셀 대조가 잡았다.
+ */
+function luma(h) {
+    var s = String(h == null ? "" : h);
+    if (!/^#[0-9a-fA-F]{6}$/.test(s)) return 1;
+    var n = parseInt(s.substr(1), 16);
+    return (((n >> 16) & 255) * 0.2126 + ((n >> 8) & 255) * 0.7152 + (n & 255) * 0.0722) / 255;
+}
+
+/**
+ * 씬 데이터의 문자열 비교.
+ *
+ * 처음엔 `===` 가 실패하는 줄 알고 이걸 만들었다. **그건 오진이었다** —
+ * 진짜 원인은 중첩 삼항이었고(아래 trackText 주석), 고치고 나니 `===` 도 잘 돈다.
+ * 그래도 남겨 둔다: 씬은 사람이 손으로 쓰는 데이터라 숫자 1 이 문자열 "1" 로 오는 식의
+ * 어긋남이 언제든 생긴다. 값만 보고 비교하는 게 여기선 맞다.
+ */
+function eq(v, s) { return String(v) == String(s); }
 
 function tr(L) { return L.property("ADBE Transform Group"); }
 function fx(L) { return L.property("ADBE Effect Parade"); }
@@ -286,18 +308,47 @@ function textLayer(name, str, font, size, fillHex, strokeHex, strokeW) {
 function inkOf(L) { return L.sourceRectAtTime(0, false); }
 
 /**
- * 글자는 잉크 박스 **중심**을 좌표에 맞춘다 — 캔버스의 textAlign center + textBaseline middle 과 같다.
+ * 글자를 좌표에 붙인다. 세로는 잉크 박스 가운데(캔버스 textBaseline 'middle'),
+ * 가로는 **AE 자체 정렬(justification)** 에 맡긴다 — 점 텍스트의 원점이 곧 정렬점이라
+ * 캔버스 textAlign 이 가리키는 점과 같은 자리다.
  *
- * 앵커를 잉크 중심에 두고 Position 을 좌표에 둔다. Position 만 보정하는 방법도 같은
- * 그림이 나오지만, 그렇게 하면 크기·회전이 [0,0] 을 축으로 돌아서 팝 연출을 못 건다.
+ * 앵커를 잉크 위의 그 점에 두고 Position 을 좌표에 둔다. Position 만 보정해도 같은
+ * 그림이 나오지만, 그러면 크기·회전이 [0,0] 을 축으로 돌아서 팝 연출을 못 건다.
+ *
+ * ⚠ align 을 빠뜨렸다가 컷③ 문구 둘이 글자 폭의 절반만큼 왼쪽으로 밀려 화면 밖으로
+ *    잘렸다. 씬에서 align:'left' 를 쓰는 건 흔치 않아 눈에 안 띄었다.
  */
-function trackTextCenter(L, xExpr, yExpr) {
+function trackText(L, xExpr, yExpr, align) {
     var off = fx(L).addProperty("ADBE Point Control");
     off.name = "손보정";
     off.property(1).setValue([0, 0]);
-    tr(L).property("ADBE Anchor Point").expression =
-        'var r = thisLayer.sourceRectAtTime(time, false);\n[r.left + r.width/2, r.top + r.height/2]';
+    /*  ⚠ **앵커에 자기 sourceRectAtTime 을 쓰면 안 된다.** 자기 자신을 참조하는 꼴이라
+        AE 가 엉뚱한 값을 낸다 — 실측: 잉크 left 가 -144.2 인데 앵커가 +144.5 로 잡혀
+        글자가 화면 밖으로 288px 밀렸다. 앵커는 0 으로 두고 **Position 에서 보정**한다
+        (파일럿 때부터 쓰던 방식이고, 다른 레이어를 가리키는 건 문제없다).            */
+    /*  ⚠ **중첩 삼항을 쓰지 마라.** ExtendScript 는 `a ? 0 : b ? 1 : 0.5` 를
+        `(a ? 0 : b) ? 1 : 0.5` 로 묶는다. a 가 참이면 0 이 되고, 0 은 거짓이라
+        결과가 0.5 로 튄다 — 왼쪽 정렬이 가운데 정렬로 둔갑해 문구가 화면 밖으로 밀렸다.
+        값이 우연히 같은 경우가 많아 오래 안 보였다. if/else 로만 쓴다.            */
+    /*  ⚠ **가로를 잉크 상자로 맞추면 안 된다.** 잉크 상자는 획(stroke)이 글자 밖으로
+        번진 만큼과 왼쪽 사이드베어링을 함께 품는다. 캔버스의 textAlign 'left' 는
+        **글자 원점**을 좌표에 두고 획은 그 왼쪽으로 삐져나가게 둔다. 그래서 잉크
+        왼끝을 좌표에 맞추면 그만큼 오른쪽으로 밀린다 — 컷③ 문구가 실측 5px 밀렸다.
+        AE 점 텍스트는 원점이 곧 정렬점이니, 정렬을 맞춰 두면 가로 보정이 필요 없다.  */
+    var just = ParagraphJustification.CENTER_JUSTIFY;
+    if (eq(align, "left")) just = ParagraphJustification.LEFT_JUSTIFY;
+    else if (eq(align, "right")) just = ParagraphJustification.RIGHT_JUSTIFY;
+    var tp = L.property("ADBE Text Properties").property("ADBE Text Document");
+    var doc = tp.value;
+    doc.justification = just;
+    tp.setValue(doc);
+
+    tr(L).property("ADBE Anchor Point").setValue([0, 0]);
     tr(L).property("ADBE Position").expression =
-        camHead() + 'var o = effect("손보정")(1);\n[(' + xExpr + ') + o[0], (' + yExpr + ') + o[1]]';
+        camHead()
+        + 'var o = effect("손보정")(1);\n'
+        + 'var r = thisLayer.sourceRectAtTime(time, false);\n'
+        + '[(' + xExpr + ') + o[0], '
+        + '(' + yExpr + ') - (r.top + r.height/2) + o[1]]';
     return L;
 }

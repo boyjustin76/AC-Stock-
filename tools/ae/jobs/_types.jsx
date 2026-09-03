@@ -104,13 +104,13 @@ TYPES.cmgLevel = function (L) {
     var lDelay = num(L.labelDelay, 0.12);
     var lSize  = num(L.labelSize, 62);
 
-    if (L.labelStyle === "inzone" && L.fillTo != null) {
+    if (eq(L.labelStyle, "inzone") && L.fillTo != null) {
         /* 최종본 스타일 — 영역 한가운데 흰 글씨 + 얇은 검정 외곽선. 판을 쓰지 않는다. */
         var y2b = "py(" + L.fillTo + ")";
         var T = textLayer(LN(nm + " 라벨"), label, F_TAG, lSize,
                           num(L.labelColor, TH.labelText), TH.labelStroke, lSize * 0.075);
-        trackTextCenter(T, x0 + " + " + w + " * " + num(L.labelFrac, 0.55),
-                           "(" + y1 + " + " + y2b + ")/2");
+        trackText(T, x0 + " + " + w + " * " + num(L.labelFrac, 0.55),
+                     "(" + y1 + " + " + y2b + ")/2", "center");
         /* 렌더러: cue × clamp(span(in+labelDelay, +0.4, outCubic)) */
         fadeMul(T, L, function (t) { return spanJS(t, IN + lDelay, IN + lDelay + 0.4, E.outCubic); });
         made.push(T);
@@ -128,7 +128,7 @@ TYPES.cmgLevel = function (L) {
     var bwCalc = 'var _t = thisComp.layer("' + T2.name + '");\n'
                + 'var _r = _t.sourceRectAtTime(time, false);\n'
                + 'var bw = _r.width + ' + (padX * 2) + ';\n';
-    var bxCalc = 'var bx = ' + (L.labelSide === "right" ? anchor : "(" + anchor + " - bw)") + ';\n'
+    var bxCalc = 'var bx = ' + (eq(L.labelSide, "right") ? anchor : "(" + anchor + " - bw)") + ';\n'
                + (L.labelClamp === false ? ''
                   : 'bx = Math.min(Math.max(bx, ' + (p.x + 6) + '), ' + p.right + ' - bw - 6);\n');
 
@@ -209,10 +209,10 @@ TYPES.cmgCircle = function (L) {
 TYPES.cmgArrow = function (L) {
     var IN = tIn(L), POP = num(L.popDur, 0.4);
     var size = num(L.size, 36);
-    var buy = num(L.dir, "buy") === "buy";
+    var buy = eq(num(L.dir, "buy"), "buy");
     var col = color2(L.color, buy ? TH.buy : TH.sell);
     var label = L.label != null ? L.label : (buy ? "매수" : "매도");
-    var dirRight = L.point !== "left";
+    var dirRight = !eq(L.point, "left");
     var d = dirRight ? 1 : -1;
     var gap = num(L.gap, 14);
 
@@ -280,14 +280,18 @@ TYPES.cmgArrow = function (L) {
 TYPES.cmgNote = function (L) {
     var IN = tIn(L);
     var size = num(L.size, 56);
+    var fill = num(L.color, "#FFFFFF");
+    /* 어두운 글자엔 흰 테두리 — 렌더러와 같은 규칙(luma < 0.16). 검정으로 두르면 획이 뭉개진다 */
+    var strokeC = L.stroke != null ? L.stroke : (luma(fill) < 0.16 ? "#FFFFFF" : "#000000");
     var T = textLayer(LN("문구 " + String(L.text).replace(/\s+/g, " ")), L.text, F_NOTE, size,
-                      num(L.color, "#FFFFFF"), num(L.stroke, "#000000"), num(L.strokeWidth, size * 0.16));
+                      fill, strokeC, num(L.strokeWidth, size * 0.16));
     var x = L.bar != null ? "px(" + L.bar + ") + " + num(L.dx, 0) : String(num(L.x, 0));
     var y = (L.price != null ? "py(" + L.price + ")" : String(num(L.y, 0))) + " + " + num(L.dy, 0);
     /* 올라오며 등장 — translate(0, (1-rise)*18) 를 그대로 옮긴다 */
     var rise = "(1 - _sp(time," + IN + "," + (IN + 0.45) + ",_outCubic)) * 18";
-    trackTextCenter(T, x, "(" + y + ") + " + rise);
-    /* trackTextCenter 는 camHead 만 넣는다 — 이징이 필요하니 앞에 덧댄다 */
+    /* 캔버스 textAlign 그대로 — 기본은 가운데, 씬이 'left' 를 주면 왼끝을 좌표에 맞춘다 */
+    trackText(T, x, "(" + y + ") + " + rise, num(L.align, "center"));
+    /* trackText 는 camHead 만 넣는다 — 이징이 필요하니 앞에 덧댄다 */
     var pos = tr(T).property("ADBE Position");
     pos.expression = easeHead() + pos.expression;
     fadeL(T, L);
@@ -328,7 +332,10 @@ TYPES.cmgBadge = function (L) {
     var bwCalc = 'var _r = thisComp.layer("' + T.name + '").sourceRectAtTime(time, false);\n'
                + 'var bw = _r.width + ' + (padX * 2) + ';\n';
     var align = num(L.align, "left");
-    var bx = align === "right" ? "(" + L.x + " - bw)" : align === "center" ? "(" + L.x + " - bw/2)" : String(L.x);
+    /* 중첩 삼항 금지 — _ae.jsx trackText 주석 참고 */
+    var bx = String(L.x);
+    if (eq(align, "right")) bx = "(" + L.x + " - bw)";
+    else if (eq(align, "center")) bx = "(" + L.x + " - bw/2)";
 
     var B = localIsComp(newShape(LN("배지판 " + L.text)));
     var gB = addGroup(B, "판");
@@ -345,8 +352,12 @@ TYPES.cmgBadge = function (L) {
     var offT = fx(T).addProperty("ADBE Point Control");
     offT.name = "손보정";
     offT.property(1).setValue([0, 0]);
-    tr(T).property("ADBE Anchor Point").expression =
-        'var r = thisLayer.sourceRectAtTime(time, false);\n[r.left + r.width/2, r.top + r.height/2]';
+    /*  팝(크기)이 잉크 한가운데를 축으로 돌아야 해서 앵커를 잉크 중심에 둔다.
+        표현식으로 두면 **자기 참조**라 값이 망가진다(글자가 화면 밖으로 밀렸다).
+        그래서 지을 때 재서 박는다. 글자를 바꾸면 판은 식으로 따라 커지지만 이 앵커는
+        그대로다 — 배지는 가운데 정렬이라 어긋나야 폭 변화의 절반이다.              */
+    var rB = inkOf(T);
+    tr(T).property("ADBE Anchor Point").setValue([rB.left + rB.width / 2, rB.top + rB.height / 2]);
     tr(T).property("ADBE Position").expression = head() + bwCalc
         + 'var o = effect("손보정")(1);\n[' + bx + ' + bw/2 + o[0], ' + (L.y + 2) + ' + o[1]]';
     tr(T).property("ADBE Scale").expression = easeHead() + "var p = " + pop + ";\n[p*100, p*100]";
@@ -366,7 +377,7 @@ TYPES.cmgUnderline = function (L) {
     var W = num(L.width, 300);
     var S = newShape(LN("밑줄"));
     var g = addGroup(S, "손그림");
-    var x0 = (L.align === "center") ? -W / 2 : 0;
+    var x0 = eq(L.align, "center") ? -W / 2 : 0;
     var steps = Math.max(2, Math.round(W / 8));
     var verts = [];
     for (var i = 0; i <= steps; i++) {
@@ -400,6 +411,11 @@ TYPES.cmgMissed = function (L) {
     var hE = "(Math.abs(" + yT + " - " + yF + ") * " + grow + ")";
     var yb = "Math.max(" + yF + ", " + yT + ")";
     var wE = "((" + x1 + ") - (" + x0 + "))";
+
+    /*  ⚠ 렌더러는 arrow 를 끄지 않으면 위로 향하는 화살표를 함께 그린다.
+        여기는 아직 그 부분을 옮기지 않았다. 두 편이 전부 arrow:false 라 지금은
+        문제가 없지만, 조용히 빠지면 안 되므로 쓰이는 순간 빌드가 멈추게 한다.  */
+    if (L.arrow !== false) throw new Error("cmgMissed 의 화살표(arrow)는 아직 AE 로 안 옮겼다 — 옮기고 픽셀 대조할 것");
 
     var S = localIsComp(newShape(LN("빗금")));
     /* 사선이 위, 바탕이 아래 — 먼저 추가한 것이 위다 */
@@ -594,7 +610,7 @@ TYPES.titleCard = function (L) {
     /*  타이틀 — 캔버스는 textBaseline 'alphabetic' 이라 y 가 베이스라인이다.
         AE 의 점 텍스트도 Position 이 베이스라인이므로 그대로 맞는다.        */
     var cx = num(L.x, W / 2), baseY = num(L.y, H * 0.46);
-    var lines = (L.title instanceof Array) ? L.title : [L.title];
+    var lines = (L.title && typeof L.title === "object" && L.title.length != null) ? L.title : [L.title];
     var lh = num(L.lineHeight, 124);
     for (var i = 0; i < lines.length; i++) {
         (function (line, k) {

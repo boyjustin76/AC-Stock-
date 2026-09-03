@@ -34,9 +34,9 @@ const ff = (args) => spawnSync(ffmpeg, args, { encoding: 'utf8' });
 const pad5 = (n) => String(n).padStart(5, '0');
 
 console.log(`\n  ${cut}  —  AE vs 렌더러\n`);
-console.log('   프레임    PSNR       평균오차   최대   >8차이   >64차이   판정');
+console.log('   프레임    PSNR       평균오차   최대   >8차이  >64차이  몰림   판정');
 
-let worst = 0, worstPct = 0;
+let worst = 0, worstPct = 0, worstDens = 0;
 for (const f of frames) {
   const a = `${AE}/f${f}.png`;
   const r = `${REF}/${cut}_${pad5(f)}.png`;
@@ -96,9 +96,24 @@ for (const f of frames) {
       `[0:v]format=gray[a];[1:v]format=gray[b];[a][b]blend=all_mode=difference,`
       + `geq=lum='if(gt(lum(X,Y),64),255,0)',dilation,dilation,negate`, `${OUT}/hot_f${f}.png`]);
 
-  const verdict = o8 < 0.5 ? '거의 같다' : o8 < 3 ? '가장자리만' : '**다르다**';
+  /*  ⚠ 전체 비율만 보면 **한 곳에 몰린 차이**를 놓친다.
+      컷③에서 문구 하나가 통째로 밀려 화면 밖으로 잘렸는데 전체로는 0.91% 라
+      "가장자리만" 으로 통과했다. 글자는 화면의 1% 밖에 안 되기 때문이다.
+      그래서 차이 마스크를 흐려 **가장 몰린 곳의 밀도**를 따로 잰다 —
+      가장자리 안티에일리어싱은 흩어져 있어 밀도가 낮고, 어긋난 덩어리는 높다.  */
+  const dens = (() => {
+    const q = ff(['-hide_banner', '-loglevel', 'info', '-i', flat, '-i', r, '-filter_complex',
+      `[0:v]format=gray[a];[1:v]format=gray[b];[a][b]blend=all_mode=difference,`
+      + `geq=lum='if(gt(lum(X,Y),32),255,0)',boxblur=32:1,signalstats,metadata=print`,
+      '-f', 'null', '-']);
+    return Number((q.stderr.match(/YMAX=([0-9]+)/) ?? [])[1] ?? 0) / 255 * 100;
+  })();
+  worstDens = Math.max(worstDens, dens);
+
+  const verdict = dens > 25 ? '**한 곳이 어긋났다**'
+                : o8 < 0.5 ? '거의 같다' : o8 < 3 ? '가장자리만' : '**다르다**';
   console.log(`   f${String(f).padEnd(6)} ${String(psnr).padStart(7)}dB  ${avg.toFixed(3).padStart(8)}  ${String(max).padStart(6)}`
-            + `  ${o8.toFixed(2).padStart(6)}%  ${o64.toFixed(2).padStart(6)}%   ${verdict}`);
+            + `  ${o8.toFixed(2).padStart(6)}%  ${o64.toFixed(2).padStart(6)}%  ${dens.toFixed(0).padStart(4)}%   ${verdict}`);
 }
-console.log(`\n   최악: 8 넘게 다른 픽셀 ${worstPct.toFixed(2)}%`);
+console.log(`\n   최악: 8 넘게 다른 픽셀 ${worstPct.toFixed(2)}% · 가장 몰린 곳 밀도 ${worstDens.toFixed(0)}%`);
 console.log(`   대조 → ${OUT}/tri_f*.png · 크게 다른 곳 → ${OUT}/hot_f*.png\n`);

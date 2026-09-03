@@ -16,10 +16,13 @@ var SPEC = (function () {
     var p = String(t).replace(/^\s+|\s+$/g, "").split(/\s+/);
     return { slug: p[0], cut: p[1], frames: p[2] || "30,90,120,155" };
 })();
+/* 꾸러미 이름(ch11-4_ae)이 좌표 파일에 들어 있다 — 최상위에서 읽어야 살아남는다 */
+$.evalFile(new File(LAB + "/ae/" + SPEC.slug + ".jsx"));
 
 function __main() {
 
-var AEP = LAB + "/pack/" + SPEC.slug + "/" + SPEC.slug + ".aep";
+var AEP = LAB + "/pack/" + (typeof SCENE !== "undefined" && SCENE.packName ? SCENE.packName : SPEC.slug)
+        + "/" + SPEC.slug + ".aep";
 
 say("잡", "B3 프레임 뽑기 — " + SPEC.slug + " / " + SPEC.cut);
 
