@@ -160,5 +160,6 @@ python3 tools/cutedit/srt_rules.py check 자막.srt        # 납품 전 검사 �
 - 한 것: 규칙 확정(위 1~3), srt_rules.py(나누기 DP + 검사기), build_cuts 의
   cue_chunks 를 새 규칙으로 교체, 기존 납품 srt 검사(차11-4: 15자 큐 2개·의존명사
   시작 1개 — **새 규칙 기준 소급 위반이니 다음 편부터 지키면 된다**).
-- 안 한 것: 차11-4·5 srt 재발행(이미 납품됨 — 재발행 여부는 이정찬 결정),
-  faster-whisper 설치 자동화(네 로컬에 `pip install faster-whisper` 필요).
+- 안 한 것: 차11-4·5 srt 재발행(이정찬 2026-09-01 결정 — **하지 않는다**),
+  설치 자동화(네 로컬에 `pip install faster-whisper imageio-ffmpeg` 필요 —
+  `build_cuts.py` 가 imageio-ffmpeg 를 임포트한다. E 보고서 §15).

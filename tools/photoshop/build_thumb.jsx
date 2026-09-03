@@ -15,10 +15,14 @@
  *
  * 설정은 같은 폴더의 config.json 에서 읽는다. run.ps1 이 이 파일을 실행한다.
  *
- * 주의 — 타이틀 크기는 절대 자동으로 맞추지 마라.
+ * 타이틀 크기 — 기본은 고정, 격자박스를 넘을 때만 줄인다 (thumbnail_rule 28).
  *   이 채널 규칙은 "글자 높이 고정, 폭 자유" 다 (thumbnail_rule 4·5).
- *   윗줄 141px / 아랫줄 194px 이 #2~#6 에서 완전히 일치한다.
- *   폭에 맞춰 크기를 역산하면 회차마다 글자 크기가 들쭉날쭉해진다.
+ *   윗줄 141px / 아랫줄 194px 이 #2~#6 에서 완전히 일치한다 — 그래서 기본은 안 건드린다.
+ *   다만 문구가 길어지면 폭이 상자를 넘어 차트를 덮는다 (차12 아랫줄이 1488px 였다).
+ *   그때만 config 의 titleBox 폭에 맞춰 두 줄을 같은 배율로 줄인다.
+ *   절대 키우지는 않는다 — 짧은 문구는 예전 회차와 같은 크기 그대로 남는다.
+ *   폭 하나로 회차마다 크기를 역산하던 옛 컨테이너 방식과는 다르다. 저건 항상 상자를
+ *   꽉 채워서 짧은 문구가 거대해졌다. 여기는 상자를 "넘을 때만" 줄이는 상한선이다.
  */
 // @target photoshop
 
@@ -73,6 +77,26 @@ function boxOf(l) {
          + Math.round(b[2].as("px")) + "," + Math.round(b[3].as("px")) + ")"
          + " w=" + Math.round(b[2].as("px") - b[0].as("px"))
          + " h=" + Math.round(b[3].as("px") - b[1].as("px"));
+}
+
+/* ── 격자박스 (thumbnail_rule 28) ────────────────────────────────────
+   타이틀은 좌상단 상자 안에 들어가야 한다. 상자 좌표는 config.titleBox.
+   여기 세 함수는 "재고 · 줄이고 · 도로 그 자리에 놓는" 일만 한다.        */
+
+function bnds(l) {
+    var b = l.bounds;
+    return [b[0].as("px"), b[1].as("px"), b[2].as("px"), b[3].as("px")];
+}
+
+/** 레이어의 왼쪽 위가 (x,y) 에 오도록 옮긴다 */
+function place(l, x, y) {
+    var b = bnds(l);
+    l.translate(new UnitValue(x - b[0], "px"), new UnitValue(y - b[1], "px"));
+}
+
+/** 한 줄 전체를 k 배로. 베이스라인이 고정이라 글자는 아래를 딛고 줄어든다 */
+function scaleLine(l, text, k) {
+    paintRuns(l, [{ from: 0, to: String(text).length + 1, scale: k }]);
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -314,7 +338,35 @@ for (var v = 0; v < CFG.variants.length; v++) {
     }
     mainL.textItem.contents = V.main; mainL.name = V.main;
     subL.textItem.contents  = V.sub;  subL.name  = V.sub;
+
+    /* ── 격자박스에 넣는다 (thumbnail_rule 28) ──────────────────────
+       강조를 걸기 전, 맨 글자 상태에서 잰다. 그래야 A 와 A2 의 배율이 같다.
+       두 줄 중 넓은 쪽 하나가 배율을 정하고, 두 줄에 똑같이 걸린다 —
+       줄마다 따로 줄이면 윗줄·아랫줄의 크기 비가 회차마다 달라진다.      */
+    var BOX = CFG.titleBox || null;
+    var k = 1;
+    if (BOX) {
+        var b0s = bnds(subL), b0m = bnds(mainL);
+        var wide = Math.max(b0s[2] - b0s[0], b0m[2] - b0m[0]);
+        if (wide > BOX.w) {
+            k = Math.round((BOX.w / wide) * 1000) / 1000;
+            scaleLine(subL,  V.sub,  k);
+            scaleLine(mainL, V.main, k);
+            /* 줄어든 글자를 원래 자리에 도로 놓는다. 상자 왼쪽 위를 붙박이로 잡고
+               두 줄 사이 간격도 같은 배율로 좁힌다 — 블록째 왼쪽 위로 축소하는 셈.
+               이렇게 안 하면 베이스라인이 고정이라 글자가 아래에 남아 흘러내린다. */
+            var top0 = Math.min(b0s[1], b0m[1]), left0 = Math.min(b0s[0], b0m[0]);
+            place(subL,  left0 + (b0s[0] - left0) * k, top0 + (b0s[1] - top0) * k);
+            place(mainL, left0 + (b0m[0] - left0) * k, top0 + (b0m[1] - top0) * k);
+            L("  격자박스 — 넓은 줄 " + Math.round(wide) + "px 가 상자 폭 " + BOX.w
+              + " 를 넘어 두 줄 다 x" + k + " (" + Math.round((1 - k) * 100) + "% 축소)");
+        } else {
+            L("  격자박스 — 넓은 줄 " + Math.round(wide) + "px, 상자 안이라 크기 그대로");
+        }
+    }
+
     // 문자 단위 강조는 글자를 다 넣은 뒤에 건다 — contents 를 쓰면 서식이 초기화된다
+    // 배율은 지금 크기(=격자박스에 맞춘 크기) 기준이다. 그래서 k 를 곱하지 않는다.
     var EMP = V.emphasis || [];
     var empSub = [], empMain = [];
     for (var e = 0; e < EMP.length; e++) ((EMP[e].line === "main") ? empMain : empSub).push(EMP[e]);
@@ -323,9 +375,16 @@ for (var v = 0; v < CFG.variants.length; v++) {
 
     L("아랫줄 " + V.main + "  " + boxOf(mainL));
     L("윗줄  " + V.sub  + "  " + boxOf(subL));
-    // 관측 최대폭을 넘으면 알려만 준다 (자동으로 줄이지 않는다 — 크기가 고정 규격이다)
-    if (mainL.bounds[2].as("px") > 1600) L("  !! 아랫줄이 관측 최대폭(1583)을 넘습니다");
-    if (subL.bounds[2].as("px")  > 1330) L("  !! 윗줄이 관측 최대폭(1306)을 넘습니다");
+    // 상자를 넘으면 알려 준다. 8px 는 획(6px)+그림자가 글자 밖으로 번지는 몫이다.
+    if (BOX) {
+        var R = BOX.x + BOX.w, B = BOX.y + BOX.h;
+        if (bnds(mainL)[2] > R + 8) L("  !! 아랫줄이 상자 오른쪽(" + R + ")을 넘습니다");
+        if (bnds(subL)[2]  > R + 8) L("  !! 윗줄이 상자 오른쪽(" + R + ")을 넘습니다");
+        if (bnds(mainL)[3] > B + 8) L("  !! 타이틀이 상자 아래(" + B + ")를 넘습니다");
+        // 위쪽은 상자로 안 잰다 — 강조한 글자는 베이스라인이 고정이라 원래 위로 솟는다
+        // (규칙 4). 진짜 한계는 틀 안쪽 26px 다 (규칙 27).
+        if (bnds(subL)[1] < 34) L("  !! 윗줄이 틀 안전선(26)에 닿습니다 — 강조 배율을 낮추세요");
+    }
 
     // 다른 회차 그룹은 통째로 들어낸다 (템플릿 180MB → 회차 하나 11MB)
     for (var i = root.layers.length - 1; i >= 0; i--) {

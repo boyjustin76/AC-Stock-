@@ -4,10 +4,16 @@
 srt 텍스트는 대본 표기를 따르고(STT 오인식 배제), 낭독자가 의도적으로 바꾼
 문구 하나만 음성을 따른다(짧게 실현합니다 → 짧게 수익 실현합니다).
 """
-import json, re, subprocess, sys
+import json, os, re, subprocess, sys
 import imageio_ffmpeg
 
-S = "/tmp/claude-0/-home-user-AC-Stock-/2aa738bb-430f-52e0-bfd6-c6b618c5db6c/scratchpad"
+# 작업 폴더. 차11-4·5 때는 클라우드 스크래치가 박혀 있었다 —
+# 환경변수나 첫 인자로 받는다. 회차마다 폴더 하나를 잡고 거기에 다 넣는다.
+#   set CUTEDIT_DIR=...\ch11-6   또는   python tools/cutedit/xxx.py <폴더>
+S = os.environ.get("CUTEDIT_DIR") or (sys.argv[1] if len(sys.argv) > 1 else "")
+if not S or not os.path.isdir(S):
+    sys.exit("작업 폴더를 정하세요 — 환경변수 CUTEDIT_DIR 또는 첫 인자로 폴더 경로."
+             f" (지금: {S or '없음'})")
 FF = imageio_ffmpeg.get_ffmpeg_exe()
 CAM = f"{S}/cam.mp4"
 PAD_PRE, PAD_POST, MERGE_GAP = 0.08, 0.14, 0.4
@@ -19,14 +25,21 @@ aligned = json.load(open(f"{S}/aligned.json", encoding="utf-8"))
 # whisper 가 단어 안에 침묵·잡음을 삼키는 경우가 있다 (예: '누워버리면' 88.16~92.38).
 import re as _re
 SILENCES = []
-for line in open(f"{S}/silences_fine.txt", encoding="utf-8"):
-    m = _re.findall(r"[-\d.]+", line)
-    if len(m) >= 2:
-        SILENCES.append((float(m[0]), float(m[1])))
+_sil = f"{S}/silences_fine.txt"
+if os.path.exists(_sil):
+    for line in open(_sil, encoding="utf-8"):
+        m = _re.findall(r"[-\d.]+", line)
+        if len(m) >= 2:
+            SILENCES.append((float(m[0]), float(m[1])))
+else:
+    print(f"! {_sil} 이 없습니다 — 무음 보정 없이 갑니다."
+          " (ffmpeg silencedetect -33dB, 0.35s+ 로 먼저 뽑아 두는 게 맞습니다)")
 
 # 스니펫 재전사로 실측한 명시 보정: (단어 시작시각 근처) → 강제 끝시각
 # '누워버리면'(88.16~) 뒤에 헛출발 "돌파의…"(88.70~89.35)가 붙어 있다
-WORD_FIXES = {88.16: ("e", 88.56)}
+# 회차마다 비우고 시작한다. 스니펫을 다시 전사해서 실측한 값만 넣는다.
+# 차11-4·5 때 값: {88.16: ("e", 88.56)}  — '누워버리면' 뒤 헛출발 잘라내기
+WORD_FIXES = {}
 
 def fix_word(w):
     s, e = w["s"], w["e"]

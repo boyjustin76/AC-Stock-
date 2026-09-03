@@ -69,6 +69,19 @@ function textBox(ctx, text, x, y, opt = {}) {
 }
 
 /** 글자가 아래에서 밀려 올라오며 나타나는 연출 */
+
+/* ── 이월 요소 판정 (2026-09-02 반려: 매 클립 첫 ~10프레임 재등장 효과) ──
+   클립 경계에서 이어받은 요소는 in [0,0](또는 [-1,0]) + 페이드 0 으로 선언된다.
+   그런 요소는 등장 연출(팝·라이즈·그리기·라벨 지연)을 재생하지 않고 완성 상태로 시작한다.
+   같은 요소가 클립마다 다시 '등장'하면 컷 경계에서 깜빡임으로 보인다 (룰북 ⑧ 보충). */
+function isStill(L) {
+  return (L.in?.[0] ?? 0) <= 0 && (L.in?.[1] ?? 0) <= 0;
+}
+/* 등장 진행도 — 이월 요소면 항상 1 (완료 상태) */
+function enter(env, L, t0, t1, ease) {
+  return isStill(L) ? 1 : span(env.t, t0, t1, ease);
+}
+
 function riseText(ctx, text, x, y, p, opt = {}) {
   const dy = (1 - p) * (opt.rise ?? 26);
   ctx.save();
@@ -93,21 +106,81 @@ function strokeText(ctx, text, x, y, opt = {}) {
   ctx.save();
   ctx.lineJoin = 'round';
   ctx.miterLimit = 2;
-  if (opt.shadow) {
-    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+  const hasStroke = (opt.strokeWidth ?? 9) > 0;
+  const setShadow = () => {
+    ctx.shadowColor = opt.shadowColor ?? 'rgba(0,0,0,0.35)';
     ctx.shadowBlur = opt.shadow === true ? 10 : opt.shadow;
-    ctx.shadowOffsetY = 4;
-  }
-  if ((opt.strokeWidth ?? 9) > 0) {
+    ctx.shadowOffsetX = opt.shadowOffsetX ?? 0;
+    ctx.shadowOffsetY = opt.shadowOffsetY ?? 4;
+  };
+  if (opt.shadow) setShadow();
+  if (hasStroke) {
     ctx.strokeStyle = opt.stroke ?? '#000000';
     ctx.lineWidth = opt.strokeWidth ?? 9;
     ctx.strokeText(text, x, y);
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
   }
-  ctx.shadowColor = 'transparent';
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetY = 0;
+  // 외곽선이 없는 표기(차명10 문법)는 그림자를 채움 글자에 직접 건다
+  if (opt.shadow && !hasStroke) setShadow();
   ctx.fillStyle = opt.fill ?? '#FFFFFF';
   ctx.fillText(text, x, y);
+  ctx.restore();
+}
+
+/**
+ * 프리미어 그림자 패널 값을 받는 그림자 패스 (차명10 텍스트 프리셋 — prproj 직접 실측:
+ * "미국 본장 시간 추천" 소스 텍스트 블롭에 불투명 95.349 · 크기 12.791 · 글꼴 117.265 저장,
+ * 패널 표시 불투명 95 · 각도 135° · 거리 7.0 · 크기 12.8 · 블러 40).
+ * 그림자는 우하단(각도 135°)에만 떨어져야 한다 — 블러 σ 가 오프셋보다 크면 사방으로
+ * 번져 후광이 되므로 σ=블러×0.15, 스프레드=크기×0.3 으로 매핑해 글자의 좌상단은
+ * 깨끗하게 남긴다 (r11 반려: '그림자가 우하단에만 있음').
+ * 사용: begin → 같은 도형을 fill(+stroke) → ctx.restore().
+ */
+let _shadowScratch = null;
+function premTextShadow(ctx, spec, bbox, draw) {
+  const opacity = spec.opacity ?? 0.95;
+  const angle = spec.angle ?? 135;
+  const distance = spec.distance ?? 7;
+  const size = spec.size ?? 12.8;
+  const blur = spec.blur ?? 40;
+  const sigma = blur * 0.15;
+  const spread = size * 0.3;
+  const rad = ((angle - 90) * Math.PI) / 180;
+  const margin = Math.ceil(sigma * 3 + spread + 2);
+  const w = Math.ceil(bbox.w + margin * 2);
+  const h = Math.ceil(bbox.h + margin * 2);
+  /* 전체 캔버스에 filter 를 거는 대신, 글자 크기만 한 스크래치에 실루엣을 만들고
+     그 조각에만 블러를 걸어 합성한다 (ctx.filter 비용은 그리는 면적에 비례 —
+     engine.js 차트 블러와 같은 처방. r11 실측: 레이어당 전체 캔버스 블러면 5배 느려짐) */
+  if (!_shadowScratch) _shadowScratch = document.createElement('canvas');
+  if (_shadowScratch.width < w) _shadowScratch.width = w;
+  if (_shadowScratch.height < h) _shadowScratch.height = h;
+  const s = _shadowScratch.getContext('2d');
+  s.setTransform(1, 0, 0, 1, 0, 0);
+  s.clearRect(0, 0, _shadowScratch.width, _shadowScratch.height);
+  s.save();
+  s.translate(margin - bbox.x, margin - bbox.y);
+  s.font = ctx.font;
+  s.textAlign = ctx.textAlign;
+  s.textBaseline = ctx.textBaseline;
+  s.fillStyle = '#000000';
+  s.strokeStyle = '#000000';
+  s.lineJoin = 'round';
+  s.miterLimit = 2;
+  s.lineWidth = Math.max(spread, 0.01);
+  draw(s, spread > 0);
+  s.restore();
+  ctx.save();
+  ctx.globalAlpha *= opacity * 0.7;
+  if (sigma > 0) ctx.filter = `blur(${sigma}px)`;
+  ctx.drawImage(
+    _shadowScratch, 0, 0, w, h,
+    bbox.x - margin + Math.cos(rad) * distance,
+    bbox.y - margin + Math.sin(rad) * distance, w, h,
+  );
   ctx.restore();
 }
 
@@ -139,6 +212,16 @@ function arrowTagPath(ctx, tipX, cy, w, h, dir = 1, headRatio = 0.49, radius = n
 }
 
 const LAYERS = {
+  /** 화면 전체 단색 덮개 — 말 구간 카드의 바탕(차명10 회색 등). 등장 연출 없음, cue 알파만 */
+  fill(ctx, L, env) {
+    const { v } = cue(env.t, L);
+    if (v <= 0.001) return;
+    withAlpha(ctx, v * (L.opacity ?? 1), () => {
+      ctx.fillStyle = L.color ?? '#C6C7C5';
+      ctx.fillRect(0, 0, env.w, env.h);
+    });
+  },
+
   /** 화면 전체 타이틀 카드 (인트로/챕터 전환) */
   titleCard(ctx, L, env) {
     const { v } = cue(env.t, L, { inEase: Ease.outQuart });
@@ -165,14 +248,14 @@ const LAYERS = {
         ctx.font = `700 30px ${theme.font}`;
         ctx.letterSpacing = '7px';
         ctx.fillStyle = L.kickerColor ?? theme.accent;
-        riseText(ctx, L.kicker, cx, y - 108, span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.5, Ease.outCubic));
+        riseText(ctx, L.kicker, cx, y - 108, enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.5, Ease.outCubic));
         ctx.letterSpacing = '0px';
       }
       ctx.font = `800 ${L.size ?? 108}px ${theme.font}`;
       ctx.fillStyle = L.color ?? theme.text;
       const lines = Array.isArray(L.title) ? L.title : [L.title];
       lines.forEach((line, i) => {
-        const p = span(env.t, (L.in?.[0] ?? 0) + 0.12 + i * 0.14, (L.in?.[0] ?? 0) + 0.12 + i * 0.14 + 0.7, Ease.outQuart);
+        const p = enter(env, L, (L.in?.[0] ?? 0) + 0.12 + i * 0.14, (L.in?.[0] ?? 0) + 0.12 + i * 0.14 + 0.7, Ease.outQuart);
         riseText(ctx, line, cx, y + i * (L.lineHeight ?? 124), p, { rise: 46, blur: 10 });
       });
       y += (lines.length - 1) * (L.lineHeight ?? 124);
@@ -180,11 +263,11 @@ const LAYERS = {
       if (L.subtitle) {
         ctx.font = `500 ${L.subSize ?? 38}px ${theme.font}`;
         ctx.fillStyle = L.subColor ?? theme.textDim;
-        const p = span(env.t, (L.in?.[0] ?? 0) + 0.4, (L.in?.[0] ?? 0) + 1.1, Ease.outCubic);
+        const p = enter(env, L, (L.in?.[0] ?? 0) + 0.4, (L.in?.[0] ?? 0) + 1.1, Ease.outCubic);
         riseText(ctx, L.subtitle, cx, y + (L.subGap ?? 74), p, { rise: 22 });
       }
       if (L.rule !== false) {
-        const p = span(env.t, (L.in?.[0] ?? 0) + 0.25, (L.in?.[0] ?? 0) + 0.95, Ease.outExpo);
+        const p = enter(env, L, (L.in?.[0] ?? 0) + 0.25, (L.in?.[0] ?? 0) + 0.95, Ease.outExpo);
         const rw = (L.ruleWidth ?? 200) * p;
         ctx.fillStyle = L.kickerColor ?? theme.accent;
         ctx.fillRect(cx - rw / 2, y + (L.ruleGap ?? 120), rw, 5);
@@ -262,7 +345,7 @@ const LAYERS = {
     const price = resolvePrice(L.price, env);
     const y = scale.y(price);
     const p = chart.plot;
-    const grow = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.6), Ease.outExpo);
+    const grow = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.6), Ease.outExpo);
     const color = L.color ?? theme.accent;
 
     withAlpha(ctx, v, () => {
@@ -278,7 +361,7 @@ const LAYERS = {
       ctx.setLineDash([]);
 
       if (L.label) {
-        const lp = span(env.t, (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.35), (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.35) + 0.4, Ease.outBack);
+        const lp = enter(env, L, (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.35), (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.35) + 0.4, Ease.outBack);
         ctx.save();
         ctx.globalAlpha *= clamp(lp);
         ctx.font = `700 27px ${theme.font}`;
@@ -312,7 +395,7 @@ const LAYERS = {
     const top = Math.min(a, b);
     const hgt = Math.abs(b - a);
     const p = chart.plot;
-    const grow = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.7), Ease.outExpo);
+    const grow = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.7), Ease.outExpo);
     const color = L.color ?? theme.warn;
 
     withAlpha(ctx, v, () => {
@@ -328,7 +411,7 @@ const LAYERS = {
       ctx.setLineDash([]);
       ctx.restore();
       if (L.label) {
-        const lp = span(env.t, (L.in?.[0] ?? 0) + 0.35, (L.in?.[0] ?? 0) + 0.8, Ease.outBack);
+        const lp = enter(env, L, (L.in?.[0] ?? 0) + 0.35, (L.in?.[0] ?? 0) + 0.8, Ease.outBack);
         ctx.save();
         ctx.globalAlpha *= clamp(lp);
         ctx.font = `700 27px ${theme.font}`;
@@ -354,7 +437,7 @@ const LAYERS = {
     const gap = L.gap ?? 46;
     const y = scale.y(price) + (long ? gap : -gap);
     const color = L.color ?? (long ? theme.long : theme.short);
-    const pop = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.45, Ease.outBack);
+    const pop = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.45, Ease.outBack);
     const size = (L.size ?? 26) * pop;
 
     withAlpha(ctx, v, () => {
@@ -392,7 +475,7 @@ const LAYERS = {
       ctx.shadowBlur = 0;
 
       if (L.label) {
-        const lp = span(env.t, (L.in?.[0] ?? 0) + 0.2, (L.in?.[0] ?? 0) + 0.65, Ease.outBack);
+        const lp = enter(env, L, (L.in?.[0] ?? 0) + 0.2, (L.in?.[0] ?? 0) + 0.65, Ease.outBack);
         ctx.save();
         ctx.globalAlpha *= clamp(lp);
         ctx.font = `800 28px ${theme.font}`;
@@ -417,7 +500,7 @@ const LAYERS = {
     const sl = resolvePrice(L.sl, env);
     const x0 = scale.x(L.fromBar ?? 0);
     const x1 = L.toBar != null ? scale.x(L.toBar) : chart.plot.right;
-    const grow = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.75), Ease.outExpo);
+    const grow = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.75), Ease.outExpo);
     const w = (x1 - x0) * grow;
     const yE = scale.y(entry);
     const yT = scale.y(tp);
@@ -451,7 +534,7 @@ const LAYERS = {
       ctx.restore();
 
       if (grow > 0.55) {
-        const lp = span(env.t, (L.in?.[0] ?? 0) + 0.5, (L.in?.[0] ?? 0) + 0.95, Ease.outCubic);
+        const lp = enter(env, L, (L.in?.[0] ?? 0) + 0.5, (L.in?.[0] ?? 0) + 0.95, Ease.outCubic);
         ctx.save();
         ctx.globalAlpha *= clamp(lp);
         ctx.font = `700 26px ${theme.font}`;
@@ -598,7 +681,7 @@ const LAYERS = {
       }
       rows.forEach((r, i) => {
         const ry = y + headH + rowH * i + rowH / 2;
-        const rp = span(env.t, (L.in?.[0] ?? 0) + 0.25 + i * 0.12, (L.in?.[0] ?? 0) + 0.25 + i * 0.12 + 0.5, Ease.outCubic);
+        const rp = enter(env, L, (L.in?.[0] ?? 0) + 0.25 + i * 0.12, (L.in?.[0] ?? 0) + 0.25 + i * 0.12 + 0.5, Ease.outCubic);
         ctx.save();
         ctx.globalAlpha *= clamp(rp);
         ctx.translate((1 - rp) * 24, 0);
@@ -632,7 +715,7 @@ const LAYERS = {
     const dx = L.dx ?? 0;
     const dy = L.dy ?? -110;
     const color = L.color ?? theme.accent;
-    const grow = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.45, Ease.outCubic);
+    const grow = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.45, Ease.outCubic);
 
     withAlpha(ctx, v, () => {
       ctx.strokeStyle = hexA(color, 0.8);
@@ -645,7 +728,7 @@ const LAYERS = {
       ctx.beginPath();
       ctx.arc(px, py, 6, 0, Math.PI * 2);
       ctx.fill();
-      const lp = span(env.t, (L.in?.[0] ?? 0) + 0.25, (L.in?.[0] ?? 0) + 0.7, Ease.outBack);
+      const lp = enter(env, L, (L.in?.[0] ?? 0) + 0.25, (L.in?.[0] ?? 0) + 0.7, Ease.outBack);
       ctx.save();
       ctx.globalAlpha *= clamp(lp);
       ctx.font = `700 30px ${theme.font}`;
@@ -664,7 +747,7 @@ const LAYERS = {
     if (v <= 0.001) return;
     const { theme } = env;
     const { scale } = env;
-    const draw = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.5), Ease.outCubic);
+    const draw = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.5), Ease.outCubic);
     const w = (L.width ?? 300) * draw;
     const cx = L.bar != null ? scale.x(L.bar) + (L.dx ?? 0) : L.x;
     const cy = (L.rsi != null && scale.rsiY ? scale.rsiY(L.rsi)
@@ -703,7 +786,7 @@ const LAYERS = {
       : L.price != null ? scale.y(resolvePrice(L.price, env)) + (L.dy ?? 0) : L.y;
     const rx = L.rx ?? 150;
     const ry = L.ry ?? 110;
-    const draw = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.7), Ease.outCubic);
+    const draw = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.7), Ease.outCubic);
     const turns = (L.turns ?? 1.12) * draw;
     const color = L.color ?? theme.accent;
 
@@ -747,7 +830,7 @@ const LAYERS = {
     if (vals.length < 2) return;
     const mean = vals.reduce((s, x) => s + x[1], 0) / vals.length;
     const k = L.flatten ?? 0.75;
-    const draw = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.6), Ease.outCubic);
+    const draw = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.6), Ease.outCubic);
     withAlpha(ctx, v * (L.opacity ?? 0.92), () => {
       ctx.strokeStyle = L.color ?? '#F38808';
       ctx.lineWidth = L.width ?? 16;
@@ -784,7 +867,7 @@ const LAYERS = {
     if (vals.length < 2) return;
     const mean = vals.reduce((s, x) => s + x[1], 0) / vals.length;
     const k = L.flatten ?? 0; // 기본은 눕히지 않고 라인을 그대로 따라 긋는다
-    const draw = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.6), Ease.outCubic);
+    const draw = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.6), Ease.outCubic);
     withAlpha(ctx, v * (L.opacity ?? 0.95), () => {
       ctx.strokeStyle = L.color ?? '#FE0000';
       ctx.lineWidth = L.width ?? 12;
@@ -817,7 +900,7 @@ const LAYERS = {
     const y0 = L.y0 ?? p.y + inset;
     const x1 = L.x1 ?? p.right - inset;
     const y1 = L.y1 ?? p.bottom - inset;
-    const draw = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.55), Ease.outCubic);
+    const draw = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.drawDur ?? 0.55), Ease.outCubic);
     const s1 = Math.min(1, draw * 2); // 첫 획 ↘
     const s2 = Math.max(0, draw * 2 - 1); // 둘째 획 ↙
     const color = L.color ?? '#E01313';
@@ -903,7 +986,7 @@ const LAYERS = {
     const p = chart.plot;
     /* growEase: outExpo(기본)는 시작하자마자 90%까지 스냅한다 — 천천히 정성 들여 긋는 느낌이
        필요하면 'outCubic' 등으로 바꾼다 (차12 인트로 손실 밴드 피드백) */
-    const grow = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.45), Ease[L.growEase] ?? Ease.outExpo);
+    const grow = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.45), Ease[L.growEase] ?? Ease.outExpo);
     const color = L.color ?? theme.tp;
     const x0 = L.fromBar != null ? scale.x(L.fromBar) : (L.fromX ?? p.x);
     /* toBar: 밴드를 특정 봉에서 끝낸다 (기본은 plot 오른쪽 끝까지).
@@ -928,7 +1011,7 @@ const LAYERS = {
 
       // 최종본 스타일: 영역 한가운데에 흰 글씨 + 얇은 검정 외곽선. 알약 박스를 쓰지 않는다.
       if (L.label && L.labelStyle === 'inzone' && L.fillTo != null) {
-        const lp = span(env.t, (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.12), (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.12) + 0.4, Ease.outCubic);
+        const lp = enter(env, L, (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.12), (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.12) + 0.4, Ease.outCubic);
         const y2 = scale.y(resolvePrice(L.fillTo, env));
         const size = L.labelSize ?? 64;
         ctx.save();
@@ -946,7 +1029,7 @@ const LAYERS = {
         return;
       }
       if (L.label) {
-        const lp = span(env.t, (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.12), (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.12) + 0.35, Ease.outBack);
+        const lp = enter(env, L, (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.12), (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.12) + 0.35, Ease.outBack);
         ctx.save();
         ctx.globalAlpha *= clamp(lp);
         // 기본 프리셋 실측(1920x1080): 익절 박스 173x84, 선 두께 23px,
@@ -996,7 +1079,7 @@ const LAYERS = {
     // popDur: 0 이면 등장 연출 없이 처음부터 완성된 크기로 떠 있는다.
     // 컷이 나뉘어도 태그가 다시 튀어나오지 않게 하기 위한 옵션.
     const popDur = L.popDur ?? 0.4;
-    const pop = popDur <= 0 ? 1 : span(env.t, L.in?.[0] ?? 0, (L.in?.[0] ?? 0) + popDur, Ease.outBack);
+    const pop = popDur <= 0 ? 1 : enter(env, L, L.in?.[0] ?? 0, (L.in?.[0] ?? 0) + popDur, Ease.outBack);
 
     withAlpha(ctx, v, () => {
       const size = L.size ?? 36;
@@ -1075,7 +1158,7 @@ const LAYERS = {
     const { theme } = env;
     const color = L.color ?? theme.accent;
     const size = L.size ?? 46;
-    const pop = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.35, Ease.outBack);
+    const pop = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.35, Ease.outBack);
 
     withAlpha(ctx, v, () => {
       const tagFont = L.font ?? theme.fontTag ?? theme.fontBody ?? theme.font;
@@ -1114,6 +1197,10 @@ const LAYERS = {
    * 미리 떠 있다가 자기 내레이션에 본색이 된다(activeAt).
    *   { type:'cmgText', y, x?(기본 중앙), size?, text | parts:[{text,color?,hl?}],
    *     color?, preColor?, activeAt?, hlColor?, align?, in, out }
+   * 차명10 문법 (2026-09-02 스샷 실측): hlStyle:'band' 로 켠다 — 회색 바탕 위
+   * 경기천년바탕 Bold 흰 글씨(외곽선 없음, strokeWidth:0), 키워드는 핑크(#EF2767)
+   * 풀밴드 위 흰 글씨(hlTextColor). 그림자는 프리미어 값(불투명95·135°·거리7·크기12.8·
+   * 블러40)의 캔버스 근사 — shadow/shadowColor/shadowOffsetX/shadowOffsetY 로 넘긴다.
    */
   cmgText(ctx, L, env) {
     const { v } = cue(env.t, L);
@@ -1127,6 +1214,7 @@ const LAYERS = {
     const pre = L.activeAt != null && env.t < L.activeAt;
     const baseColor = pre ? (L.preColor ?? '#F9E9BF') : (L.color ?? '#111111');
     const hlColor = L.hlColor ?? '#F8D890';
+    const band = L.hlStyle === 'band';
 
     withAlpha(ctx, v, () => {
       ctx.font = `${weight} ${size}px ${font}`;
@@ -1134,31 +1222,64 @@ const LAYERS = {
       ctx.textBaseline = 'middle';
       const widths = parts.map((p) => ctx.measureText(p.text).width);
       const total = widths.reduce((a, b) => a + b, 0);
-      const rise = span(env.t, L.in?.[0] ?? 0, (L.in?.[0] ?? 0) + Math.max(L.in?.[1] ?? 0.3, 0.01), Ease.outCubic);
+      const rise = enter(env, L, L.in?.[0] ?? 0, (L.in?.[0] ?? 0) + Math.max(L.in?.[1] ?? 0.3, 0.01), Ease.outCubic);
       const y = L.y + (1 - rise) * size * 0.35;
       let cx = (L.align ?? 'center') === 'center' ? x - total / 2 : L.align === 'right' ? x - total : x;
-      /* 형광펜 — 본색 상태에서만 */
+      /* 형광펜/밴드 — 본색 상태에서만. 차명10 밴드(제목 상자)는 그림자 없는 평범한
+         핑크 박스, 그림자는 그 위 '텍스트'가 진다 (이정찬 2026-09-02 반려 확정) */
+      const sp = L.shadowPrem;
       if (!pre) {
         let hx = cx;
         for (let i = 0; i < parts.length; i++) {
           if (parts[i].hl) {
             ctx.fillStyle = hlColor;
-            const pad = size * 0.1;
-            roundRect(ctx, hx - pad, y - size * 0.56, widths[i] + pad * 2, size * 1.12, size * 0.09);
+            if (band) {
+              const pad = size * 0.3;
+              roundRect(ctx, hx - pad, y - size * 0.72, widths[i] + pad * 2, size * 1.44, size * 0.06);
+            } else {
+              const pad = size * 0.1;
+              roundRect(ctx, hx - pad, y - size * 0.56, widths[i] + pad * 2, size * 1.12, size * 0.09);
+            }
             ctx.fill();
           }
           hx += widths[i];
         }
       }
+      /* 프리미어식 텍스트 그림자 — 밴드 위 제목 글자를 포함해 전 파트, 실루엣 한 번에
+         깔아 파트 경계에서 겹그림자가 없게 (박스 다음·본글자 이전에 그린다) */
+      /* 기울임꼴(프리미어 T-이탤릭 버튼) — 글리프만 베이스라인 기준으로 전단.
+         박스(배경)는 프리미어와 같이 똑바로 둔다 */
+      const skew = L.italic ? (L.italicSkew ?? Math.tan((14 * Math.PI) / 180)) : 0;
+      const ty = y + size * 0.04;
+      const lean = (c) => { if (skew) c.transform(1, 0, -skew, 1, skew * ty, 0); };
+      if (sp && !pre) {
+        const bbox = { x: cx - size * 0.8, y: y - size * 1.0, w: total + size * 1.6, h: size * 2.0 };
+        premTextShadow(ctx, sp, bbox, (s, hasSpread) => {
+          lean(s);
+          let sx = cx;
+          for (let i = 0; i < parts.length; i++) {
+            if (hasSpread) s.strokeText(parts[i].text, sx, ty);
+            s.fillText(parts[i].text, sx, ty);
+            sx += widths[i];
+          }
+        });
+      }
+      ctx.save();
+      lean(ctx);
       for (let i = 0; i < parts.length; i++) {
-        strokeText(ctx, parts[i].text, cx, y + size * 0.04, {
-          stroke: '#FFFFFF',
+        const onBand = band && !pre && parts[i].hl;
+        strokeText(ctx, parts[i].text, cx, ty, {
+          stroke: L.stroke ?? '#FFFFFF',
           strokeWidth: L.strokeWidth ?? size * 0.18,
-          fill: pre ? baseColor : (parts[i].color ?? baseColor),
-          shadow: pre ? 0 : 8,
+          fill: pre ? baseColor : (onBand ? (L.hlTextColor ?? '#FFFFFF') : (parts[i].color ?? baseColor)),
+          shadow: pre || sp ? 0 : (onBand ? 0 : (L.shadow ?? 8)),
+          shadowColor: L.shadowColor,
+          shadowOffsetX: L.shadowOffsetX,
+          shadowOffsetY: L.shadowOffsetY,
         });
         cx += widths[i];
       }
+      ctx.restore();
     });
   },
 
@@ -1174,7 +1295,7 @@ const LAYERS = {
     if (!scale.rsiY) return;
     const r = scale.rsiRect;
     const y = Math.round(scale.rsiY(L.v)) + 0.5;
-    const grow = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.5), Ease.outExpo);
+    const grow = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.5), Ease.outExpo);
     const color = L.color ?? theme.accent;
 
     withAlpha(ctx, v, () => {
@@ -1187,7 +1308,7 @@ const LAYERS = {
       ctx.stroke();
       ctx.setLineDash([]);
       if (L.label) {
-        const lp = span(env.t, (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.3), (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.3) + 0.4, Ease.outBack);
+        const lp = enter(env, L, (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.3), (L.in?.[0] ?? 0) + (L.labelDelay ?? 0.3) + 0.4, Ease.outBack);
         ctx.save();
         ctx.globalAlpha *= clamp(lp);
         ctx.font = `700 26px ${theme.font}`;
@@ -1218,7 +1339,7 @@ const LAYERS = {
     const hgt = Math.abs(b - a);
     const x0 = L.fromBar != null ? scale.x(L.fromBar) : r.x;
     const x1 = L.toBar != null ? scale.x(L.toBar) : r.x + r.w;
-    const grow = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.7), Ease.outExpo);
+    const grow = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.7), Ease.outExpo);
     const color = L.color ?? theme.accent;
 
     withAlpha(ctx, v, () => {
@@ -1231,7 +1352,7 @@ const LAYERS = {
       ctx.fillRect(x0, top, w, hgt);
       ctx.restore();
       if (L.label) {
-        const lp = span(env.t, (L.in?.[0] ?? 0) + 0.3, (L.in?.[0] ?? 0) + 0.7, Ease.outBack);
+        const lp = enter(env, L, (L.in?.[0] ?? 0) + 0.3, (L.in?.[0] ?? 0) + 0.7, Ease.outBack);
         ctx.save();
         ctx.globalAlpha *= clamp(lp);
         ctx.font = `700 26px ${theme.font}`;
@@ -1249,7 +1370,7 @@ const LAYERS = {
     if (v <= 0.001) return;
     const { theme, scale } = env;
     const size = L.size ?? 56;
-    const rise = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.45, Ease.outCubic);
+    const rise = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + 0.45, Ease.outCubic);
     const x = L.bar != null ? scale.x(L.bar) + (L.dx ?? 0) : L.x;
     const yRaw = (L.rsi != null && scale.rsiY ? scale.rsiY(L.rsi)
       : L.price != null ? scale.y(resolvePrice(L.price, env)) : L.y) + (L.dy ?? 0);
@@ -1283,7 +1404,7 @@ const LAYERS = {
     const yTo = scale.y(resolvePrice(L.to, env));
     const x0 = L.fromBar != null ? scale.x(L.fromBar) : chart.plot.x;
     const x1 = L.toBar != null ? scale.x(L.toBar) : chart.plot.right;
-    const grow = span(env.t, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.8), Ease.outExpo);
+    const grow = enter(env, L, (L.in?.[0] ?? 0), (L.in?.[0] ?? 0) + (L.growDur ?? 0.8), Ease.outExpo);
     const top = Math.min(yFrom, yTo);
     const h = Math.abs(yTo - yFrom) * grow;
     const yBase = Math.max(yFrom, yTo);
