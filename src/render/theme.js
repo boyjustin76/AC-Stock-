@@ -112,14 +112,10 @@ export const CMG_MT5 = {
   ...CHARTMYEONGGA,
   name: 'cmgMt5',
 
-  // 실측 캔들색 (차명#2 픽셀 군집): 상승 빨강 / 하락 파랑 — 국내 플랫폼 관례
-  candleScheme: 'korea',
-  up: '#E32119',
-  upFill: '#E32119',
-  down: '#1D1DC9',
-  downFill: '#1D1DC9',
-  long: '#E32119',
-  short: '#1D1DC9',
+  /* 캔들색은 차트명가 프리셋 그대로 상속 — 상승 청록 #0B8C7F / 하락 빨강 #E80001.
+     r13 초판은 차명#2 실측(빨강/파랑)을 따랐다가 반려(2026-09-03 이정찬):
+     "#2 는 예외 회차, 기준은 프리셋." 빨강/파랑이 필요하면 씬 theme 에서
+     candleScheme:'korea' 로 덮는다. */
 
   // 실사 문법 스위치
   maOnTop: true,      // 이평선을 캔들 위에 (팀장 지적 ③의 근본 해결)
