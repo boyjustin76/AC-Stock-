@@ -740,6 +740,15 @@
      "in": [
       0.5,
       0.35
+     ],
+     "tm": [
+      {
+       "text": "20일선",
+       "align": "center",
+       "baseline": "middle",
+       "dy": 13.2,
+       "advance": 144.98
+      }
      ]
     },
     {
@@ -772,6 +781,15 @@
      "in": [
       5.8,
       0.35
+     ],
+     "tm": [
+      {
+       "text": "매수",
+       "align": "left",
+       "baseline": "middle",
+       "dy": 9.02,
+       "advance": 61.44
+      }
      ]
     }
    ]
@@ -1798,7 +1816,16 @@
       5.15,
       0.35
      ],
-     "growDur": 0.4
+     "growDur": 0.4,
+     "tm": [
+      {
+       "text": "익절",
+       "align": "center",
+       "baseline": "middle",
+       "dy": 11.28,
+       "advance": 76.8
+      }
+     ]
     },
     {
      "i": 2,
@@ -1819,7 +1846,16 @@
       5.15,
       0.35
      ],
-     "growDur": 0.4
+     "growDur": 0.4,
+     "tm": [
+      {
+       "text": "손절",
+       "align": "center",
+       "baseline": "middle",
+       "dy": 11.28,
+       "advance": 76.8
+      }
+     ]
     },
     {
      "i": 3,
@@ -1878,6 +1914,15 @@
      "out": [
       5.15,
       0.35
+     ],
+     "tm": [
+      {
+       "text": "놓친 구간",
+       "align": "center",
+       "baseline": "middle",
+       "dy": 17.41,
+       "advance": 239.42
+      }
      ]
     },
     {
@@ -1914,6 +1959,15 @@
      "out": [
       5.15,
       0.35
+     ],
+     "tm": [
+      {
+       "text": "손익비  1 : 2",
+       "align": "left",
+       "baseline": "middle",
+       "dy": 12.97,
+       "advance": 256.86
+      }
      ]
     },
     {
@@ -1929,6 +1983,15 @@
      "out": [
       5,
       0.4
+     ],
+     "tm": [
+      {
+       "text": "매수",
+       "align": "left",
+       "baseline": "middle",
+       "dy": 9.02,
+       "advance": 61.44
+      }
      ]
     },
     {
@@ -1948,6 +2011,15 @@
      "out": [
       5.15,
       0.35
+     ],
+     "tm": [
+      {
+       "text": "익절",
+       "align": "left",
+       "baseline": "middle",
+       "dy": 9.02,
+       "advance": 61.44
+      }
      ]
     }
    ]
@@ -2050,25 +2122,6 @@
    },
    "layers": [
     {
-     "i": 0,
-     "type": "cmgNote",
-     "bar": 30,
-     "dx": 26,
-     "align": "left",
-     "price": 23675,
-     "text": "기울기 상방",
-     "size": 46,
-     "color": "#F38808",
-     "in": [
-      0.5,
-      0.35
-     ],
-     "out": [
-      3.3,
-      0.4
-     ]
-    },
-    {
      "i": 3,
      "type": "cmgNote",
      "bar": 30,
@@ -2080,6 +2133,15 @@
      "in": [
       5.4,
       0.35
+     ],
+     "tm": [
+      {
+       "text": "종가 회복 양봉",
+       "align": "left",
+       "baseline": "middle",
+       "dy": 13.2,
+       "advance": 278.61
+      }
      ]
     },
     {
@@ -2112,6 +2174,35 @@
      "in": [
       3.85,
       0.2
+     ]
+    },
+    {
+     "i": 0,
+     "type": "cmgNote",
+     "bar": 30,
+     "dx": 26,
+     "align": "left",
+     "price": 23675,
+     "text": "기울기 상방",
+     "size": 46,
+     "color": "#F38808",
+     "z": 15,
+     "in": [
+      0.5,
+      0.35
+     ],
+     "out": [
+      3.3,
+      0.4
+     ],
+     "tm": [
+      {
+       "text": "기울기 상방",
+       "align": "left",
+       "baseline": "middle",
+       "dy": 13.8,
+       "advance": 234.14
+      }
      ]
     }
    ]
@@ -3854,7 +3945,16 @@
       3.4,
       0.5
      ],
-     "growDur": 0.4
+     "growDur": 0.4,
+     "tm": [
+      {
+       "text": "손절",
+       "align": "center",
+       "baseline": "middle",
+       "dy": 12.41,
+       "advance": 84.48
+      }
+     ]
     },
     {
      "i": 2,
@@ -3871,6 +3971,15 @@
      "out": [
       6.3,
       0.45
+     ],
+     "tm": [
+      {
+       "text": "목표가 ✕",
+       "align": "center",
+       "baseline": "middle",
+       "dy": 14.41,
+       "advance": 191.18
+      }
      ]
     },
     {
@@ -3884,6 +3993,15 @@
      "in": [
       12.3,
       0.35
+     ],
+     "tm": [
+      {
+       "text": "이격 음봉",
+       "align": "center",
+       "baseline": "middle",
+       "dy": 13.8,
+       "advance": 189.89
+      }
      ]
     },
     {
@@ -3917,7 +4035,16 @@
      "label": "매수",
      "size": 32,
      "gap": 16,
-     "popDur": 0
+     "popDur": 0,
+     "tm": [
+      {
+       "text": "매수",
+       "align": "left",
+       "baseline": "middle",
+       "dy": 9.02,
+       "advance": 61.44
+      }
+     ]
     },
     {
      "i": 6,
@@ -3932,6 +4059,15 @@
      "in": [
       12.9,
       0.35
+     ],
+     "tm": [
+      {
+       "text": "익절",
+       "align": "left",
+       "baseline": "middle",
+       "dy": 9.02,
+       "advance": 61.44
+      }
      ]
     }
    ]
@@ -4792,15 +4928,23 @@
      "out": [
       1.4,
       0.5
+     ],
+     "tm": [
+      {
+       "text": "이격 음봉",
+       "align": "center",
+       "baseline": "middle",
+       "dy": 13.8,
+       "advance": 189.89
+      }
      ]
     },
     {
-     "i": 4,
+     "i": 3,
      "type": "titleCard",
-     "title": "옆으로 누우면?",
-     "size": 104,
-     "color": "#FFFFFF",
+     "title": "",
      "scrimStrength": 0.85,
+     "rule": false,
      "in": [
       1.9,
       0.45
@@ -4825,7 +4969,7 @@
      ]
     },
     {
-     "i": 3,
+     "i": 4,
      "type": "cmgCircle",
      "bar": 113,
      "price": 24880,
@@ -4836,6 +4980,28 @@
      "in": [
       4.3,
       0.2
+     ]
+    },
+    {
+     "i": 5,
+     "type": "titleCard",
+     "title": "옆으로 누우면?",
+     "size": 104,
+     "color": "#FFFFFF",
+     "scrim": false,
+     "z": 15,
+     "in": [
+      1.9,
+      0.45
+     ],
+     "tm": [
+      {
+       "text": "옆으로 누우면?",
+       "align": "center",
+       "baseline": "alphabetic",
+       "dy": 0,
+       "advance": 695.97
+      }
      ]
     },
     {
@@ -4852,6 +5018,15 @@
      "out": [
       1.4,
       0.5
+     ],
+     "tm": [
+      {
+       "text": "익절",
+       "align": "left",
+       "baseline": "middle",
+       "dy": 9.02,
+       "advance": 61.44
+      }
      ]
     }
    ]
