@@ -1199,3 +1199,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 197 | `78f24f4c` | 세이브 기록 save/2026-09-03-0932 | 5파일 +11/-3 |
 | 198 | `8af3613b` | Merge remote-tracking branch 'origin/local/script-lab' into claude/futures-youtube-video-edit-fhio4s | 8파일 +1214/-43 |
 | 199 | `26bf1a1d` | Merge remote-tracking branch 'origin/local/ae-lab' into claude/futures-youtube-video-edit-fhio4s | 31파일 +2178/-0 |
+| 200 | `9410abc0` | 세이브 save/2026-09-03-1216 — r12 확정 정리 + E(script-lab)·D(ae-lab) 옆가지 병합 — 압축 준비 완료 | 6파일 +124/-64 |
