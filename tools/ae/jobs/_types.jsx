@@ -242,6 +242,28 @@ TYPES.cmgArrow = function (L) {
         + "createPath(pts, ai, ao, true)";
     addFill(g, col.hex, col.opacity, "태그 " + label);
 
+    /*  버튼 외부 광선. 썸네일 PSD('매수 버튼(좌우)')의 레이어 효과를 렌더러가 옮겨 놓은 것을
+        다시 옮긴다 — 검정 18% · 크기 0.114·h · 방향 없음 · 3번 겹침.
+
+        ⚠ AE 의 **레이어 스타일은 스크립팅으로 못 켠다**(B7 실측). 그룹은 처음부터 있지만
+          `.enabled` 는 canSetEnabled 가 false 고, 하위 값은 "숨겨져 있으므로" 못 넣고,
+          메뉴 명령 id 도 없다. 대신 **거리 0 인 그림자 효과**가 사방으로 퍼지는 같은 그림을
+          낸다. 효과는 이미 쓰는 API 라 안전하다.
+
+        캔버스는 같은 그림자를 세 번 얹어 가장자리 농도를 맞춘다(스프레드가 없어서다).
+        겹친 결과의 가장 진한 값은 1-(1-0.18)³ = 0.449 이니, 한 번에 그만큼 넣는다.       */
+    if (L.glow !== false) {
+        var G = L.glow || {};
+        var gOp = num(G.opacity, 0.18), gPass = num(G.passes, 3);
+        var ds = fx(S).addProperty("ADBE Drop Shadow");
+        ds.name = "버튼 광선";
+        ds.property(1).setValue(hex("#000000"));
+        ds.property(2).setValue(Math.round(255 * (1 - Math.pow(1 - gOp, gPass))));
+        ds.property(3).setValue(0);                          /* 방향 — 거리가 0 이라 무의미 */
+        ds.property(4).setValue(0);                          /* 거리 0 = 사방으로 퍼진다 */
+        ds.property(5).setValue(num(G.size, 0.114) * h);     /* 부드러움 = 캔버스 shadowBlur */
+    }
+
     var tipX = "px(" + L.bar + ") - " + (d * gap);
     var cy = L.price != null ? "py(" + L.price + ")" : "py(" + num(L.priceResolved, 0) + ")";
     trackPoint(S, tipX, cy);
