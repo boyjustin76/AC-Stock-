@@ -1243,3 +1243,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 207 | `099865da` | Merge remote-tracking branch 'origin/claude/futures-youtube-video-edit-fhio4s' into claude/futures-youtube-video-edit-fhio4s | 19파일 +595/-53 |
 | 208 | `3b582673` | 세이브 save/2026-09-03-1218 — B 썸네일 갈래 합류(요청 66·67, 총괄 정리는 68로 재배번) — 전 갈래 본류 합류 완료, 압축 준비 | 4파일 +58/-110 |
 | 209 | `1ef29130` | 세이브 기록 save/2026-09-03-1218 | 5파일 +11/-3 |
+| 210 | `57a5d988` | 세이브 save/2026-09-03-1258 — D 검토 답변 — AE 글자 3~5px, 길 A 채택(함정 3 포함) · 세로 기준 전환 부결 — 요청 69 | 4파일 +25/-5 |
