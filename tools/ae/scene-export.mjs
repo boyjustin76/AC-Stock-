@@ -153,8 +153,9 @@ for (const scene of project.scenes) {
         engine.js 의 drawOrder 와 **같은 정렬**이라야 AE 쌓는 순서가 화면과 맞는다.
         (sort 는 안정 정렬이라 같은 층 안에서는 배열 순서가 유지된다)              */
     layers: (() => {
-      const zOf = (L) => (L.type === 'cmgArrow' ? 2
-        : (L.type === 'cmgCircle' || L.type === 'cmgBadge') ? 1 : 0);
+      const zOf = (L) => (L.z != null ? L.z
+        : L.type === 'cmgArrow' ? 20
+        : (L.type === 'cmgCircle' || L.type === 'cmgBadge') ? 10 : 0);
       return (scene.layers ?? []).map((L, i) => ({ L, i })).sort((a, b) => zOf(a.L) - zOf(b.L))
         .map(({ L, i }) => {
       const o = { i, ...plain(L) };

@@ -635,6 +635,9 @@ TYPES.titleCard = function (L) {
     var lines = (L.title && typeof L.title === "object" && L.title.length != null) ? L.title : [L.title];
     var lh = num(L.lineHeight, 124);
     for (var i = 0; i < lines.length; i++) {
+        /*  빈 줄은 캔버스에서 fillText("") 라 아무것도 안 남는다. 스크림만 쓰려고
+            title:"" 로 부르는 자리가 있어(차11-4 컷⑤) 여기서도 건너뛴다.  */
+        if (lines[i] == null || String(lines[i]) === "") continue;
         (function (line, k) {
             var T = textLayer(LN("타이틀 " + line), line, F_NOTE, num(L.size, 108),
                               num(L.color, TH.text), TH.labelStroke, 0);
