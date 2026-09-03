@@ -234,6 +234,10 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `lab/cutedit` | 기록 | CAM 촬영본 전사 원본(cam_transcript.json) — 컷 재현·재검증용 |
 | `.gitignore` | 기타 |  |
 | `CLAUDE.md` | 기타 |  |
+| `data/nq/NQ_1d.json` | 기타 |  |
+| `data/nq/NQ_1m.json` | 기타 |  |
+| `data/nq/NQ_5m.json` | 기타 |  |
+| `data/nq/README.md` | 기타 |  |
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/차명12롱폼 음성자막_정확.srt` | 기타 |  |
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/컷1_교과서공식.mp4` | 기타 |  |
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/컷2_조용한배경.mp4` | 기타 |  |
@@ -294,10 +298,13 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `scenes/cmg12-layer-mark.scenes.js` | 기타 |  |
 | `scenes/cmg12-layer-tag.scenes.js` | 기타 |  |
 | `scenes/cmg12-layer-text.scenes.js` | 기타 |  |
+| `src/market/loadBars.js` | 기타 |  |
 | `src/render/split.mjs` | 기타 |  |
 | `src/tools/exp-drift.mjs` | 기타 |  |
 | `src/tools/exp-survey.mjs` | 기타 |  |
+| `src/tools/fetch-yahoo.mjs` | 기타 |  |
 | `src/tools/find-cross.mjs` | 기타 |  |
+| `src/tools/scan-nq.mjs` | 기타 |  |
 | `log/worklog.db` | 데이터 | 작업 로그 원본 (SQLite) |
 | `src/tools/exp-capture.mjs` | 도구 | 캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다 |
 | `src/tools/find-events.mjs` | 도구 | MA 교차·배열 + RSI 레벨 교차·70+ 유지 구간 실측 (find-cross 확장판) |
@@ -1289,3 +1296,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 237 | `be9f0f95` | 세이브 save/2026-09-03-1709 — 시즌1 레드팀 준비 완료 — 취합 검증(에이전트 8)·REDTEAM-BRIEF 최종판·CLAUDE.md/DB 뷰 낡음 정정 — 요청 71, next_step 32 | 7파일 +135/-67 |
 | 238 | `278529ea` | 세이브 기록 save/2026-09-03-1709 | 5파일 +11/-3 |
 | 239 | `3076de91` | 세이브 save/2026-09-03-1738 — 브리프 §4 보강 — '로컬 검증 필요' 항목은 FINDINGS 별도 절로 (클라우드 리뷰 + 로컬 후속 확인 체계) | 4파일 +5/-2 |
+| 240 | `173877e3` | 세이브 기록 save/2026-09-03-1738 | 5파일 +11/-3 |
+| 241 | `c3fcce33` | 차12 r13: 실 NQ 시세 수급 도구·데이터 (야후 v8, 1m/5m/1d) | 5파일 +103/-0 |
+| 242 | `8a526925` | 차12 r13: makeCandles 실데이터 주입 가드 + loadBars/sliceBars 로더 | 2파일 +55/-0 |
+| 243 | `4ce6f247` | 차12 r13: 실사 문법 렌더 기반 — cmgMt5 프리셋·chart 옵트인 키·chart.phases | 3파일 +140/-18 |
+| 244 | `252b4fda` | 차12 r13: 실데이터 시나리오 스캐너 scan-nq.mjs | 1파일 +136/-0 |
+| 245 | `c8ea9580` | 차12 r13: loadBars 를 브라우저/Node 겸용 async 로 — 씬은 페이지에서 실행된다 | 1파일 +23/-13 |
