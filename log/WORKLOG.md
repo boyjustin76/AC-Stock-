@@ -239,12 +239,31 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `data/nq/NQ_1m.json` | 기타 |  |
 | `data/nq/NQ_5m.json` | 기타 |  |
 | `data/nq/README.md` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/MT5_촬영지시서_r13.txt` | 기타 |  |
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/차명12롱폼 음성자막_정확.srt` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_r13.txt` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차10_0252_규칙배지.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차2_0140_지표소개딤.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차2_0220_골든크로스카드.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차2_0244_크로스얼룩차트.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차2_0254_MT5설정창.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차2_0306_마하세븐55·45.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차2_0402_눌림목밴드.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차2_0406_조건배지.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차2_0412_조건충족매수.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차2_0426_크로스직후진입.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차2_0452_매도눌림목.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차2_0506_매도손익존.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차2_0826_요약2패널.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차7_0406_러너익절존.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차9_0212_역추세매수위험.jpg` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/카피맵_참고스틸/차9_0440_RSI잠김.jpg` | 기타 |  |
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/컷1_교과서공식.mp4` | 기타 |  |
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/컷2_조용한배경.mp4` | 기타 |  |
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/컷3_공식대로_손실.mp4` | 기타 |  |
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/컷4_크로스신호하나.mp4` | 기타 |  |
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/컷리스트_본편.txt` | 기타 |  |
+| `deliver/cutscene/차12_RSI+이평선 스캘핑/컷리스트_본편_r13.txt` | 기타 |  |
 | `deliver/cutscene/차12_RSI+이평선 스캘핑/컷리스트_본편_정확판.txt` | 기타 |  |
 | `lab/ae/a3/AE_1_00s.png` | 기타 |  |
 | `lab/ae/a3/AE_3_40s.png` | 기타 |  |
@@ -300,6 +319,14 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `scenes/cmg12-layer-mark.scenes.js` | 기타 |  |
 | `scenes/cmg12-layer-tag.scenes.js` | 기타 |  |
 | `scenes/cmg12-layer-text.scenes.js` | 기타 |  |
+| `scenes/cmg12s-base.js` | 기타 |  |
+| `scenes/cmg12s-bridge.scenes.js` | 기타 |  |
+| `scenes/cmg12s-buy.scenes.js` | 기타 |  |
+| `scenes/cmg12s-fail.scenes.js` | 기타 |  |
+| `scenes/cmg12s-guide.scenes.js` | 기타 |  |
+| `scenes/cmg12s-intro.scenes.js` | 기타 |  |
+| `scenes/cmg12s-recap.scenes.js` | 기타 |  |
+| `scenes/cmg12s-sell.scenes.js` | 기타 |  |
 | `src/market/loadBars.js` | 기타 |  |
 | `src/render/split.mjs` | 기타 |  |
 | `src/tools/exp-drift.mjs` | 기타 |  |
@@ -307,6 +334,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `src/tools/fetch-yahoo.mjs` | 기타 |  |
 | `src/tools/find-cross.mjs` | 기타 |  |
 | `src/tools/scan-nq.mjs` | 기타 |  |
+| `src/tools/verify-still.mjs` | 기타 |  |
 | `log/worklog.db` | 데이터 | 작업 로그 원본 (SQLite) |
 | `src/tools/exp-capture.mjs` | 도구 | 캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다 |
 | `src/tools/find-events.mjs` | 도구 | MA 교차·배열 + RSI 레벨 교차·70+ 유지 구간 실측 (find-cross 확장판) |
@@ -462,6 +490,12 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `flash` | 공통 | 컷 전환용 플래시 | at, dur, strength, color |
 | `watermark` | 공통 | 채널명 워터마크 | text, x, y, opacity, align |
 | `letterbox` | 공통 | 상하 시네마 레터박스 | height, color |
+| `fill` | 공통 | 화면 전체 단색 덮개 (카드 씬 바탕) | color, opacity |
+| `cmgTrace` | 차트명가 | 이평선 접선 덧칠 강조 (드로우온) | overlay(ma 인덱스), fromBar, toBar, flatten, width, color, drawDur |
+| `rsiTrace` | 차트명가 | RSI 라인 덧칠 강조 | fromBar, toBar, width, color, drawDur |
+| `cmgCross` | 차트명가 | 화면 전체 손그림 ✕ | x, y, size, width, color, drawDur |
+| `rsiLevel` | 차트명가 | RSI 패널 기준선 (55/45/70/30) | v, label, color, width, dash, growDur |
+| `rsiZone` | 차트명가 | RSI 패널 구간 밴드 (과열/과매도) | from, to, color, fromBar, toBar, growDur |
 
 ### 씬 설정 키
 
@@ -561,11 +595,12 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 25. **팀장 확정 2건 (사용자)** — ① 회차 조립 본류 — B(새 시퀀스)를 A(프리셋)에 중첩하는 구성이 맞는지 ② 편집자가 글자를 직접 고치는 일이 얼마나 잦은지(M7 의 우선순위를 정한다)  _(대기: 사용자가 팀장에게)_
 26. **SL 차11-4·11-5 조립 피드백 반영** — 사용자가 프리미어에서 소스 패키지로 조립한 뒤 나오는 지적 — 컷 타이밍·차트 연출·자막 줄바꿈 — 을 받아 scenes/sl-11-4·5 와 컷리스트를 고친다. 특히 11-5 '누워버리면' 침묵 컷(92.38 이음새)이 귀로 자연스러운지 확인 필요  _(대기: 사용자 조립 후)_
 27. **AE 실전 — 차12 인트로 레이어 컴포지션 (파일럿 성공 후속)** — 이정찬 보고(2026-09-01): D 가 m1~m6 실험으로 '레이어 다 쪼갠 걸로 모아놓은 컴포지션 만들기' 성공. 인수인계는 AE-LAB-MANUAL §8 — 차12 씬 파일 지도, node tools/render-cmg12-layers.mjs (병합 intro-hook 층당 1파일, tag 최상위 ⑭), 새 렌더러 문법(growEase·toBar·clamp:false·cmgArrow z 강제), motion_preset 3종, 룰북 14개. 주의: m6_build.jsx 는 구 컷4개×층 경로 기준이라 파일 목록 수정 필요. 본편 20컷 레이어 분리는 필요해지면 총괄이 확장. → A0~A6 병합·판정 완료(2026-09-03, request 68): .mogrt 채택 — 프리미어 [속성] 한글 컨트롤 9개, 표현식 생존. 글자 3~5px 이동은 길 A(하네스 런타임 계측) 채택 — request 69. 남은 것은 차12 실전 컴포지션(next_step 28)과 양산기(scenes.js→jsx 변환) 논의  _(대기: D 작업 후 (파일럿 판정 완료 — 실전 대기))_
-28. **차12 롱폼 잔여 — D 레이어 분해 후속만** — 차12 조립은 r9 에서 확정 (2026-09-02 이정찬: '12r9 확인했고 완벽'). v2→r9 아홉 라운드의 피드백·해결은 request 52~62 와 룰북 ⑤~⑯이 전부다. 남은 것은 D 의 AE 레이어 분해(클립 경계 소멸 — 재등장 계열 근본 해소)가 오면 차12 소스를 레이어 컴포지션으로 재납품할지 결정하는 것뿐  _(대기: D 작업 후)_
+28. **차12 롱폼 — r9 확정이 r13 반려로 뒤집힘** — r9+r12 는 이정찬 확정이었으나 팀장이 반려 (2026-09-03: 기존 영상과 다름·움직임 금지·이평선 초록 안 보임·RSI 경계 안 보임 — request 72). r13 전면 재작 완료: 실 NQ 데이터 + 정지 차트 + FX-WHITELIST 문법, scenes/cmg12s-* 23컷. 이전 cmg12-* 씬·r9 납품물은 반려본으로 보존(롤백 지점). D 의 AE 레이어 분해 후속도 r13 문법 기준으로 다시 판단한다  _(대기: r13 납품 후 이정찬·팀장 반응)_
 29. **차12 브리지 톤앤매너 교체 — 차명10 카드 문법으로** — 이정찬 스샷 실측(2026-09-02): 차명10 개념 카드는 회색 배경 + 흰 글자(경기천년바탕 Bold 117px급) + 강한 그림자(불투명 95%·135도·거리 7·크기 12.8·블러 40) + 핑크 #EF2767 풀밴드 하이라이트 + 좌상단 핑크 박스 타이틀. 전개(구성·타이밍)는 유지하고 팔레트·폰트만 이 문법으로. ep4 문법(검정 글자+흰 테두리·노랑 형광펜·베이지 예고)은 대안 스타일로 룰북 §E 에 남긴다. → r10·r11 반려를 거쳐 r12 로 확정 (이정찬 2026-09-03 '확인했어. 완벽해'). 최종 문법: 회색 바탕+은은한 차트, 경기천년바탕 Bold 기울임꼴 흰 글자(외곽선 없음), 그림자는 텍스트에만·우하단, 핑크 박스는 제목 전용·민짜. 룰북 §E-2 가 전부다  _(대기: 완료 — r12 확정 (request 63~65))_
 30. **숏폼 .srt 이관 후속** — E 인수 완료 (SCRIPT-LAB §13 — srt_rules 버그 2건까지 고쳐서 씀). 미결이던 2건 종결: ① 차11-4·5 재발행 안 함(이정찬 2026-09-01 결정) ② 설치 목록에 imageio-ffmpeg 포함해 매뉴얼 §8 갱신(2026-09-03). 남은 것은 E 의 첫 '납품' srt 가 나오면 검사 통과를 한 번 봐 주는 것뿐  _(대기: E 첫 납품 후)_
 31. **차12 썸네일 팀장 컨펌** — deliver/thumbnail/차12_RSI+이평선 스캘핑/ 에 6안(A·B·C 와 강조판 A2·B2·C2)이 png 로 있다. 고른 안이 정해지면 그 안의 .psd 를 다시 뽑아 같은 폴더에 넣는다 — png 만 넣은 이유는 회차당 psd 가 12MB 라 여섯 개면 72MB 이기 때문이다(폴더 README 에 재생성 명령을 적어 뒀다). 차11 때처럼 문구 수정 요청이 오면 config.json 의 sub/main 만 고쳐 다시 돌리면 된다. 2026-09-03 갱신: 좌상단 타이틀을 격자박스(규칙 28)에 맞춰 17% 줄여 6안을 다시 뽑았다 — 지금 폴더에 있는 png 가 그 판이다  _(대기: 팀장 확인 후)_
-32. **시즌1 마감(금 09-05) — 스냅샷 박고 레드팀에 넘긴다** — 이정찬 지시(2026-09-03): 금요일 작업까지를 전체저장 + 시즌1 로 박고, 주말에 Fable 5.1 UltraCode 새 세션이 최신 설계 기준(레거시 전부 바이패스) 효율성 렌즈 단독으로 레드팀 리뷰. 준비는 끝났다 — log/REDTEAM-BRIEF.md (임무서: 대상 5덩어리·효율성 관점 6갈래·바이패스 목록·결과 반환 규약 local/redteam-s1 + lab/redteam/FINDINGS.md·시작 프롬프트 부록). 금요일 절차: ①B·D·E 각자 마지막 커밋·푸시 확인(이정찬이 받아 총괄에 전달) ②옆가지 잔여분 본류 병합 ③마지막 save ④season/1 브랜치를 그 커밋에서 푸시(태그 403 대용 — 이정찬 허가 받고) ⑤이정찬이 브리프 부록의 시작 프롬프트를 새 5.1 세션에 복붙. 주말 리뷰 후 총괄이 local/redteam-51 을 받아 판정·취합한다  _(대기: 금요일 마감 시)_
+32. **시즌1 마감(금 09-05) — 스냅샷 박고 레드팀에 넘긴다** — 이정찬 지시(2026-09-03): 금요일 작업까지를 전체저장 + 시즌1 로 박고, 주말에 Fable 5.1 UltraCode 새 세션이 최신 설계 기준(레거시 전부 바이패스) 효율성 렌즈 단독으로 레드팀 리뷰. 준비는 끝났다 — log/REDTEAM-BRIEF.md (임무서: 대상 5덩어리·효율성 관점 6갈래·바이패스 목록·결과 반환 규약 local/redteam-s1 + lab/redteam/FINDINGS.md·시작 프롬프트 부록). 금요일 절차: ①B·D·E 각자 마지막 커밋·푸시 확인(이정찬이 받아 총괄에 전달) ②옆가지 잔여분 본류 병합 ③마지막 save ④season/1 브랜치를 그 커밋에서 푸시(태그 403 대용 — 이정찬 허가 받고) ⑤이정찬이 브리프 부록의 시작 프롬프트를 새 5.1 세션에 복붙. 주말 리뷰 후 총괄이 local/redteam-51 을 받아 판정·취합한다. ※ 2026-09-03 차12 반려(request 72)로 이정찬이 시즌1 마감을 보류('지금 이거 할 때가 아니다') — 재개 신호가 오면 이 절차 그대로  _(대기: 금요일 마감 시 (보류 중))_
+33. **차12 r13 후속 — 스크린샷 교체판·팀장 재검토** — r13(실데이터 렌더 판)은 납품 완료. 이정찬 선택 '둘 다': 로컬에서 MT5 스크린샷을 찍어 드라이브 차12/원본 에 올리면(샷리스트 = deliver/cutscene/차12.../MT5_촬영지시서_r13.txt, 7~8장) 총괄이 image 레이어 배경 교체판을 추가 납품한다 — 좌표 재실측은 probe-labels + 신호 캔들 OHLC 메모. 팀장 재검토 결과(무동작·실물감·이평선/RSI 가시성)가 오면 룰북 ⑧⑨⑩⑬ 대 무동작 충돌 정리를 확정 반영한다(현재 FX-WHITELIST 가 우선 문서)  _(대기: 스크린샷 업로드 또는 팀장 반응 후)_
 
 ## 대본과 컷 싱크
 
@@ -811,6 +846,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 
 **71. 시즌1 준비 — B·D·E 의 '건드린 경로 전부' 보고 3부를 취합하고, 금요일 전체저장 후 주말에 Fable 5.1 UltraCode 새 세션이 최신 설계 기준(레거시 바이패스)으로 레드팀 리뷰하게 준비하라. 관점은 효율성 단독 — 보안·프라이버시는 불요.**
 → ①D 의 lab/ae/full v6 커밋(426ec3f) 본류 합류. ②워크플로 1(에이전트 5): 세 보고서의 경로·주장 전수 검증 — B·D·E 주장 대부분 사실, 정정 3건(psdedit.py 는 config.json 안 읽음, thumb 씬 사용 타입은 9종 중 6종, 차11 B안은 png만) + git 추적 전수 분류로 지도 공백 발견(프리미어 랩 tools/premiere/·lab/premiere/ 가 D 영역인데 누락, brand/ 하위·생성기 2종 무주공산). ③log/REDTEAM-BRIEF.md 작성(임무서). ④워크플로 2(에이전트 3): 브리프를 모르는 눈 드라이런 — 블로커 6건 적발(§5 결정성 검증이 §6 금지구역을 더럽힘, 최신 문법 본체 cmg12-cross.build.js 가 글롭 밖, sqlite3 CLI 부재, 기준커밋 고정 절차 없음, DB 안내 뷰 낡음, 내부어 소사전 없음). ⑤원인 소스 수정: CLAUDE.md 생성기 3종·견본 문장 정정, pipeline_stage 5행·v_start_here 를 숏폼 이관 후 현실로 갱신. ⑥브리프 최종판: 대상 판정을 import 폐쇄 규칙으로, 바이패스에 잔여 포괄 조항, §5 전 명령 실측치, 반환 규약에 기준커밋 고정·경로 지정 add·브랜치 local/redteam-s1. (REDTEAM-BRIEF.md 완성(검증 8에이전트 통과) + CLAUDE.md·DB 뷰 낡음 원인 수정 — 시즌1 마감 절차는 next_step 32)
+
+**72. 차12 전면 재작 r13 (2026-09-03, 긴급) — 팀장이 승인본(r9+r12)을 반려: ①기존 영상과 너무 다름 ②움직이는 것 금지(멀미·실제 MT5 스크린샷·진짜 캔들) ③이평선 초록 안 보임(AI 티) ④RSI 경계 안 보임(AI 티). 이정찬: '나는 로컬에서 실스크린샷 판을 만들 테니 너는 병행 판을 처음부터. 우리 영상들과 아예 똑같이 — 정확히 얘네가 쓴 효과·연출·기법만. 최종본 #1~#11 다 받아서 프레임 단위로 실측해라. 정확도 최우선.' (차11 은 본인 자작이라 표본 제외. 배경 수급은 '둘 다' — 실데이터 렌더로 완주 후 스크린샷 오면 교체판.)**
+→ ①실 NQ 시세 수급(fetch-yahoo.mjs, 1m/5m/1d — 1m 은 5일 소멸이라 즉시 커밋, data/nq/). ②기법 실측: 최종본 mp4 10편 전량 다운로드(드라이브 curl) → 콘택트시트 전수 육안 + 픽셀 군집 실측 + 기계 실측(차트영역 YDIF 중앙값 0.001/255 = 정지 60~90%, 컷 중앙값 6~15s) + 최종 prproj 11편 키프레임 전수 파싱(디졸브 858개 68%가 30f, 등장 모션 4종뿐 4f/7f/4f/15f, 불투명도·크롭·회전·슬로우줌 kf 0개, 스크린샷 중앙값 4장) + 프레임 단위 YDIF 런 분석(등장 지배 문법 = 1~4f 즉시·팝) → brand/FX-WHITELIST.md. 결정타: 차명#2(이평선+RSI)가 차12 직접 선례 — 빨강/파랑 캔들, 10일선 빨강·35일선 주황(초록 이평선은 캐논에 없음 = 지적 ③의 뿌리), RSI 는 #9 파랑 프레임+칩 문법. ③렌더러: makeCandles bars 주입 가드, loadBars(브라우저/Node 겸용), theme cmgMt5 프리셋, chart.js 옵트인 키(maOnTop·wickWidth·candleBorder·gridStyle·axisFontPx·rsiFrame), engine chart.phases(정지 스틸 30f 디졸브 교체 + layer.phase 앵커), cmgBadge popDur — 전부 키 부재 시 기존 경로, 대표 5씬 스틸 48장 md5 회귀 0건 2회 확인. ④scan-nq.mjs 로 실데이터 6국면 확정(가짜골든 -6.7%/데드후+2.25% 한 창, 17회 교차 횡보, RSI70+ 29봉, 눌림목 R6→+15R, 역배열 R20→+6R — 전부 무갭). ⑤cmg12s-* 8파일 23컷: 배치표 타임코드 그대로, 전 컷 차트 1장 정지, 등장은 4f 팝·30f 디졸브·드로우온만, 카메라·줌·리빌 0. 스틸 구도 검사 + probe-labels 전수 + 프레임 재보정(IN.fade 4f, phases 1.0s). 배치표 r13·MT5 촬영지시서·verify-still 동봉. (23컷 r13 재작 완료 — 실데이터·정지·화이트리스트 문법, 납품 패키지는 out/cmg12s (시즌1 마감은 보류 유지))
 
 ## 문제와 해결
 
@@ -1305,3 +1343,8 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 244 | `252b4fda` | 차12 r13: 실데이터 시나리오 스캐너 scan-nq.mjs | 1파일 +136/-0 |
 | 245 | `c8ea9580` | 차12 r13: loadBars 를 브라우저/Node 겸용 async 로 — 씬은 페이지에서 실행된다 | 1파일 +23/-13 |
 | 246 | `90cb3601` | 세이브 save/2026-09-03-1925 — 차12 r13 기법 실측 완료 — 최종본 10편 전수(시트·픽셀·YDIF) + prproj 11편 키프레임 전수 → brand/FX-WHITELIST.md 화이트리스트 확정 | 6파일 +1590/-2 |
+| 247 | `a4246fcc` | 세이브 기록 save/2026-09-03-1925 | 5파일 +14/-4 |
+| 248 | `b7238c4a` | 차12 r13: cmg12s 씬 8파일 23컷 — 정적·실데이터·화이트리스트 문법 | 8파일 +857/-0 |
+| 249 | `dc23c9cb` | 차12 r13: 배치표 r13·MT5 촬영지시서·정지 검증 도구 | 3파일 +115/-0 |
+| 250 | `5992b9f1` | 차12 r13: 등장 타이밍 프레임 재보정 — 영상 프레임 단위 실측 반영 | 7파일 +49/-44 |
+| 251 | `041fe692` | 차12 r13: 팀장 최종본 복붙 카피맵 + 참고스틸 16장 | 17파일 +101/-0 |

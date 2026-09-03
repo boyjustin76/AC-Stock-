@@ -2,7 +2,7 @@
 
 해외선물 유튜브 채널 **차트명가** 영상에 쓸 차트 모션그래픽 소스 영상을 코드로 렌더합니다.
 
-![범위](https://img.shields.io/badge/%EB%B2%94%EC%9C%84-%EB%A1%B1%ED%8F%BC%203%EB%8B%A8%EA%B3%84%20%2B%20%EC%88%8F%ED%8F%BC%201%EB%8B%A8%EA%B3%84-0B8C7F?style=flat-square) ![규격](https://img.shields.io/badge/%EA%B7%9C%EA%B2%A9-1920x1080%20%C2%B7%2059.94fps-555?style=flat-square) ![렌더](https://img.shields.io/badge/%EB%A0%8C%EB%8D%94-16%EC%B4%88%20%ED%81%B4%EB%A6%BD%20%3D%2027%EC%B4%88-555?style=flat-square) ![대본 인덱스](https://img.shields.io/badge/%EB%8C%80%EB%B3%B8%20%EC%9D%B8%EB%8D%B1%EC%8A%A4-13%ED%8E%B8-555?style=flat-square) ![레이어](https://img.shields.io/badge/%EB%A0%88%EC%9D%B4%EC%96%B4-23%EC%A2%85-555?style=flat-square)
+![범위](https://img.shields.io/badge/%EB%B2%94%EC%9C%84-%EB%A1%B1%ED%8F%BC%203%EB%8B%A8%EA%B3%84%20%2B%20%EC%88%8F%ED%8F%BC%201%EB%8B%A8%EA%B3%84-0B8C7F?style=flat-square) ![규격](https://img.shields.io/badge/%EA%B7%9C%EA%B2%A9-1920x1080%20%C2%B7%2059.94fps-555?style=flat-square) ![렌더](https://img.shields.io/badge/%EB%A0%8C%EB%8D%94-16%EC%B4%88%20%ED%81%B4%EB%A6%BD%20%3D%2027%EC%B4%88-555?style=flat-square) ![대본 인덱스](https://img.shields.io/badge/%EB%8C%80%EB%B3%B8%20%EC%9D%B8%EB%8D%B1%EC%8A%A4-13%ED%8E%B8-555?style=flat-square) ![레이어](https://img.shields.io/badge/%EB%A0%88%EC%9D%B4%EC%96%B4-29%EC%A2%85-555?style=flat-square)
 
 📊 **[작업 로그 대시보드](https://claude.ai/code/artifact/cfb762d2-2caf-4a18-8ec2-696b884ac0e1)** · [전체 기록](log/WORKLOG.md) · [새 세션 안내](CLAUDE.md)
 
@@ -149,8 +149,8 @@ python3 tools/shortform.py check 초안.txt                    # 규칙 + 이름
 | 대본 인덱스 | 13편 | 새 대본과 겹치는 회차를 전문 검색으로 찾는다 (차명14·15 2편은 아직 빈 템플릿) |
 | 회차 프리미어 파일 | 37건 | 레퍼런스 확인 (`.prproj` 를 직접 읽는다) |
 | 브랜드 실측값 | 30건 | 색·크기. 레퍼런스 프레임에서 픽셀 단위로 잰 값 |
-| 레이어 | 23종 | 컷을 짤 때 쓰는 재료 |
-| 회사 모션 문법 | 3종 | 최종본 키프레임에서 뽑은 프레임 수·이징 |
+| 레이어 | 29종 | 컷을 짤 때 쓰는 재료 |
+| 회사 모션 문법 | 8종 | 최종본 키프레임에서 뽑은 프레임 수·이징 |
 
 **최근 납품** — 20일선 눌림목 / 조기 익절 4컷, 956프레임 · 1920×1080 · 59.94fps  
 **렌더 실측** — 15.95초 클립 기준 순차 26.8초 (`--preset medium` 24.1초). 캡처 교체(2026-08-27) 뒤로는 한 프로세스가 4코어를 포화시켜 컷별 병렬의 이득이 없다
