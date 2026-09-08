@@ -29,6 +29,7 @@ from difflib import SequenceMatcher
 
 PAD = 0.35          # 구간 앞뒤로 이만큼 더 들려준다 (끝 낱말이 잘리지 않게)
 SAME = 0.995        # 정규화해서 이 이상 같으면 '대본대로 읽은 것'
+SWAP_MAX = 3        # 이 길이까지의 '같은 길이 치환' 은 오인식으로 본다
 
 
 def norm(t):
@@ -64,6 +65,31 @@ def trim_to(heard, script):
             if best is None or score > best[0]:
                 best = (score, i, j)
     return " ".join(ws[best[1]:best[2]])
+
+
+def only_swaps(script, heard):
+    """다른 곳이 전부 **한 글자 대 한 글자** 바뀜인가?
+
+    한글 STT 오인식은 음절 하나가 비슷한 소리로 바뀐다 —
+        일목→일모 · 반등→방등 · 지지→기지 · 구름대→구름때 · 숏이→쇼시
+    반면 낭독자가 진짜로 바꾼 것은 글자를 **넣거나 빼거나** 어미를 통째로 간다 —
+        불안→불안함 · 나오면→나온다면 · 생각합니다→생각을 합니다 · 아니잖아요→아닙니다
+
+    그래서 차이가 **길이가 같은 짧은 치환**뿐이면 오인식으로 보고 대본을 쓴다.
+    글자 수가 그대로라는 게 핵심이다 — 소리는 같고 글자만 잘못 붙은 것이니까.
+    ('숏이'→'쇼시' 처럼 두 음절이 한 덩어리로 바뀌기도 해서 1:1 로만 보면 놓친다.)
+
+    S015·S016 두 편에서 갈린 13곳 중 12곳이 이 규칙으로 맞았다. 틀린 하나는
+    '휘두르진'→'휘두르지는'(글자 삽입)인데 뜻이 같아 크게 문제되지 않는다.
+    """
+    a, b = norm(script), norm(heard)
+    if a == b:
+        return True
+    ops = [o for o in SequenceMatcher(None, a, b).get_opcodes() if o[0] != "equal"]
+    if not ops:
+        return True
+    return all(o[0] == "replace" and o[2] - o[1] == o[4] - o[3] <= SWAP_MAX
+               for o in ops)
 
 
 def main():
@@ -112,6 +138,8 @@ def main():
         # (띄어쓰기·구두점까지 대본이 진본이다: '놓칠까봐 라면' → '놓칠까 봐”라면').
         if SequenceMatcher(None, norm(r["text"]), norm(big)).ratio() >= SAME:
             use, why = r["text"], "대본대로 읽음 (STT 오인식이었음)"
+        elif only_swaps(r["text"], big):
+            use, why = r["text"], "한 음절씩만 바뀜 = STT 오인식 → 대본"
         else:
             tail = "".join(re.findall(r"[?!”\"']+$", r["text"].strip()) or [""])
             use, why = big.rstrip(" .,!?") + tail, "낭독이 대본과 다름 — 낭독을 따름"

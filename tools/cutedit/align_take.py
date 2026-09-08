@@ -8,7 +8,8 @@
 align_cut.py 와 논리는 같지만 대본 형식이 다르다. 이쪽은 요즘 쓰는
 `[제목] [인트로] [본문] [마무리] [고정 멘트]` 한 편짜리 대본을 읽는다.
 머리글에 '읽지 않음'이 붙은 덩어리는 낭독분이 아니다.
-`[제목]` 은 화면 배너이면서 오프닝 훅으로 낭독되기도 한다 — S015 는 낭독된다.
+`[제목]`·`제목:` 은 화면 배너이면서 오프닝 훅으로 낭독되기도 한다. 낭독되지 않았으면
+정렬에서 후보가 안 잡혀 저절로 빠진다.
 
     python3 tools/cutedit/align_take.py <작업폴더> <대본.txt>
       입력  <작업폴더>/cam_transcript.json   (transcribe.py 산출물)
@@ -22,8 +23,14 @@ import sys
 from difflib import SequenceMatcher
 
 SKIP_HEAD = ()                       # 통째로 낭독 안 하는 덩어리 (지금은 없음)
-SKIP_MARK = ("읽지 않음", "읽지않음")   # 머리글에 이게 있으면 낭독 안 함
-HEAD = re.compile(r"^\[([^\]]+)\]\s*$")
+SKIP_MARK = ("읽지 않음", "읽지않음", "차트 설명", "차트설명")
+# 머리글 두 가지를 다 받는다 —
+#   S015 형식   [제목] [인트로] [본문] [마무리] [고정 멘트]
+#   포인트 형식  ① 훅   ② 근거   ③ 본론   ④ 결론      (tools/shortform.py 뼈대)
+HEAD = re.compile(r"^\[([^\]]+)\]\s*$|^([①②③④⑤⑥⑦⑧⑨])\s*(.*)$")
+TITLE = re.compile(r"^제목\s*[::]\s*(.+)$")
+# 낭독분이 아닌 줄 — 레퍼런스·굵은 글씨·주소
+DROP = re.compile(r"^\s*(레퍼런스|참고)\s*[::]|^\s*\*\*|https?://")
 
 
 def norm(t):
@@ -47,19 +54,33 @@ def read_script(path):
     out, sec, skip, para = [], "", True, False
     for ln in raw.splitlines():
         t = ln.strip()
-        m = HEAD.match(t)
-        if m:
-            head = m.group(1).strip()
-            para = any(k in head for k in SKIP_MARK)
-            if not para:              # '읽지 않음' 은 구간 이름을 바꾸지 않는다
-                sec = head
-            skip = sec in SKIP_HEAD
-            # '읽지 않음' 은 그 **문단 하나**만 건너뛴다 — 빈 줄에서 끝난다.
-            # (머리글까지 끌고 가면 뒤 본문이 통째로 사라진다. S015 에서 8줄 날렸다.)
-            continue
         if not t:
             para = False
             continue
+        if DROP.search(t):
+            continue
+
+        mt = TITLE.match(t)
+        if mt:                        # '제목: …' — 훅으로 낭독되기도 한다
+            sec, skip, para = "제목", False, False
+            out.append((sec, mt.group(1).strip()))
+            continue
+
+        m = HEAD.match(t)
+        if m:
+            head = (m.group(1) or m.group(3) or "").strip()
+            para = any(k in head for k in SKIP_MARK)
+            if not para:              # '읽지 않음' 은 구간 이름을 바꾸지 않는다
+                sec = head or sec
+            skip = sec in SKIP_HEAD
+            # '읽지 않음'·'차트 설명' 은 그 **문단 하나**만 건너뛴다 (빈 줄에서 끝).
+            # 머리글까지 끌고 가면 뒤 본문이 통째로 사라진다 (S015 에서 8줄 날렸다).
+            continue
+
+        # 한 줄짜리 지시문 — '[차트 설명: …]' 처럼 대괄호로 감싼 것
+        if t.startswith("[") and t.endswith("]"):
+            if any(k in t for k in SKIP_MARK):
+                continue
         if skip or para:
             continue
         out.append((sec, t))

@@ -271,6 +271,10 @@ def main():
     io.open(f"{S}/컷리스트.txt", "w", encoding="utf-8", newline="\n").write(
         "\n".join(lst) + "\n")
 
+    # '경계가 낱말 한가운데를 자르는 수'를 문턱 고르는 지표로 써 보려 했는데
+    # 쓸모가 없었다 — 정답이 확인된 S015 도 24개 중 12개가 그렇게 나온다.
+    # whisper 가 말 끝을 길게 잡는 양을 재고 있을 뿐이라, 문턱이 낮을수록
+    # (= 덜 다듬을수록) 좋아 보이는 거꾸로 된 지표다. 그래서 빼 두었다.
     print("\n".join(lst))
     print(f"\n컷 {len(cuts)}개 · 완성 길이 {acc:.2f}초 · 자막 큐 {len(cues)}개")
     if changed:
