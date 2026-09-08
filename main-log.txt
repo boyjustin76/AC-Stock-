@@ -1,0 +1,200 @@
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'media',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'media',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'notifications',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'media',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'media',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'notifications',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'notifications',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'background-fetch',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'background-sync',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'persistent-storage',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'sensors',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'payment-handler',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'periodic-background-sync',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'storage-access',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'keyboardLock',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+  isMainFrame: false,
+  topFrameUrl: 'https://claude.ai'
+}
+2026-09-07 17:16:29 [warn] Blocked permission check {
+  permission: 'pointerLock',
+  requestingOrigin: 'https://newassets.hcaptcha.com',
+  requestingUrl: 'https://newassets.hcaptcha.com',
+2026-09-08 09:56:53 [info] [account] Account details not yet available, waiting for IPC...
+2026-09-08 09:56:53 [info] [MSIX] Package family from native API: Claude_pzs8sxrjxfjjc
+2026-09-08 09:56:53 [info] [compliance] coworkHipaaRestricted at app-ready: unrestricted
+2026-09-08 09:56:53 [info] [updater] App is installed, enabling initial check and auto-updates
+2026-09-08 09:56:53 [info] [updater] Update URL: https://api.anthropic.com
+2026-09-08 09:56:53 [info] [updater] MSIX detected: windowsStore=true, appPathMatch=true, source=windowsStore, exe=<drv>:\Program Files\WindowsApps\Claude_1.46388.4.0_x64__pzs8sxrjxfjjc\app\Claude.exe
+2026-09-08 09:56:53 [info] [MSIX] Filesystem virtualization active — <home>\AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude exists
+2026-09-08 09:56:53 [info] [Chrome Extension MCP] Copied native host binary to <home>\AppData\Roaming\Claude\ChromeNativeHost\chrome-native-host.exe
+2026-09-08 09:56:53 [info] [Chrome Extension MCP] Installed native host manifest for All at <home>\AppData\Roaming\Claude\ChromeNativeHost\com.anthropic.claude_browser_extension.json
+2026-09-08 09:56:53 [info] [hybrid] boot: no hold { reason: 'resolver is source' }
+2026-09-08 09:56:55 [info] [LocalAgentModeSessionManager] Scheduled tasks service initialized
+2026-09-08 09:56:55 [info] [LocalAgentModeSessionManager] Initialization succeeded — accountId=96190029-8242-4a68-8d92-1efb7b2349c1, orgId=79f16b03-ab23-4d3a-8c2d-0a12aad7f5cb, existingSessions=0
+2026-09-08 09:56:55 [info] Loaded 0 persisted sessions from <home>\AppData\Roaming\Claude\local-agent-mode-sessions\96190029-8242-4a68-8d92-1efb7b2349c1\79f16b03-ab23-4d3a-8c2d-0a12aad7f5cb
+2026-09-08 09:56:55 [warn] [ScheduledTasks] Already initialized
+2026-09-08 09:56:55 [info] [LocalAgentModeSessionManager] Scheduled tasks service initialized
+2026-09-08 09:56:55 [info] [CCDScheduledTasks] Initialized { accountId: '96190029-8242-4a68-8d92-1efb7b2349c1', orgId: '79f16b03-ab23-4d3a-8c2d-0a12aad7f5cb' }
+2026-09-08 09:56:55 [info] [ScheduledTasks] Initialized { accountId: '96190029-8242-4a68-8d92-1efb7b2349c1', orgId: '79f16b03-ab23-4d3a-8c2d-0a12aad7f5cb' }
+2026-09-08 09:56:57 [info] [bridge-ws] using net.WebSocket transport for wss://bridge.claudeusercontent.com/devices/<blob>/desktop-pb0pvbq/bridge
+2026-09-08 09:56:57 [info] [remote-tools-device] close
+2026-09-08 09:56:57 [info] [remote-tools-device] init: shrimp=on device=desktop-pb0pvbq
+2026-09-08 09:56:57 [warn] Blocked permission check {
+  permission: 'background-sync',
+  requestingOrigin: 'https://a.claude.ai',
+  requestingUrl: 'https://a.claude.ai',
+2026-09-08 09:56:59 [info] [PluginsFetcher] fetchPluginEnabledState: 1 overrides
+2026-09-08 09:56:59 [info] [LocalPluginsReader] Found 0 enabled local plugins (0 installed)
+2026-09-08 09:57:05 [info] System CA prewarm finished in 15ms
+2026-09-08 09:57:25 [info] [updater] Update URL: https://api.anthropic.com
+2026-09-08 09:57:25 [info] [updater] Checking for updates
+2026-09-08 09:57:54 [info] [process-memory] trigger=interval tree_rss_sum=1270MB tree_footprint_sum=480MB electron(9)=1235MB children(1)=36MB top=[electron_renderer:6468:357MB electron_main:10860:215MB electron_utility:13932:113MB electron_utility:8660:108MB electron_utility:308:107MB] sys_free=25558MB/32693MB sys_free_raw=25558MB
+2026-09-08 09:58:57 [info] [process-memory] trigger=interval tree_rss_sum=1260MB tree_footprint_sum=470MB electron(9)=1224MB children(1)=36MB top=[electron_renderer:6468:351MB electron_main:10860:214MB electron_utility:13932:111MB electron_utility:8660:108MB electron_utility:308:107MB] sys_free=25544MB/32693MB sys_free_raw=25544MB
+2026-09-08 09:59:54 [info] [process-memory] trigger=interval tree_rss_sum=1258MB tree_footprint_sum=467MB electron(9)=1222MB children(1)=36MB top=[electron_renderer:6468:349MB electron_main:10860:214MB electron_utility:13932:111MB electron_utility:8660:108MB electron_utility:308:106MB] sys_free=25626MB/32693MB sys_free_raw=25626MB
+2026-09-08 10:24:38 [info] [account] Account details not yet available, waiting for IPC...
+2026-09-08 10:24:38 [info] [MSIX] Package family from native API: Claude_pzs8sxrjxfjjc
+2026-09-08 10:24:38 [info] [compliance] coworkHipaaRestricted at app-ready: unrestricted
+2026-09-08 10:24:38 [info] [updater] App is installed, enabling initial check and auto-updates
+2026-09-08 10:24:38 [info] [updater] Update URL: https://api.anthropic.com
+2026-09-08 10:24:38 [info] [updater] MSIX detected: windowsStore=true, appPathMatch=true, source=windowsStore, exe=<drv>:\Program Files\WindowsApps\Claude_1.46388.4.0_x64__pzs8sxrjxfjjc\app\Claude.exe
+2026-09-08 10:24:38 [info] [MSIX] Filesystem virtualization active — <home>\AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude exists
+2026-09-08 10:24:38 [info] [Chrome Extension MCP] Copied native host binary to <home>\AppData\Roaming\Claude\ChromeNativeHost\chrome-native-host.exe
+2026-09-08 10:24:38 [info] [Chrome Extension MCP] Installed native host manifest for All at <home>\AppData\Roaming\Claude\ChromeNativeHost\com.anthropic.claude_browser_extension.json
+2026-09-08 10:24:38 [info] [hybrid] boot: no hold { reason: 'resolver is source' }
+2026-09-08 10:24:40 [info] LocalAgentModeSessions.getSessionMissReason: sessionId=<redacted> reason=loading
+2026-09-08 10:24:40 [info] [CCDScheduledTasks] Initialized { accountId: '96190029-8242-4a68-8d92-1efb7b2349c1', orgId: '79f16b03-ab23-4d3a-8c2d-0a12aad7f5cb' }
+2026-09-08 10:24:40 [info] Loaded 0 persisted sessions from <home>\AppData\Roaming\Claude\local-agent-mode-sessions\96190029-8242-4a68-8d92-1efb7b2349c1\79f16b03-ab23-4d3a-8c2d-0a12aad7f5cb
+2026-09-08 10:24:40 [warn] [ScheduledTasks] Already initialized
+2026-09-08 10:24:40 [info] [LocalAgentModeSessionManager] Scheduled tasks service initialized
+2026-09-08 10:24:40 [info] [ScheduledTasks] Initialized { accountId: '96190029-8242-4a68-8d92-1efb7b2349c1', orgId: '79f16b03-ab23-4d3a-8c2d-0a12aad7f5cb' }
+2026-09-08 10:24:40 [info] LocalSessions.updateSession: sessionId=<redacted> keys=isStarred
+2026-09-08 10:24:42 [info] [CCDScheduledTasks] Renderer acknowledges dispatches; cron slots are consumed on ack
+2026-09-08 10:24:42 [info] [CCDScheduledTasks] Renderer listener ready
+2026-09-08 10:24:43 [info] [PluginsFetcher] fetchPluginEnabledState: 1 overrides
+2026-09-08 10:24:43 [warn] Blocked permission check {
+  permission: 'background-sync',
+  requestingOrigin: 'https://a.claude.ai',
+  requestingUrl: 'https://a.claude.ai',
+2026-09-08 10:25:04 [info] [account] Account details not yet available, waiting for IPC...
+2026-09-08 10:25:04 [info] [MSIX] Package family from native API: Claude_pzs8sxrjxfjjc
+2026-09-08 10:25:04 [info] [compliance] coworkHipaaRestricted at app-ready: unrestricted
+2026-09-08 10:25:04 [info] [updater] App is installed, enabling initial check and auto-updates
+2026-09-08 10:25:04 [info] [updater] Update URL: https://api.anthropic.com
+2026-09-08 10:25:04 [info] [updater] MSIX detected: windowsStore=true, appPathMatch=true, source=windowsStore, exe=<drv>:\Program Files\WindowsApps\Claude_1.46388.4.0_x64__pzs8sxrjxfjjc\app\Claude.exe
+2026-09-08 10:25:04 [info] [MSIX] Filesystem virtualization active — <home>\AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude exists
+2026-09-08 10:25:04 [info] [hybrid] boot: no hold { reason: 'resolver is source' }
+2026-09-08 10:25:05 [info] [browser-live-preview] initialized (passive tap)
+2026-09-08 10:25:06 [info] [LocalAgentModeSessionManager] Scheduled tasks service initialized
+2026-09-08 10:25:06 [info] [LocalAgentModeSessionManager] Initialization succeeded — accountId=96190029-8242-4a68-8d92-1efb7b2349c1, orgId=79f16b03-ab23-4d3a-8c2d-0a12aad7f5cb, existingSessions=0
+2026-09-08 10:25:06 [info] Loaded 0 persisted sessions from <home>\AppData\Roaming\Claude\local-agent-mode-sessions\96190029-8242-4a68-8d92-1efb7b2349c1\79f16b03-ab23-4d3a-8c2d-0a12aad7f5cb
+2026-09-08 10:25:06 [warn] [ScheduledTasks] Already initialized
+2026-09-08 10:25:06 [info] [LocalAgentModeSessionManager] Scheduled tasks service initialized
+2026-09-08 10:25:06 [info] [ScheduledTasks] Initialized { accountId: '96190029-8242-4a68-8d92-1efb7b2349c1', orgId: '79f16b03-ab23-4d3a-8c2d-0a12aad7f5cb' }
+2026-09-08 10:25:06 [info] [heavy-work] worker forked
+2026-09-08 10:25:08 [info] [wake-scheduler] registered claim id=scheduled-tasks
+2026-09-08 10:25:08 [info] NotificationService initialized with Electron notifications
+2026-09-08 10:25:08 [info] [buddy] bridge started
+2026-09-08 10:25:08 [warn] Blocked permission check {
+  permission: 'background-sync',
+  requestingOrigin: 'https://a.claude.ai',
+  requestingUrl: 'https://a.claude.ai',
+2026-09-08 10:25:09 [info] [LocalPluginsReader] Found 0 enabled local plugins (0 installed)
+2026-09-08 10:25:11 [info] mainView backgroundThrottling restored (visible popouts: 0, glow: hidden, cu lock: free, boot: done)
+2026-09-08 10:25:23 [info] System CA prewarm finished in 13ms
+2026-09-08 10:25:38 [info] [updater] Update URL: https://api.anthropic.com
+2026-09-08 10:25:38 [info] [updater] Checking for updates
+2026-09-08 10:26:05 [info] [process-memory] trigger=interval tree_rss_sum=1667MB tree_footprint_sum=511MB electron(9)=1557MB children(1)=110MB top=[electron_renderer:18592:381MB electron_main:4792:256MB electron_gpu:18068:163MB electron_utility:14440:136MB electron_utility:9368:133MB] sys_free=21628MB/32693MB sys_free_raw=21628MB
+2026-09-08 10:26:14 [info] Failed to set title bar overlay, this is probably expected
+2026-09-08 10:26:15 [info] [CCD] LocalSessions.setFocusedSession: sessionId=<redacted>

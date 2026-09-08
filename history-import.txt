@@ -1,0 +1,18 @@
+1P userData root: <home>\AppData\Roaming\Claude (exists: true)
+Remote pull: off
+Capabilities: remotePull=false localZip=false localSessions=false sessionExport=false hostLoopRequired=false hasImportable=false count=0 promptBanner=off
+Automatic copy marker (previous-profile-import.json): absent (device not yet claimed) (this launch: device configuration)
+Automatic copy gates shut: not a third-party profile; automatic import not enabled for this organization
+Automatic copy this launch: not started
+Last CLI run: <none this launch>
+History (0 runs, newest 10):
+Unfinished import runs: none
+Exports (0 runs):
+Recent errors (0):
+Import manifest (live storage dir): absent
+Import work dirs under userData: none
+CLI projects dir: present
+Free space on the userData volume: 121555 MiB
+Session dirs under userData (live = 96190029…/79f16b03…; owner: live = served this launch, device = this install's id, account = the signed-in account, other = anyone else; autoCopy = what the automatic copy would do with the dir):
+  local-agent-mode-sessions/96190029…/79f16b03… owner=live origin=none records=0 folders=0 foldersWithoutRecord=0 recordsWithoutFolder=0
+  claude-code-sessions/96190029…/79f16b03… owner=live origin=none records=0 transcriptsPresent=0 stagingLeftovers=0

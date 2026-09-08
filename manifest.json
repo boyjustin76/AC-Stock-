@@ -1,0 +1,26 @@
+{
+  "bundleId": "f60a6da3-571b-4072-80fa-4bb72ad2d5be",
+  "installId": "6b560230-47e5-46ab-ba5e-11ee79e31118",
+  "appVersion": "1.46388.4",
+  "platform": "win32",
+  "arch": "x64",
+  "createdAt": "2026-09-08T01:32:17.721Z",
+  "sections": [
+    "system-info",
+    "deployment-mode",
+    "mcp-servers",
+    "history-import",
+    "provider-status",
+    "reachability",
+    "auto-update",
+    "main-log",
+    "main-log-other-profile",
+    "claude-ai-web-log",
+    "mcp-log",
+    "mcp-server-logs",
+    "custom3p-setup-log",
+    "cowork-vm-log",
+    "builtin-mcp-incidents",
+    "dmp-names"
+  ]
+}

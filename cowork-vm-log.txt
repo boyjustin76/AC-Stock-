@@ -1,0 +1,24 @@
+2026-09-07 14:36:01 [info] [Bundle:status] initrd missing
+2026-09-07 14:37:08 [info] [logout] User navigated to /logout, stopping VM
+2026-09-07 14:37:08 [info] [stopVM] stopping VM gracefully
+2026-09-07 14:37:08 [error] [logout] Failed to stop VM on logout: not configured: call 'configure' first
+2026-09-07 14:38:17 [info] [cleanupVMBundleIfUnsupported] workspace VM not supported (status=unsupported), checking for stale bundle...
+2026-09-07 14:38:18 [info] [VM] Loading vmClient (TypeScript) module...
+2026-09-07 14:38:18 [info] [VM] Module loaded successfully
+2026-09-07 16:39:27 [info] [Bundle:status] initrd missing
+2026-09-07 16:44:00 [info] [logout] User navigated to /logout, stopping VM
+2026-09-07 16:44:00 [info] [stopVM] stopping VM gracefully
+2026-09-07 16:44:00 [error] [logout] Failed to stop VM on logout: not configured: call 'configure' first
+2026-09-07 16:44:00 [info] [logout] User navigated to /logout, stopping VM
+2026-09-07 16:44:00 [info] [stopVM] stopping VM gracefully
+2026-09-07 16:44:00 [error] [logout] Failed to stop VM on logout: not configured: call 'configure' first
+2026-09-07 17:05:46 [info] [cleanupVMBundleIfUnsupported] workspace VM not supported (status=unsupported), checking for stale bundle...
+2026-09-07 17:05:48 [info] [VM] Loading vmClient (TypeScript) module...
+2026-09-07 17:05:48 [info] [VM] Module loaded successfully
+2026-09-07 17:15:54 [info] [Bundle:status] initrd missing
+2026-09-07 17:16:08 [info] [logout] User navigated to /logout, stopping VM
+2026-09-07 17:16:08 [info] [stopVM] stopping VM gracefully
+2026-09-07 17:16:08 [error] [logout] Failed to stop VM on logout: not configured: call 'configure' first
+2026-09-08 09:56:53 [info] [cleanupVMBundleIfUnsupported] workspace VM not supported (status=unsupported), checking for stale bundle...
+2026-09-08 09:56:55 [info] [VM] Loading vmClient (TypeScript) module...
+2026-09-08 09:56:55 [info] [VM] Module loaded successfully
