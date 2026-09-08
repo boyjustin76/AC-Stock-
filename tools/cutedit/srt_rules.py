@@ -37,6 +37,9 @@ _PARTICLE = (r'(?:이|가|은|는|을|를|에|의|도|만|까지|부터|밖에|�
              r'|라도|조차|마저|에서|에게|처럼|보다|이나|나)')
 DEP_RE = re.compile(r'^(?:' + '|'.join(DEP_NOUNS) + r')' + _PARTICLE + r'*[.,!?]*$')
 AUX_PREFIX = ('싶',)   # 보조용언 — '싶습니다·싶어서' 는 앞말에 붙어야 한다
+# 부정부사 — 뒤 용언과 한 덩어리다. 큐를 이걸로 **끝내면** 안 된다.
+# ('답이 안 | 나온다면' 처럼 갈리면 읽는 리듬이 끊긴다. S015 수정본 실측)
+NO_END = ('안', '못', '잘', '더', '덜')
 # '바로·때로는' 은 의존명사+조사로 갈라지지만 실제로는 부사다. 빼 준다.
 NOT_DEP = ('바로', '때로', '때로는', '때때로', '대로', '제대로')
 # 의존명사는 아니지만 앞 어절에 붙어 한 덩어리로 읽히는 것들.
@@ -71,6 +74,8 @@ def split_cue(sentence, max_len=MAX_LEN):
         elif words[i].lstrip('"\'').startswith(WEAK_START):
             s += 40   # 앞말에 붙는 어절 — 다른 자리가 있으면 그쪽으로
         prev = words[i - 1]
+        if prev in NO_END:
+            s += 500  # 부정부사 뒤 분리 — 사실상 금지
         if prev.endswith((',', '.', '!', '?')):
             s -= 3  # 문장부호 뒤 — 최적
         elif GOOD_END.search(prev):
@@ -102,8 +107,13 @@ def split_cue(sentence, max_len=MAX_LEN):
         out.append(' '.join(words[i:j]))
         j = i
     out.reverse()
-    # 큐 끝의 쉼표·마침표는 자막에서 떼는 게 기존 실측 관례
-    return [re.sub(r'[.,]+$', '', c).strip() for c in out if c.strip()]
+    # 쉼표·마침표는 **줄 끝에서만** 뗀다. 조각마다 떼면 문장 안 쉼표까지
+    # 사라져 뜻이 흐려진다 — '여기서도, | 여기서도 다시 밀렸죠?' 의 앞 쉼표는
+    # 되풀이를 나타내는 것이라 남겨야 한다 (S015 수정본 실측, 2026-09-08).
+    out = [c.strip() for c in out if c.strip()]
+    if out:
+        out[-1] = re.sub(r'[.,]+$', '', out[-1]).strip()
+    return [c for c in out if c]
 
 
 # ── 검사 ──────────────────────────────────────────────────────────────

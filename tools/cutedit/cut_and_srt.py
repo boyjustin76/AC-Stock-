@@ -4,13 +4,30 @@
 align_take.py 가 고른 '마지막 테이크' 구간을 붙여 시퀀스용 컷리스트를 만들고,
 같은 타임라인 위에 자막을 얹는다.
 
-  · 이어지는 문장은 한 컷으로 묶는다(사이 공백이 MERGE 미만).
-    묶지 않으면 한 호흡을 프레임 단위로 쪼개 붙이는 꼴이라 이음매가 튄다.
-  · 컷 경계는 실측 무음(ffmpeg silencedetect)에 붙인다 — 앞의 헛기침을 떨구고
-    뒤의 STT 꼬리 과대평가를 자른다.
-  · 자막 문구는 **대본 표기가 진본**이다. 낭독이 확실히 다를 때만(STT 확신도
-    SURE 이상) 음성을 따른다 — STT 오인식을 자막에 싣지 않기 위해서다.
-  · 큐 나누기는 srt_rules.split_cue 가 진본이다 (14자 규칙).
+경계 규칙은 짐작이 아니라 실측이다 — S015 에서 이정찬이 손으로 고친 시퀀스
+(컷 12개)의 경계 24개를 실측 무음과 대조해 뽑았다. 24개 중 22개가 오차
+0.06초 안에서 아래 식과 맞는다.
+
+    IN  = max(단어 시작, 직전 무음 끝)  - IN_HANDLE
+    OUT = min(단어 끝,   직후 무음 시작) + OUT_HANDLE
+    무음이 CUT_SIL 이상이면 컷으로 잘라 버린다
+
+무음은 두 벌을 쓴다 — 컷을 끊을지는 거친 것(0.30초+)으로 판단하고, 경계를
+붙일 때는 고운 것(0.12초+)에 붙인다. 말과 말 사이 짧은 숨까지 잡아야 경계가
+맞는다 (62.50 의 0.16초 무음이 없으면 첫 컷 끝이 0.38초 길어진다).
+
+세 가지가 핵심이다 —
+  · **경계는 STT 단어 시각이 아니라 실측 무음에 붙인다.** whisper 는 말 끝을
+    0.5초까지 길게 잡는다(166.97 대 167.61). 그대로 쓰면 뒤에 침묵이 붙는다.
+  · **말 시작과 무음 끝 중 늦은 쪽**을 쓴다. 무음이 먼저 끝나고 숨소리가 이어지는
+    자리(90.93 무음끝 / 91.41 말시작)와 그 반대(138.99 / 138.77)가 둘 다 있다.
+  · **확신도 낮은 낱말(p < WEAK_P)은 경계 계산에서 뺀다.** whisper 가 잡음에
+    'ㄱ' 같은 유령 낱말을 붙여 시작을 앞으로 끌고 간다(84.74 '그' p=0.06).
+
+자막 문구는 **낭독을 따른다**. 대본과 다르게 읽은 곳은 그대로 싣되, STT 오인식만
+대본으로 되돌린다(휘돌이진 → 휘두르진). 둘을 확신도로는 못 가르므로 — 오인식
+'휘돌이진'이 0.99, 진짜 바뀐 '보고'가 0.77 이었다 — 갈린 곳은 전부 목록으로 낸다.
+큐 나누기는 srt_rules.split_cue 가 진본이다 (14자 규칙).
 
     python3 tools/cutedit/cut_and_srt.py <작업폴더> --source <원본.mp4> --name <시퀀스이름>
 """
@@ -25,10 +42,12 @@ from difflib import SequenceMatcher
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from srt_rules import split_cue
 
-MERGE = 0.60        # 이 미만으로 붙은 문장은 한 컷
-PAD_PRE = 0.12
-PAD_POST = 0.18
-SURE = 0.95         # 낭독이 대본과 다를 때 음성을 따르는 STT 확신도 문턱
+CUT_SIL = 0.65      # 이 이상 무음이면 잘라낸다 (0.56 은 남겼고 0.76 은 잘랐다)
+IN_HANDLE = 0.08    # 말 시작 앞에 남기는 여유
+OUT_HANDLE = 0.07   # 말 끝 뒤에 남기는 여유
+WEAK_P = 0.30       # 이보다 확신도 낮은 낱말은 경계 계산에서 뺀다
+OVERRUN = 0.60      # whisper 가 말 끝을 늘려 잡는 최대치 — 이만큼은 되짚어 본다
+TAIL_PUNCT = "。.,、"  # 큐 끝에서 떼는 구두점 (물음표·느낌표는 남긴다)
 
 
 def norm(t):
@@ -50,41 +69,122 @@ def read_silences(path):
     return out
 
 
-def snap(a, b, sil):
-    """시작은 직전 무음의 끝에, 끝은 직후 무음의 시작에 붙인다."""
-    a2, b2 = a - PAD_PRE, b + PAD_POST
-    ends = [e for s, e in sil if a - 1.2 < e < a + 0.5]
-    if ends:
-        a2 = max(a2, max(ends) - 0.08)
-    starts = [s for s, e in sil if b - 0.5 < s < b + 1.2]
-    if starts:
-        b2 = min(b2, min(starts) + 0.08)
-    if b2 <= a2 + 0.2:
-        a2, b2 = a - PAD_PRE, b + PAD_POST
-    return round(a2, 3), round(b2, 3)
+def words_between(tr, a, b, weak=True, overlap=False):
+    """[a,b] 안의 낱말. overlap=True 면 걸치기만 해도 센다.
 
-
-def words_between(tr, a, b):
+    경계를 잡을 때는 걸친 낱말도 세야 한다 — whisper 는 말 끝을 뒤 무음 속까지
+    길게 잡아서(예: '녹입니다' 끝 89.20, 실제 무음 시작 88.68), 완전히 들어온
+    낱말만 세면 마지막 낱말이 통째로 빠지고 컷이 잘린다.
+    """
     out = []
     for seg in tr:
         for w in seg.get("words") or []:
-            if a - 0.05 <= w["s"] and w["e"] <= b + 0.05:
+            hit = (w["s"] < b and w["e"] > a) if overlap else (a - 0.05 <= w["s"] and w["e"] <= b + 0.05)
+            if hit and (weak or w.get("p", 1.0) >= WEAK_P):
                 out.append(w)
     return out
 
 
-def spoken_text(script, ws):
-    """대본 표기가 진본. 낭독이 확실히 다르면(확신도 SURE 이상) 음성을 따른다."""
+def bounds(a, b, tr, sil, anchor_lo=None, anchor_hi=None):
+    """구간 하나의 실제 컷 경계.
+
+        IN  = max(말 시작, 직전 무음 끝)  - IN_HANDLE
+        OUT = min(말 끝,   직후 무음 시작) + OUT_HANDLE
+
+    anchor_lo/hi 는 이 구간이 긴 무음에서 잘려 나온 경우의 그 무음 모서리다.
+    """
+    ws = (words_between(tr, a, b, weak=False, overlap=True)
+          or words_between(tr, a, b, overlap=True))
+    w0 = ws[0]["s"] if ws else a
+    w1 = ws[-1]["e"] if ws else b
+
+    lo_cand = [w0]
+    if anchor_lo is not None:
+        lo_cand.append(anchor_lo)
+    else:
+        # 말 시작 **직전**의 무음 끝 — 가장 늦은 것. 말 안으로 들어가지 않게
+        # OVERRUN 까지만 되짚는다 (whisper 가 시작을 앞당겨 잡는 만큼).
+        ends = [e for _, e in sil if w0 - 1.5 < e <= w0 + OVERRUN]
+        if ends:
+            lo_cand.append(max(ends))
+    hi_cand = [w1]
+    if anchor_hi is not None:
+        hi_cand.append(anchor_hi)
+    else:
+        # 말 끝 **직후**의 무음 시작 — 가장 이른 것. whisper 가 말 끝을 무음
+        # 속까지 늘려 잡으므로 w1 보다 OVERRUN 앞선 것까지 후보로 본다.
+        starts = [s for s, _ in sil if w1 - OVERRUN <= s < w1 + 1.5]
+        if starts:
+            hi_cand.append(min(starts))
+
+    lo, hi = max(lo_cand) - IN_HANDLE, min(hi_cand) + OUT_HANDLE
+    if hi <= lo + 0.2:
+        lo, hi = w0 - IN_HANDLE, w1 + OUT_HANDLE
+    return round(lo, 3), round(hi, 3)
+
+
+def long_sil(sil, a, b):
+    """[a,b] 안에 걸치는 CUT_SIL 이상 무음."""
+    return [(s, e) for s, e in sil if e - s >= CUT_SIL and s < b and e > a]
+
+
+def build_cuts(rows, tr, sil, fine=None):
+    """채택 구간을 이어 붙이되, 그 안팎의 긴 무음에서 끊는다."""
+    # 1) 문장을 덩어리로 — 사이에 긴 무음이 있거나 사이가 벌어지면 끊는다
+    groups = []
+    for r in rows:
+        if groups:
+            prev = groups[-1][-1]
+            gap = r["s"] - prev["e"]
+            if gap < CUT_SIL and not long_sil(sil, prev["e"], r["s"]):
+                groups[-1].append(r)
+                continue
+        groups.append([r])
+
+    # 2) 덩어리 안에 긴 무음이 있으면 거기서 또 끊는다 (문장 중간 쉼)
+    spans = []
+    for g in groups:
+        a, b = g[0]["s"], g[-1]["e"]
+        cur, alo = a, None
+        for s, e in long_sil(sil, a, b):
+            if s > cur + 0.2:
+                spans.append((cur, s, alo, s, g))
+            cur, alo = e, e
+        spans.append((cur, b, alo, None, g))
+
+    cuts = []
+    for a, b, alo, ahi, g in spans:
+        lo, hi = bounds(a, b, tr, fine or sil, alo, ahi)
+        if hi - lo < 0.25:
+            continue
+        cuts.append({"in": lo, "out": hi,
+                     "label": f'{g[0]["sec"]} {g[0]["text"][:14]}'})
+    return cuts
+
+
+def spoken_text(script, ws, verified=None):
+    """자막 문구 — 낭독을 따르되 STT 오인식은 대본으로 되돌린다.
+
+    verify_text.py 가 큰 모델로 확인해 둔 게 있으면 그걸 쓴다. 없으면 medium
+    결과로 판단하는데, 그건 오인식을 자막에 실을 수 있다 (확신도로는 못 가른다).
+    """
+    if verified:
+        return verified["use"], (verified["use"] if verified["use"] != script else None)
     heard = " ".join(w["w"].strip() for w in ws).strip()
-    if not heard:
+    if not heard or SequenceMatcher(None, norm(script), norm(heard)).ratio() >= 0.995:
         return script, None
-    if SequenceMatcher(None, norm(script), norm(heard)).ratio() >= 0.92:
-        return script, None
-    if ws and min(w["p"] for w in ws) >= SURE:
-        # 대본의 문장부호·따옴표는 살리고 글자만 음성으로 바꾼다
-        tail = "".join(re.findall(r"[.,!?”\"]+$", script.strip()) or [""])
-        return heard.rstrip(".,!?") + tail, heard
-    return script, heard
+    tail = "".join(re.findall(r"[?!”\"']+$", script.strip()) or [""])
+    return heard.rstrip(" .,!?") + tail, heard
+
+
+def trim_tail(t):
+    """**줄 끝** 구두점만 뗀다 (마침표·쉼표). 물음표·느낌표·따옴표는 남긴다.
+
+    줄 안쪽 쉼표는 남겨야 한다 — '여기서도, / 여기서도 다시 밀렸죠?' 의 앞
+    쉼표는 되풀이를 나타내는 것이라 빼면 뜻이 흐려진다. 그래서 한 줄을 나눈
+    조각 중 **마지막 조각에만** 적용한다.
+    """
+    return t.rstrip().rstrip(TAIL_PUNCT).rstrip()
 
 
 def fmt(t):
@@ -101,29 +201,25 @@ def main():
     ap.add_argument("--width", type=int, default=1080)
     ap.add_argument("--height", type=int, default=1920)
     ap.add_argument("--src-dur", type=float, default=0.0)
+    ap.add_argument("--script-text", action="store_true",
+                    help="자막을 낭독이 아니라 대본 표기로 낸다")
     a = ap.parse_args()
     S = a.dir
 
-    rows = json.load(io.open(f"{S}/aligned.json", encoding="utf-8"))
+    rows = [r for r in json.load(io.open(f"{S}/aligned.json", encoding="utf-8"))
+            if r["s"] is not None]
     tr = json.load(io.open(f"{S}/cam_transcript.json", encoding="utf-8"))
-    sil = read_silences(f"{S}/silences.txt")
-    rows = [r for r in rows if r["s"] is not None]
+    vf = {}
+    if os.path.exists(f"{S}/verified.json"):
+        vf = json.load(io.open(f"{S}/verified.json", encoding="utf-8"))
+    # 사람이 정한 것이 제일 세다 — {"9": "야구도 ... 휘두르진 않습니다"}
+    if os.path.exists(f"{S}/text_fix.json"):
+        for k, v in json.load(io.open(f"{S}/text_fix.json", encoding="utf-8")).items():
+            vf.setdefault(k, {})["use"] = v
+    sil = read_silences(f"{S}/silences.txt")            # 컷 판단용 (0.30s+)
+    fine = read_silences(f"{S}/silences_fine.txt")      # 경계 스냅용 (0.12s+)
+    cuts = build_cuts(rows, tr, sil, fine)
 
-    # ── 1) 이어지는 문장을 한 컷으로 ──────────────────────────────
-    groups = []
-    for r in rows:
-        if groups and r["s"] - groups[-1][-1]["e"] < MERGE:
-            groups[-1].append(r)
-        else:
-            groups.append([r])
-
-    cuts, changed = [], []
-    for g in groups:
-        a0, b0 = snap(g[0]["s"], g[-1]["e"], sil)
-        cuts.append({"in": a0, "out": b0, "label": f'{g[0]["sec"]} {g[0]["text"][:14]}',
-                     "lines": [r["i"] for r in g]})
-
-    # ── 2) 소스 시각 → 출력 타임라인 ─────────────────────────────
     def to_out(t):
         acc = 0.0
         for c in cuts:
@@ -132,39 +228,39 @@ def main():
             acc += c["out"] - c["in"]
         return acc
 
-    # ── 3) 자막 큐 ───────────────────────────────────────────────
-    cues = []
+    cues, changed = [], []
     for r in rows:
+        # 문구 비교는 확신도로 거르지 않는다 — 거르면 낱말이 통째로 빠진다
+        # ('내가 칠 수 있는' → '칠 수 있는'). 확신도 필터는 경계 계산 전용이다.
         ws = words_between(tr, r["s"], r["e"])
-        text, heard = spoken_text(r["text"], ws)
-        if heard and text != r["text"]:
+        text, heard = spoken_text(r["text"], ws, vf.get(str(r["i"])))
+        if heard:
             changed.append((r["i"], r["text"], text))
-        elif heard:
-            changed.append((r["i"], r["text"], f"(낭독 '{heard}' — 대본 유지)"))
-        chunks = split_cue(text)
-        n = sum(len(norm(c)) for c in chunks) or 1
+        if a.script_text:
+            text = r["text"]
         s0, e0 = to_out(r["s"]), to_out(r["e"])
+        chunks = [c for c in split_cue(text) if c.strip()]
+        if chunks:                       # 줄 끝 구두점은 마지막 조각에서만 뗀다
+            chunks[-1] = trim_tail(chunks[-1])
+        chunks = [c for c in chunks if c]
+        n = sum(len(norm(c)) for c in chunks) or 1
         acc = 0
         for ch in chunks:
             k = len(norm(ch))
-            cs = s0 + (e0 - s0) * acc / n
-            ce = s0 + (e0 - s0) * (acc + k) / n
+            cs, ce = s0 + (e0 - s0) * acc / n, s0 + (e0 - s0) * (acc + k) / n
             acc += k
             if cues and cs - cues[-1]["e"] < 0.08:
                 cs = cues[-1]["e"]
             cues.append({"s": cs, "e": ce, "t": ch})
 
-    # ── 4) 내보내기 ──────────────────────────────────────────────
     spec = {"source": os.path.abspath(a.source), "name": a.name, "fps": a.fps,
-            "width": a.width, "height": a.height, "src_dur": a.src_dur,
-            "cuts": [{k: c[k] for k in ("in", "out", "label")} for c in cuts]}
+            "width": a.width, "height": a.height, "src_dur": a.src_dur, "cuts": cuts}
     json.dump(spec, io.open(f"{S}/cuts.json", "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
 
-    srt = []
-    for i, c in enumerate(cues, 1):
-        srt.append(f"{i}\n{fmt(c['s'])} --> {fmt(c['e'])}\n{c['t']}\n")
-    io.open(f"{S}/out.srt", "w", encoding="utf-8-sig", newline="\n").write("\n".join(srt))
+    io.open(f"{S}/out.srt", "w", encoding="utf-8-sig", newline="\n").write(
+        "\n".join(f"{i}\n{fmt(c['s'])} --> {fmt(c['e'])}\n{c['t']}\n"
+                  for i, c in enumerate(cues, 1)))
 
     lst, acc = [], 0.0
     for i, c in enumerate(cuts, 1):
@@ -172,14 +268,15 @@ def main():
         lst.append(f"{i:2d}  소스 {c['in']:7.2f}-{c['out']:7.2f}  "
                    f"→ 타임라인 {acc:6.2f}-{acc + d:6.2f}  ({d:5.2f}초)  {c['label']}")
         acc += d
-    io.open(f"{S}/컷리스트.txt", "w", encoding="utf-8", newline="\n").write("\n".join(lst) + "\n")
+    io.open(f"{S}/컷리스트.txt", "w", encoding="utf-8", newline="\n").write(
+        "\n".join(lst) + "\n")
 
     print("\n".join(lst))
     print(f"\n컷 {len(cuts)}개 · 완성 길이 {acc:.2f}초 · 자막 큐 {len(cues)}개")
     if changed:
-        print("\n대본과 낭독이 다른 곳:")
+        print("\n대본과 다르게 읽은 곳 — 자막은 낭독을 실었다. STT 오인식이면 되돌릴 것:")
         for i, was, now in changed:
-            print(f"  {i:3d}  대본: {was}\n       →   {now}")
+            print(f"  {i:3d}  대본 {was}\n       자막 {now}")
 
 
 if __name__ == "__main__":
