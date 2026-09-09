@@ -144,7 +144,7 @@ def main():
         return
 
     if a.chroma:
-        # E 가 다른 세션에서 꺼내 쓰라고 파일로 남긴다 (chroma-mcp 가 이 폴더를 본다).
+        # 다음 세션에서 그대로 꺼내 쓰라고 파일로 남긴다 (chroma-mcp 가 이 폴더를 본다).
         import chromadb
         cl = chromadb.PersistentClient(path=a.chroma)
         try:
