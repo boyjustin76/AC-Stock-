@@ -48,6 +48,10 @@ OUT_HANDLE = 0.07   # 말 끝 뒤에 남기는 여유
 WEAK_P = 0.30       # 이보다 확신도 낮은 낱말은 경계 계산에서 뺀다
 OVERRUN = 0.60      # whisper 가 말 끝을 늘려 잡는 최대치 — 이만큼은 되짚어 본다
 TAIL_PUNCT = "。.,、"  # 큐 끝에서 떼는 구두점 (물음표·느낌표는 남긴다)
+# 자막 표기 통일 — 대본과 자막에서 다르게 쓰는 말.
+# 채널 이름은 자막에서 늘 붙여 쓴다 (나간 편들 자막 전수: '더원트레이더였습니다',
+# '더원트레이더와 함께하는'). 대본만 '더원 트레이더' 로 띄어 쓴다.
+TERMS = {"더원 트레이더": "더원트레이더"}
 
 
 def norm(t):
@@ -177,14 +181,11 @@ def spoken_text(script, ws, verified=None):
     return heard.rstrip(" .,!?") + tail, heard
 
 
-def trim_tail(t):
-    """**줄 끝** 구두점만 뗀다 (마침표·쉼표). 물음표·느낌표·따옴표는 남긴다.
-
-    줄 안쪽 쉼표는 남겨야 한다 — '여기서도, / 여기서도 다시 밀렸죠?' 의 앞
-    쉼표는 되풀이를 나타내는 것이라 빼면 뜻이 흐려진다. 그래서 한 줄을 나눈
-    조각 중 **마지막 조각에만** 적용한다.
-    """
-    return t.rstrip().rstrip(TAIL_PUNCT).rstrip()
+def fix_terms(t):
+    """자막 표기 통일 (TERMS). 구두점 처리는 srt_rules.split_cue 가 맡는다."""
+    for a, b in TERMS.items():
+        t = t.replace(a, b)
+    return t
 
 
 def fmt(t):
@@ -239,9 +240,7 @@ def main():
         if a.script_text:
             text = r["text"]
         s0, e0 = to_out(r["s"]), to_out(r["e"])
-        chunks = [c for c in split_cue(text) if c.strip()]
-        if chunks:                       # 줄 끝 구두점은 마지막 조각에서만 뗀다
-            chunks[-1] = trim_tail(chunks[-1])
+        chunks = [fix_terms(c) for c in split_cue(text) if c.strip()]
         chunks = [c for c in chunks if c]
         n = sum(len(norm(c)) for c in chunks) or 1
         acc = 0
