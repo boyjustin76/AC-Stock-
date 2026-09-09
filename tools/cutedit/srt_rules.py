@@ -25,7 +25,13 @@ split_cue 는 어절 경계 DP다: 큐 수를 최소로 하되, 같은 큐 수�
 import re
 import sys
 
-MAX_LEN = 14  # 띄어쓰기 포함
+MAX_LEN = 14  # 띄어쓰기 포함 — **숏폼(1080x1920 세로)** 기준
+# 자막 길이는 소리가 아니라 **화면 폭**이 정한다. 포맷이 바뀌면 이 값도 바뀐다.
+#   숏폼 1080x1920 → 3~14자 (중앙값 8)   · 검정 박스 + 흰 글씨
+#   롱폼 1920x1080 → 10~21자 (중앙값 15) · 검정 외곽선 + 흰 글씨
+# 롱폼 실측은 더원 최종본 L04·L05 자막 21개에서 나온 관측 최댓값이다(확정 상한 아님).
+# 롱폼을 다룰 때는 split_cue(..., max_len=21) 로 넘기거나 MAX_LEN 을 바꿔 쓴다.
+LONG_MAX_LEN = 21
 
 # 큐를 이걸로 시작하면 어색한 분리 (의존명사·보조용언류).
 #
@@ -167,18 +173,19 @@ def parse_srt(path):
     return cues
 
 
-def check(path):
+def check(path, max_len=MAX_LEN):
     cues = parse_srt(path)
     over, badstart = [], []
     for k, (tc, text) in enumerate(cues, 1):
-        if len(text) > MAX_LEN:
+        if len(text) > max_len:
             over.append((k, len(text), text))
         first = text.split()[0] if text.split() else ''
         if _bad_break(first):
             badstart.append((k, text))
-    print(f'{path}: 큐 {len(cues)}개, 최장 {max((len(t) for _, t in cues), default=0)}자')
+    print(f'{path}: 큐 {len(cues)}개, 최장 {max((len(t) for _, t in cues), default=0)}자'
+          f'  (기준 {max_len}자)')
     for k, L, t in over:
-        print(f'  ⚠ #{k} {L}자 > {MAX_LEN}: {t}')
+        print(f'  ⚠ #{k} {L}자 > {max_len}: {t}')
     for k, t in badstart:
         print(f'  ⚠ #{k} 의존명사로 시작 (앞 큐와 가른 자리 확인): {t}')
     if not over and not badstart:
@@ -187,13 +194,16 @@ def check(path):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) >= 3 and sys.argv[1] == 'check':
+    # --long : 롱폼(1920x1080) 자막은 한 줄에 더 들어간다. 21자 기준으로 본다.
+    argv = [a for a in sys.argv if a != '--long']
+    ML = LONG_MAX_LEN if '--long' in sys.argv else MAX_LEN
+    if len(argv) >= 3 and argv[1] == 'check':
         # all(...) 은 첫 False 에서 멈춘다 — 뒤 파일이 검사되지 않는다.
         # 실제로 차11-5 의 위반 4건이 이 때문에 묻혀 있었다.
-        ok = all([check(p) for p in sys.argv[2:]])
+        ok = all([check(p, ML) for p in argv[2:]])
         sys.exit(0 if ok else 1)
-    if len(sys.argv) >= 3 and sys.argv[1] == 'split':
-        for c in split_cue(' '.join(sys.argv[2:])):
+    if len(argv) >= 3 and argv[1] == 'split':
+        for c in split_cue(' '.join(argv[2:]), max_len=ML):
             print(f'{len(c):2d}  {c}')
         sys.exit(0)
     print(__doc__)
