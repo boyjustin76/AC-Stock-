@@ -136,6 +136,7 @@ def main():
     ap.add_argument("--score", nargs="+",
                     help="<대본.srt> <문구> [문구...] — 후보 문구를 채점한다")
     ap.add_argument("--chroma", help="쌍 corpus 를 이 폴더에 Chroma 로 저장한다")
+    ap.add_argument("--propose", help="<대본.srt> — 첫 문장을 쪼개 뒤집어 배너 초안을 낸다")
     a = ap.parse_args()
     rows = load(a.pairs)
 
@@ -171,6 +172,55 @@ def main():
             up=next((r["text"] for r in rs if r["kind"] == "배너_윗줄"), None),
             lo=next((r["text"] for r in rs if r["kind"] == "배너_아랫줄"), None),
             script=" ".join(rs[0]["cues"]))
+
+    if a.propose:
+        # 공식: 대본 첫 문장을 두 도막으로 쪼개 **앞뒤를 뒤집는다**.
+        # 앞도막(주제) → 아랫줄 · 뒷도막(약속·도발) → 윗줄.
+        # 8편 중 5편이 이대로다 (S016 은 제목을 글자 그대로 쪼개 뒤집었다).
+        # 쪼갤 자리는 **대본 원문의 제목 줄**에 있다. 자막(.srt)은 큐 끝 구두점을
+        # 떼기 때문에(srt_rules 규칙) 쉼표가 사라져 자동으로는 못 쪼갠다.
+        title, lines = None, []
+        if a.propose.lower().endswith((".txt", ".md")):
+            raw = io.open(a.propose, encoding="utf-8-sig").read().splitlines()
+            for i, ln in enumerate(raw):
+                t = ln.strip()
+                m = re.match(r"^제목\s*[::]\s*(.+)$", t)
+                if m:                      # 형식 ①  제목: 복잡한 …, 구름대만 …
+                    title = m.group(1).strip()
+                    break
+                if t == "[제목]":          # 형식 ②  [제목] 아래 두 줄
+                    for nxt in raw[i + 1:]:
+                        if not nxt.strip():
+                            if lines:
+                                break
+                            continue
+                        lines.append(nxt.strip())
+                    break
+            cs = []
+        else:
+            cs = srt_cues(a.propose)
+
+        if title:
+            parts = [x.strip(" ,") for x in re.split(r"[,?!]\s*", title) if x.strip(" ,")]
+            print(f"대본 제목 |{title}|")
+        elif len(lines) >= 2:
+            parts = lines[:2]              # 제목이 이미 두 줄이면 그게 두 도막이다
+            print(f"대본 제목 |{' / '.join(lines[:2])}|")
+        else:
+            parts = []
+            print("대본 첫 큐 (여기서 두 도막을 고른다)")
+            for i, c in enumerate(cs[:8], 1):
+                print(f"   {i}. {c}")
+        print()
+        if len(parts) >= 2:
+            front, back = parts[0], parts[1]
+            print(f"   앞도막 |{front}|  →  **아랫줄**   ({len(front)}자)")
+            print(f"   뒷도막 |{back}|  →  **윗줄**     ({len(back)}자)")
+        else:
+            print("   제목이 한 도막이다. 앞도막(주제)과 뒷도막(약속·도발)을 손으로 가른다.")
+        print("\n규격 — 윗줄 8~14자 · 아랫줄 7~11자 · 아랫줄 ≤ 윗줄")
+        print("공식 — 앞도막(주제)은 아랫줄로, 뒷도막(약속·도발)은 윗줄로. 앞뒤를 뒤집는다.")
+        return
 
     if a.near:
         new = " ".join(srt_cues(a.near))
