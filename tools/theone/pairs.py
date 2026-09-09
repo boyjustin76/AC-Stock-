@@ -57,9 +57,24 @@ def ep_of(name):
     return "S" + m.group(1) if m else None
 
 
+# 자막이 이 폴더 밖에 있는 회차 — 컷편집을 회차 폴더에서 한 편들.
+# 빠뜨리면 corpus 에 구멍이 난다 (S015 를 한 번 놓쳤다).
+EXTRA_SRT = {
+    "S015": (r"C:\Users\user\Desktop\이정찬\더원트레이더\0907"
+             r"\(이정찬)S015_포지션중독극복법_260908"
+             r"\S015_포지션중독극복법_260908_수정.srt"),
+    "S016": (r"C:\Users\user\Desktop\이정찬\더원트레이더\0908"
+             r"\(이정찬)S016_일목균형표 구름대만 남기세요_260910"
+             r"\S016_일목균형표 구름대만 남기세요_260910_수정.srt"),
+}
+
+
 def collect(folder):
     """회차별로 { prproj 텍스트, srt 큐 } 를 모은다."""
     eps = {}
+    for e, q in EXTRA_SRT.items():
+        if os.path.exists(q):
+            eps.setdefault(e, {})["cues"] = [c["t"] for c in parse_srt(q)]
     for fn in os.listdir(folder):
         p = os.path.join(folder, fn)
         if fn.lower().endswith(".srt"):
