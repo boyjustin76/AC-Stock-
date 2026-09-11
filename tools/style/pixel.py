@@ -17,11 +17,14 @@ print(f'  {path.split(chr(92))[-1].split("/")[-1]}  {W}x{H}')
 for spec in sys.argv[2:]:
     name, box = spec.split(':')
     x0, y0, x1, y1 = [int(v) for v in box.split(',')]
-    px = im.crop((x0, y0, x1, y1)).getdata()
+    px = list(im.crop((x0, y0, x1, y1)).getdata())
     c = Counter()
     for r, g, b in px:
         lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
-        if lum >= 245 or lum <= 40:
+        # 흰 배경은 버리고, '검정 획'은 채도까지 낮을 때만 버린다 — 순수 파랑(#0200F3)·
+        # 암적색(#9F0000)은 밝기가 낮아도 채도가 높아 여기 안 걸린다 (09-10 에 걸려서 고침)
+        sat = max(r, g, b) - min(r, g, b)
+        if lum >= 245 or (lum <= 40 and sat < 60):
             continue
         # 8단계로 뭉쳐서 안티에일리어싱 흔들림을 흡수한다
         c[(r >> 3 << 3, g >> 3 << 3, b >> 3 << 3)] += 1
