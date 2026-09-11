@@ -1,0 +1,399 @@
+frame:313  pts:313000  pts_time:10.433333
+lavfi.freezedetect.freeze_start=8.933333
+frame:419  pts:419000  pts_time:13.966667
+lavfi.freezedetect.freeze_duration=5.033333
+lavfi.freezedetect.freeze_end=13.966667
+frame:916  pts:916000  pts_time:30.533333
+lavfi.freezedetect.freeze_start=29.033333
+frame:958  pts:958000  pts_time:31.933333
+lavfi.freezedetect.freeze_duration=2.9
+lavfi.freezedetect.freeze_end=31.933333
+frame:1188 pts:1188000 pts_time:39.6
+lavfi.freezedetect.freeze_start=38.1
+frame:1235 pts:1235000 pts_time:41.166667
+lavfi.freezedetect.freeze_duration=3.066667
+lavfi.freezedetect.freeze_end=41.166667
+frame:1474 pts:1474000 pts_time:49.133333
+lavfi.freezedetect.freeze_start=47.633333
+frame:1491 pts:1491000 pts_time:49.7
+lavfi.freezedetect.freeze_duration=2.066667
+lavfi.freezedetect.freeze_end=49.7
+frame:1595 pts:1595000 pts_time:53.166667
+lavfi.freezedetect.freeze_start=51.666667
+frame:1614 pts:1614000 pts_time:53.8
+lavfi.freezedetect.freeze_duration=2.133333
+lavfi.freezedetect.freeze_end=53.8
+frame:1725 pts:1725000 pts_time:57.5
+lavfi.freezedetect.freeze_start=56
+frame:1795 pts:1795000 pts_time:59.833333
+lavfi.freezedetect.freeze_duration=3.833333
+lavfi.freezedetect.freeze_end=59.833333
+frame:1840 pts:1840000 pts_time:61.333333
+lavfi.freezedetect.freeze_start=59.833333
+frame:1857 pts:1857000 pts_time:61.9
+lavfi.freezedetect.freeze_duration=2.066667
+lavfi.freezedetect.freeze_end=61.9
+frame:1902 pts:1902000 pts_time:63.4
+lavfi.freezedetect.freeze_start=61.9
+lavfi.freezedetect.freeze_duration=1.5
+lavfi.freezedetect.freeze_end=63.4
+frame:1979 pts:1979000 pts_time:65.966667
+lavfi.freezedetect.freeze_start=64.466667
+frame:1984 pts:1984000 pts_time:66.133333
+lavfi.freezedetect.freeze_duration=1.666667
+lavfi.freezedetect.freeze_end=66.133333
+frame:2138 pts:2138000 pts_time:71.266667
+lavfi.freezedetect.freeze_start=69.766667
+frame:2160 pts:2160000 pts_time:72
+lavfi.freezedetect.freeze_duration=2.233333
+lavfi.freezedetect.freeze_end=72
+frame:2205 pts:2205000 pts_time:73.5
+lavfi.freezedetect.freeze_start=72
+frame:2265 pts:2265000 pts_time:75.5
+lavfi.freezedetect.freeze_duration=3.5
+lavfi.freezedetect.freeze_end=75.5
+frame:2730 pts:2730000 pts_time:91
+lavfi.freezedetect.freeze_start=89.5
+frame:2739 pts:2739000 pts_time:91.3
+lavfi.freezedetect.freeze_duration=1.8
+lavfi.freezedetect.freeze_end=91.3
+frame:2864 pts:2864000 pts_time:95.466667
+lavfi.freezedetect.freeze_start=93.966667
+frame:2866 pts:2866000 pts_time:95.533333
+lavfi.freezedetect.freeze_duration=1.566667
+lavfi.freezedetect.freeze_end=95.533333
+frame:2911 pts:2911000 pts_time:97.033333
+lavfi.freezedetect.freeze_start=95.533333
+frame:2971 pts:2971000 pts_time:99.033333
+lavfi.freezedetect.freeze_duration=3.5
+lavfi.freezedetect.freeze_end=99.033333
+frame:3045 pts:3045000 pts_time:101.5
+lavfi.freezedetect.freeze_start=100
+frame:3126 pts:3126000 pts_time:104.2
+lavfi.freezedetect.freeze_duration=4.2
+lavfi.freezedetect.freeze_end=104.2
+frame:3298 pts:3298000 pts_time:109.933333
+lavfi.freezedetect.freeze_start=108.433333
+frame:3306 pts:3306000 pts_time:110.2
+lavfi.freezedetect.freeze_duration=1.766667
+lavfi.freezedetect.freeze_end=110.2
+frame:3380 pts:3380000 pts_time:112.666667
+lavfi.freezedetect.freeze_start=111.166667
+frame:3458 pts:3458000 pts_time:115.266667
+lavfi.freezedetect.freeze_duration=4.1
+lavfi.freezedetect.freeze_end=115.266667
+frame:3525 pts:3525000 pts_time:117.5
+lavfi.freezedetect.freeze_start=116
+frame:3536 pts:3536000 pts_time:117.866667
+lavfi.freezedetect.freeze_duration=1.866667
+lavfi.freezedetect.freeze_end=117.866667
+frame:3645 pts:3645000 pts_time:121.5
+lavfi.freezedetect.freeze_start=120
+frame:3729 pts:3729000 pts_time:124.3
+lavfi.freezedetect.freeze_duration=4.3
+lavfi.freezedetect.freeze_end=124.3
+frame:3798 pts:3798000 pts_time:126.6
+lavfi.freezedetect.freeze_start=125.1
+frame:3846 pts:3846000 pts_time:128.2
+lavfi.freezedetect.freeze_duration=3.1
+lavfi.freezedetect.freeze_end=128.2
+frame:3949 pts:3949000 pts_time:131.633333
+lavfi.freezedetect.freeze_start=130.133333
+frame:3974 pts:3974000 pts_time:132.466667
+lavfi.freezedetect.freeze_duration=2.333333
+lavfi.freezedetect.freeze_end=132.466667
+frame:4125 pts:4125000 pts_time:137.5
+lavfi.freezedetect.freeze_start=136
+frame:4154 pts:4154000 pts_time:138.466667
+lavfi.freezedetect.freeze_duration=2.466667
+lavfi.freezedetect.freeze_end=138.466667
+frame:4199 pts:4199000 pts_time:139.966667
+lavfi.freezedetect.freeze_start=138.466667
+frame:4320 pts:4320000 pts_time:144
+lavfi.freezedetect.freeze_duration=5.533333
+lavfi.freezedetect.freeze_end=144
+frame:4365 pts:4365000 pts_time:145.5
+lavfi.freezedetect.freeze_start=144
+frame:4477 pts:4477000 pts_time:149.233333
+lavfi.freezedetect.freeze_duration=5.233333
+lavfi.freezedetect.freeze_end=149.233333
+frame:4579 pts:4579000 pts_time:152.633333
+lavfi.freezedetect.freeze_start=151.133333
+frame:4639 pts:4639000 pts_time:154.633333
+lavfi.freezedetect.freeze_duration=3.5
+lavfi.freezedetect.freeze_end=154.633333
+frame:4712 pts:4712000 pts_time:157.066667
+lavfi.freezedetect.freeze_start=155.566667
+frame:4819 pts:4819000 pts_time:160.633333
+lavfi.freezedetect.freeze_duration=5.066667
+lavfi.freezedetect.freeze_end=160.633333
+frame:4970 pts:4970000 pts_time:165.666667
+lavfi.freezedetect.freeze_start=164.166667
+frame:5084 pts:5084000 pts_time:169.466667
+lavfi.freezedetect.freeze_duration=5.3
+lavfi.freezedetect.freeze_end=169.466667
+frame:5129 pts:5129000 pts_time:170.966667
+lavfi.freezedetect.freeze_start=169.466667
+frame:5154 pts:5154000 pts_time:171.8
+lavfi.freezedetect.freeze_duration=2.333333
+lavfi.freezedetect.freeze_end=171.8
+frame:5199 pts:5199000 pts_time:173.3
+lavfi.freezedetect.freeze_start=171.8
+frame:5233 pts:5233000 pts_time:174.433333
+lavfi.freezedetect.freeze_duration=2.633333
+lavfi.freezedetect.freeze_end=174.433333
+frame:5278 pts:5278000 pts_time:175.933333
+lavfi.freezedetect.freeze_start=174.433333
+frame:5316 pts:5316000 pts_time:177.2
+lavfi.freezedetect.freeze_duration=2.766667
+lavfi.freezedetect.freeze_end=177.2
+frame:5432 pts:5432000 pts_time:181.066667
+lavfi.freezedetect.freeze_start=179.566667
+frame:5495 pts:5495000 pts_time:183.166667
+lavfi.freezedetect.freeze_duration=3.6
+lavfi.freezedetect.freeze_end=183.166667
+frame:5654 pts:5654000 pts_time:188.466667
+lavfi.freezedetect.freeze_start=186.966667
+frame:5672 pts:5672000 pts_time:189.066667
+lavfi.freezedetect.freeze_duration=2.1
+lavfi.freezedetect.freeze_end=189.066667
+frame:5923 pts:5923000 pts_time:197.433333
+lavfi.freezedetect.freeze_start=195.933333
+frame:5991 pts:5991000 pts_time:199.7
+lavfi.freezedetect.freeze_duration=3.766667
+lavfi.freezedetect.freeze_end=199.7
+frame:6099 pts:6099000 pts_time:203.3
+lavfi.freezedetect.freeze_start=201.8
+frame:6106 pts:6106000 pts_time:203.533333
+lavfi.freezedetect.freeze_duration=1.733333
+lavfi.freezedetect.freeze_end=203.533333
+frame:6239 pts:6239000 pts_time:207.966667
+lavfi.freezedetect.freeze_start=206.466667
+frame:6470 pts:6470000 pts_time:215.666667
+lavfi.freezedetect.freeze_duration=9.2
+lavfi.freezedetect.freeze_end=215.666667
+frame:6543 pts:6543000 pts_time:218.1
+lavfi.freezedetect.freeze_start=216.6
+frame:6547 pts:6547000 pts_time:218.233333
+lavfi.freezedetect.freeze_duration=1.633333
+lavfi.freezedetect.freeze_end=218.233333
+frame:6625 pts:6625000 pts_time:220.833333
+lavfi.freezedetect.freeze_start=219.333333
+frame:6667 pts:6667000 pts_time:222.233333
+lavfi.freezedetect.freeze_duration=2.9
+lavfi.freezedetect.freeze_end=222.233333
+frame:6728 pts:6728000 pts_time:224.266667
+lavfi.freezedetect.freeze_start=222.766667
+frame:6784 pts:6784000 pts_time:226.133333
+lavfi.freezedetect.freeze_duration=3.366667
+lavfi.freezedetect.freeze_end=226.133333
+frame:6829 pts:6829000 pts_time:227.633333
+lavfi.freezedetect.freeze_start=226.133333
+frame:6917 pts:6917000 pts_time:230.566667
+lavfi.freezedetect.freeze_duration=4.433333
+lavfi.freezedetect.freeze_end=230.566667
+frame:6988 pts:6988000 pts_time:232.933333
+lavfi.freezedetect.freeze_start=231.433333
+frame:7136 pts:7136000 pts_time:237.866667
+lavfi.freezedetect.freeze_duration=6.433333
+lavfi.freezedetect.freeze_end=237.866667
+frame:7209 pts:7209000 pts_time:240.3
+lavfi.freezedetect.freeze_start=238.8
+frame:7302 pts:7302000 pts_time:243.4
+lavfi.freezedetect.freeze_duration=4.6
+lavfi.freezedetect.freeze_end=243.4
+frame:7425 pts:7425000 pts_time:247.5
+lavfi.freezedetect.freeze_start=246
+frame:7435 pts:7435000 pts_time:247.833333
+lavfi.freezedetect.freeze_duration=1.833333
+lavfi.freezedetect.freeze_end=247.833333
+frame:7559 pts:7559000 pts_time:251.966667
+lavfi.freezedetect.freeze_start=250.466667
+frame:7566 pts:7566000 pts_time:252.2
+lavfi.freezedetect.freeze_duration=1.733333
+lavfi.freezedetect.freeze_end=252.2
+frame:7652 pts:7652000 pts_time:255.066667
+lavfi.freezedetect.freeze_start=253.566667
+frame:7686 pts:7686000 pts_time:256.2
+lavfi.freezedetect.freeze_duration=2.633333
+lavfi.freezedetect.freeze_end=256.2
+frame:7733 pts:7733000 pts_time:257.766667
+lavfi.freezedetect.freeze_start=256.266667
+frame:7754 pts:7754000 pts_time:258.466667
+lavfi.freezedetect.freeze_duration=2.2
+lavfi.freezedetect.freeze_end=258.466667
+frame:7799 pts:7799000 pts_time:259.966667
+lavfi.freezedetect.freeze_start=258.466667
+frame:7840 pts:7840000 pts_time:261.333333
+lavfi.freezedetect.freeze_duration=2.866667
+lavfi.freezedetect.freeze_end=261.333333
+frame:7886 pts:7886000 pts_time:262.866667
+lavfi.freezedetect.freeze_start=261.366667
+frame:8028 pts:8028000 pts_time:267.6
+lavfi.freezedetect.freeze_duration=6.233333
+lavfi.freezedetect.freeze_end=267.6
+frame:8080 pts:8080000 pts_time:269.333333
+lavfi.freezedetect.freeze_start=267.833333
+frame:8094 pts:8094000 pts_time:269.8
+lavfi.freezedetect.freeze_duration=1.966667
+lavfi.freezedetect.freeze_end=269.8
+frame:8196 pts:8196000 pts_time:273.2
+lavfi.freezedetect.freeze_start=271.7
+frame:8229 pts:8229000 pts_time:274.3
+lavfi.freezedetect.freeze_duration=2.6
+lavfi.freezedetect.freeze_end=274.3
+frame:8323 pts:8323000 pts_time:277.433333
+lavfi.freezedetect.freeze_start=275.933333
+frame:8444 pts:8444000 pts_time:281.466667
+lavfi.freezedetect.freeze_duration=5.533333
+lavfi.freezedetect.freeze_end=281.466667
+frame:8489 pts:8489000 pts_time:282.966667
+lavfi.freezedetect.freeze_start=281.466667
+frame:8554 pts:8554000 pts_time:285.133333
+lavfi.freezedetect.freeze_duration=3.666667
+lavfi.freezedetect.freeze_end=285.133333
+frame:8636 pts:8636000 pts_time:287.866667
+lavfi.freezedetect.freeze_start=286.366667
+frame:8698 pts:8698000 pts_time:289.933333
+lavfi.freezedetect.freeze_duration=3.566667
+lavfi.freezedetect.freeze_end=289.933333
+frame:8789 pts:8789000 pts_time:292.966667
+lavfi.freezedetect.freeze_start=291.466667
+frame:8862 pts:8862000 pts_time:295.4
+lavfi.freezedetect.freeze_duration=3.933333
+lavfi.freezedetect.freeze_end=295.4
+frame:8957 pts:8957000 pts_time:298.566667
+lavfi.freezedetect.freeze_start=297.066667
+frame:9135 pts:9135000 pts_time:304.5
+lavfi.freezedetect.freeze_duration=7.433333
+lavfi.freezedetect.freeze_end=304.5
+frame:9263 pts:9263000 pts_time:308.766667
+lavfi.freezedetect.freeze_start=307.266667
+frame:9366 pts:9366000 pts_time:312.2
+lavfi.freezedetect.freeze_duration=4.933333
+lavfi.freezedetect.freeze_end=312.2
+frame:9411 pts:9411000 pts_time:313.7
+lavfi.freezedetect.freeze_start=312.2
+frame:9445 pts:9445000 pts_time:314.833333
+lavfi.freezedetect.freeze_duration=2.633333
+lavfi.freezedetect.freeze_end=314.833333
+frame:9624 pts:9624000 pts_time:320.8
+lavfi.freezedetect.freeze_start=319.3
+frame:9655 pts:9655000 pts_time:321.833333
+lavfi.freezedetect.freeze_duration=2.533333
+lavfi.freezedetect.freeze_end=321.833333
+frame:9736 pts:9736000 pts_time:324.533333
+lavfi.freezedetect.freeze_start=323.033333
+frame:9829 pts:9829000 pts_time:327.633333
+lavfi.freezedetect.freeze_duration=4.6
+lavfi.freezedetect.freeze_end=327.633333
+frame:9889 pts:9889000 pts_time:329.633333
+lavfi.freezedetect.freeze_start=328.133333
+frame:10050 pts:10050000 pts_time:335
+lavfi.freezedetect.freeze_duration=6.866667
+lavfi.freezedetect.freeze_end=335
+frame:10098 pts:10098000 pts_time:336.6
+lavfi.freezedetect.freeze_start=335.1
+frame:10100 pts:10100000 pts_time:336.666667
+lavfi.freezedetect.freeze_duration=1.566667
+lavfi.freezedetect.freeze_end=336.666667
+frame:10206 pts:10206000 pts_time:340.2
+lavfi.freezedetect.freeze_start=338.7
+frame:10268 pts:10268000 pts_time:342.266667
+lavfi.freezedetect.freeze_duration=3.566667
+lavfi.freezedetect.freeze_end=342.266667
+frame:10343 pts:10343000 pts_time:344.766667
+lavfi.freezedetect.freeze_start=343.266667
+frame:10359 pts:10359000 pts_time:345.3
+lavfi.freezedetect.freeze_duration=2.033333
+lavfi.freezedetect.freeze_end=345.3
+frame:10433 pts:10433000 pts_time:347.766667
+lavfi.freezedetect.freeze_start=346.266667
+frame:10460 pts:10460000 pts_time:348.666667
+lavfi.freezedetect.freeze_duration=2.4
+lavfi.freezedetect.freeze_end=348.666667
+frame:10638 pts:10638000 pts_time:354.6
+lavfi.freezedetect.freeze_start=353.1
+frame:10679 pts:10679000 pts_time:355.966667
+lavfi.freezedetect.freeze_duration=2.866667
+lavfi.freezedetect.freeze_end=355.966667
+frame:10724 pts:10724000 pts_time:357.466667
+lavfi.freezedetect.freeze_start=355.966667
+frame:10789 pts:10789000 pts_time:359.633333
+lavfi.freezedetect.freeze_duration=3.666667
+lavfi.freezedetect.freeze_end=359.633333
+frame:10834 pts:10834000 pts_time:361.133333
+lavfi.freezedetect.freeze_start=359.633333
+frame:11069 pts:11069000 pts_time:368.966667
+lavfi.freezedetect.freeze_duration=9.333333
+lavfi.freezedetect.freeze_end=368.966667
+frame:11124 pts:11124000 pts_time:370.8
+lavfi.freezedetect.freeze_start=369.3
+frame:11134 pts:11134000 pts_time:371.133333
+lavfi.freezedetect.freeze_duration=1.833333
+lavfi.freezedetect.freeze_end=371.133333
+frame:11221 pts:11221000 pts_time:374.033333
+lavfi.freezedetect.freeze_start=372.533333
+frame:11279 pts:11279000 pts_time:375.966667
+lavfi.freezedetect.freeze_duration=3.433333
+lavfi.freezedetect.freeze_end=375.966667
+frame:11324 pts:11324000 pts_time:377.466667
+lavfi.freezedetect.freeze_start=375.966667
+frame:11780 pts:11780000 pts_time:392.666667
+lavfi.freezedetect.freeze_duration=16.7
+lavfi.freezedetect.freeze_end=392.666667
+frame:11825 pts:11825000 pts_time:394.166667
+lavfi.freezedetect.freeze_start=392.666667
+frame:11908 pts:11908000 pts_time:396.933333
+lavfi.freezedetect.freeze_duration=4.266667
+lavfi.freezedetect.freeze_end=396.933333
+frame:11953 pts:11953000 pts_time:398.433333
+lavfi.freezedetect.freeze_start=396.933333
+frame:12001 pts:12001000 pts_time:400.033333
+lavfi.freezedetect.freeze_duration=3.1
+lavfi.freezedetect.freeze_end=400.033333
+frame:12077 pts:12077000 pts_time:402.566667
+lavfi.freezedetect.freeze_start=401.066667
+frame:12222 pts:12222000 pts_time:407.4
+lavfi.freezedetect.freeze_duration=6.333333
+lavfi.freezedetect.freeze_end=407.4
+frame:12267 pts:12267000 pts_time:408.9
+lavfi.freezedetect.freeze_start=407.4
+frame:12550 pts:12550000 pts_time:418.333333
+lavfi.freezedetect.freeze_duration=10.933333
+lavfi.freezedetect.freeze_end=418.333333
+frame:12595 pts:12595000 pts_time:419.833333
+lavfi.freezedetect.freeze_start=418.333333
+frame:12609 pts:12609000 pts_time:420.3
+lavfi.freezedetect.freeze_duration=1.966667
+lavfi.freezedetect.freeze_end=420.3
+frame:12690 pts:12690000 pts_time:423
+lavfi.freezedetect.freeze_start=421.5
+frame:13180 pts:13180000 pts_time:439.333333
+lavfi.freezedetect.freeze_duration=17.833333
+lavfi.freezedetect.freeze_end=439.333333
+frame:13344 pts:13344000 pts_time:444.8
+lavfi.freezedetect.freeze_start=443.3
+frame:13416 pts:13416000 pts_time:447.2
+lavfi.freezedetect.freeze_duration=3.9
+lavfi.freezedetect.freeze_end=447.2
+frame:13530 pts:13530000 pts_time:451
+lavfi.freezedetect.freeze_start=449.5
+frame:13618 pts:13618000 pts_time:453.933333
+lavfi.freezedetect.freeze_duration=4.433333
+lavfi.freezedetect.freeze_end=453.933333
+frame:13777 pts:13777000 pts_time:459.233333
+lavfi.freezedetect.freeze_start=457.733333
+frame:13862 pts:13862000 pts_time:462.066667
+lavfi.freezedetect.freeze_duration=4.333333
+lavfi.freezedetect.freeze_end=462.066667
+frame:14729 pts:14729000 pts_time:490.966667
+lavfi.freezedetect.freeze_start=489.466667
+frame:14854 pts:14854000 pts_time:495.133333
+lavfi.freezedetect.freeze_duration=5.666667
+lavfi.freezedetect.freeze_end=495.133333
+frame:15185 pts:15185000 pts_time:506.166667
+lavfi.freezedetect.freeze_start=504.666667
+frame:15387 pts:15387000 pts_time:512.9
+lavfi.freezedetect.freeze_duration=8.233333
+lavfi.freezedetect.freeze_end=512.9
