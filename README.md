@@ -186,12 +186,12 @@ git restore --source=<해시> -- .              # 되돌리기
 
 | 시각 (KST) | 슬롯 | 커밋 | 어디까지 |
 |---|---|---|---|
+| 2026-09-11 11:11 | `save/2026-09-11-1111` | `4452837` | 최종본 #1~#10 실측 원자료를 lab/finalscan/ 에 등재 (로컬 영상 세션 전달용) |
 | 2026-09-03 21:55 | `save/2026-09-03-2155` | `d7e9bba` | 차12 r13.1 — 캔들 배색 프리셋 정정(청록/빨강) 23클립 전량 재렌더·재납품 |
 | 2026-09-03 20:00 | `save/2026-09-03-2000` | `7bbe1e8` | 차12 r13 — 기법 프레임 실측 반영(등장 4f·디졸브 30f), DB r72·룰북 무동작 결정·카탈로그 6종 보정, 카피맵+참고스틸 납품 |
 | 2026-09-03 19:25 | `save/2026-09-03-1925` | `90cb360` | 차12 r13 기법 실측 완료 — 최종본 10편 전수(시트·픽셀·YDIF) + prproj 11편 키프레임 전수 → brand/FX-WHITELIST.md 화이트리스트 확정 |
 | 2026-09-03 17:38 | `save/2026-09-03-1738` | `3076de9` | 브리프 §4 보강 — '로컬 검증 필요' 항목은 FINDINGS 별도 절로 (클라우드 리뷰 + 로컬 후속 확인 체계) |
 | 2026-09-03 17:09 | `save/2026-09-03-1709` | `be9f0f9` | 시즌1 레드팀 준비 완료 — 취합 검증(에이전트 8)·REDTEAM-BRIEF 최종판·CLAUDE.md/DB 뷰 낡음 정정 — 요청 71, next_step 32 |
-| 2026-09-03 16:44 | `save/2026-09-03-1644` | `cf7bac8` | 시즌1 레드팀 준비 중간 — D v6 합류, REDTEAM-BRIEF 초안(효율성 렌즈), next_step 32 — 검증 워크플로 진행 중 |
 
 ---
 
@@ -221,6 +221,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `lab/ae/AEP-MOGRT-조사보고.txt` | .aep/.mogrt 납품 가능성 조사 — 공식 자료 vs 우리 실측, 결론: 파일 직접 쓰기 배제, ExtendScript 로 AE 가 굽게 한다 (next_step 27) |
 | `lab/ae/cut2-base-r63-무주석.png` | 컷② 무주석 바닥 스틸 (reveal 63, 캔들+20일선만) — AE 파일럿 A3 의 바닥. 재현 씬은 lab/ae/cut2-base.scenes.js |
 | `lab/cutedit` | CAM 촬영본 전사 원본(cam_transcript.json) — 컷 재현·재검증용 |
+| `lab/finalscan` | 최종본 #1~#10 기계 실측 원자료 — 콘택트시트·프레임별 YDIF/장면점수 csv·freeze·단일 프레임·카피맵 후보 23장·prproj 드라이브 지도. FX-WHITELIST 의 원천 (2026-09-11 등재) |
 | `log/AE-LAB-MANUAL.md` | AE .aep/.mogrt 파일럿(sl-11-4 컷② 손익비) — D 세션용 마일스톤 A1~A6 + 사용자 단계. 보고는 log/AE-LAB.md, 잡은 tools/ae/jobs/, 옆가지 local/ae-lab |
 | `log/PREMIERE-LAB-MANUAL.md` | 프리미어 직접 편집 실험(D 세션) 매뉴얼 — 경로·마일스톤·함정·병합 프로토콜 |
 | `log/PREMIERE-LAB-REPORT.md` | D 의 M2~M6 총괄 보고 — 판정표·매뉴얼 정정·등재 요청·판단 요청 4건 |

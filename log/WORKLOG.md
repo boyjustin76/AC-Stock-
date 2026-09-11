@@ -232,6 +232,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 경로 | 역할 | 설명 |
 |---|---|---|
 | `lab/cutedit` | 기록 | CAM 촬영본 전사 원본(cam_transcript.json) — 컷 재현·재검증용 |
+| `lab/finalscan` | 기록 | 최종본 #1~#10 기계 실측 원자료 — 콘택트시트·프레임별 YDIF/장면점수 csv·freeze·단일 프레임·카피맵 후보 23장·prproj 드라이브 지도. FX-WHITELIST 의 원천 (2026-09-11 등재) |
 | `.gitignore` | 기타 |  |
 | `CLAUDE.md` | 기타 |  |
 | `brand/FX-WHITELIST.md` | 기타 |  |
@@ -284,6 +285,25 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `lab/ae/pilot.aep` | 기타 |  |
 | `lab/ae/차11-4 손익비.mogrt` | 기타 |  |
 | `lab/cmg12/rsi-smoke.scenes.js` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/auto-update.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/builtin-mcp-incidents.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/claude-ai-web-log.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/cowork-vm-log.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/custom3p-setup-log.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/deployment-mode.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/dmp-names.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/history-import.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/main-log-other-profile.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/main-log.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/manifest.json` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/mcp-log.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/mcp-server-logs.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/mcp-servers.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/provider-status.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/reachability.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/system-info.txt` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/인수인계_프롬프트.md` | 기타 |  |
+| `lab/diag/2026-09-08-desktop-disconnect/진단결과.md` | 기타 |  |
 | `lab/premiere/baseline_open_save.prproj` | 기타 |  |
 | `lab/premiere/frames/06_60s.png` | 기타 |  |
 | `lab/premiere/frames/08_50s.png` | 기타 |  |
@@ -1352,3 +1372,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 253 | `24182323` | 세이브 기록 save/2026-09-03-2000 | 5파일 +11/-3 |
 | 254 | `bbde19ce` | 차12 r13.1: 캔들 배색 정정 — 차트명가 프리셋(상승 청록/하락 빨강)으로 | 5파일 +16/-15 |
 | 255 | `d7e9bbaf` | 세이브 save/2026-09-03-2155 — 차12 r13.1 — 캔들 배색 프리셋 정정(청록/빨강) 23클립 전량 재렌더·재납품 | 3파일 +3/-1 |
+| 256 | `551eabf1` | 세이브 기록 save/2026-09-03-2155 | 5파일 +11/-3 |
+| 257 | `c44ab3de` | Add files via upload | 17파일 +489/-0 |
+| 258 | `b95e9def` | 진단 번들 정리 — 사무실 PC 데스크탑 앱 연결 끊김(2026-09-08) 17파일을 lab/diag/ 로 | 17파일 +0/-0 |
+| 259 | `326bb103` | 진단 결과 — 데스크탑 앱 연결 끊김은 네트워크가 아니라 로컬 세션 저장소 공백/디바이스 정체성 불일치 | 1파일 +50/-0 |
+| 260 | `6ebc3c5a` | 인수인계 프롬프트 3종 — 호스트 손실로 끊긴 E·B·D 로컬 세션 재생성용 | 1파일 +67/-0 |
+| 261 | `4452837f` | 세이브 save/2026-09-11-1111 — 최종본 #1~#10 실측 원자료를 lab/finalscan/ 에 등재 (로컬 영상 세션 전달용) | 113파일 +304262/-2 |

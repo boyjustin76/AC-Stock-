@@ -1430,6 +1430,8 @@ REPO_FILES = {
     "scenes/sl-11-5.scenes.js": ("씬", "숏폼 차11-5 박스권 6컷 — seed 71 튜닝(가짜 돌파 2회·하단 반등·장대 음봉)"),
     "deliver/shortform": ("산출물", "납품한 숏폼 자막·컷리스트 (영상·음성은 드라이브/전달분에만)"),
     "lab/cutedit": ("기록", "CAM 촬영본 전사 원본(cam_transcript.json) — 컷 재현·재검증용"),
+    "lab/finalscan": ("기록", "최종본 #1~#10 기계 실측 원자료 — 콘택트시트·프레임별 YDIF/장면점수 csv·"
+        "freeze·단일 프레임·카피맵 후보 23장·prproj 드라이브 지도. FX-WHITELIST 의 원천 (2026-09-11 등재)"),
     "lab/ae/AEP-MOGRT-조사보고.txt": ("문서", ".aep/.mogrt 납품 가능성 조사 — 공식 자료 vs 우리 실측, "
         "결론: 파일 직접 쓰기 배제, ExtendScript 로 AE 가 굽게 한다 (next_step 27)"),
     "tools/render-cmg12-layers.mjs": ("도구", "차12 병합 인트로(intro-hook)를 5층으로 렌더 — 1_candle(mp4 바닥)/"
