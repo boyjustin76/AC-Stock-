@@ -9,7 +9,9 @@
 그래서 합본 시퀀스는 —
   V1   캠 컷(영상+소리 링크) · 나레이션 자리에는 시연 화면(영상만)
   A1·A2 캠 소리 · PD 나레이션 소리(소리만)
-  V2   포인터 시연이 모자란 덩어리만, 시연 구간 전체를 **꺼 둔 클립**으로 (골라 쓸 참고)
+  V2~  포인터 시연이 모자란 덩어리만, 시연 구간 전체를 **꺼 둔 클립**으로 (골라 쓸 참고)
+       시연 전체는 나레이션보다 길어서 서로 겹치면 V3 으로 올린다 — 한 트랙 안에서 겹치면 프리미어가 잘라 읽는다.
+  XML 은 트랙마다 클립을 시작 순서로 적는다 (make_xml) — 뒤섞이면 프리미어에서 클립이 사라지고 깜빡인다.
 
 나레이션 덩어리 — 시간순으로 이어진 PD 나레이션 줄. 줄 사이가 BLOCK_GAP 을 넘으면 다음 덩어리.
   L08 줄 간격은 0~8.8초(재녹음·숨)와 36.5초 이상(시연) 두 무리뿐이라 20초에서 가른다.
@@ -233,6 +235,16 @@ def main():
 
     # ── 시퀀스 컷 ─────────────────────────────────────────────────────
     cuts, report = [], []
+    upper = {}                   # V2 이상 트랙 → 이미 놓은 (시작, 끝) 프레임
+
+    def free_track(s_f, e_f):
+        """시연 전체는 나레이션보다 길어 다음 덩어리 자리까지 덮는다. 겹치지 않는 가장 낮은 V2~ 트랙.
+        L08: 21~26줄 시연 전체(108.85초)가 44~46줄 V2 클립과 겹쳐 프리미어가 둘을 잘라 읽었다."""
+        t = 2
+        while any(s_f < b and a < e_f for a, b in upper.get(t, [])):
+            t += 1
+        upper.setdefault(t, []).append((s_f, e_f))
+        return t
     for it in items:
         c = it["cut"]
         base = {"in": c["in"], "out": c["out"], "at": it["at_f"] / fps, "track": 1,
@@ -260,27 +272,31 @@ def main():
             s_f = frames(bl["demo_s"])
             cuts.append({"src": "PD", "in": s_f / fps, "out": (s_f + need_f) / fps, "at": bl["at_f"] / fps,
                          "track": 1, "audio": False, "label": f"시연 {bl['lines'][0]}~ 머리부터"})
+            t = free_track(bl["at_f"], bl["at_f"] + frames(bl["demo_e"]) - frames(bl["demo_s"]))
             cuts.append({"src": "PD", "in": bl["demo_s"], "out": bl["demo_e"], "at": bl["at_f"] / fps,
-                         "track": 2, "audio": False, "enabled": False,
+                         "track": t, "audio": False, "enabled": False,
                          "label": f"시연 {bl['lines'][0]}~ 전체(골라 쓰기)"})
-            rep.update(mode="모자람 → V1 머리부터 · V2 전체(꺼 둠)")
+            rep.update(mode=f"모자람 → V1 머리부터 · V{t} 전체(꺼 둠)")
         report.append(rep)
 
     # ── 자막 ──────────────────────────────────────────────────────────
-    def combined(side, t):
-        acc_items = [it for it in items if it["side"] == side]
-        for it in sorted(acc_items, key=lambda x: x["cut"]["in"]):
-            c = it["cut"]
-            if t <= c["out"]:
-                return it["at_f"] / fps + max(0.0, t - c["in"])
-        last = max(acc_items, key=lambda x: x["cut"]["in"])
-        return (last["at_f"] + last["n"]) / fps
+    # 줄의 시작·끝을 **그 줄이 든 컷** 안에서 옮긴다 (컷 밖으로 나간 만큼은 컷 끝에 붙인다).
+    # 예전에는 원본 시각으로 '끝이 t 이상인 첫 컷'을 찾았는데, 줄 끝이 컷 OUT 을 조금 넘으면
+    # 다음 컷 머리로 튀었다 — L08 캠 12줄 끝이 46초 → 96초로 가서 뒤 큐가 0.2초씩 밀리고
+    # 끝이 시작보다 앞선 큐가 생겨 프리미어가 1:41 에서 자막을 끊었다 (2026-09-11).
+    def placed(side, r):
+        its = sorted((it for it in items if it["side"] == side and r["i"] in it["idx"]),
+                     key=lambda x: x["cut"]["in"])
+
+        def at(it, t):
+            return (it["at_f"] + min(max(0.0, t * fps - frames(it["cut"]["in"])), it["n"])) / fps
+        return at(its[0], r["s"]), at(its[-1], r["e"])
 
     lines_out = []
     for side, rows, tr, vf in (("캠", cam_rows, cam_tr, cam_vf), ("PD", pd_rows, pd_tr, pd_vf)):
         for r in rows:
             text, _ = spoken_text(r["text"], words_between(tr, r["s"], r["e"]), vf.get(str(r["i"])))
-            lines_out.append((combined(side, r["s"]), combined(side, r["e"]), text))
+            lines_out.append((*placed(side, r), text))
     lines_out.sort()
     cues = []
     for s0, e0, text in lines_out:

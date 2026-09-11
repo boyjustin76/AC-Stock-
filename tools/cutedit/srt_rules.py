@@ -186,24 +186,47 @@ def parse_srt(path):
     return cues
 
 
+# 시각 검사 — 끝이 시작보다 앞서거나, 앞 큐와 겹치거나, 너무 짧은 큐.
+# 기존 srt 18개(사람이 만든 숏폼·롱폼 포함) 실측: 끝≤시작·겹침·뒤로 가기 0건,
+# 0.3초 미만 큐는 약 1,400개 중 1개(차명12 롱폼 0.134초). 0.3초 미만은 사람이 한 번 보게 한다.
+MIN_CUE_SEC = 0.3
+
+
+def _sec(tc):
+    h, m, s = tc.strip().split(':')
+    s, ms = s.replace('.', ',').split(',')
+    return int(h) * 3600 + int(m) * 60 + int(s) + int(ms) / 1000
+
+
 def check(path, max_len=MAX_LEN):
     cues = parse_srt(path)
-    over, badstart = [], []
+    over, badstart, timing = [], [], []
+    prev_e = None
     for k, (tc, text) in enumerate(cues, 1):
         if len(text) > max_len:
             over.append((k, len(text), text))
         first = text.split()[0] if text.split() else ''
         if _bad_break(first):
             badstart.append((k, text))
+        s, e = (_sec(x) for x in tc.split('-->'))
+        if e <= s:
+            timing.append((k, f'끝이 시작보다 앞섬 {tc.strip()}'))
+        elif e - s < MIN_CUE_SEC:
+            timing.append((k, f'{e - s:.3f}초 < {MIN_CUE_SEC}초 {tc.strip()}'))
+        if prev_e is not None and s < prev_e - 1e-6:
+            timing.append((k, f'앞 큐와 겹침/뒤로 감 {tc.strip()}'))
+        prev_e = e
     print(f'{path}: 큐 {len(cues)}개, 최장 {max((len(t) for _, t in cues), default=0)}자'
           f'  (기준 {max_len}자)')
     for k, L, t in over:
         print(f'  ⚠ #{k} {L}자 > {max_len}: {t}')
     for k, t in badstart:
         print(f'  ⚠ #{k} 의존명사로 시작 (앞 큐와 가른 자리 확인): {t}')
-    if not over and not badstart:
+    for k, t in timing:
+        print(f'  ⚠ #{k} 시각: {t}')
+    if not over and not badstart and not timing:
         print('  통과')
-    return not over and not badstart
+    return not over and not badstart and not timing
 
 
 if __name__ == '__main__':

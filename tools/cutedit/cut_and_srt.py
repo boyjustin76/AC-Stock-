@@ -254,13 +254,18 @@ def main():
                               f"  {(cf.get('why') or {}).get(k, '')}")
                         c[kind] = float(v)
 
+    # 타임라인 자리는 make_xml 과 똑같이 **프레임으로 반올림한 컷**을 이어서 센다.
+    # 초로 더하면 컷마다 반 프레임까지 어긋난 게 쌓인다 — L08 캠 27컷에서 자막이 XML 보다 최대 0.08초 늦었다.
+    def fr(t):
+        return int(round(t * a.fps))
+
     def to_out(t):
-        acc = 0.0
+        acc = 0
         for c in cuts:
             if t <= c["out"]:
-                return acc + max(0.0, t - c["in"])
-            acc += c["out"] - c["in"]
-        return acc
+                return acc / a.fps + max(0.0, t - fr(c["in"]) / a.fps)
+            acc += max(0, fr(c["out"]) - fr(c["in"]))
+        return acc / a.fps
 
     cues, changed = [], []
     for r in rows:

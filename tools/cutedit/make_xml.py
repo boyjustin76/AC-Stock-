@@ -81,7 +81,10 @@ def build(spec):
             f"<audio><samplecharacteristics><depth>16</depth><samplerate>48000</samplerate>"
             f"</samplecharacteristics><channelcount>2</channelcount></audio></media></file>")
 
-    vtracks, a1, a2 = {}, [], []
+    # 트랙 → 클립들. 다 모은 뒤 트랙마다 시작 순서로 세워서 적는다.
+    # 프리미어는 트랙 안 클립 순서가 뒤섞인 XML 을 제대로 못 읽는다 — L08 합본에서 캠 컷 27개 뒤에
+    # 시연 클립 30개를 붙여 적었더니 시연 클립이 대부분 안 보이고 남은 것도 깜빡였다 (2026-09-11).
+    tracks = {}
     at = 0                       # V1 위 현재 자리 (프레임)
     end_max = 0
     for i, c in enumerate(spec["cuts"], 1):
@@ -109,43 +112,57 @@ def build(spec):
         end_max = max(end_max, e)
         label = html.escape(c.get("label") or f"cut{i}")
         vid, a1id, a2id = f"cv{i}", f"ca{i}a", f"ca{i}b"
-        link = ""
-        if has_audio and has_video:
-            ci = len(vtracks.get(tr, [])) + 1
-            link = (
-                f"<link><linkclipref>{vid}</linkclipref><mediatype>video</mediatype>"
-                f"<trackindex>{tr}</trackindex><clipindex>{ci}</clipindex></link>"
-                f"<link><linkclipref>{a1id}</linkclipref><mediatype>audio</mediatype>"
-                f"<trackindex>1</trackindex><clipindex>{len(a1) + 1}</clipindex>"
-                f"<groupindex>1</groupindex></link>"
-                f"<link><linkclipref>{a2id}</linkclipref><mediatype>audio</mediatype>"
-                f"<trackindex>2</trackindex><clipindex>{len(a2) + 1}</clipindex>"
-                f"<groupindex>1</groupindex></link>")
+        linked = (vid, a1id, a2id) if has_audio and has_video else None
+        base = {"s": s, "e": e, "in": i_f, "out": o_f, "k": k, "label": label, "linked": linked}
         if has_video:
             en = "TRUE" if c.get("enabled", True) else "FALSE"   # 꺼 둔 클립 = 골라 쓸 참고 소스
-            vtracks.setdefault(tr, []).append(
-                f'<clipitem id="{vid}"><name>{label}</name><enabled>{en}</enabled>'
-                f"<duration>{sfr[k]}</duration>{R}"
-                f"<start>{s}</start><end>{e}</end><in>{i_f}</in><out>{o_f}</out>"
-                f"{file_ref(k)}<compositemode>normal</compositemode>{link}</clipitem>")
-        if not has_audio:
-            continue
-        for ch, aid, bucket in ((1, a1id, a1), (2, a2id, a2)):
-            # 오디오만 클립이 그 원본의 첫 등장이면 여기서 파일을 자세히 적는다
-            bucket.append(
-                f'<clipitem id="{aid}"><name>{label}</name><enabled>TRUE</enabled>'
-                f"<duration>{sfr[k]}</duration>{R}"
-                f"<start>{s}</start><end>{e}</end><in>{i_f}</in><out>{o_f}</out>"
-                f"{file_ref(k)}"
+            tracks.setdefault(("v", tr), []).append(dict(base, id=vid, en=en))
+        if has_audio:
+            for ch, aid in ((1, a1id), (2, a2id)):
+                tracks.setdefault(("a", ch), []).append(dict(base, id=aid, en="TRUE"))
+
+    for v in tracks.values():
+        v.sort(key=lambda x: x["s"])
+    where = {x["id"]: (key[1], j) for key, v in tracks.items() for j, x in enumerate(v, 1)}
+
+    def link(x):
+        if not x["linked"]:
+            return ""
+        vid, a1id, a2id = x["linked"]
+        (vt, vi), (_, i1), (_, i2) = where[vid], where[a1id], where[a2id]
+        return (
+            f"<link><linkclipref>{vid}</linkclipref><mediatype>video</mediatype>"
+            f"<trackindex>{vt}</trackindex><clipindex>{vi}</clipindex></link>"
+            f"<link><linkclipref>{a1id}</linkclipref><mediatype>audio</mediatype>"
+            f"<trackindex>1</trackindex><clipindex>{i1}</clipindex>"
+            f"<groupindex>1</groupindex></link>"
+            f"<link><linkclipref>{a2id}</linkclipref><mediatype>audio</mediatype>"
+            f"<trackindex>2</trackindex><clipindex>{i2}</clipindex>"
+            f"<groupindex>1</groupindex></link>")
+
+    # 파일은 문서에 처음 나오는 클립에서 자세히 적는다 (영상 트랙 → 오디오 트랙 순서로 적으므로 여기서 부른다)
+    def vclip(x):
+        return (f'<clipitem id="{x["id"]}"><name>{x["label"]}</name><enabled>{x["en"]}</enabled>'
+                f"<duration>{sfr[x['k']]}</duration>{R}"
+                f"<start>{x['s']}</start><end>{x['e']}</end><in>{x['in']}</in><out>{x['out']}</out>"
+                f"{file_ref(x['k'])}<compositemode>normal</compositemode>{link(x)}</clipitem>")
+
+    def aclip(x, ch):
+        return (f'<clipitem id="{x["id"]}"><name>{x["label"]}</name><enabled>TRUE</enabled>'
+                f"<duration>{sfr[x['k']]}</duration>{R}"
+                f"<start>{x['s']}</start><end>{x['e']}</end><in>{x['in']}</in><out>{x['out']}</out>"
+                f"{file_ref(x['k'])}"
                 f"<sourcetrack><mediatype>audio</mediatype>"
-                f"<trackindex>{ch}</trackindex></sourcetrack>{link}</clipitem>")
+                f"<trackindex>{ch}</trackindex></sourcetrack>{link(x)}</clipitem>")
 
-    def atrack(items, ch):
-        return ("<track>" + "".join(items) +
+    nv = max([t for kind, t in tracks if kind == "v"] or [1])
+    vtracks = {t: tracks.get(("v", t), []) for t in range(1, nv + 1) if ("v", t) in tracks}
+    vxml = "".join("<track>" + "".join(vclip(x) for x in tracks.get(("v", t), [])) + "</track>"
+                   for t in range(1, nv + 1))
+
+    def atrack(ch):
+        return ("<track>" + "".join(aclip(x, ch) for x in tracks.get(("a", ch), [])) +
                 f"<outputchannelindex>{ch}</outputchannelindex></track>")
-
-    vxml = "".join("<track>" + "".join(vtracks.get(t, [])) + "</track>"
-                   for t in range(1, max(vtracks or {1: 0}) + 1))
     return (
         '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE xmeml>\n<xmeml version="4">\n'
         f"<sequence id=\"{html.escape(name)}\"><name>{html.escape(name)}</name>"
@@ -160,7 +177,7 @@ def build(spec):
         "<audio><numOutputChannels>2</numOutputChannels>"
         "<format><samplecharacteristics><depth>16</depth>"
         "<samplerate>48000</samplerate></samplecharacteristics></format>"
-        + atrack(a1, 1) + atrack(a2, 2) +
+        + atrack(1) + atrack(2) +
         "</audio></media></sequence>\n</xmeml>\n"), vtracks
 
 
