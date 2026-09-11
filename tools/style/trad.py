@@ -49,17 +49,28 @@ def tw(f, s):
     b = f.getbbox(s); return b[2] - b[0]
 
 
-def btext(d, xy, s, font, fill=INK, anchor='lm', bold=0, halo=None):
-    """궁서는 획이 얇다 — 같은 색 1px 스트로크로 굵히고, 필요하면 한지색 후광을 먼저 깐다 (중장년 가독성)"""
+def btext(canvas, xy, s, font, fill=INK, anchor='lm', bold=0, halo=None):
+    """궁서는 획이 얇다. PIL 의 stroke_width 는 겹치는 윤곽(한글 대부분)에서 구멍을 내므로 쓰지 않는다 —
+    L 마스크에 글자를 찍고 MaxFilter 로 팽창시켜 굵기·후광을 만든다. canvas 는 RGBA 이미지."""
+    if isinstance(canvas, ImageDraw.ImageDraw):
+        canvas = canvas._image
+    m = Image.new('L', canvas.size, 0)
+    ImageDraw.Draw(m).text(xy, s, font=font, fill=255, anchor=anchor)
     if halo:
-        d.text(xy, s, font=font, fill=halo, anchor=anchor, stroke_width=bold + 3, stroke_fill=halo)
-    d.text(xy, s, font=font, fill=fill, anchor=anchor, stroke_width=bold, stroke_fill=fill)
+        hm = m.filter(ImageFilter.MaxFilter(2 * (bold + 3) + 1))
+        canvas.paste(Image.new('RGBA', canvas.size, halo + (255,)), (0, 0), hm)
+    if bold:
+        m = m.filter(ImageFilter.MaxFilter(2 * bold + 1))
+    canvas.paste(Image.new('RGBA', canvas.size, fill + (255,)), (0, 0), m)
+
+
+WARM = 60   # data/synth/newch-trad.json 앞의 워밍업 봉 수 (tools/style/trad-bars.mjs)
 
 
 class Cam:
     def __init__(self, c):
         self.X0, self.BW, self.Y0, self.K = (c[k]['v'][0] for k in ('X0', 'BW', 'Y0', 'K'))
-    def x(self, bar): return self.X0 + bar * self.BW
+    def x(self, bar): return self.X0 + (bar + WARM) * self.BW   # bar 는 워밍업 전 번호 (0~63)
     def y(self, price): return self.Y0 - price * self.K
 
 
@@ -218,7 +229,7 @@ def hyeonpan(canvas, x, y, title, size=40):
     d = ImageDraw.Draw(canvas)
     d.rectangle((x, y, x + w, y + h), fill=LACQ)
     d.rectangle((x + 5, y + 5, x + w - 5, y + h - 5), outline=GOLD, width=2)
-    d.text((x + w / 2, y + h / 2 + 1), title, font=f, fill=HANJI2, anchor='mm', stroke_width=1, stroke_fill=HANJI2)
+    btext(canvas, (x + w / 2, y + h / 2 + 1), title, f, HANJI2, anchor='mm', bold=1)
     return (x, y, x + w, y + h)
 
 
@@ -238,7 +249,7 @@ def jokja(canvas, text, y=1012, size=44):
     d.rectangle((x0 + w - 26, y - h // 2, x0 + w, y + h // 2), fill=JJOK)
     d.rectangle((x0 - 8, y - h // 2 - 5, x0 + 4, y + h // 2 + 5), fill=WOOD)
     d.rectangle((x0 + w - 4, y - h // 2 - 5, x0 + w + 8, y + h // 2 + 5), fill=WOOD)
-    d.text((960, y + 1), text, font=f, fill=INK, anchor='mm', stroke_width=1, stroke_fill=INK)
+    btext(canvas, (960, y + 1), text, f, INK, anchor='mm', bold=1)
 
 
 def logo_seal(canvas, cx, cy, size=150, color=RED):
@@ -303,19 +314,21 @@ def toolkit(canvas, cam, chart):
         for u in used:
             if abs(y - u) < 30: y = u + 30
         used.append(y)
-        btext(d, (cam.x(63) + cam.BW * 1.2, y), name, gung(32), YEL_TXT if c == YEL else c, halo=HANJI2)
+        btext(canvas, (cam.x(63) + cam.BW * 1.2, y), name, gung(32), YEL_TXT if c == YEL else c, halo=HANJI2)
     # 매수/매도 낙관
-    seal(canvas, cam.x(43), cam.y(LV_STOP) + 78, '매수', RED, 104, 104, tilt=-5)
+    seal(canvas, cam.x(43), cam.y(LV_STOP) + 108, '매수', RED, 104, 104, tilt=-5)
     seal(canvas, cam.x(36), cam.y(24085), '매도', JJOK, 104, 104, tilt=4)
     # 붓 원 — 재지지
     brush_ellipse(canvas, cam.x(52), cam.y(LV_ENTRY + 130), 68, 76, wmin=2.5, wmax=8)
     # ①②③ 원형 낙관 + 먹 궁서
     d = ImageDraw.Draw(canvas)
-    for ch, bar, price, body in (('一', 16, 24140, '정배열 확인'), ('二', 27, 23585, '20일선 눌림목'), ('三', 50, 23540, '반등 양봉에 매수')):
+    for ch, bar, price, body, side in (('一', 16, 24140, '정배열 확인', 'r'), ('二', 27, 23585, '20일선 눌림목', 'l'), ('三', 50, 23540, '반등 양봉에 매수', 'r')):
         cx, cy = cam.x(bar), cam.y(price)
         seal_round(canvas, cx, cy, ch, 28)
-        d = ImageDraw.Draw(canvas)
-        btext(d, (cx + 40, cy + 1), body, gung(32), INK, halo=HANJI2)
+        if side == 'r':
+            btext(canvas, (cx + 40, cy + 1), body, gung(32), INK, halo=HANJI2)
+        else:   # 원 아래 — 오른쪽은 50일선, 왼쪽은 캔들이 지나간다
+            btext(canvas, (cx, cy + 100), body, gung(32), INK, anchor='mm', halo=HANJI2)
     # 물음표 — 횡보 가짜 신호 (붓글씨)
     d.text((cam.x(13), cam.y(23470)), '?', font=brush(120), fill=RED, anchor='mm')
 
@@ -371,7 +384,7 @@ def still_logo(out):
     logo = Image.open(LOGO).convert('RGBA').resize((90, 90), Image.LANCZOS)
     c.alpha_composite(logo, (1700, 900))
     d = ImageDraw.Draw(c)
-    btext(d, (1745, 1020), '원본 로고 (분홍) → 두인으로 변주', gung(22), JJOK, anchor='mm')
+    btext(c, (1745, 1020), '원본 로고 (분홍) → 두인으로 변주', gung(22), JJOK, anchor='mm')
     c.convert('RGB').save(os.path.join(out, '전통_1_로고.png'))
 
 
@@ -400,16 +413,17 @@ def still_outro(out):
     d.rectangle((140, 540, 580, 788), fill=HANJI2, outline=JJOK, width=3)
     d.text((360, 664), '영상 자리', font=gung(30), fill=(0x8A, 0x80, 0x74), anchor='mm')
     # 가운데: 이름 + 낙관
-    d.text((960, 440), '차트명가', font=gung(120), fill=INK, anchor='mm', stroke_width=1, stroke_fill=INK)
+    btext(c, (960, 440), '차트명가', gung(120), INK, anchor='mm', bold=1)
     seal(c, 960, 630, '名家', RED, 130, 130, gung(56), tilt=-4)
     d = ImageDraw.Draw(c)
-    btext(d, (960, 770), '해외선물 매매기법', gung(40), JJOK, anchor='mm')
+    btext(c, (960, 770), '해외선물 매매기법', gung(40), JJOK, anchor='mm')
     # 먹 캔들 소묘 — 이 화면이 '차트' 채널임을 알리는 표식
-    for i, (o, cl, hi, lo) in enumerate([(0.55, 0.3, 0.6, 0.25), (0.3, 0.5, 0.55, 0.28), (0.5, 0.42, 0.58, 0.35), (0.42, 0.7, 0.75, 0.4), (0.7, 0.9, 0.95, 0.66)]):
-        x = 828 + i * 66; base_y, hgt = 930, 130
-        col = RED if cl > o else JJOK
-        d.line((x, base_y - hi * hgt, x, base_y - lo * hgt), fill=col, width=4)
-        d.rectangle((x - 16, base_y - max(o, cl) * hgt, x + 16, base_y - min(o, cl) * hgt), fill=col if cl > o else HANJI2, outline=col, width=4)
+    ohlc = [(0.18, 0.36, 0.40, 0.14), (0.36, 0.26, 0.39, 0.22), (0.26, 0.50, 0.54, 0.24), (0.50, 0.40, 0.53, 0.36), (0.40, 0.66, 0.70, 0.38), (0.66, 0.56, 0.69, 0.52), (0.56, 0.86, 0.90, 0.54)]
+    for i, (o, cl, hi, lo) in enumerate(ohlc):
+        x = 780 + i * 60; base_y, hgt = 935, 180
+        up = cl > o; col = RED if up else JJOK
+        d.line((x, base_y - hi * hgt, x, base_y - lo * hgt), fill=col, width=3)
+        d.rectangle((x - 13, base_y - max(o, cl) * hgt, x + 13, base_y - min(o, cl) * hgt), fill=col if up else HANJI2, outline=col, width=3)
     logo_seal(c, 960, 190, 110)
     # 오른폭: 구독·좋아요 낙관 버튼
     hyeonpan(c, 1350, 80, '구독 · 알림', 34)

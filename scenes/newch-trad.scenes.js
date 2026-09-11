@@ -4,23 +4,19 @@
  * 한지·병풍 틀·낙관 태그·족자 자막은 tools/style/trad.py 가 카메라 좌표로 얹는다.
  * 이평 색 = 오방색(단청 실측): 적 #D42A26(10) · 황 #C9A227(20) · 녹 #0B8A4C(50, 오방의 靑은 단청에서 녹).
  */
+import { loadBars } from '../src/market/loadBars.js';
+
 export default {
   title: '새 채널 스타일 v2 — 전통',
   width: 1920, height: 1080, fps: 30,
   theme: { preset: 'chartmyeongga' },
-  market: {
-    seed: 11, base: 23400, tick: 0.25, vol: 58, barMinutes: 1440,
-    startTime: Date.UTC(2026, 0, 5, 0, 0),
-    segments: [
-      { type: 'trend', dir: 1, bars: 34, strength: 0.52 },
-      { type: 'pullback', dir: 1, bars: 9, strength: 1.15 },
-      { type: 'trend', dir: 1, bars: 52, strength: 0.82 },
-    ],
-  },
+  /* 봉은 data/synth/newch-trad.json (tools/style/trad-bars.mjs): seed 11 합성 + 앞에 워밍업 60봉.
+     워밍업이 있어야 10/20/50 이평이 첫 화면 봉부터 그려진다 (없으면 선이 중간에서 시작해 잘린 것처럼 보인다). */
+  market: { bars: (await loadBars('data/synth/newch-trad.json')).bars, tick: 0.25, barMinutes: 1440 },
   scenes: [{
     id: 'trad', name: '전통 — 차트 본체', duration: 0.5,
     chart: {
-      visibleBars: 58, reveal: 64, pricePad: 0.12,
+      visibleBars: 58, reveal: 124,   /* 60 워밍업 + 64 */ pricePad: 0.12,
       showGrid: false, showAxes: false, showLast: false,
       include: [23555, 24355],
       layout: { padLeft: 150, padRight: 330, padTop: 250, padBottom: 230, rightGap: 6 },
