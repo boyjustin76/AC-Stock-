@@ -36,6 +36,7 @@ CHROME_LINE = (0xD5, 0xDA, 0xE1)
 URL_BG = (0xF1, 0xF3, 0xF6)
 SLATE = (0x94, 0xA3, 0xB8)
 STOP = (0x9F, 0x00, 0x00)
+LV_ENTRY, LV_STOP, LV_TARGET = 23795, 23665, 24055
 ORANGE = (0xF3, 0x88, 0x08)
 
 
@@ -126,26 +127,25 @@ def chrome(canvas, tab_title, url='youtube.com/@chartmyeongga', live=True):
 
 
 def title_block(canvas, title, sub, ticker, x=74, y=172):
-    """차트명가 타이틀 바(로즈 그라데이션+종이) + 칩 2 — 콘텐츠 창 좌상단"""
-    fnt = F['title'](36)
-    w, h = text_w(fnt, title) + 44, 56
-    bar = Image.new('RGB', (w, h))
-    bd = ImageDraw.Draw(bar)
-    c0, c1 = (0x8C, 0x53, 0x5D), (0xD7, 0x6D, 0x83)
-    for i in range(w):
-        t = i / max(1, w - 1)
-        bd.line([(i, 0), (i, h)], fill=tuple(int(c0[k] + (c1[k] - c0[k]) * t) for k in range(3)))
-    bar = Image.blend(bar, paper().crop((x, y, x + w, y + h)), 0.18)
-    canvas.paste(bar, (x, y))
+    """v4 변형: 종이 질감 그라데이션 바 → 로즈 민짜 라운드 바 + 흰 악센트 + 남색 소제목 칩 + 로즈 테두리 타임프레임 칩.
+    자리·크기는 최종본(좌상단 두 줄)과 같고 재질만 바꿨다 — '적당히 변형'."""
     d = ImageDraw.Draw(canvas)
-    d.text((x + 24, y + h // 2 + 2), title, font=fnt, fill=(60, 20, 30), anchor='lm')
-    d.text((x + 22, y + h // 2), title, font=fnt, fill='white', anchor='lm')
+    fnt = F['title'](36)
+    w, h = text_w(fnt, title) + 48, 58
+    shadow(canvas, (x, y, x + w, y + h), 12, blur=8, alpha=26, dy=4)
+    d = ImageDraw.Draw(canvas)
+    d.rounded_rectangle((x, y, x + w, y + h), 12, fill=ROSE)
+    d.rectangle((x, y + 8, x + 6, y + h - 8), fill='white')
+    d.text((x + 26, y + h // 2), title, font=fnt, fill='white', anchor='lm')
     cy = y + h + 14
-    for text, color, fnt2 in ((sub, GRAY_CHIP, F['chip'](24)), (ticker, PINK_CHIP, F['nanum'](24))):
-        tw = text_w(fnt2, text)
-        d.rounded_rectangle((x, cy, x + tw + 40, cy + 44), 22, fill=color)
-        d.text((x + 20, cy + 22), text, font=fnt2, fill='white', anchor='lm')
-        x += tw + 40 + 14
+    f2 = F['chip'](24)
+    tw = text_w(f2, sub)
+    d.rounded_rectangle((x, cy, x + tw + 40, cy + 44), 10, fill=INK)
+    d.text((x + 20, cy + 22), sub, font=f2, fill='white', anchor='lm')
+    x2 = x + tw + 40 + 12
+    tw2 = text_w(f2, ticker)
+    d.rounded_rectangle((x2, cy, x2 + tw2 + 40, cy + 44), 22, fill='white', outline=ROSE, width=3)
+    d.text((x2 + 20, cy + 22), ticker, font=f2, fill=ROSE, anchor='lm')
 
 
 def legend_panel(canvas, x=1640, y=172):
@@ -168,7 +168,8 @@ def subtitle_bar(canvas, text, y=955):
     fnt = F['batang'](46)   # 최종본 자막 = 경기천년바탕 Bold (참고스틸 16장 공통·룰북 E-2)
     tw = text_w(fnt, text)
     d.rectangle((960 - tw // 2 - 30, y - 36, 960 + tw // 2 + 30, y + 36), fill=(0x11, 0x11, 0x11))
-    d.text((960, y), text, font=fnt, fill='white', anchor='mm')
+    d.rectangle((960 - tw // 2 - 30, y - 36, 960 - tw // 2 - 22, y + 36), fill=ROSE)   # v4 변형: 로즈 악센트
+    d.text((960 + 4, y), text, font=fnt, fill='white', anchor='mm')
 
 
 def badge(canvas, text, x, y):
@@ -207,66 +208,104 @@ def box(canvas, cam, b0, b1, p0, p1, color, label, alpha=46, label_pos='in'):
     d.text(((x0 + x1) / 2, ly), label, font=F['title'](24), fill=INK, anchor='mm', stroke_width=5, stroke_fill='white')
 
 
-def pill2(canvas, x, y, head, body, color=(0xF5, 0x0C, 0x54), size=40):
-    """§4-2 핑크 알약 배지 두 줄 — 작은 머리글(①이동평균선 :) + 큰 본문(골든크로스). 차명#2 스틸 실측 문법"""
+def pill2(canvas, x, y, num, body, size=32):
+    """v4 변형: ①②③ 핑크 알약 두 줄 → 남색 알약 한 줄 + 로즈 번호 원."""
     d = ImageDraw.Draw(canvas)
-    fh, fb = F['title'](int(size * 0.62)), F['title'](size)
-    w = max(text_w(fh, head), text_w(fb, body)) + 48
-    h = int(size * 0.62) + size + 40
-    shadow(canvas, (x, y, x + w, y + h), 18, blur=8, alpha=30, dy=4)
+    fb = F['title'](size)
+    r = size // 2 + 6
+    w = text_w(fb, body) + 2 * r + 60
+    h = size + 30
+    shadow(canvas, (x, y, x + w, y + h), h // 2, blur=8, alpha=30, dy=4)
     d = ImageDraw.Draw(canvas)
-    d.rounded_rectangle((x, y, x + w, y + h), 18, fill=color)
-    d.text((x + 24, y + 16), head, font=fh, fill='white', anchor='la')
-    d.text((x + 24, y + 16 + int(size * 0.62) + 8), body, font=fb, fill='white', anchor='la')
+    d.rounded_rectangle((x, y, x + w, y + h), h // 2, fill=INK)
+    d.ellipse((x + 10, y + h // 2 - r, x + 10 + 2 * r, y + h // 2 + r), fill=ROSE)
+    d.text((x + 10 + r, y + h // 2 + 1), num, font=F['title'](size - 2), fill='white', anchor='mm')
+    d.text((x + 10 + 2 * r + 16, y + h // 2), body, font=fb, fill='white', anchor='lm')
     return (x, y, x + w, y + h)
 
 
-def glow(canvas, cx, cy, r, color, alpha=90):
-    """§4-8 소프트 원 글로우 — 연분홍/연보라/노랑 반투명 원, 가장자리 부드럽게"""
+def glow(canvas, cx, cy, r, color, alpha=90, ring=True):
+    """v4 변형: 소프트 원(연한 면)에 같은 색 얇은 링을 하나 더 — 최종본의 부드러운 원을 조금 또렷하게"""
     ov = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     ImageDraw.Draw(ov).ellipse((cx - r, cy - r, cx + r, cy + r), fill=color + (alpha,))
-    canvas.alpha_composite(ov.filter(ImageFilter.GaussianBlur(6)))
+    canvas.alpha_composite(ov.filter(ImageFilter.GaussianBlur(5)))
+    if ring:
+        ImageDraw.Draw(canvas).ellipse((cx - r, cy - r, cx + r, cy + r), outline=color + (235,), width=3)
 
 
-def boxlabel(d, x, y, text, color, size=26, anchor='lm'):
-    """§4-7 색 박스 라벨 — 선 색과 같은 사각 박스 + 흰 글씨"""
+def pill(d, x, y, text, color, size=22, anchor='lm', fg='white'):
+    """색 알약 라벨 — 선 끝(#1 10일선/20일선/50일선) · 띠 라벨(#5 지지선 · #6 당일 시가·저항선)"""
     fnt = F['title'](size)
     tw = text_w(fnt, text)
-    if anchor == 'lm':
-        d.rectangle((x, y - size // 2 - 8, x + tw + 28, y + size // 2 + 8), fill=color)
-        d.text((x + 14, y), text, font=fnt, fill='white', anchor='lm')
-    else:
-        d.rectangle((x - tw - 28, y - size // 2 - 8, x, y + size // 2 + 8), fill=color)
-        d.text((x - 14, y), text, font=fnt, fill='white', anchor='rm')
+    h = size + 18
+    x0 = x if anchor == 'lm' else x - tw - 28
+    d.rounded_rectangle((x0, y - h // 2, x0 + tw + 28, y + h // 2), h // 2, fill=color)
+    d.text((x0 + 14, y), text, font=fnt, fill=fg, anchor='lm')
+    return (x0, y - h // 2, x0 + tw + 28, y + h // 2)
 
 
-def toolkit(canvas, cam, rsi_y):
-    """brand/FX-WHITELIST.md §4 어휘만 — 렌더러가 안 그리는 것들을 같은 카메라 좌표에 얹는다."""
+def band(canvas, x0, x1, y, color, half=9, alpha=70):
+    """지지선·저항선 띠 — 최종본은 반투명 초록/빨간 띠(#5·#6·#8)"""
+    ov = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(ov).rectangle((x0, y - half, x1, y + half), fill=color + (alpha,))
+    canvas.alpha_composite(ov)
+
+
+def dashed(d, x0, x1, y, color, width=3, dash=14, gap=10):
+    x = x0
+    while x < x1:
+        d.line((x, y, min(x + dash, x1), y), fill=color, width=width)
+        x += dash + gap
+
+
+def toolkit(canvas, cam, ma, rsi_y=None):
+    """전편 공통 어휘를 '적당히 변형'해 얹는다. ma = {10: 값, 20: 값, 50: 값} (마지막 봉 이평값)"""
     d = ImageDraw.Draw(canvas)
-    RED = (0xD8, 0x18, 0x1B); INKL = (0x11, 0x11, 0x11)
-    # §4-7 박스권 검은 채널 2선 (진입 전 횡보 150~176) + 라벨
-    x0, x1 = cam.x(150) - cam.BW / 2, cam.x(177)
-    for p in (29424, 29385):
-        d.line((x0, cam.y(p), x1, cam.y(p)), fill=INKL, width=4)
-    boxlabel(d, x0 + 6, cam.y(29424) - 26, '박스권', INKL, size=24)
-    # §4-7 빨간 저항선 + 빨간 박스 라벨 (150~196 고점 29453.5, 봉 194)
-    d.line((x0, cam.y(29453.5), cam.x(200), cam.y(29453.5)), fill=RED, width=6)
-    boxlabel(d, x0 + 6, cam.y(29453.5) - 28, '저항선', RED, size=24)
-    # §4-12 빨간 대형 물음표 — 횡보 속 가짜 교차 자리
-    d.text((cam.x(166), cam.y(29411)), '?', font=F['title'](96), fill=RED, anchor='mm', stroke_width=6, stroke_fill='white')
-    # §4-8 소프트 원 글로우 ①골든크로스(분홍) ②RSI 눌림(연보라) ③조건 충족(노랑)
-    glow(canvas, cam.x(188), cam.y(29428), 52, (0xFF, 0xB6, 0xC8), 110)
-    glow(canvas, cam.x(197), rsi_y, 58, (0xC8, 0xC8, 0xFF), 120)
-    glow(canvas, cam.x(199), cam.y(29436), 50, (0xFF, 0xF2, 0xA8), 110)
+    RED = (0xD8, 0x18, 0x1B); GREEN = (0x0D, 0xA8, 0x2A)
+    xr = cam.x(63) + cam.BW * 0.9
+    # #1 — 이평선 끝 색 알약 (범례 대신 선 끝에)
+    taken = [cam.y(LV_TARGET), cam.y(LV_STOP)]     # 존 알약 자리 — 이평 알약이 36px 안으로 오면 밀어낸다
+    for period, color in ((10, RED), (20, ORANGE), (50, GREEN)):
+        if period in ma:
+            yy = cam.y(ma[period])
+            for t in taken:
+                if abs(yy - t) < 46: yy = t - 48 if yy <= t else t + 48
+            taken.append(yy)
+            pill(d, xr, yy, str(period) + '일선', color, size=22)
+    # #3 — 매수 우위 구간 분홍 면 (진입 뒤, 익절선 위쪽)
+    ov = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(ov).rounded_rectangle((cam.x(44) - cam.BW / 2, cam.y(24480), cam.x(63) + cam.BW / 2, cam.y(LV_TARGET)), 10, fill=ROSE + (26,))
+    canvas.alpha_composite(ov)
     d = ImageDraw.Draw(canvas)
-    # §4-2 ①②③ 핑크 알약 두 줄
-    pill2(canvas, cam.x(176), cam.y(29450) - 150, '①이동평균선 :', '골든크로스', size=36)   # 저항선과 띄운다
-    pill2(canvas, cam.x(209), rsi_y - 40, '②RSI :', '눌림목 구간', size=36)   # V자 오른쪽 빈자리
-    b = pill2(canvas, cam.x(203), cam.y(29418) + 24, '③조건 충족', '매수 진입', size=36)
-    # §4-12 체크마크 — ③ 옆
+    pill(d, cam.x(45), cam.y(24455), '매수 우위 구간', ROSE_SUB, size=22)
+    # #5·#8 — 지지선 초록 띠 · #6 — 저항선 빨간 띠 (+ 알약)
+    band(canvas, cam.x(6) - cam.BW / 2, cam.x(43), cam.y(23703), GREEN, alpha=60)
+    band(canvas, cam.x(6) - cam.BW / 2, cam.x(43), cam.y(23852), RED, alpha=50)
     d = ImageDraw.Draw(canvas)
+    xL = max(WIN[0] + 40, cam.x(6))            # 창 왼끝 안쪽
+    pill(d, xL, cam.y(23703), '지지선', GREEN, size=22)
+    pill(d, xL, cam.y(23852), '저항선', RED, size=22)
+    # #6 — 당일 시가 점선 + 로즈 알약 (점선은 남색으로)
+    y0 = cam.y(23760)
+    dashed(d, cam.x(6) - cam.BW / 2, cam.x(43), y0, INK, width=3)
+    pill(d, cam.x(31), y0, '당일 시가', ROSE, size=22)
+    # 손절/익절 존 라벨 — 존 안 큰 글자 대신 오른끝 알약
+    pill(d, xr, cam.y(LV_TARGET) - 2, '익절 2', (0x14, 0xB8, 0x36), size=24)
+    pill(d, xr, cam.y(LV_STOP) + 2, '손절 1', (0x9F, 0x00, 0x00), size=24)
+    # 소프트 원 + 링 — 눌림목 저점(로즈) · 재돌파(노랑)
+    glow(canvas, cam.x(39), cam.y(23700), 34, (0xFF, 0xB6, 0xC8), 90)   # 매수 태그 아래·왼쪽으로
+    glow(canvas, cam.x(46), cam.y(24000), 40, (0xFF, 0xE9, 0x8A), 110)
+    d = ImageDraw.Draw(canvas)
+    # ①②③ 알약 (남색 + 로즈 번호 원)
+    pill2(canvas, cam.x(18), cam.y(24120), '①', '정배열 확인')
+    pill2(canvas, cam.x(30), cam.y(23600) + 46, '②', '20일선 눌림목')
+    b = pill2(canvas, cam.x(47), cam.y(LV_STOP) + 30, '③', '반등 양봉 → 매수')   # 손절 존 아래 빈자리
     cx, cy = b[2] + 34, (b[1] + b[3]) / 2
-    d.line((cx - 16, cy, cx - 4, cy + 14, cx + 20, cy - 16), fill=(0x0D, 0xA8, 0x2A), width=8)
+    d.line((cx - 16, cy, cx - 4, cy + 14, cx + 20, cy - 16), fill=GREEN, width=8)
+    # RSI 패널 칩 (#9 문법, 남색으로)
+    pill(d, WIN[0] + 40, 800, 'RSI', INK, size=22)
+    # #4·#9 — 빨간 대형 ? (횡보 가짜 신호)
+    d.text((cam.x(14), cam.y(23480)), '?', font=F['title'](88), fill=RED, anchor='mm', stroke_width=6, stroke_fill='white')
 
 
 def watermark(canvas):
@@ -285,9 +324,10 @@ def still_sources(chart_png, cam, a):
     base.alpha_composite(chart, (WIN[0], WIN[1]))
     title_block(base, a.title, a.sub, a.ticker)
     watermark(base)
-    toolkit(base, cam, a.rsi_y)
+    ma = {int(k): float(v) for k, v in (kv.split(':') for kv in a.ma.split(','))} if a.ma else {}
+    toolkit(base, cam, ma, a.rsi_y)
     subtitle_bar(base, a.subtitle)
-    badge(base, '손익비  1 : 2', 344, 462)   # 왼쪽 위 색박스 라벨 아래 — RSI 55/45 눈금과 안 겹치게
+    badge(base, '손익비  1 : 2', 344, 340)
     return base.convert('RGB')
 
 
@@ -375,12 +415,13 @@ def main():
     ap.add_argument('--chart', required=True)
     ap.add_argument('--cam', required=True)
     ap.add_argument('--out', required=True)
-    ap.add_argument('--tab', default='차트명가 — 10·34 이평선 + RSI')
-    ap.add_argument('--title', default='AI를 상대로 승리한 스캘핑 매매법')
-    ap.add_argument('--sub', default='#1 이평선+RSI : 매수 포지션')
-    ap.add_argument('--ticker', default='1분 차트')
-    ap.add_argument('--subtitle', default='골든크로스와 RSI 45에서 55 위치라는')
+    ap.add_argument('--tab', default='차트명가 — 20일선 눌림목 매매법')
+    ap.add_argument('--title', default='20일선 눌림목에서 추세를 끝까지 끌고 가는 법')
+    ap.add_argument('--sub', default='#1 눌림목 + 손익비')
+    ap.add_argument('--ticker', default='나스닥 · 1일 차트')
+    ap.add_argument('--subtitle', default='눌림목에서 잡았으면 추세가 끝날 때까지 들고 갑니다')
     ap.add_argument('--rsi-y', type=float, default=800, dest='rsi_y')
+    ap.add_argument('--ma', default='', help='10:값,20:값,50:값 — 마지막 봉 이평값(선 끝 알약)')
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     cam = Cam(a.cam)
