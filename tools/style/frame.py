@@ -132,7 +132,8 @@ def overlay(title, sub, ticker, with_window=True, footer=True):
     if footer:
         d = ImageDraw.Draw(bez)
         d.rectangle((WIN[0], 1000, WIN[2], 1004), fill=ROSE)
-        draw_text(d, (960, 1044), '차트명가  ·  해외선물 매매기법', F['gyeonggiM'](24), INK2, anchor='mm', spacing=2)
+        # 비전 QA 두 모델이 똑같이 짚은 것 — 푸터가 32px 미만. 30 으로 올린다 (하단 띠 100 안에서 최대)
+        draw_text(d, (960, 1042), '차트명가  ·  해외선물 매매기법', F['gyeonggiM'](30), INK2, anchor='mm', spacing=3)
     return bez
 
 
