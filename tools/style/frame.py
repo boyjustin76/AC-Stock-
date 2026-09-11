@@ -165,9 +165,9 @@ def legend_panel(canvas, x=1640, y=172):
 
 def subtitle_bar(canvas, text, y=955):
     d = ImageDraw.Draw(canvas)
-    fnt = F['title'](38)
+    fnt = F['batang'](46)   # 최종본 자막 = 경기천년바탕 Bold (참고스틸 16장 공통·룰북 E-2)
     tw = text_w(fnt, text)
-    d.rectangle((960 - tw // 2 - 26, y - 33, 960 + tw // 2 + 26, y + 33), fill=(0x11, 0x11, 0x11))
+    d.rectangle((960 - tw // 2 - 30, y - 36, 960 + tw // 2 + 30, y + 36), fill=(0x11, 0x11, 0x11))
     d.text((960, y), text, font=fnt, fill='white', anchor='mm')
 
 
@@ -207,37 +207,74 @@ def box(canvas, cam, b0, b1, p0, p1, color, label, alpha=46, label_pos='in'):
     d.text(((x0 + x1) / 2, ly), label, font=F['title'](24), fill=INK, anchor='mm', stroke_width=5, stroke_fill='white')
 
 
-def toolkit(canvas, cam):
-    """트팩_1 의 도구 견본 전부를 브랜드 문법으로: 링 = 7px 팔레트 색, 라벨 = GmarketSans Bold + 흰 외곽선.
-    자리는 세 구역 — 왼쪽(크로스·추세 시작) · 가운데(눌림목·진입) · 오른쪽(청산·돌파·조정)."""
+def pill2(canvas, x, y, head, body, color=(0xF5, 0x0C, 0x54), size=40):
+    """§4-2 핑크 알약 배지 두 줄 — 작은 머리글(①이동평균선 :) + 큰 본문(골든크로스). 차명#2 스틸 실측 문법"""
     d = ImageDraw.Draw(canvas)
-    # 저항 추세선 — 30번 고점 → 46번 고점, 62번까지 연장 (앵커 사각 셋)
-    (ax, ay), (bx, by) = (cam.x(30), cam.y(23852)), (cam.x(46), cam.y(24032))
-    ex = cam.x(62); ey = ay + (by - ay) * (ex - ax) / (bx - ax)
-    d.line((ax, ay, ex, ey), fill=INK, width=4)
-    for px, py in ((ax, ay), (bx, by), (ex, ey)):
-        d.rectangle((px - 6, py - 6, px + 6, py + 6), fill='white', outline=INK, width=3)
-    d.text((ex - 30, ey + 36), '추세선', font=F['title'](26), fill=INK, anchor='rm', stroke_width=5, stroke_fill='white')
-    # 구간 박스 — 라벨은 박스 위쪽에 얹어 안의 캔들·링과 안 겹치게
-    box(canvas, cam, 33, 37, 23695, 23815, ROSE, '눌림목 구간', label_pos='top')
-    box(canvas, cam, 48, 54, 23945, 24040, (0x60, 0xA5, 0xFA), '횡보 / 조정', label_pos='in')
+    fh, fb = F['title'](int(size * 0.62)), F['title'](size)
+    w = max(text_w(fh, head), text_w(fb, body)) + 48
+    h = int(size * 0.62) + size + 40
+    shadow(canvas, (x, y, x + w, y + h), 18, blur=8, alpha=30, dy=4)
     d = ImageDraw.Draw(canvas)
-    # 링 견본
-    ring(d, cam, 20, 23513, INK2, '지지', r=32, below=True)
-    ring(d, cam, 30, 23852, INK, '저항', below=False)
-    ring(d, cam, 24, 23688, INK, '데드크로스', below=True)
-    ring(d, cam, 60, 24363, TEAL, '청산', below=False)
-    d.text((cam.x(14), cam.y(23425) + 92), '골든크로스', font=F['title'](28), fill=INK, anchor='mm', stroke_width=5, stroke_fill='white')
-    # 추적 손절 — 짧은 암적 선 (익절 밴드 안, 조정 구간 아래)
-    # 비전 QA: 익절 밴드 안에 두면 20일선과 겹쳐 안 읽힌다 → 손절 밴드 안(빈 자리)으로. '올린 손절'로 읽힌다
-    y = cam.y(23760); x0, x1 = cam.x(48), cam.x(55)
-    d.line((x0, y, x1, y), fill=STOP, width=6)
-    d.text(((x0 + x1) / 2, y + 24), '추적 손절', font=F['title'](24), fill=STOP, anchor='mm', stroke_width=5, stroke_fill='white')
-    # 핑크 지시선 — 저항 돌파 봉
-    tx, ty = cam.x(45), cam.y(23960)
-    d.line((tx, ty - 120, tx, ty - 14), fill=PINK_CHIP, width=6)
-    d.line((tx - 24, ty - 40, tx, ty - 14, tx + 24, ty - 40), fill=PINK_CHIP, width=6)
-    d.text((tx, ty - 146), '저항 돌파', font=F['title'](26), fill=PINK_CHIP, anchor='mm', stroke_width=5, stroke_fill='white')
+    d.rounded_rectangle((x, y, x + w, y + h), 18, fill=color)
+    d.text((x + 24, y + 16), head, font=fh, fill='white', anchor='la')
+    d.text((x + 24, y + 16 + int(size * 0.62) + 8), body, font=fb, fill='white', anchor='la')
+    return (x, y, x + w, y + h)
+
+
+def glow(canvas, cx, cy, r, color, alpha=90):
+    """§4-8 소프트 원 글로우 — 연분홍/연보라/노랑 반투명 원, 가장자리 부드럽게"""
+    ov = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(ov).ellipse((cx - r, cy - r, cx + r, cy + r), fill=color + (alpha,))
+    canvas.alpha_composite(ov.filter(ImageFilter.GaussianBlur(6)))
+
+
+def boxlabel(d, x, y, text, color, size=26, anchor='lm'):
+    """§4-7 색 박스 라벨 — 선 색과 같은 사각 박스 + 흰 글씨"""
+    fnt = F['title'](size)
+    tw = text_w(fnt, text)
+    if anchor == 'lm':
+        d.rectangle((x, y - size // 2 - 8, x + tw + 28, y + size // 2 + 8), fill=color)
+        d.text((x + 14, y), text, font=fnt, fill='white', anchor='lm')
+    else:
+        d.rectangle((x - tw - 28, y - size // 2 - 8, x, y + size // 2 + 8), fill=color)
+        d.text((x - 14, y), text, font=fnt, fill='white', anchor='rm')
+
+
+def toolkit(canvas, cam, rsi_y):
+    """brand/FX-WHITELIST.md §4 어휘만 — 렌더러가 안 그리는 것들을 같은 카메라 좌표에 얹는다."""
+    d = ImageDraw.Draw(canvas)
+    RED = (0xD8, 0x18, 0x1B); INKL = (0x11, 0x11, 0x11)
+    # §4-7 박스권 검은 채널 2선 (진입 전 횡보 150~176) + 라벨
+    x0, x1 = cam.x(150) - cam.BW / 2, cam.x(177)
+    for p in (29424, 29385):
+        d.line((x0, cam.y(p), x1, cam.y(p)), fill=INKL, width=4)
+    boxlabel(d, x0 + 6, cam.y(29424) - 26, '박스권', INKL, size=24)
+    # §4-7 빨간 저항선 + 빨간 박스 라벨 (150~196 고점 29453.5, 봉 194)
+    d.line((x0, cam.y(29453.5), cam.x(200), cam.y(29453.5)), fill=RED, width=6)
+    boxlabel(d, x0 + 6, cam.y(29453.5) - 28, '저항선', RED, size=24)
+    # §4-12 빨간 대형 물음표 — 횡보 속 가짜 교차 자리
+    d.text((cam.x(166), cam.y(29411)), '?', font=F['title'](96), fill=RED, anchor='mm', stroke_width=6, stroke_fill='white')
+    # §4-8 소프트 원 글로우 ①골든크로스(분홍) ②RSI 눌림(연보라) ③조건 충족(노랑)
+    glow(canvas, cam.x(188), cam.y(29428), 52, (0xFF, 0xB6, 0xC8), 110)
+    glow(canvas, cam.x(197), rsi_y, 58, (0xC8, 0xC8, 0xFF), 120)
+    glow(canvas, cam.x(199), cam.y(29436), 50, (0xFF, 0xF2, 0xA8), 110)
+    d = ImageDraw.Draw(canvas)
+    # §4-2 ①②③ 핑크 알약 두 줄
+    pill2(canvas, cam.x(176), cam.y(29450) - 150, '①이동평균선 :', '골든크로스', size=36)   # 저항선과 띄운다
+    pill2(canvas, cam.x(209), rsi_y - 40, '②RSI :', '눌림목 구간', size=36)   # V자 오른쪽 빈자리
+    b = pill2(canvas, cam.x(203), cam.y(29418) + 24, '③조건 충족', '매수 진입', size=36)
+    # §4-12 체크마크 — ③ 옆
+    d = ImageDraw.Draw(canvas)
+    cx, cy = b[2] + 34, (b[1] + b[3]) / 2
+    d.line((cx - 16, cy, cx - 4, cy + 14, cx + 20, cy - 16), fill=(0x0D, 0xA8, 0x2A), width=8)
+
+
+def watermark(canvas):
+    """우측 상단 반투명 로고 (최종본 전 회차 공통 자리) — 크롬의 파비콘과 짝"""
+    lg = logo('차트명가_가로.png', 84)
+    a = lg.getchannel('A').point(lambda v: int(v * 0.28))
+    lg.putalpha(a)
+    canvas.alpha_composite(lg, (WIN[2] - 26 - lg.width, WIN[1] + 22))
 
 
 # ── 스틸 5장 ─────────────────────────────────────────────
@@ -247,10 +284,10 @@ def still_sources(chart_png, cam, a):
     chart = Image.open(chart_png).convert('RGBA').crop(WIN)
     base.alpha_composite(chart, (WIN[0], WIN[1]))
     title_block(base, a.title, a.sub, a.ticker)
-    legend_panel(base)
-    toolkit(base, cam)
+    watermark(base)
+    toolkit(base, cam, a.rsi_y)
     subtitle_bar(base, a.subtitle)
-    badge(base, '손익비  1 : 2', 1856, 880)
+    badge(base, '손익비  1 : 2', 344, 462)   # 왼쪽 위 색박스 라벨 아래 — RSI 55/45 눈금과 안 겹치게
     return base.convert('RGB')
 
 
@@ -258,7 +295,7 @@ def still_frame_only():
     base = paper().convert('RGBA')
     chrome(base, '(탭 제목 : 회차 제목)')
     title_block(base, '(타이틀 : 고정)', '(소제목 : 파트마다 교체)', '(종목 : 타임프레임)')
-    legend_panel(base)
+    watermark(base)
     subtitle_bar(base, '(자막 : 검정 박스 + 흰 글자)')
     badge(base, '(배지)', 1856, 880)
     return base.convert('RGB')
@@ -310,22 +347,26 @@ def still_logo():
 def still_palette():
     im = paper().convert('RGB')
     d = ImageDraw.Draw(im)
-    rows = [(ROSE, 'EF2767', '메인 타이틀 · 카드 · LIVE 칩'), (ROSE_SUB, 'ED7F89', '서브 타이틀 · 로고 · 푸터 글자'),
-            (INK, '1E293B', '기기 테두리 · 푸터 · 링 라벨'), (TEAL, '0D9488', '50일선 · 청산 · 반대 개념 강조'),
-            (INK2, '334155', '부가 설명 · 지지 링 · 차트 UI'), (CHROME, 'E6E9EE', '브라우저 크롬 (탭 줄) — 신규')]
-    y = 110
+    rows = [(ROSE, 'EF2767', '메인 타이틀 · 카드 · LIVE 칩'), ((0xF5, 0x0C, 0x54), 'F50C54', '①②③ 핑크 알약 배지 (실측)'),
+            ((0xD8, 0x18, 0x1B), 'D8181B', '10일선 (차명#2 실측)'), ((0xF0, 0x9C, 0x0C), 'F09C0C', '34일선 (차명#2 실측)'),
+            ((0x1E, 0x78, 0xC8), '1E78C8', 'RSI 라인 · 프레임 2743C9'), ((0xC0, 0x27, 0x2D), 'C0272D', '손그림 색연필 원·밑줄'),
+            (INK, '1E293B', '기기 테두리 · 푸터 (신규)'), (CHROME, 'E6E9EE', '브라우저 크롬 탭 줄 (신규)')]
+    y = 70
     for c, hx, role in rows:
-        d.rounded_rectangle((140, y, 340, y + 104), 12, fill=c, outline=(0xDD, 0xD6, 0xCC), width=2)
-        d.text((390, y + 52), hx, font=F['body'](42), fill=c if hx != 'E6E9EE' else INK2, anchor='lm')
-        d.text((640, y + 52), role, font=F['body'](36), fill=INK, anchor='lm')
-        y += 132
-    d.text((1240, 140), '글꼴', font=F['title'](34), fill=INK, anchor='lm')
-    samples = [('타이틀 · 문구 · 링 라벨  GmarketSans Bold', F['title'](30)), ('칩 · 탭 · 주소창  GmarketSans Medium', F['chip'](28)),
-               ('종목 칩  NanumGothic Bold', F['nanum'](28)), ('익절/손절 라벨 · 배지  S-CoreDream 5', F['label'](28)),
-               ('로고 · 푸터  경기천년제목', F['gyeonggi'](30)), ('댓글 유도  경기천년바탕', F['batang'](30))]
-    y = 200
+        d.rounded_rectangle((140, y, 320, y + 96), 12, fill=c, outline=(0xDD, 0xD6, 0xCC), width=2)
+        d.text((360, y + 48), hx, font=F['body'](38), fill=c if hx != 'E6E9EE' else INK2, anchor='lm')
+        d.text((590, y + 48), role, font=F['body'](32), fill=INK, anchor='lm')
+        y += 118
+    d.text((1240, 100), '글꼴', font=F['title'](34), fill=INK, anchor='lm')
+    d.text((1240, 560), '등장 규약 (FX-WHITELIST §2)', font=F['title'](30), fill=INK, anchor='lm')
+    for i, t in enumerate(('텍스트·라벨 등장  4f 팝/페이드', '손그림 드로우온  10~18f', '스틸 교체·존  교차 디졸브 30f', '카메라 줌·팬·리빌  금지')):
+        d.text((1240, 612 + i * 46), t, font=F['chip'](26), fill=INK2, anchor='lm')
+    samples = [('타이틀 · 문구 · 라벨  GmarketSans Bold', F['title'](30)), ('칩 · 탭 · 주소창  GmarketSans Medium', F['chip'](28)),
+               ('종목 칩  NanumGothic Bold', F['nanum'](28)), ('익절/손절 · 배지  S-CoreDream 5', F['label'](28)),
+               ('자막 · 카드  경기천년바탕 Bold', F['batang'](30)), ('로고 · 푸터  경기천년제목', F['gyeonggi'](30))]
+    y = 160
     for s, fnt in samples:
-        d.text((1240, y), s, font=fnt, fill=INK2, anchor='lm'); y += 60
+        d.text((1240, y), s, font=fnt, fill=INK2, anchor='lm'); y += 58
     return im
 
 
@@ -334,11 +375,12 @@ def main():
     ap.add_argument('--chart', required=True)
     ap.add_argument('--cam', required=True)
     ap.add_argument('--out', required=True)
-    ap.add_argument('--tab', default='차트명가 — 20일선 눌림목')
-    ap.add_argument('--title', default='20일선 눌림목에서 추세를 끝까지 끌고 가는 법')
-    ap.add_argument('--sub', default='#1 눌림목 + 손익비')
-    ap.add_argument('--ticker', default='나스닥 : 1일 차트')
-    ap.add_argument('--subtitle', default='눌림목에서 잡았으면 추세가 끝날 때까지 들고 갑니다')
+    ap.add_argument('--tab', default='차트명가 — 10·34 이평선 + RSI')
+    ap.add_argument('--title', default='AI를 상대로 승리한 스캘핑 매매법')
+    ap.add_argument('--sub', default='#1 이평선+RSI : 매수 포지션')
+    ap.add_argument('--ticker', default='1분 차트')
+    ap.add_argument('--subtitle', default='골든크로스와 RSI 45에서 55 위치라는')
+    ap.add_argument('--rsi-y', type=float, default=800, dest='rsi_y')
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     cam = Cam(a.cam)
