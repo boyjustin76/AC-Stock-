@@ -784,18 +784,23 @@ python tools/cutedit/prproj_titles.py 프로젝트.prproj
 **차트명가 아님.** 수치·규칙은 `tools/theone/README.md` 「L08 에서 확인한 것」.
 공용 도구(`tools/cutedit`)를 고쳤으니 여기에도 남긴다. **`log/build_worklog_db.py` 는 손대지 않았다.**
 
+첫 납품(캠 컷 위에 PD 화면을 V2 로 얹은 것)은 촬영 구조를 잘못 알고 한 것이라 폐기했다.
+롱폼은 **캠 녹화(형광 줄) + PD 설명 녹화(일반 줄 나레이션 소리 · 뒤 시연 화면)** 를 대본 순서로 합친다.
+
 | 파일 | 무엇 | 확인 |
 |---|---|---|
-| **`tools/cutedit/docx_script.py`** | 롱폼 촬영 대본 .docx → 정렬용 .txt | **새로 만듦** |
-| **`tools/cutedit/pd_overlay.py`** | PD 설명 녹화 → 컷편집본 V2 시각자료 (대본 자리 기준) | **새로 만듦** · 검증한 결과와 바이트 동일 |
-| `tools/cutedit/make_xml.py` | 원본 여럿 · 트랙 여럿 (V2 는 `at` · `audio:false`) | 원본 하나 spec 바이트 동일 |
-| `tools/cutedit/align_take.py` | 순서 뒤집는 후퇴 삭제 · 약한 후보는 한계선 안 옮김 · 꼬리 붙임(3어절 상한) | S015·S016 정렬 0줄 바뀜 |
-| `tools/cutedit/cut_and_srt.py` | `--long` · 자막 당김 0.15초 · `cut_fix.json` | 당김은 숏폼에도 걸린다 (S015·S016 0.301 → 0.240) |
+| **`tools/cutedit/docx_script.py`** | 롱폼 촬영 대본 .docx → 정렬용 .txt | 새로 만듦 |
+| **`tools/cutedit/assemble_longform.py`** | 캠 컷 + PD 나레이션 소리 + 포인터 시연 화면 → 합본 시퀀스·자막 | 새로 만듦 · 움직임 파일 다시 재도 같은 결과 |
+| `tools/cutedit/make_xml.py` | 원본 여럿 · 트랙 여럿 · 소리만/영상만 · 꺼 둔 클립 | 원본 하나 spec 바이트 동일 |
+| `tools/cutedit/align_take.py` | 순서 뒤집는 후퇴 삭제 · 약한 후보는 한계선 안 옮김 · 꼬리 붙임 · `--exclude` · `align_fix.json` | S016·L08 캠 0줄 · S015 1줄(경계 채점 그대로) |
+| `tools/cutedit/cut_and_srt.py` | `--long` · 자막 당김 0.15초 · `cut_fix.json` · OUT 손잡이 막기 | S015·S016 컷 바뀜 없음 · 당김은 숏폼에도 걸린다 |
 | `tools/cutedit/srt_rules.py` | 롱폼 짧은 조각 벌점 `min_len` · `더` 어절 벌점 | 숏폼 채점대 35/53 그대로 |
+| ~~`tools/cutedit/pd_overlay.py`~~ | 캠 컷 위 V2 시각자료 | **지움** (구조를 잘못 안 것) |
 
 **납품** — `더원트레이더/0910/L08_더블볼린저밴드매매법_260923/`
-`L08_더블볼린저밴드매매법_260923.srt` (112큐) · `…_컷편집.xml` (27컷 278.27초) ·
-`…_컷편집_PD.xml` (+ V2 PD 화면 16클립).
 
-**결정 대기** — 캠 녹화에는 형광 줄만 있고 일반 줄 50줄은 PD 설명 녹화의 나레이션에만 있다.
-롱폼 완성본에 그 나레이션 소리까지 넣을지(컷편집을 PD 녹음까지 넓힐지)는 이정찬 판단.
+| 파일 | 내용 |
+|---|---|
+| `L08_…_260923_전체.srt` · `…_전체_컷편집.xml` | **합본** 49컷 582.82초 · 자막 233큐 |
+| `L08_…_260923_캠.srt` · `…_캠_컷편집.xml` | 캠만 27컷 278.20초 · 112큐 |
+| `L08_…_260923_PD나레이션.srt` · `…_PD나레이션_컷편집.xml` | PD 나레이션만 22컷 304.55초 · 121큐 |

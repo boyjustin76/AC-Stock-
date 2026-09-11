@@ -93,24 +93,25 @@ def build(spec):
             continue
         n = o_f - i_f
         tr = int(c.get("track", 1))
+        has_audio = c.get("audio", True)
+        has_video = c.get("video", True)
+        if not (has_audio or has_video):
+            continue
         if "at" in c:
             s = frames(float(c["at"]), fps)
-        elif tr == 1:
+        elif tr == 1 and has_video:
             s = at
         else:
-            raise SystemExit(f"V{tr} 클립은 'at' 이 필요합니다 (컷 {i})")
+            raise SystemExit(f"V{tr}·오디오만 클립은 'at' 이 필요합니다 (컷 {i})")
         e = s + n
-        if tr == 1:
+        if tr == 1 and has_video:
             at = e
         end_max = max(end_max, e)
-        items = vtracks.setdefault(tr, [])
-        ci = len(items) + 1
-        has_audio = c.get("audio", True)
         label = html.escape(c.get("label") or f"cut{i}")
         vid, a1id, a2id = f"cv{i}", f"ca{i}a", f"ca{i}b"
-        f_ref = file_ref(k)
         link = ""
-        if has_audio:
+        if has_audio and has_video:
+            ci = len(vtracks.get(tr, [])) + 1
             link = (
                 f"<link><linkclipref>{vid}</linkclipref><mediatype>video</mediatype>"
                 f"<trackindex>{tr}</trackindex><clipindex>{ci}</clipindex></link>"
@@ -120,19 +121,22 @@ def build(spec):
                 f"<link><linkclipref>{a2id}</linkclipref><mediatype>audio</mediatype>"
                 f"<trackindex>2</trackindex><clipindex>{len(a2) + 1}</clipindex>"
                 f"<groupindex>1</groupindex></link>")
-        items.append(
-            f'<clipitem id="{vid}"><name>{label}</name><enabled>TRUE</enabled>'
-            f"<duration>{sfr[k]}</duration>{R}"
-            f"<start>{s}</start><end>{e}</end><in>{i_f}</in><out>{o_f}</out>"
-            f"{f_ref}<compositemode>normal</compositemode>{link}</clipitem>")
+        if has_video:
+            en = "TRUE" if c.get("enabled", True) else "FALSE"   # 꺼 둔 클립 = 골라 쓸 참고 소스
+            vtracks.setdefault(tr, []).append(
+                f'<clipitem id="{vid}"><name>{label}</name><enabled>{en}</enabled>'
+                f"<duration>{sfr[k]}</duration>{R}"
+                f"<start>{s}</start><end>{e}</end><in>{i_f}</in><out>{o_f}</out>"
+                f"{file_ref(k)}<compositemode>normal</compositemode>{link}</clipitem>")
         if not has_audio:
             continue
         for ch, aid, bucket in ((1, a1id, a1), (2, a2id, a2)):
+            # 오디오만 클립이 그 원본의 첫 등장이면 여기서 파일을 자세히 적는다
             bucket.append(
                 f'<clipitem id="{aid}"><name>{label}</name><enabled>TRUE</enabled>'
                 f"<duration>{sfr[k]}</duration>{R}"
                 f"<start>{s}</start><end>{e}</end><in>{i_f}</in><out>{o_f}</out>"
-                f'<file id="{fid[k]}"/>'
+                f"{file_ref(k)}"
                 f"<sourcetrack><mediatype>audio</mediatype>"
                 f"<trackindex>{ch}</trackindex></sourcetrack>{link}</clipitem>")
 

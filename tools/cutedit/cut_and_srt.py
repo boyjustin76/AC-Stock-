@@ -127,6 +127,17 @@ def bounds(a, b, tr, sil, anchor_lo=None, anchor_hi=None):
             hi_cand.append(min(starts))
 
     lo, hi = max(lo_cand) - IN_HANDLE, min(hi_cand) + OUT_HANDLE
+    # OUT 손잡이가 다음 말로 넘어가지 않게 — 다음 확실한 낱말 시작보다 늦지 않게.
+    # 말이 쉬지 않고 다음 말(틀린 테이크·PD 목소리)로 이어지면 0.07초 손잡이가 그 머리를 먹는다
+    # (L08 PD 527.02 '하지만' · 981.96 '메인' · 1326.68 '뭔가요', 캠 778.24 '근거가').
+    # S015·S016 수정본 50경계 채점 그대로(0.0511 · 움직인 경계 0).
+    # IN 쪽도 대칭으로 막아 봤는데 근거가 없고 L08 에서 해만 봤다 — STT 가 잡음에서 지어낸
+    # '2'(p0.56)에 붙어 550.27 → 550.35 로 말 시작 30ms 앞까지 좁아졌다. 그래서 OUT 만.
+    if ws:
+        nxt = [w["s"] for seg in tr for w in (seg.get("words") or [])
+               if w.get("p", 1.0) >= WEAK_P and w["s"] >= ws[-1]["e"] - 1e-6 and w["s"] > ws[-1]["s"]]
+        if nxt and min(nxt) < hi:
+            hi = max(min(nxt), w1 - OVERRUN, lo + 0.25)
     if hi <= lo + 0.2:
         lo, hi = w0 - IN_HANDLE, w1 + OUT_HANDLE
     return round(lo, 3), round(hi, 3)

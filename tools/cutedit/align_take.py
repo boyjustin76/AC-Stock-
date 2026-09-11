@@ -11,9 +11,13 @@ align_cut.py 와 논리는 같지만 대본 형식이 다르다. 이쪽은 요�
 `[제목]`·`제목:` 은 화면 배너이면서 오프닝 훅으로 낭독되기도 한다. 낭독되지 않았으면
 정렬에서 후보가 안 잡혀 저절로 빠진다.
 
-    python3 tools/cutedit/align_take.py <작업폴더> <대본.txt>
+    python3 tools/cutedit/align_take.py <작업폴더> <대본.txt> [--exclude <다른폴더>/aligned.json]
       입력  <작업폴더>/cam_transcript.json   (transcribe.py 산출물)
+            <작업폴더>/align_fix.json       있으면 줄별 s·e 손질 {"74": {"e": 1326.61, "why": "…"}}
       출력  <작업폴더>/aligned.json
+    --exclude  다른 녹음에서 이미 확실히 찾은 줄은 비운다. 롱폼은 캠 녹화(형광 줄)와
+               PD 설명 녹화(일반 줄)에 같은 대본을 정렬하는데, PD 녹화에도 캠 줄을 따라 읽거나
+               상투 문구가 우연히 붙은 자리가 있다 (L08 인트로 1줄 · '감사합니다').
 """
 import io
 import json
@@ -178,17 +182,21 @@ def extend_tail(i, lines, chosen, ws):
     0.64초였다. **이어진 말이 다음 문장 머리와 닮았나** 로 가른다. L08 에서 쉬지 않고
     말이 이어진 6곳을 6곳 다 맞혔다 (붙일 것 1 · 안 붙일 것 5). 표본이 얇다.
     마지막 줄은 '다음 머리'가 없으니 TAIL_MAX(3어절)로 막는다 (S015 회귀 — 위 설명).
-    다음 채택 문장에 닿으면 무조건 안 붙인다 (원테이크 숏폼에서 겹치지 않게).
-    회귀: S015·S016 정렬 0줄 바뀜 · L08 캠 0줄 바뀜.
+    다음 채택 문장에 닿으면 거기서 멈춘다 (겹치지 않게 · 바뀐 어미가 쉼 없이 다음 문장에 붙은 자리도 살린다).
+    회귀: S016·L08 캠 정렬 0줄 바뀜 · S015 5줄 끝 '쇼시든'(=숏이든) 되찾음 — 경계 채점 0.0511 그대로.
     """
     c = chosen[i]
     if not c:
         return None
-    nxt_s = min([x[1] for x in chosen[i + 1:] if x] or [1e9])
+    # 뒤 문장 중 **이 문장보다 뒤에 놓인** 채택만 본다. 약한 후보는 한계선을 안 옮기므로
+    # 대본 순서상 뒤 문장이 시간상 앞에 잡혀 있을 수 있다 (L08 PD 28줄 24.72초).
+    nxt_s = min([x[1] for x in chosen[i + 1:] if x and x[1] >= c[1]] or [1e9])
     run, k, prev_e = [], c[5], ws[c[5] - 1][2]
     while k < len(ws) and ws[k][1] - prev_e <= RUN_GAP:
+        # 다음 채택 문장에 닿으면 **거기서 멈춘다** (예전엔 통째로 안 붙였다 — 그러면 바뀐 어미가
+        # 다음 문장에 쉼 없이 붙은 자리에서 꼬리가 잘린다: L08 PD '계속 오르고' → '계속 올라가고 | 강한')
         if ws[k][1] >= nxt_s - 0.01:
-            return None
+            break
         run.append(k)
         prev_e = ws[k][2]
         k += 1
@@ -232,9 +240,15 @@ def pick_last_takes(lines, ws, flat, idx):
 
 
 def main():
-    if len(sys.argv) < 3:
-        sys.exit("사용법: align_take.py <작업폴더> <대본.txt>")
-    S, script = sys.argv[1], sys.argv[2]
+    args = sys.argv[1:]
+    excl = None
+    if "--exclude" in args:
+        k = args.index("--exclude")
+        excl = args[k + 1]
+        del args[k:k + 2]
+    if len(args) < 2:
+        sys.exit("사용법: align_take.py <작업폴더> <대본.txt> [--exclude <다른폴더>/aligned.json]")
+    S, script = args[0], args[1]
     tr = json.load(io.open(os.path.join(S, "cam_transcript.json"), encoding="utf-8"))
     lines = read_script(script)
     ws, flat, idx = word_stream(tr)
@@ -269,6 +283,21 @@ def main():
         st = f"{c[1]:7.2f}-{c[2]:7.2f} {c[0]:.2f}" if c else "   못 찾음        "
         print(f"{mark}{i:3d} [{sec}] {st}  x{len(cands[i])}  {t[:38]}", flush=True)
 
+    if excl:
+        taken = {r["i"] for r in json.load(io.open(excl, encoding="utf-8"))
+                 if r["s"] is not None and (r["score"] or 0) >= FIRM}
+        for r in rows:
+            if r["i"] in taken or (r["s"] is not None and r["score"] < FIRM):
+                r["s"] = r["e"] = r["score"] = None
+        print(f"다른 녹음에서 찾은 줄·약한 후보 비움 → 남은 줄 {sum(r['s'] is not None for r in rows)}개")
+    fx = os.path.join(S, "align_fix.json")
+    if os.path.exists(fx):
+        for k, v in json.load(io.open(fx, encoding="utf-8")).items():
+            for r in rows:
+                if str(r["i"]) == k and r["s"] is not None:
+                    r.update({kk: vv for kk, vv in v.items() if kk in ("s", "e")})
+                    r["note"] = v.get("why", "align_fix.json")
+                    print(f"줄 손질 {k}: {v}")
     json.dump(rows, io.open(os.path.join(S, "aligned.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
     bad = [r for r in rows if r["s"] is None or r["score"] < 0.75]
