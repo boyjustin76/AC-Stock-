@@ -73,6 +73,24 @@ function segmentDrift(seg, i, n, rand) {
  * @returns {{bars:Array, meta:object}}
  */
 export function makeCandles(spec) {
+  // 실데이터 주입 경로 (차12 r13~): spec.bars 에 실제 OHLC 배열을 주면
+  // 합성 없이 그대로 쓴다. 형식은 아래 합성 결과와 동일한 {i,t,o,h,l,c,v}.
+  // 슬라이스는 src/market/loadBars.js 의 sliceBars() 가 i 를 재부여해 만든다.
+  if (Array.isArray(spec.bars)) {
+    const bars = spec.bars;
+    return {
+      bars,
+      meta: {
+        tick: spec.tick ?? 0.25,
+        barMinutes: spec.barMinutes ?? 1,
+        first: bars[0],
+        last: bars[bars.length - 1],
+        high: Math.max(...bars.map((b) => b.h)),
+        low: Math.min(...bars.map((b) => b.l)),
+        real: true,
+      },
+    };
+  }
   const {
     seed = 1,
     base = 24800,

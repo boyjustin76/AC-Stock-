@@ -1,0 +1,8 @@
+Current version: 1.46388.4
+Updates enabled: yes
+Channel:         production
+Update URL:      https://api.anthropic.com
+Install type:    msix (windowsStore=true, appPathMatch=true, source=windowsStore)
+Updater state:   idle
+Pending hours:   0 / enforcement 72h
+Check interval:  every 1h

@@ -1,0 +1,21 @@
+Effective mode:          1P
+Persisted mode choice:   (never set)
+inferenceProvider set:   no
+Bootstrap configured:    no
+Install kind:            msix
+claudeInChromeEnabled:   no
+Claude in Chrome:        off
+
+Control plane (hybrid):
+3P forced by:            nothing (no provider configured, or the user chose 1P)
+Managed tier keys:       none (machine-scoped: no)
+Config library:          absent
+Bootstrap:               not configured (origin=none)
+Served organization:     none (display name not set; last synced never)
+Sign-in screen:          needsInteractiveAuth=no hybrid=no bootstrapHost=- interactiveAuth: none published
+Config health:           not checked yet
+Identity:                launched=local configuration signedIn=no relaunching=no; recorded slots: none (no config file)
+Bootstrap token slot:    n/a (no sign-in slot: not on the control plane and no bootstrapOidc)
+Last token refresh:      none this launch
+Keychain (safeStorage):  available=yes
+1P→hybrid handoff:       not attempted this launch

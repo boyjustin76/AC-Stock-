@@ -1,0 +1,4 @@
+Provider:        Anthropic
+Logged in:       yes
+Account domain:  gmail.com
+3P credentials:  not-configured
