@@ -264,12 +264,15 @@ def toolkit(canvas, cam, ma, rsi_y=None):
     RED = (0xD8, 0x18, 0x1B); GREEN = (0x0D, 0xA8, 0x2A)
     xr = cam.x(63) + cam.BW * 0.9
     # #1 — 이평선 끝 색 알약 (범례 대신 선 끝에)
+    # 손절/익절 존 라벨 — 존 안 큰 글자 대신 오른끝 알약 (이평 알약보다 먼저 그려 아래에 깔린다)
+    pill(d, xr, cam.y(LV_TARGET) - 2, '익절 2', (0x14, 0xB8, 0x36), size=24)
+    pill(d, xr, cam.y(LV_STOP) + 2, '손절 1', (0x9F, 0x00, 0x00), size=24)
     taken = [cam.y(LV_TARGET), cam.y(LV_STOP)]     # 존 알약 자리 — 이평 알약이 36px 안으로 오면 밀어낸다
     for period, color in ((10, RED), (20, ORANGE), (50, GREEN)):
         if period in ma:
             yy = cam.y(ma[period])
             for t in taken:
-                if abs(yy - t) < 46: yy = t - 48 if yy <= t else t + 48
+                if abs(yy - t) < 50: yy = t - 52 if yy <= t else t + 52
             taken.append(yy)
             pill(d, xr, yy, str(period) + '일선', color, size=22)
     # #3 — 매수 우위 구간 분홍 면 (진입 뒤, 익절선 위쪽)
@@ -289,9 +292,6 @@ def toolkit(canvas, cam, ma, rsi_y=None):
     y0 = cam.y(23760)
     dashed(d, cam.x(6) - cam.BW / 2, cam.x(43), y0, INK, width=3)
     pill(d, cam.x(31), y0, '당일 시가', ROSE, size=22)
-    # 손절/익절 존 라벨 — 존 안 큰 글자 대신 오른끝 알약
-    pill(d, xr, cam.y(LV_TARGET) - 2, '익절 2', (0x14, 0xB8, 0x36), size=24)
-    pill(d, xr, cam.y(LV_STOP) + 2, '손절 1', (0x9F, 0x00, 0x00), size=24)
     # 소프트 원 + 링 — 눌림목 저점(로즈) · 재돌파(노랑)
     glow(canvas, cam.x(39), cam.y(23700), 34, (0xFF, 0xB6, 0xC8), 90)   # 매수 태그 아래·왼쪽으로
     glow(canvas, cam.x(46), cam.y(24000), 40, (0xFF, 0xE9, 0x8A), 110)
