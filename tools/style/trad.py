@@ -282,161 +282,212 @@ def ma_ends(chart, colors, x_from=1380, x_to=1430):
     return res
 
 
-def toolkit(canvas, cam, chart):
-    d = ImageDraw.Draw(canvas)
-    xr = cam.x(63) + cam.BW * 0.8
-    xl = cam.x(6) - cam.BW * 0.5
-    # 익절/손절 담채 존 + 진입 먹선
-    wash(canvas, (cam.x(44) - cam.BW / 2, cam.y(LV_TARGET), xr, cam.y(LV_ENTRY)), RED, 34)
-    wash(canvas, (cam.x(44) - cam.BW / 2, cam.y(LV_ENTRY), xr, cam.y(LV_STOP)), JJOK, 30)
-    d = ImageDraw.Draw(canvas)
-    xs = xr + 132   # 존 라벨 낙관 자리 — 이평 끝 라벨(xr~xr+100) 오른쪽
-    ink_line(d, cam.x(44) - cam.BW / 2, xs - 50, cam.y(LV_ENTRY), 3)
-    ink_line(d, cam.x(44) - cam.BW / 2, xs - 50, cam.y(LV_TARGET), 2, RED, dash=(10, 8))
-    ink_line(d, cam.x(44) - cam.BW / 2, xs - 50, cam.y(LV_STOP), 2, JJOK, dash=(10, 8))
-    seal(canvas, xs, cam.y(LV_TARGET), '익절', RED, 96, 50, gung(32), tilt=0)
-    seal(canvas, xs, cam.y(LV_STOP), '손절', JJOK, 96, 50, gung(32), tilt=0)
-    seal(canvas, xs, cam.y(LV_ENTRY), '진입', INK, 96, 50, gung(32), tilt=0, alpha=210)
-    # 지지·저항 먹 점선 + 작은 낙관
-    ys, yr = cam.y(23700), cam.y(23905)
-    xin = PANEL[0] + 40
-    ink_line(d, xin, cam.x(43), ys, 2, INK, dash=(12, 9))
-    ink_line(d, xin, cam.x(43), yr, 2, INK, dash=(12, 9))
-    seal(canvas, xin + 66, ys + 30, '지지', GRN, 90, 48, gung(30), tilt=0)
-    seal(canvas, xin + 66, yr - 30, '저항', RED, 90, 48, gung(30), tilt=0)
-    # 이평선 끝 궁서 라벨 (오방색)
-    ends = ma_ends(chart, {'10일선': RED, '20일선': YEL, '50일선': GRN})
-    d = ImageDraw.Draw(canvas)
-    used = []
-    for name, c in (('10일선', RED), ('20일선', YEL), ('50일선', GRN)):
-        y = ends.get(name)
-        if y is None: continue
-        for u in used:
-            if abs(y - u) < 30: y = u + 30
-        used.append(y)
-        btext(canvas, (cam.x(63) + cam.BW * 1.2, y), name, gung(32), YEL_TXT if c == YEL else c, halo=HANJI2)
-    # 매수/매도 낙관
-    seal(canvas, cam.x(43), cam.y(LV_STOP) + 108, '매수', RED, 104, 104, tilt=-5)
-    seal(canvas, cam.x(36), cam.y(24085), '매도', JJOK, 104, 104, tilt=4)
-    # 붓 원 — 재지지
-    brush_ellipse(canvas, cam.x(52), cam.y(LV_ENTRY + 130), 68, 76, wmin=2.5, wmax=8)
-    # ①②③ 원형 낙관 + 먹 궁서
-    d = ImageDraw.Draw(canvas)
-    for ch, bar, price, body, side in (('一', 16, 24140, '정배열 확인', 'r'), ('二', 27, 23585, '20일선 눌림목', 'l'), ('三', 50, 23540, '반등 양봉에 매수', 'r')):
-        cx, cy = cam.x(bar), cam.y(price)
-        seal_round(canvas, cx, cy, ch, 28)
-        if side == 'r':
-            btext(canvas, (cx + 40, cy + 1), body, gung(32), INK, halo=HANJI2)
-        else:   # 원 아래 — 오른쪽은 50일선, 왼쪽은 캔들이 지나간다
-            btext(canvas, (cx, cy + 100), body, gung(32), INK, anchor='mm', halo=HANJI2)
-    # 물음표 — 횡보 가짜 신호 (붓글씨)
-    d.text((cam.x(13), cam.y(23470)), '?', font=brush(120), fill=RED, anchor='mm')
+# ---------- 레이어 기록기 ----------
+class Layers:
+    """스틸 하나를 레이어 목록으로 짓는다. 합성본(PNG)과 쪼갠 레이어(PNG+목록)를 **같은 그리기 함수**로 낸다.
+
+    add(이름, 그리기함수, blend)  — 그리기 함수는 투명한 전체 크기 RGBA 캔버스에 그린다.
+    쪼갤 때는 알파 상자로 잘라 저장하고 (x, y, w, h) 를 목록에 적는다 → AE 가 그 자리에 놓는다.
+    blend='multiply' 는 흰 바탕 차트처럼 곱하기로 얹는 층 (AE 블렌딩 모드 Multiply 와 같다)."""
+
+    def __init__(self, comp, split_dir=None, footage_prefix=''):
+        self.comp = comp
+        self.split_dir = split_dir
+        self.prefix = footage_prefix
+        self.canvas = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+        self.items = []
+        if split_dir:
+            os.makedirs(split_dir, exist_ok=True)
+
+    def add(self, name, draw, blend='normal', slug=None, full=False):
+        layer = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+        draw(layer)
+        if blend == 'multiply':
+            rgb = ImageChops.multiply(self.canvas.convert('RGB'), layer.convert('RGB'))
+            a = self.canvas.getchannel('A')
+            self.canvas = rgb.convert('RGBA'); self.canvas.putalpha(a)
+        else:
+            self.canvas.alpha_composite(layer)
+        n = len(self.items) + 1
+        box = (0, 0, W, H) if (full or blend == 'multiply') else layer.getbbox()
+        if box is None:
+            return
+        x0, y0, x1, y1 = box
+        if not full and blend != 'multiply':
+            x0, y0, x1, y1 = max(0, x0 - 2), max(0, y0 - 2), min(W, x1 + 2), min(H, y1 + 2)
+        rec = {'n': n, 'name': '%02d %s' % (n, name), 'x': x0, 'y': y0, 'w': x1 - x0, 'h': y1 - y0, 'blend': blend}
+        if self.split_dir:
+            fn = '%s%02d_%s.png' % (self.prefix, n, slug or ('L%02d' % n))
+            layer.crop((x0, y0, x1, y1)).save(os.path.join(self.split_dir, fn))
+            rec['file'] = fn
+        self.items.append(rec)
+
+    def save_flat(self, path):
+        self.canvas.convert('RGB').save(path)
+
+    def manifest(self, fps=30, dur=10):
+        return {'comp': self.comp, 'w': W, 'h': H, 'fps': fps, 'dur': dur, 'layers': self.items}
+
+
+def draw_fn(fn, *args, **kw):
+    """ImageDraw 를 받는 함수를 레이어 그리기 함수로 감싼다"""
+    return lambda c: fn(ImageDraw.Draw(c), *args, **kw)
+
+
+def hanji_layer(c):
+    c.alpha_composite(hanji().convert('RGBA'))
 
 
 # ---------- 스틸 ----------
 PANEL = (60, 118, 1860, 962)
 
 
-def base_canvas():
-    return hanji().convert('RGBA')
+def frame_layers(L, chart, a):
+    """틀 — 총집합과 틀만 스틸이 공유하는 층"""
+    L.add('한지 바탕', hanji_layer, slug='hanji', full=True)
+    L.add('차트 바닥 (캔들·이평 3선, 곱하기)', lambda c: c.alpha_composite(chart.convert('RGBA')), blend='multiply', slug='chart')
+    L.add('병풍 테두리 (쪽)', lambda c: byeongpung_frame(c, PANEL), slug='byeongpung')
+    L.add('창호 띠 (실물 크롭)', lambda c: c.alpha_composite(changho_strip(W, 92).convert('RGBA'), (0, 0)), slug='changho')
 
 
-def still_sources(chart, cam, out, a):
-    c = base_canvas()
-    ch = ImageChops.multiply(c.convert('RGB'), chart.convert('RGB')).convert('RGBA')
-    c = ch
-    byeongpung_frame(c, PANEL)
-    c.alpha_composite(changho_strip(W, 92).convert('RGBA'), (0, 0))
-    toolkit(c, cam, chart)
-    hyeonpan(c, 96, 68, a.title)
-    d = ImageDraw.Draw(c)
-    vtext(d, PANEL[2] - 60, 168, a.ticker, gung(34))
-    channel_seal(c, PANEL[2] - 100, PANEL[3] - 100)
-    jokja(c, a.subtitle)
-    c.convert('RGB').save(os.path.join(out, '전통_2_고정소스_총집합.png'))
+def deco_layers(L, a):
+    L.add('현판 타이틀', lambda c: hyeonpan(c, 96, 68, a.title), slug='hyeonpan')
+    L.add('세로 종목 (나스닥 일봉)', draw_fn(vtext, PANEL[2] - 60, 168, a.ticker, gung(34)), slug='ticker')
+    L.add('채널 낙관 (차트명가)', lambda c: channel_seal(c, PANEL[2] - 100, PANEL[3] - 100), slug='chseal')
+    L.add('족자 자막', lambda c: jokja(c, a.subtitle), slug='jokja')
 
 
-def still_frame(chart, cam, out, a):
-    c = base_canvas()
-    c = ImageChops.multiply(c.convert('RGB'), chart.convert('RGB')).convert('RGBA')
-    byeongpung_frame(c, PANEL)
-    c.alpha_composite(changho_strip(W, 92).convert('RGBA'), (0, 0))
-    hyeonpan(c, 96, 68, a.title)
-    d = ImageDraw.Draw(c)
-    vtext(d, PANEL[2] - 60, 168, a.ticker, gung(34))
-    channel_seal(c, PANEL[2] - 100, PANEL[3] - 100)
-    jokja(c, a.subtitle)
-    c.convert('RGB').save(os.path.join(out, '전통_3_틀만.png'))
+def toolkit_layers(L, cam, chart):
+    """차트 위 매매 어휘 — 한 요소가 한 층"""
+    xr = cam.x(63) + cam.BW * 0.8
+    xs = xr + 132   # 존 라벨 낙관 자리 — 이평 끝 라벨(xr~xr+100) 오른쪽
+    x44 = cam.x(44) - cam.BW / 2
+    L.add('익절 존 (적 담채)', lambda c: wash(c, (x44, cam.y(LV_TARGET), xr, cam.y(LV_ENTRY)), RED, 34), slug='zone_tp')
+    L.add('손절 존 (쪽 담채)', lambda c: wash(c, (x44, cam.y(LV_ENTRY), xr, cam.y(LV_STOP)), JJOK, 30), slug='zone_sl')
+    L.add('진입 먹선', draw_fn(ink_line, x44, xs - 50, cam.y(LV_ENTRY), 3), slug='line_entry')
+    L.add('익절 점선', draw_fn(ink_line, x44, xs - 50, cam.y(LV_TARGET), 2, RED, dash=(10, 8)), slug='line_tp')
+    L.add('손절 점선', draw_fn(ink_line, x44, xs - 50, cam.y(LV_STOP), 2, JJOK, dash=(10, 8)), slug='line_sl')
+    L.add('익절 낙관', lambda c: seal(c, xs, cam.y(LV_TARGET), '익절', RED, 96, 50, gung(32), tilt=0), slug='seal_tp')
+    L.add('손절 낙관', lambda c: seal(c, xs, cam.y(LV_STOP), '손절', JJOK, 96, 50, gung(32), tilt=0), slug='seal_sl')
+    L.add('진입 낙관', lambda c: seal(c, xs, cam.y(LV_ENTRY), '진입', INK, 96, 50, gung(32), tilt=0, alpha=210), slug='seal_entry')
+    # 지지·저항 먹 점선 + 작은 낙관
+    ys, yr = cam.y(23700), cam.y(23905)
+    xin = PANEL[0] + 40
+    L.add('지지 점선', draw_fn(ink_line, xin, cam.x(43), ys, 2, INK, dash=(12, 9)), slug='line_support')
+    L.add('저항 점선', draw_fn(ink_line, xin, cam.x(43), yr, 2, INK, dash=(12, 9)), slug='line_resist')
+    L.add('지지 낙관', lambda c: seal(c, xin + 66, ys + 30, '지지', GRN, 90, 48, gung(30), tilt=0), slug='seal_support')
+    L.add('저항 낙관', lambda c: seal(c, xin + 66, yr - 30, '저항', RED, 90, 48, gung(30), tilt=0), slug='seal_resist')
+    # 이평선 끝 궁서 라벨 (오방색)
+    ends = ma_ends(chart, {'10일선': RED, '20일선': YEL, '50일선': GRN})
+    used = []
+    for name, col, slug in (('10일선', RED, 'ma10'), ('20일선', YEL, 'ma20'), ('50일선', GRN, 'ma50')):
+        y = ends.get(name)
+        if y is None: continue
+        for u in used:
+            if abs(y - u) < 30: y = u + 30
+        used.append(y)
+        L.add('이평 라벨 ' + name, (lambda yy, nm, cc: lambda c: btext(c, (cam.x(63) + cam.BW * 1.2, yy), nm, gung(32), YEL_TXT if cc == YEL else cc, halo=HANJI2))(y, name, col), slug='label_' + slug)
+    # 매수/매도 낙관
+    L.add('매수 낙관', lambda c: seal(c, cam.x(43), cam.y(LV_STOP) + 108, '매수', RED, 104, 104, tilt=-5), slug='seal_buy')
+    L.add('매도 낙관', lambda c: seal(c, cam.x(36), cam.y(24085), '매도', JJOK, 104, 104, tilt=4), slug='seal_sell')
+    # 붓 원 — 재지지
+    L.add('붓 원 (강조)', lambda c: brush_ellipse(c, cam.x(52), cam.y(LV_ENTRY + 130), 68, 76, wmin=2.5, wmax=8), slug='brush_circle')
+    # 一二三 원형 낙관 + 먹 궁서
+    for ch, bar, price, body, side, slug in (('一', 16, 24140, '정배열 확인', 'r', 'step1'), ('二', 27, 23585, '20일선 눌림목', 'l', 'step2'), ('三', 50, 23540, '반등 양봉에 매수', 'r', 'step3')):
+        cx, cy = cam.x(bar), cam.y(price)
+        L.add('단계 %s 원형 낙관' % ch, (lambda cx, cy, ch: lambda c: seal_round(c, cx, cy, ch, 28))(cx, cy, ch), slug=slug + '_ring')
+        if side == 'r':
+            L.add('단계 %s 문구 (%s)' % (ch, body), (lambda cx, cy, body: lambda c: btext(c, (cx + 40, cy + 1), body, gung(32), INK, halo=HANJI2))(cx, cy, body), slug=slug + '_text')
+        else:   # 원 아래 — 오른쪽은 50일선, 왼쪽은 캔들이 지나간다
+            L.add('단계 %s 문구 (%s)' % (ch, body), (lambda cx, cy, body: lambda c: btext(c, (cx, cy + 100), body, gung(32), INK, anchor='mm', halo=HANJI2))(cx, cy, body), slug=slug + '_text')
+    # 물음표 — 횡보 가짜 신호 (붓글씨)
+    L.add('붓 물음표', draw_fn(lambda d: d.text((cam.x(13), cam.y(23470)), '?', font=brush(120), fill=RED, anchor='mm')), slug='question')
 
 
-def still_logo(out):
-    c = base_canvas()
-    d = ImageDraw.Draw(c)
-    f = gung(180)
-    d.text((960 - 60, 470), '차트명가', font=f, fill=INK, anchor='mm')
-    seal(c, 960 + 400, 470, '名家', RED, 150, 150, gung(64), tilt=-4)
-    d = ImageDraw.Draw(c)
-    d.text((960, 640), '해외선물 매매기법', font=gung(44), fill=JJOK, anchor='mm')
-    ink_line(d, 560, 1360, 700, 3, INK)
-    # 로고 결합 (맨 마지막): 기존 원형 로고를 인주색 도장(두인)으로 변주해 이름 앞에
-    logo_seal(c, 960 - 560, 470, 150)
-    # 비교용: 원본 분홍 로고 작게
-    logo = Image.open(LOGO).convert('RGBA').resize((90, 90), Image.LANCZOS)
-    c.alpha_composite(logo, (1700, 900))
-    d = ImageDraw.Draw(c)
-    btext(c, (1745, 1020), '원본 로고 (분홍) → 두인으로 변주', gung(22), JJOK, anchor='mm')
-    c.convert('RGB').save(os.path.join(out, '전통_1_로고.png'))
+def build_sources(chart, cam, a, split=None):
+    L = Layers('전통_총집합', split and os.path.join(split, 'sources'), 's')
+    frame_layers(L, chart, a)
+    toolkit_layers(L, cam, chart)
+    deco_layers(L, a)
+    return L
 
 
-def still_outro(out):
-    c = base_canvas()
-    # 전통문양(레퍼런스 21 수복문) 을 아주 옅게 깔기
-    pat = Image.open(os.path.join(REF, '21_전통패턴_플랫.jpg')).convert('L')
-    pat = pat.resize((740, 740))
-    tile = Image.new('L', (W, H), 255)
-    for y in range(0, H, 740):
-        for x in range(0, W, 740):
-            tile.paste(pat, (x, y))
-    pat_np = 255 - np.array(tile)
-    ov = Image.new('RGBA', (W, H), JJOK + (0,)); ov.putalpha(Image.fromarray((pat_np * 0.10).astype(np.uint8)))
-    c.alpha_composite(ov)
-    # 병풍 3폭
+def build_frame(chart, cam, a, split=None):
+    L = Layers('전통_틀', split and os.path.join(split, 'frame'), 'f')
+    frame_layers(L, chart, a)
+    deco_layers(L, a)
+    return L
+
+
+def build_logo(a, split=None):
+    L = Layers('전통_로고', split and os.path.join(split, 'logo'), 'l')
+    L.add('한지 바탕', hanji_layer, slug='hanji', full=True)
+    L.add('이름 (궁서 차트명가)', draw_fn(lambda d: d.text((960 - 60, 470), '차트명가', font=gung(180), fill=INK, anchor='mm')), slug='name')
+    L.add('名家 낙관', lambda c: seal(c, 960 + 400, 470, '名家', RED, 150, 150, gung(64), tilt=-4), slug='seal_myeongga')
+    L.add('부제 (해외선물 매매기법)', draw_fn(lambda d: d.text((960, 640), '해외선물 매매기법', font=gung(44), fill=JJOK, anchor='mm')), slug='sub')
+    L.add('먹 밑줄', draw_fn(ink_line, 560, 1360, 700, 3, INK), slug='rule')
+    L.add('두인 (기존 로고 인주색 변주)', lambda c: logo_seal(c, 960 - 560, 470, 150), slug='logo_seal')
+    if not split:   # 비교용 원본 로고는 합성본에만
+        def cmp_(c):
+            logo = Image.open(LOGO).convert('RGBA').resize((90, 90), Image.LANCZOS)
+            c.alpha_composite(logo, (1700, 900))
+            btext(c, (1745, 1020), '원본 로고 (분홍) → 두인으로 변주', gung(22), JJOK, anchor='mm')
+        L.add('원본 로고 비교', cmp_, slug='compare')
+    return L
+
+
+def build_outro(a, split=None):
+    L = Layers('전통_아웃트로', split and os.path.join(split, 'outro'), 'o')
+    L.add('한지 바탕', hanji_layer, slug='hanji', full=True)
+
+    def pattern(c):
+        # 전통문양(레퍼런스 21 수복문) 을 아주 옅게 깔기
+        pat = Image.open(os.path.join(REF, '21_전통패턴_플랫.jpg')).convert('L').resize((740, 740))
+        tile = Image.new('L', (W, H), 255)
+        for y in range(0, H, 740):
+            for x in range(0, W, 740):
+                tile.paste(pat, (x, y))
+        pat_np = 255 - np.array(tile)
+        ov = Image.new('RGBA', (W, H), JJOK + (0,)); ov.putalpha(Image.fromarray((pat_np * 0.10).astype(np.uint8)))
+        c.alpha_composite(ov)
+    L.add('수복문 바탕 문양 (10%)', pattern, slug='pattern', full=True)
     panels = [(80, 120, 640, 960), (680, 120, 1240, 960), (1280, 120, 1840, 960)]
-    for p in panels:
-        byeongpung_frame(c, p, band=12)
-    d = ImageDraw.Draw(c)
+    for i, p in enumerate(panels):
+        L.add('병풍 %d폭 테두리' % (i + 1), (lambda p: lambda c: byeongpung_frame(c, p, band=12))(p), slug='panel%d' % (i + 1))
     # 왼폭: 다음 영상
-    hyeonpan(c, 150, 80, '다음 영상', 34)
-    d = ImageDraw.Draw(c)
-    d.rectangle((140, 240, 580, 488), fill=HANJI2, outline=JJOK, width=3)
-    d.text((360, 364), '영상 자리', font=gung(30), fill=(0x8A, 0x80, 0x74), anchor='mm')
-    d.rectangle((140, 540, 580, 788), fill=HANJI2, outline=JJOK, width=3)
-    d.text((360, 664), '영상 자리', font=gung(30), fill=(0x8A, 0x80, 0x74), anchor='mm')
+    L.add('현판 (다음 영상)', lambda c: hyeonpan(c, 150, 80, '다음 영상', 34), slug='hyeonpan_next')
+    for i, (y0, y1) in enumerate(((240, 488), (540, 788))):
+        def slot(c, y0=y0, y1=y1):
+            d = ImageDraw.Draw(c)
+            d.rectangle((140, y0, 580, y1), fill=HANJI2, outline=JJOK, width=3)
+            d.text((360, (y0 + y1) // 2), '영상 자리', font=gung(30), fill=(0x8A, 0x80, 0x74), anchor='mm')
+        L.add('영상 자리 %d' % (i + 1), slot, slug='slot%d' % (i + 1))
     # 가운데: 이름 + 낙관
-    btext(c, (960, 440), '차트명가', gung(120), INK, anchor='mm', bold=1)
-    seal(c, 960, 630, '名家', RED, 130, 130, gung(56), tilt=-4)
-    d = ImageDraw.Draw(c)
-    btext(c, (960, 770), '해외선물 매매기법', gung(40), JJOK, anchor='mm')
-    # 먹 캔들 소묘 — 이 화면이 '차트' 채널임을 알리는 표식
-    ohlc = [(0.18, 0.36, 0.40, 0.14), (0.36, 0.26, 0.39, 0.22), (0.26, 0.50, 0.54, 0.24), (0.50, 0.40, 0.53, 0.36), (0.40, 0.66, 0.70, 0.38), (0.66, 0.56, 0.69, 0.52), (0.56, 0.86, 0.90, 0.54)]
-    for i, (o, cl, hi, lo) in enumerate(ohlc):
-        x = 780 + i * 60; base_y, hgt = 950, 150
-        up = cl > o; col = RED if up else JJOK
-        d.line((x, base_y - hi * hgt, x, base_y - lo * hgt), fill=col, width=3)
-        d.rectangle((x - 13, base_y - max(o, cl) * hgt, x + 13, base_y - min(o, cl) * hgt), fill=col if up else HANJI2, outline=col, width=3)
-    logo_seal(c, 960, 190, 110)
+    L.add('두인 (기존 로고 인주색 변주)', lambda c: logo_seal(c, 960, 190, 110), slug='logo_seal')
+    L.add('이름 (궁서 차트명가)', lambda c: btext(c, (960, 440), '차트명가', gung(120), INK, anchor='mm', bold=1), slug='name')
+    L.add('名家 낙관', lambda c: seal(c, 960, 630, '名家', RED, 130, 130, gung(56), tilt=-4), slug='seal_myeongga')
+    L.add('부제 (해외선물 매매기법)', lambda c: btext(c, (960, 770), '해외선물 매매기법', gung(40), JJOK, anchor='mm'), slug='sub')
+
+    def candles(c):
+        d = ImageDraw.Draw(c)
+        ohlc = [(0.18, 0.36, 0.40, 0.14), (0.36, 0.26, 0.39, 0.22), (0.26, 0.50, 0.54, 0.24), (0.50, 0.40, 0.53, 0.36), (0.40, 0.66, 0.70, 0.38), (0.66, 0.56, 0.69, 0.52), (0.56, 0.86, 0.90, 0.54)]
+        for i, (o, cl, hi, lo) in enumerate(ohlc):
+            x = 780 + i * 60; base_y, hgt = 950, 150
+            up = cl > o; col = RED if up else JJOK
+            d.line((x, base_y - hi * hgt, x, base_y - lo * hgt), fill=col, width=3)
+            d.rectangle((x - 13, base_y - max(o, cl) * hgt, x + 13, base_y - min(o, cl) * hgt), fill=col if up else HANJI2, outline=col, width=3)
+    L.add('먹 캔들 소묘', candles, slug='candles')
     # 오른폭: 구독·좋아요 낙관 버튼
-    hyeonpan(c, 1350, 80, '구독 · 알림', 34)
-    seal(c, 1560, 400, '구독', RED, 220, 110, gung(56), tilt=-3)
-    seal(c, 1560, 600, '좋아요', JJOK, 220, 110, gung(52), tilt=2)
-    d = ImageDraw.Draw(c)
-    vtext(d, 1770, 300, '매주 새 매매기법', gung(34), JJOK)
-    jokja(c, '다음 영상에서 뵙겠습니다', 1010, 40)
-    c.convert('RGB').save(os.path.join(out, '전통_4_아웃트로.png'))
+    L.add('현판 (구독 · 알림)', lambda c: hyeonpan(c, 1350, 80, '구독 · 알림', 34), slug='hyeonpan_sub')
+    L.add('구독 낙관', lambda c: seal(c, 1560, 400, '구독', RED, 220, 110, gung(56), tilt=-3), slug='seal_subscribe')
+    L.add('좋아요 낙관', lambda c: seal(c, 1560, 600, '좋아요', JJOK, 220, 110, gung(52), tilt=2), slug='seal_like')
+    L.add('세로 문구 (매주 새 매매기법)', draw_fn(vtext, 1770, 300, '매주 새 매매기법', gung(34), JJOK), slug='vtext')
+    L.add('족자 자막 (다음 영상에서 뵙겠습니다)', lambda c: jokja(c, '다음 영상에서 뵙겠습니다', 1010, 40), slug='jokja')
+    return L
 
 
 def still_palette(out):
-    c = base_canvas(); d = ImageDraw.Draw(c)
+    c = hanji().convert('RGBA'); d = ImageDraw.Draw(c)
     d.text((960, 90), '팔레트 — 오방색 · 한지 · 먹 (레퍼런스 실측: 판독/색실측.md)', font=gung(40), fill=INK, anchor='mm')
     items = [('한지', HANJI, '#F3ECDF  창호지 실측 E5D6C0 을 밝힘'), ('먹', INK, '#1C1A17  글자·진입선'),
              ('인주 적', RED, '#D42A26  매수·익절·10일선 (도장 실측 D71E22)'), ('쪽', JJOK, '#2C3358  매도·손절·병풍 테두리'),
@@ -460,16 +511,30 @@ def main():
     ap.add_argument('--ticker', default='나스닥 일봉')
     ap.add_argument('--subtitle', default='눌림목에서 잡았으면 추세가 끝날 때까지 들고 갑니다')
     ap.add_argument('--only', default='')
+    ap.add_argument('--split', default='', help='레이어를 쪼개 저장할 폴더 (footage). 목록은 <split>/manifest.json · .jsx')
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     cam = Cam(json.load(io.open(a.cam, encoding='utf-8'))['cuts'][0]['cam'])
     chart = Image.open(a.chart).convert('RGBA')
     which = set(a.only.split(',')) if a.only else {'sources', 'frame', 'logo', 'outro', 'palette'}
-    if 'sources' in which: still_sources(chart, cam, a.out, a)
-    if 'frame' in which: still_frame(chart, cam, a.out, a)
-    if 'logo' in which: still_logo(a.out)
-    if 'outro' in which: still_outro(a.out)
-    if 'palette' in which: still_palette(a.out)
+    split = a.split or None
+    comps = []
+    for key, fn, flat in (('sources', lambda s: build_sources(chart, cam, a, s), '전통_2_고정소스_총집합.png'),
+                          ('frame', lambda s: build_frame(chart, cam, a, s), '전통_3_틀만.png'),
+                          ('logo', lambda s: build_logo(a, s), '전통_1_로고.png'),
+                          ('outro', lambda s: build_outro(a, s), '전통_4_아웃트로.png')):
+        if key not in which: continue
+        random.seed(7); np.random.seed(7)          # 층을 따로 그려도 합성본과 같은 질감이 나오게
+        L = fn(split)
+        L.save_flat(os.path.join(split, key, '_flat.png') if split else os.path.join(a.out, flat))
+        if split: comps.append(L.manifest())
+    if 'palette' in which and not split: still_palette(a.out)
+    if split:
+        man = {'pack': os.path.basename(os.path.normpath(split)), 'comps': comps}
+        io.open(os.path.join(split, 'manifest.json'), 'w', encoding='utf-8').write(json.dumps(man, ensure_ascii=False, indent=1))
+        # ExtendScript 에는 JSON 이 없다 — 객체 리터럴로. 한글은 \\u 이스케이프로 넣어 파일 인코딩에 안 걸리게.
+        io.open(os.path.join(split, 'manifest.jsx'), 'w', encoding='ascii').write('var MANIFEST = ' + json.dumps(man, ensure_ascii=True) + ';\n')
+        print('split', [(c['comp'], len(c['layers'])) for c in comps])
     print('ok', sorted(which))
 
 
