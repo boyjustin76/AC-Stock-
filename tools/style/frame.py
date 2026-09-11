@@ -265,9 +265,9 @@ def toolkit(canvas, cam, ma, rsi_y=None):
     xr = cam.x(63) + cam.BW * 0.9
     # #1 — 이평선 끝 색 알약 (범례 대신 선 끝에)
     # 손절/익절 존 라벨 — 존 안 큰 글자 대신 오른끝 알약 (이평 알약보다 먼저 그려 아래에 깔린다)
-    pill(d, xr, cam.y(LV_TARGET) - 2, '익절 2', (0x14, 0xB8, 0x36), size=24)
-    pill(d, xr, cam.y(LV_STOP) + 2, '손절 1', (0x9F, 0x00, 0x00), size=24)
-    taken = [cam.y(LV_TARGET), cam.y(LV_STOP)]     # 존 알약 자리 — 이평 알약이 36px 안으로 오면 밀어낸다
+    pill(d, cam.x(57), cam.y(24018), '익절 2', (0x14, 0xB8, 0x36), size=24)   # 존 안쪽 — 오른끝 열은 이평 알약 몫
+    pill(d, cam.x(57), cam.y(23718), '손절 1', (0x9F, 0x00, 0x00), size=24)
+    taken = []
     for period, color in ((10, RED), (20, ORANGE), (50, GREEN)):
         if period in ma:
             yy = cam.y(ma[period])
