@@ -420,7 +420,7 @@ def still_outro(out):
     # 먹 캔들 소묘 — 이 화면이 '차트' 채널임을 알리는 표식
     ohlc = [(0.18, 0.36, 0.40, 0.14), (0.36, 0.26, 0.39, 0.22), (0.26, 0.50, 0.54, 0.24), (0.50, 0.40, 0.53, 0.36), (0.40, 0.66, 0.70, 0.38), (0.66, 0.56, 0.69, 0.52), (0.56, 0.86, 0.90, 0.54)]
     for i, (o, cl, hi, lo) in enumerate(ohlc):
-        x = 780 + i * 60; base_y, hgt = 935, 180
+        x = 780 + i * 60; base_y, hgt = 950, 150
         up = cl > o; col = RED if up else JJOK
         d.line((x, base_y - hi * hgt, x, base_y - lo * hgt), fill=col, width=3)
         d.rectangle((x - 13, base_y - max(o, cl) * hgt, x + 13, base_y - min(o, cl) * hgt), fill=col if up else HANJI2, outline=col, width=3)
