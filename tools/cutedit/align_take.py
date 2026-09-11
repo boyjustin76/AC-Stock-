@@ -149,6 +149,63 @@ def refine(target, w0, w1, ws, span=4):
     return best
 
 
+FIRM = 0.75         # 이 이상이면 확실한 후보 — 뒤 문장 한계선을 옮길 자격 (main 의 '확인 필요' 기준과 같다)
+RUN_GAP = 0.15      # 낱말 사이가 이보다 좁으면 쉬지 않고 이어 말한 것
+HEAD_SIM = 0.62     # 이어진 말이 다음 문장 머리와 이만큼 닮으면 다음 문장이다 (candidates 와 같은 값)
+# 머리 **앞 10자만** 견준다. 틀린 테이크는 중간에 '다시 할게요'가 끼어 길게 견주면
+# 닮음이 떨어진다 (L08 90번: 전체 길이로 견주면 붙어 버렸다).
+# 채점 — 말이 이어진 6곳(붙일 것 1): 4·6·8·10·12·15·20자 모두 6/6, 전체 길이 5/6.
+# 틀린 머리 0.90~1.00 · 진짜 꼬리 0.00 으로 간격이 넓어 고원 가운데 값을 쓴다.
+HEAD_N = 10
+# 꼬리는 **짧다**. 문장 끝을 바꿔 읽는 건 어미 한두 어절이다
+#   ('확인해 주세요' → '확인해 주시기 바랍니다' = 2어절 1.2초, L08).
+# 상한이 없으면 마지막 줄 뒤에 붙은 잡담을 통째로 삼킨다 — S015 마지막 줄에
+#   '이 다음 멘트는 쇼치에서는 안 읽어도 될 것 같고 … 끝내겠습니다' 12어절 5.7초가
+#   붙었다(사람 컷 끝 173.04 · 대본 끝 173.58). 마지막 줄은 '다음 문장 머리'가 없어서
+#   머리 닮음 검사로는 못 막는다. 넘으면 **아예 안 붙인다** (일부만 붙이지 않는다).
+TAIL_MAX = 3
+
+
+def extend_tail(i, lines, chosen, ws):
+    """고른 끝 뒤로 말이 쉬지 않고 이어지면 — 이 문장의 끝인가, 다음 문장인가.
+
+    refine 은 대본과 가장 닮은 창을 고르므로, 낭독이 **문장 끝을 바꿔 읽으면**
+    ('확인해 주세요' → '확인해 주시기 바랍니다') 바뀐 꼬리를 떼어 낸다. 그대로
+    자르면 말이 끊긴다. 반대로 바로 뒤에 붙은 말이 **다음 문장을 읽다 틀린 것**
+    ('…함께 사용합니다 | 둘째 21기간…다시 할게요')이면 붙이면 안 된다.
+
+    가르는 잣대는 꼬리 길이가 아니다 — L08 에서 진짜 꼬리가 0.61초, 틀린 머리가
+    0.64초였다. **이어진 말이 다음 문장 머리와 닮았나** 로 가른다. L08 에서 쉬지 않고
+    말이 이어진 6곳을 6곳 다 맞혔다 (붙일 것 1 · 안 붙일 것 5). 표본이 얇다.
+    마지막 줄은 '다음 머리'가 없으니 TAIL_MAX(3어절)로 막는다 (S015 회귀 — 위 설명).
+    다음 채택 문장에 닿으면 무조건 안 붙인다 (원테이크 숏폼에서 겹치지 않게).
+    회귀: S015·S016 정렬 0줄 바뀜 · L08 캠 0줄 바뀜.
+    """
+    c = chosen[i]
+    if not c:
+        return None
+    nxt_s = min([x[1] for x in chosen[i + 1:] if x] or [1e9])
+    run, k, prev_e = [], c[5], ws[c[5] - 1][2]
+    while k < len(ws) and ws[k][1] - prev_e <= RUN_GAP:
+        if ws[k][1] >= nxt_s - 0.01:
+            return None
+        run.append(k)
+        prev_e = ws[k][2]
+        k += 1
+    if len(run) > TAIL_MAX:
+        return None
+    txt = "".join(ws[j][0] for j in run)
+    if not txt:
+        return None
+    heads = [norm(t) for _, t in lines[i + 1:i + 3]]
+    heads += [norm(lines[j][1]) for j in range(i + 1, len(lines)) if chosen[j]][:1]
+    for h in heads:
+        n = min(HEAD_N, len(txt), len(h))
+        if n and SequenceMatcher(None, txt[:n], h[:n]).ratio() >= HEAD_SIM:
+            return None
+    return run[-1] + 1
+
+
 def pick_last_takes(lines, ws, flat, idx):
     """뒤에서부터 — 다음 문장 채택 위치보다 앞에 있는 가장 늦은 후보."""
     cands = [candidates(t, ws, flat, idx) for _, t in lines]
@@ -156,13 +213,21 @@ def pick_last_takes(lines, ws, flat, idx):
     limit = len(flat)
     for i in range(len(lines) - 1, -1, -1):
         ok = [c for c in cands[i] if c[3] < limit]
-        if not ok:
-            ok = cands[i]
+        # 다음 문장보다 앞에 후보가 없으면 **안 읽은 것**으로 둔다.
+        # 예전엔 순서를 무시하고 뒤쪽 후보로 물러섰는데, 그러면 컷 순서가 뒤집힌다
+        # (L08 '두 번째로 볼린저밴드를 하나 더 추가하겠습니다' 가 아웃트로의
+        #  '볼린저밴드를 하나 더 추가한다고' 768.97초에 0.65로 붙었다).
         if not ok:
             continue
-        best = max(ok, key=lambda c: c[3])       # 가장 늦은 = 마지막 테이크
+        # 확실한 후보(≥ FIRM)가 있으면 그중 가장 늦은 것 = 마지막 테이크.
+        # 약한 후보만 있으면 고르되 **앞 문장을 막지 않는다** — 약한 헛짚음 하나가
+        # 한계선이 되면 그 앞 문장이 통째로 못 찾음이 된다
+        # (L08 PD 녹화: '밴드에 닿았다는 개념을' 이 24.72초에 0.67로 붙어 13~26줄이 사라졌다).
+        firm = [c for c in ok if c[0] >= FIRM]
+        best = max(firm or ok, key=lambda c: c[3])
         chosen[i] = best
-        limit = best[3]
+        if firm:
+            limit = best[3]
     return cands, chosen
 
 
@@ -183,6 +248,14 @@ def main():
         r = refine(t, c[4], c[5], ws)
         if r and r[0] >= c[0] - 0.01:
             chosen[i] = (r[0], ws[r[1]][1], ws[r[2] - 1][2], c[3], r[1], r[2])
+    # 끝을 바꿔 읽어 떨어져 나간 꼬리를 되붙인다 (뒤에서부터 — 다음 문장 자리가 확정된 뒤)
+    for i in range(len(lines) - 1, -1, -1):
+        b = extend_tail(i, lines, chosen, ws)
+        if b:
+            c = chosen[i]
+            print(f"  꼬리 붙임 {i:3d}  {c[2]:7.2f} → {ws[b - 1][2]:7.2f}  "
+                  f"'{' '.join(x[0] for x in ws[c[5]:b])}'", flush=True)
+            chosen[i] = (c[0], c[1], ws[b - 1][2], c[3], c[4], b)
 
     rows = []
     for i, (sec, t) in enumerate(lines):

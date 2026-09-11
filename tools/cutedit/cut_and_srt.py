@@ -40,7 +40,7 @@ import sys
 from difflib import SequenceMatcher
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from srt_rules import split_cue
+from srt_rules import LONG_MAX_LEN, LONG_MIN_LEN, MAX_LEN, split_cue
 
 CUT_SIL = 0.65      # 이 이상 무음이면 잘라낸다 (0.56 은 남겼고 0.76 은 잘랐다)
 IN_HANDLE = 0.08    # 말 시작 앞에 남기는 여유
@@ -48,6 +48,11 @@ OUT_HANDLE = 0.07   # 말 끝 뒤에 남기는 여유
 WEAK_P = 0.30       # 이보다 확신도 낮은 낱말은 경계 계산에서 뺀다
 OVERRUN = 0.60      # whisper 가 말 끝을 늘려 잡는 최대치 — 이만큼은 되짚어 본다
 TAIL_PUNCT = "。.,、"  # 큐 끝에서 떼는 구두점 (물음표·느낌표는 남긴다)
+# 자막은 말보다 조금 먼저 뜬다. 사람 수정본(S015·S016 큐 시작 102개)에 당김 값을 채점 —
+#   0초 평균오차 0.301 · 0.10초 0.248 · 0.15초 0.240 · 0.20초 0.246 · 0.30초 0.270
+# 0.10~0.20 이 고원이라 가운데를 쓴다. 0.3초 넘게 어긋난 큐는 36 → 22 개.
+# (글자 수 비례를 낱말 시각 방식으로 바꾸는 것도 채점했는데 더 나빴다 — 0.279 대 0.315)
+LEAD = 0.15
 # 자막 표기 통일 — 대본과 자막에서 다르게 쓰는 말.
 # 채널 이름은 자막에서 늘 붙여 쓴다 (나간 편들 자막 전수: '더원트레이더였습니다',
 # '더원트레이더와 함께하는'). 대본만 '더원 트레이더' 로 띄어 쓴다.
@@ -204,7 +209,12 @@ def main():
     ap.add_argument("--src-dur", type=float, default=0.0)
     ap.add_argument("--script-text", action="store_true",
                     help="자막을 낭독이 아니라 대본 표기로 낸다")
+    ap.add_argument("--long", action="store_true",
+                    help="롱폼(1920x1080) — 자막 큐 21자, 시퀀스 가로. 컷 경계 값은 그대로")
     a = ap.parse_args()
+    max_len = LONG_MAX_LEN if a.long else MAX_LEN
+    if a.long and (a.width, a.height) == (1080, 1920):
+        a.width, a.height = 1920, 1080
     S = a.dir
 
     rows = [r for r in json.load(io.open(f"{S}/aligned.json", encoding="utf-8"))
@@ -220,6 +230,18 @@ def main():
     sil = read_silences(f"{S}/silences.txt")            # 컷 판단용 (0.30s+)
     fine = read_silences(f"{S}/silences_fine.txt")      # 경계 스냅용 (0.12s+)
     cuts = build_cuts(rows, tr, sil, fine)
+    # 경계 손질 — {"in": {"207.45": 207.14}, "out": {...}, "why": {...}}
+    # 자동 경계가 **음량·VAD 로 재서 틀렸다고 확인된 자리만** 적는다 (text_fix.json 과 같은 자리).
+    # 자막 시각이 고친 경계를 따라가도록 to_out 보다 먼저 건다.
+    if os.path.exists(f"{S}/cut_fix.json"):
+        cf = json.load(io.open(f"{S}/cut_fix.json", encoding="utf-8"))
+        for c in cuts:
+            for kind in ("in", "out"):
+                for k, v in (cf.get(kind) or {}).items():
+                    if abs(c[kind] - float(k)) < 0.02:
+                        print(f"경계 손질 {kind.upper()} {c[kind]:.2f} → {float(v):.2f}"
+                              f"  {(cf.get('why') or {}).get(k, '')}")
+                        c[kind] = float(v)
 
     def to_out(t):
         acc = 0.0
@@ -240,7 +262,7 @@ def main():
         if a.script_text:
             text = r["text"]
         s0, e0 = to_out(r["s"]), to_out(r["e"])
-        chunks = [fix_terms(c) for c in split_cue(text) if c.strip()]
+        chunks = [fix_terms(c) for c in split_cue(text, max_len=max_len, min_len=LONG_MIN_LEN if a.long else 0) if c.strip()]
         chunks = [c for c in chunks if c]
         n = sum(len(norm(c)) for c in chunks) or 1
         acc = 0
@@ -251,6 +273,14 @@ def main():
             if cues and cs - cues[-1]["e"] < 0.08:
                 cs = cues[-1]["e"]
             cues.append({"s": cs, "e": ce, "t": ch})
+
+    # 당김(LEAD) — 앞 큐와 붙어 있으면 앞 큐 끝도 같이 당긴다 (겹치지 않게).
+    for k, c in enumerate(cues):
+        s = max(0.0, c["s"] - LEAD)
+        if k and cues[k - 1]["e"] > s:
+            s = max(s, cues[k - 1]["s"] + 0.2)
+            cues[k - 1]["e"] = s
+        c["s"] = s
 
     spec = {"source": os.path.abspath(a.source), "name": a.name, "fps": a.fps,
             "width": a.width, "height": a.height, "src_dur": a.src_dur, "cuts": cuts}

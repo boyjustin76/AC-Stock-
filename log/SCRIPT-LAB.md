@@ -776,3 +776,26 @@ python tools/cutedit/prproj_titles.py 프로젝트.prproj
 
 **미방영 대본 3편은 `(중간)` 접두와 임시 날짜를 그대로 둔다.** 방영일이 확정되면
 `tools/shortform.py name ... --final` 로 다시 뽑아 폴더·파일 이름을 바꾼다.
+
+---
+
+## 17. 더원트레이더 롱폼 L08 — 첫 롱폼 컷편집 (2026-09-11)
+
+**차트명가 아님.** 수치·규칙은 `tools/theone/README.md` 「L08 에서 확인한 것」.
+공용 도구(`tools/cutedit`)를 고쳤으니 여기에도 남긴다. **`log/build_worklog_db.py` 는 손대지 않았다.**
+
+| 파일 | 무엇 | 확인 |
+|---|---|---|
+| **`tools/cutedit/docx_script.py`** | 롱폼 촬영 대본 .docx → 정렬용 .txt | **새로 만듦** |
+| **`tools/cutedit/pd_overlay.py`** | PD 설명 녹화 → 컷편집본 V2 시각자료 (대본 자리 기준) | **새로 만듦** · 검증한 결과와 바이트 동일 |
+| `tools/cutedit/make_xml.py` | 원본 여럿 · 트랙 여럿 (V2 는 `at` · `audio:false`) | 원본 하나 spec 바이트 동일 |
+| `tools/cutedit/align_take.py` | 순서 뒤집는 후퇴 삭제 · 약한 후보는 한계선 안 옮김 · 꼬리 붙임(3어절 상한) | S015·S016 정렬 0줄 바뀜 |
+| `tools/cutedit/cut_and_srt.py` | `--long` · 자막 당김 0.15초 · `cut_fix.json` | 당김은 숏폼에도 걸린다 (S015·S016 0.301 → 0.240) |
+| `tools/cutedit/srt_rules.py` | 롱폼 짧은 조각 벌점 `min_len` · `더` 어절 벌점 | 숏폼 채점대 35/53 그대로 |
+
+**납품** — `더원트레이더/0910/L08_더블볼린저밴드매매법_260923/`
+`L08_더블볼린저밴드매매법_260923.srt` (112큐) · `…_컷편집.xml` (27컷 278.27초) ·
+`…_컷편집_PD.xml` (+ V2 PD 화면 16클립).
+
+**결정 대기** — 캠 녹화에는 형광 줄만 있고 일반 줄 50줄은 PD 설명 녹화의 나레이션에만 있다.
+롱폼 완성본에 그 나레이션 소리까지 넣을지(컷편집을 PD 녹음까지 넓힐지)는 이정찬 판단.

@@ -32,6 +32,15 @@ MAX_LEN = 14  # 띄어쓰기 포함 — **숏폼(1080x1920 세로)** 기준
 # 롱폼 실측은 더원 최종본 L04·L05 자막 21개에서 나온 관측 최댓값이다(확정 상한 아님).
 # 롱폼을 다룰 때는 split_cue(..., max_len=21) 로 넘기거나 MAX_LEN 을 바꿔 쓴다.
 LONG_MAX_LEN = 21
+# 롱폼 **짧은 조각 벌점**. 21자 상한만 두면 앞 큐를 꽉 채우고 꼬리를 흘린다
+#   ('…알 수 | 있습니다', '…기억하시면 | 됩니다', '…비교해 | 보세요').
+# 롱폼 최종본 실측 하한이 10자라 그보다 짧은 큐에 모자란 글자당 벌점을 준다.
+# L08 104문장 후보 채점 — 조각<10 · '| 더' 분리 · 큐 수 · 중앙 길이 · 금지 분리:
+#   벌점 없음 14·0·112·17·0 / 전부 3·2 / 첫 큐 뺌 6·1 / **전부 + '더' 3·0** / 첫 큐 뺌 + '더' 6·0
+#   숏폼 채점대(S015·S016 수정본)는 다섯 후보 모두 35/53 그대로. 벌점 5~80 은 같은 답(고원).
+# 롱폼 정답 자막이 없어 표본이 얇다 — 롱폼 수정본이 오면 다시 잰다.
+LONG_MIN_LEN = 10
+SHORT_PEN = 10
 
 # 큐를 이걸로 시작하면 어색한 분리 (의존명사·보조용언류).
 #
@@ -72,6 +81,8 @@ NOT_DEP = ('바로', '때로', '때로는', '때때로', '대로', '제대로')
 # 금지까지는 아니고 벌점만 준다 — 규칙 ②(절/구 단위로 자연스럽게)를 돕는다.
 # 실제로 '욕심 | 없이 짧게 수익' 처럼 갈라지는 자리가 나왔다.
 WEAK_START = ('없이', '없는', '없을', '있는', '있을', '같은', '같이', '대로', '만한')
+# '더' 는 어절 **통째로만** 본다 — '하나 | 더', '한 번 | 더' 처럼 앞말에 붙는다.
+# 앞글자로 보면 '더블'·'더원트레이더' 가 걸린다. (L08 채점: '| 더' 분리 2 → 0, 숏폼 그대로)
 # 이 어미로 끝나는 어절 뒤는 끊기 좋은 자리 (절 경계)
 GOOD_END = re.compile(r'(고|며|면|서|만|데|요|다|죠|까)[,.!?]?$')
 
@@ -94,7 +105,7 @@ def _soft_break(next_word):
     return w.startswith(SOFT_AUX) or (len(w) <= 4 and w.startswith(POS_NOUN))
 
 
-def split_cue(sentence, max_len=MAX_LEN):
+def split_cue(sentence, max_len=MAX_LEN, min_len=0):
     """문장 하나 → 자막 큐 조각 리스트. 규칙 1~3을 함께 최적화한다."""
     words = [w for w in sentence.split() if w]
     if not words:
@@ -110,7 +121,7 @@ def split_cue(sentence, max_len=MAX_LEN):
             s += 500  # 의존명사 분리 — 사실상 금지
         elif _soft_break(words[i]):
             s += SOFT_PENALTY   # 보조용언·복합명사 — 큐를 늘려서라도 피한다
-        elif words[i].lstrip('"\'').startswith(WEAK_START):
+        elif words[i].lstrip('"\'').startswith(WEAK_START) or words[i] == '더':
             s += 40   # 앞말에 붙는 어절 — 다른 자리가 있으면 그쪽으로
         prev = words[i - 1]
         if prev in NO_END:
@@ -135,6 +146,8 @@ def split_cue(sentence, max_len=MAX_LEN):
             if dp[i][0] >= INF:
                 continue
             cost = dp[i][0] + 100 + (break_score(i) if i > 0 else 0)
+            if min_len:
+                cost += SHORT_PEN * max(0, min_len - L)
             if L > max_len:
                 cost += 300  # 초과 어절 벌점 (불가피할 때만)
             if cost < dp[j][0]:
