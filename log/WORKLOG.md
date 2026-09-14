@@ -355,6 +355,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `src/tools/find-cross.mjs` | 기타 |  |
 | `src/tools/scan-nq.mjs` | 기타 |  |
 | `src/tools/verify-still.mjs` | 기타 |  |
+| `data/synth/newch-trad.json` | 데이터 | seed 11 합성 시장 앞에 워밍업 60봉 — 이평선이 첫 화면 봉부터 그려지게 (tools/style/trad-bars.mjs) |
 | `log/worklog.db` | 데이터 | 작업 로그 원본 (SQLite) |
 | `src/tools/exp-capture.mjs` | 도구 | 캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다 |
 | `src/tools/find-events.mjs` | 도구 | MA 교차·배열 + RSI 레벨 교차·70+ 유지 구간 실측 (find-cross 확장판) |
@@ -404,6 +405,8 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `scenes/cmg12-guide.scenes.js` | 씬 | 차12 소개·설정 4컷 — RSI 패널 첫 등장, 실측 색 원본(COLOR export) |
 | `scenes/cmg12-recap.scenes.js` | 씬 | 차12 요약 3컷 — 매수 시장 재사용, ①②③ |
 | `scenes/cmg12-sell.scenes.js` | 씬 | 차12 매도 관점 3컷 — seed68 5분봉, 45선 재이탈 bar49 |
+| `scenes/newch-style.scenes.js` | 씬 | 새 채널 스타일 v1~v4 — 브라우저 창 틀용 차트 본체(seed 11) |
+| `scenes/newch-trad.scenes.js` | 씬 | 새 채널 v2 전통 '병풍 위의 차트' — 캔들 + 오방색 이평 3선만. 봉은 data/synth/newch-trad.json(워밍업 60봉) |
 | `scenes/nq-basic.scenes.js` | 씬 | 다크 테마 NQ 6컷 (첫 버전, 브랜드 적용 전) |
 | `scenes/nq-overlay.scenes.js` | 씬 | 투명 배경 오버레이 3컷 |
 | `scenes/sl-11-4.scenes.js` | 씬 | 숏폼 차11-4 추세추종 5컷 — 1080x1080/30fps, 내레이션 46.77초에 동기 |
@@ -870,6 +873,27 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 **72. 차12 전면 재작 r13 (2026-09-03, 긴급) — 팀장이 승인본(r9+r12)을 반려: ①기존 영상과 너무 다름 ②움직이는 것 금지(멀미·실제 MT5 스크린샷·진짜 캔들) ③이평선 초록 안 보임(AI 티) ④RSI 경계 안 보임(AI 티). 이정찬: '나는 로컬에서 실스크린샷 판을 만들 테니 너는 병행 판을 처음부터. 우리 영상들과 아예 똑같이 — 정확히 얘네가 쓴 효과·연출·기법만. 최종본 #1~#11 다 받아서 프레임 단위로 실측해라. 정확도 최우선.' (차11 은 본인 자작이라 표본 제외. 배경 수급은 '둘 다' — 실데이터 렌더로 완주 후 스크린샷 오면 교체판.)**
 → ①실 NQ 시세 수급(fetch-yahoo.mjs, 1m/5m/1d — 1m 은 5일 소멸이라 즉시 커밋, data/nq/). ②기법 실측: 최종본 mp4 10편 전량 다운로드(드라이브 curl) → 콘택트시트 전수 육안 + 픽셀 군집 실측 + 기계 실측(차트영역 YDIF 중앙값 0.001/255 = 정지 60~90%, 컷 중앙값 6~15s) + 최종 prproj 11편 키프레임 전수 파싱(디졸브 858개 68%가 30f, 등장 모션 4종뿐 4f/7f/4f/15f, 불투명도·크롭·회전·슬로우줌 kf 0개, 스크린샷 중앙값 4장) + 프레임 단위 YDIF 런 분석(등장 지배 문법 = 1~4f 즉시·팝) → brand/FX-WHITELIST.md. 결정타: 차명#2(이평선+RSI)가 차12 직접 선례 — 빨강/파랑 캔들, 10일선 빨강·35일선 주황(초록 이평선은 캐논에 없음 = 지적 ③의 뿌리), RSI 는 #9 파랑 프레임+칩 문법. ③렌더러: makeCandles bars 주입 가드, loadBars(브라우저/Node 겸용), theme cmgMt5 프리셋, chart.js 옵트인 키(maOnTop·wickWidth·candleBorder·gridStyle·axisFontPx·rsiFrame), engine chart.phases(정지 스틸 30f 디졸브 교체 + layer.phase 앵커), cmgBadge popDur — 전부 키 부재 시 기존 경로, 대표 5씬 스틸 48장 md5 회귀 0건 2회 확인. ④scan-nq.mjs 로 실데이터 6국면 확정(가짜골든 -6.7%/데드후+2.25% 한 창, 17회 교차 횡보, RSI70+ 29봉, 눌림목 R6→+15R, 역배열 R20→+6R — 전부 무갭). ⑤cmg12s-* 8파일 23컷: 배치표 타임코드 그대로, 전 컷 차트 1장 정지, 등장은 4f 팝·30f 디졸브·드로우온만, 카메라·줌·리빌 0. 스틸 구도 검사 + probe-labels 전수 + 프레임 재보정(IN.fade 4f, phases 1.0s). 배치표 r13·MT5 촬영지시서·verify-still 동봉. (23컷 r13 재작 완료 — 실데이터·정지·화이트리스트 문법, 납품 패키지는 out/cmg12s (시즌1 마감은 보류 유지))
 
+**73. 시즌3 '나만의 채널' — 해외선물 매매기법 새 채널 톤앤매너 스틸 4~5장(로고·고정소스 총집합·틀·아웃트로). 팀장: 화이트 톤·심플·중장년 대상. 규칙: Firecrawl 검색·비전 MCP·단계별 시간 기록·오래 걸리면 베껴라 (2026-09-10~11, 로컬 PC)**
+→ Gemini MCP(@houtini/gemini-mcp)와 비전 스크립트 tools/style/vision.mjs 설치. v1~v4 = 브라우저 창 틀(점3·탭·주소창) + 차트명가 결. 반려 흐름: 틀이 레퍼런스와 다름·총집합 요소 부족 → 저장소(FX-WHITELIST·prproj_kf_survey·카피맵 r13)를 안 읽었다 → r13 에 치중했다(lab/finalscan 전편 결로) → 기존과 다를 게 없다, 적당히 변형하라. 이미지 생성은 Gemini 무료 등급 429·OpenAI 크레딧 0 으로 불가, 사용자는 유료 거부. (v4 납품(차트명가 NEW/신규안_v1) — 이후 'AI 느낌' 반려로 전통 컨셉 v2 로 전환)
+
+**74. 만들수록 AI 느낌이 강하다 — 기존 차트명가 스타일 버리고 이름·로고만. korean traditional 로 검색 위주 레퍼런스, 로고 결합은 맨 마지막 (2026-09-11)**
+→ Firecrawl 레퍼런스 21장(오방색·단청·낙관·창호·병풍·책거리·한글 포스터·전통문양) + 픽셀 실측 팔레트 + Gemini 판독 → 무드보드 '병풍 위의 차트'. scenes/newch-trad(캔들+오방색 이평 3선) + tools/style/trad.py 합성기(한지·병풍·창호 사진 띠·낙관·담채 존·붓 원·현판·족자) → 스틸 5장. 반려 '글씨 깨짐·이평선 잘림': PIL stroke_width 가 한글 겹침 윤곽에 구멍을 낸다 → 마스크 팽창으로, 합성 시장이 0봉부터라 이평이 늦게 시작 → 워밍업 60봉(tools/style/trad-bars.mjs). 기존 원형 로고는 인주색 두인으로 변주. (차트명가 NEW/신규안_v2_전통 스틸 5장 · 무드보드·결과·시간기록)
+
+**75. 여기까지 만든 요소를 전부 쪼개 PNG 와 AE 컴포지션으로 — 저번(ch11-4 꾸러미)처럼**
+→ trad.py 를 층 목록 구조로 바꿔 합성본과 층 PNG 를 같은 그리기 함수로 낸다(--split, manifest). tools/ae/jobs/c1_trad_build.jsx 가 컴포지션 4개 65층 (차트 바닥은 흰 PNG + Multiply). c2_trad_check 재열기 + 0프레임 캡처 대조 0.00%(로고 0.17% = 비교 표식). AE 첫 기동 '경고' 대화상자로 BridgeTalk 60초 타임아웃 두 번. (신규안_v2_전통/AE_꾸러미_trad_ae (trad.aep + footage 65층))
+
+**76. 여태 버전 중 틀만 조립 완성본 — 레퍼런스처럼 가운데를 뚫고, 제목 같은 것 없이 깨끗하게**
+→ tools/style/frames_clean.py — 레퍼런스 트팩 틀만과 같은 형식(1920×1080 RGBA, 콘텐츠 자리 알파 0·RGB 0). A 브라우저창(v1 계열) · B 병풍(v2). 체커보드·모서리 확대로 검증. (차트명가 NEW/틀만_완성 — 틀만 2종 + 적용예시)
+
+**77. ① 병풍 틀의 지붕(창호 사진) 한지와 배경이 다르다, 배경은 단색이다 ② 족자는 두루마리 펼침 애니메이션과 함께 AE 컴포지션으로 ③ 계획해 둔 애니메이션이 있는 소스는 전부 소스별 .aep/.mogrt 로 (2026-09-14)**
+→ ① 실측 — 창호 종이 213,198,177 편차 15 대 바탕 편차 2. 바탕을 Magnific 무료 닥종이 사진 결(tools/style/tex/hanji_mulberry.jpg)로, 창호 띠는 종이 부분만 같은 톤으로 → 띠 235,226,211 / 바탕 237,228,212. v2 스틸·틀만 B·trad_ae 재생성(재조립 캡처 0.00%). ②③ 층에 anim 메타(stamp·drawon·scroll) + tools/ae/trad_motion_pack.py(중복 제외 20개) + c3_trad_motion.jsx: 낙관 '쾅' 17 · 붓 원 드로우온 1(트림 매트) · 족자 펼침 2(글자는 AE 궁서, 종이 폭·높이 표현식 추종) · 보호 구간 마커 · 위치/크기/자막 노출 · mogrt 20. c4 재열기(표현식 104회 무오류) · f40 대조 18개 0.00% · 미리보기 GIF. 함정: mogrt 내보내기 한 번 뒤 들고 있던 CompItem 이 전부 무효 → 이름으로 재조회. AE 캡처는 비동기라 다음 잡이 프로젝트를 닫으면 사라진다. (신규안_v2_전통/AE_모션_trad_motion (aep + mogrt 20 + 미리보기). 닥종이 사진은 출처 표기 조건)
+
+**78. MCP 52개 목록 중 그동안 썼으면 효율적·효과적·확장적이었을 것 분석, 필요한 API 키 한 번에 받게**
+→ 작업 병목(도형 그리기의 AI 느낌·한글 글자 깨짐·수작업 픽셀 대조·가독성·벡터 부재) 대비 분석. 확실히 도움: magicui+브라우저 캡처 · pixelmatch+opencv · color-tools · svg 계열 · colorthief. Figma 공식 커넥터는 연결돼 있으나 Starter 요금제·View 좌석이라 MCP 읽기 월 20회(공식 문서) → 반복 작업 불가. 추천 도구는 키 불필요. 목록에 이미지 생성·스톡 소재 도구는 없다. (보고만 — 설치는 request 79)
+
+**79. 프리미어 저장하고 끄고, 도움되는 MCP 를 공식 GitHub README 대로 설치해 제대로 작동할 때까지 시험**
+→ tools/premiere/jobs/save_quit.jsx — 열린 프로젝트 1개 save()(수정시각 갱신 확인) 후 app.quit, 프로세스 종료 확인. MCP 8개 사용자 범위 등록: magicuidesign-mcp · chrome-devtools(--headless --workspace) · pixelmatch · opencv(uvx --with mcp<2) · color-theory(npm 미등록이라 소스 빌드) · color-palette(소스 빌드) · imagetosvg · svg2png(GTK3 런타임이 관리자 요구 → 7-Zip MSI 를 관리자 없이 풀어 DLL 을 PATH 로). stdio 시험기(mcp_test*.mjs)로 실제 도구 호출 전부 성공, claude mcp list 전부 Connected. 막힌 곳: mcp 파이썬 SDK 2.x 가 FastMCP 를 없앰, opencv 한글 경로 불가, chrome 파일 쓰기는 roots 밖 차단. (C:/Users/user/mcp-servers/설치기록.md — 새 도구는 Claude Code 재시작 후 세션에 보인다)
+
 ## 문제와 해결
 
 ### 1. Playwright 브라우저 빌드 불일치  `fixed`
@@ -1083,22 +1107,22 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 
 | 파일 | 포맷 | 프레임 | 크기 | 비고 |
 |---|---|---|---|---|
-| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | 0.8 MB | 29.97 기준 125f |
-| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | 1.0 MB | 29.97 기준 117f |
-| `out/cmg/cut3-fear.mp4` | mp4 | 152 | 1.1 MB | 29.97 기준 76f |
-| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | 3.4 MB | 29.97 기준 160f |
-| `out/cmg/_reel.mp4` | mp4 | 956 | 6.4 MB | 4컷 이어붙임, 29.97 기준 478f |
-| `out/01-open.mp4` | mp4 | 420 | 4.4 MB |  |
-| `out/02-structure.mp4` | mp4 | 450 | 4.3 MB |  |
-| `out/03-breakdown.mp4` | mp4 | 420 | 4.9 MB |  |
-| `out/04-entry.mp4` | mp4 | 420 | 3.7 MB |  |
-| `out/05-tpsl.mp4` | mp4 | 450 | 3.6 MB |  |
-| `out/06-result.mp4` | mp4 | 540 | 4.8 MB |  |
-| `out/_reel.mp4` | mp4 | 2700 | 25.6 MB | 다크 6컷 릴 45초 |
-| `out/ov-chart.mov` | qtrle | 300 | 38.5 MB | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
-| `out/ov-chart.webm` | vp9a | 300 | 3.2 MB | 전송용 압축본 |
-| `out/ov-tpsl.mov` | qtrle | 300 | 17.1 MB |  |
-| `out/ov-pnl.mov` | qtrle | 300 | 17.0 MB |  |
+| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | - | 29.97 기준 125f |
+| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | - | 29.97 기준 117f |
+| `out/cmg/cut3-fear.mp4` | mp4 | 152 | - | 29.97 기준 76f |
+| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | - | 29.97 기준 160f |
+| `out/cmg/_reel.mp4` | mp4 | 956 | - | 4컷 이어붙임, 29.97 기준 478f |
+| `out/01-open.mp4` | mp4 | 420 | - |  |
+| `out/02-structure.mp4` | mp4 | 450 | - |  |
+| `out/03-breakdown.mp4` | mp4 | 420 | - |  |
+| `out/04-entry.mp4` | mp4 | 420 | - |  |
+| `out/05-tpsl.mp4` | mp4 | 450 | - |  |
+| `out/06-result.mp4` | mp4 | 540 | - |  |
+| `out/_reel.mp4` | mp4 | 2700 | - | 다크 6컷 릴 45초 |
+| `out/ov-chart.mov` | qtrle | 300 | - | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
+| `out/ov-chart.webm` | vp9a | 300 | - | 전송용 압축본 |
+| `out/ov-tpsl.mov` | qtrle | 300 | - |  |
+| `out/ov-pnl.mov` | qtrle | 300 | - |  |
 
 ## 받아 온 자료
 
@@ -1377,4 +1401,21 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 258 | `b95e9def` | 진단 번들 정리 — 사무실 PC 데스크탑 앱 연결 끊김(2026-09-08) 17파일을 lab/diag/ 로 | 17파일 +0/-0 |
 | 259 | `326bb103` | 진단 결과 — 데스크탑 앱 연결 끊김은 네트워크가 아니라 로컬 세션 저장소 공백/디바이스 정체성 불일치 | 1파일 +50/-0 |
 | 260 | `6ebc3c5a` | 인수인계 프롬프트 3종 — 호스트 손실로 끊긴 E·B·D 로컬 세션 재생성용 | 1파일 +67/-0 |
-| 261 | `4452837f` | 세이브 save/2026-09-11-1111 — 최종본 #1~#10 실측 원자료를 lab/finalscan/ 에 등재 (로컬 영상 세션 전달용) | 113파일 +304262/-2 |
+| 261 | `f5e145d7` | 새 채널 스타일 — 비전 판독·픽셀 실측 도구 (1단계) | 2파일 +128/-0 |
+| 262 | `99c340a6` | 새 채널 스타일 — 씬·틀 합성·판독 도구 (2~4단계) | 4파일 +350/-2 |
+| 263 | `7adb98c8` | 새 채널 스타일 — 푸터 30px (비전 QA 두 모델이 짚은 유일한 항목) | 1파일 +2/-1 |
+| 264 | `c64bd62c` | 새 채널 스타일 v2 — 브라우저 창 틀 + 도구 21종 총집합 (반려 반영) | 2파일 +283/-184 |
+| 265 | `42fd0399` | Merge remote-tracking branch 'origin/claude/futures-youtube-video-edit-fhio4s' into local/newch-style | 71파일 +4162/-68 |
+| 266 | `80d80dd6` | 새 채널 스타일 v3 — FX-WHITELIST §4 어휘만, r13 실데이터 차트 (저장소 실측 반영) | 2파일 +159/-96 |
+| 267 | `4452837f` | 세이브 save/2026-09-11-1111 — 최종본 #1~#10 실측 원자료를 lab/finalscan/ 에 등재 (로컬 영상 세션 전달용) | 113파일 +304262/-2 |
+| 268 | `4b5c9be4` | 세이브 기록 save/2026-09-11-1111 | 5파일 +11/-3 |
+| 269 | `7a3a3802` | Merge remote-tracking branch 'origin/claude/futures-youtube-video-edit-fhio4s' into local/newch-style | 114파일 +304272/-4 |
+| 270 | `2ae480f7` | 새 채널 스타일 v4 — 전편 공통 결(finalscan 10편) + 적당한 변형 | 2파일 +151/-128 |
+| 271 | `57fbe31b` | v4 — 우측 알약 겹침: 존 알약을 먼저 그리고 이평 알약 간격 52px | 1파일 +4/-4 |
+| 272 | `7bf00a08` | v4 — 존 라벨을 존 안쪽(57번 봉)으로, 오른끝 열은 이평 알약만 | 1파일 +3/-3 |
+| 273 | `f69f3918` | 새 채널 스타일 v2 '병풍 위의 차트' — 전통 소재 씬·합성기 | 3파일 +498/-0 |
+| 274 | `9bebcf7e` | newch-trad: 글씨 깨짐·이평선 잘림 수정 | 4파일 +80/-30 |
+| 275 | `94358764` | newch-trad: 아웃트로 먹 캔들이 글자에 닿지 않게 내림 | 1파일 +1/-1 |
+| 276 | `99a2845c` | newch-trad: 요소를 층으로 쪼개 AE 컴포지션으로 (--split + c1_trad_build) | 3파일 +328/-134 |
+| 277 | `06d86761` | 틀만 조립 완성본 — 가운데 뚫은 투명 PNG 2종 (브라우저창 · 병풍) | 1파일 +128/-0 |
+| 278 | `71c6f84f` | newch-trad: 실사 닥종이 바탕 + 애니메이션 소스 20개를 AE 컴포지션·mogrt 로 | 6파일 +703/-35 |

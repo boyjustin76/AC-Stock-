@@ -216,6 +216,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `brand/thumbnail/종이배경.png` | 템플릿 종이 텍스처 원본 픽셀 |
 | `brand/thumbnail/틀.png` | 템플릿 '틀' 도형 원본 픽셀 (안쪽 투명) |
 | `brand/ui` | 매수·매도 버튼, 시네마스코프, 댓글 유도 |
+| `data/synth/newch-trad.json` | seed 11 합성 시장 앞에 워밍업 60봉 — 이평선이 첫 화면 봉부터 그려지게 (tools/style/trad-bars.mjs) |
 | `deliver/shortform` | 납품한 숏폼 자막·컷리스트 (영상·음성은 드라이브/전달분에만) |
 | `deliver/thumbnail` | 채택된 썸네일. out/ 은 .gitignore 라 여기에 따로 둔다 |
 | `lab/ae/AEP-MOGRT-조사보고.txt` | .aep/.mogrt 납품 가능성 조사 — 공식 자료 vs 우리 실측, 결론: 파일 직접 쓰기 배제, ExtendScript 로 AE 가 굽게 한다 (next_step 27) |
@@ -244,6 +245,8 @@ git restore --source=<해시> -- .              # 되돌리기
 | `scenes/cmg12-guide.scenes.js` | 차12 소개·설정 4컷 — RSI 패널 첫 등장, 실측 색 원본(COLOR export) |
 | `scenes/cmg12-recap.scenes.js` | 차12 요약 3컷 — 매수 시장 재사용, ①②③ |
 | `scenes/cmg12-sell.scenes.js` | 차12 매도 관점 3컷 — seed68 5분봉, 45선 재이탈 bar49 |
+| `scenes/newch-style.scenes.js` | 새 채널 스타일 v1~v4 — 브라우저 창 틀용 차트 본체(seed 11) |
+| `scenes/newch-trad.scenes.js` | 새 채널 v2 전통 '병풍 위의 차트' — 캔들 + 오방색 이평 3선만. 봉은 data/synth/newch-trad.json(워밍업 60봉) |
 | `scenes/nq-basic.scenes.js` | 다크 테마 NQ 6컷 (첫 버전, 브랜드 적용 전) |
 | `scenes/nq-overlay.scenes.js` | 투명 배경 오버레이 3컷 |
 | `scenes/sl-11-4.scenes.js` | 숏폼 차11-4 추세추종 5컷 — 1080x1080/30fps, 내레이션 46.77초에 동기 |
