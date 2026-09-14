@@ -36,6 +36,8 @@ function readOnlyFile() {
 /*  비워 두면 전부. 이름을 넣으면 그것만 다시 내보내고 **그 파일만** 지운다
     (2026-09-14: '손익비 · 손절 박스' 가 내보낸 뒤 프로젝트가 7항목으로 줄면서 누락 자산 2 로 나왔다).  */
 var ONLY = readOnlyFile() || [];
+$.evalFile(new File(PACK + "/footage/rr.jsx"));   /* RR — 기대 템플릿 수 = 소스 + 전체 */
+var EXPECT = RR.items.length + 1;
 
 function templates() {
     var t = [];
@@ -64,10 +66,10 @@ var names = [];
 probe("aep 확인", function () {
     app.open(new File(AEP));
     names = templates();
-    if (names.length < 13) throw new Error("템플릿 컴포지션이 " + names.length + "개뿐 — aep 가 온전하지 않다. 내보내지 않는다");
+    if (names.length !== EXPECT) throw new Error("템플릿 컴포지션이 " + names.length + "개 (기대 " + EXPECT + ") — aep 가 rr.jsx 와 안 맞는다. 내보내지 않는다");
     return app.project.numItems + "항목 · 템플릿 " + names.length + "개";
 });
-if (names.length < 13) { flush(); return fail("aep 가 온전하지 않다"); }
+if (names.length !== EXPECT) { flush(); return fail("aep 가 rr.jsx 와 안 맞는다"); }
 if (ONLY.length) {
     var pick = [];
     for (var s = 0; s < names.length; s++) for (var t = 0; t < ONLY.length; t++) if (names[s] === ONLY[t]) pick.push(names[s]);

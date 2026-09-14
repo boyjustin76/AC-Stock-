@@ -4,20 +4,22 @@
 
   python tools/style/trad_rr.py --cam <신규안_v2_전통/gen/newch-trad.json> --chart out/newch-trad/stills/trad_t0.00s.png --out C:/aelab/pack/trad_rr
 
-옛 파일(C:/aelab/mogrt/차11-4 손익비.mogrt, tools/ae/jobs/a3_build.jsx)의 요소·등장 순서를 그대로 옮기고 모양만 바꾼다.
-  매수 태그      → 매수 낙관               익절/손절 색박스(채움+굵은 선) → 적/쪽 담채 + 점선
-  라벨판(익절/손절) → 오른쪽 낙관 열(익절·진입·손절)   진입 라인 → 먹선
-  손익비 뱃지    → 손익비 현판(옻칠·금테)    익절 버튼 → 익절 낙관(청산 봉 위)
-  놓친 구간 빗금 → 황 담채 + 먹 빗금        '놓친 구간' 글자 → 궁서 먹글씨     손그림 밑줄 → 인주 붓 밑줄
+옛 파일(C:/aelab/mogrt/차11-4 손익비.mogrt, tools/ae/jobs/a3_build.jsx)의 요소·등장 순서를 옮기고 모양만 바꾼다.
+  매수 태그 → 매수 낙관 · 손익비 뱃지 → 손익비 현판 · 익절 버튼 → 익절 실행 낙관(청산 봉 위)
+  놓친 구간 빗금 → 황 담채 + 먹 빗금 · '놓친 구간' 글자 → 궁서 먹글씨 · 손그림 밑줄 → 인주 붓 밑줄
+  익절/손절 색박스 + 라벨, 진입 라인 → **버튼-선 세트** (2026-09-14 2차 요청)
+    · 버튼(낙관)이 화면 왼쪽 끝 열(x=166, v2 지지·저항 낙관 자리)에서 먼저 찍히고,
+      선·박스가 **왼쪽에서 오른쪽으로 한 방향**으로 뻗어 화면 전체(0~1920)를 덮는다 — 자르는 건 편집자가 한다.
+    · 익절선&박스 · 손절선&박스 · 진입선 + (새로) 지지선 · 저항선(박스 없음, 전체 컴포지션엔 안 들어감)
 차트 바닥은 넣지 않는다 — 소스별로 잘라 쓴다(사용자 2026-09-14). 좌표만 v2 차트(카메라)에 맞춘다.
 
 질감이 있는 것(낙관 면·담채·점선·빗금·붓 밑줄)은 PNG, 바꿔 쓸 글자는 AE 텍스트로 넘긴다.
-그래서 낙관 PNG 는 **글자 없는 면**만 굽고, 대조용 기준(_ref.png)은 글자까지 합성기로 그린다.
-출력: <out>/footage/*.png · rr.json · rr.jsx · _ref.png(투명 기준) · _ref_on_chart.png(배치 확인용)
+그래서 낙관 PNG 는 **글자 없는 면**만 굽고, 대조용 기준(_ref.png · refs/<id>.png)은 글자까지 합성기로 그린다.
+출력: <out>/footage/*.png · rr.json · rr.jsx · _ref.png(전체 기준) · refs/ · _ref_on_chart.png · _ref_extra_on_chart.png
 """
 import argparse, io, json, math, os, sys
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -25,6 +27,10 @@ import trad as T
 
 W, H, FPS, FRAMES = T.W, T.H, 30, 176      # 옛 컴포지션과 같은 길이 (176프레임)
 OUT_AT = (155, 165)                        # 옛 퇴장 5.15~5.5초
+XB = T.PANEL[0] + 40 + 66                  # 버튼 가로 자리 = v2 지지·저항 낙관 열 (x=166)
+SET_LINE = (4, 20)                         # 버튼 착지(f4)와 함께 선 앞끝이 왼끝에서 출발해 f20 에 오른끝
+SET_ZONE = (6, 22)                         # 박스는 선을 2프레임 뒤따른다
+PFX = '손익비 · '
 
 
 def hx(c):
@@ -105,27 +111,27 @@ def main():
     missed_hi = max(bar(i)['h'] for i in range(exit_bar, 64))
 
     xr = cam.x(63) + cam.BW * 0.8          # trad.toolkit_layers 와 같은 자리
-    xs = xr + 132
-    x44 = cam.x(44) - cam.BW / 2
     yT, yE, yS = cam.y(T.LV_TARGET), cam.y(T.LV_ENTRY), cam.y(T.LV_STOP)
+    ySup, yRes = cam.y(23700), cam.y(23905)   # v2 총집합의 지지·저항 가격
     xX, yHi, yMiss = cam.x(exit_bar), cam.y(bar(exit_bar)['h']), cam.y(missed_hi)
 
     items, ref = [], Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    extra = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     refs = os.path.join(a.out, 'refs'); os.makedirs(refs, exist_ok=True)
     for f in os.listdir(refs):
         os.remove(os.path.join(refs, f))
 
-    def R(slug, draw, seed=None):
-        """대조 기준을 요소마다 따로 그려 refs/<slug>.png 로 남기고 전체 기준(ref)에 얹는다 — 소스 컴포지션 캡처와 1:1 로 댄다"""
+    def R(slug, draw, seed=None, main=True):
+        """대조 기준을 요소마다 따로 그려 refs/<slug>.png 로 남기고, 전체에 들어가는 것만 전체 기준(ref)에 얹는다"""
         if seed is not None:
             np.random.seed(seed)
         L = Image.new('RGBA', (W, H), (0, 0, 0, 0)); draw(L)
         path = os.path.join(refs, slug + '.png')
-        if os.path.exists(path):                    # 한 소스가 여러 조각(담채+선)이면 이어 붙인다
+        if os.path.exists(path):                    # 한 소스가 여러 조각(박스+선+버튼)이면 이어 붙인다
             prev = Image.open(path).convert('RGBA'); prev.alpha_composite(L); prev.save(path)
         else:
             L.save(path)
-        ref.alpha_composite(L)
+        (ref if main else extra).alpha_composite(L)
 
     def png(name, draw, seed):
         np.random.seed(seed)
@@ -140,8 +146,8 @@ def main():
         face = png(slug + '_face', lambda c: T.seal(c, cx, cy, '', color, w, h, f, tilt=0, alpha=alpha), seed)
         R(slug, lambda c: T.seal(c, cx, cy, text, color, w, h, f, tilt=tilt, alpha=alpha), seed)
         dx, dy = ink_offset(f, text)
-        items.append(dict(id=slug, title=title, kind='seal', beat=beat, intro=10, cx=cx, cy=cy, text=text, size=size,
-                          color=hx(color), fg=hx(T.HANJI2), tilt=tilt, sw=w, sh=h, pad=w - T.tw(f, text),
+        items.append(dict(id=slug, name=PFX + title, title=title, kind='seal', main=True, beat=beat, intro=10, cx=cx, cy=cy,
+                          text=text, size=size, color=hx(color), fg=hx(T.HANJI2), tilt=tilt, sw=w, sh=h, pad=w - T.tw(f, text),
                           tdx=dx, tdy=2 + dy, face=face, box=[cx - w / 2 - 12, cy - h / 2 - 12, cx + w / 2 + 12, cy + h / 2 + 12]))
 
     def add_wipe(slug, title, beat, dur, direction, parts, seed):
@@ -153,34 +159,61 @@ def main():
             R(slug, draw, seed + k)
             layers.append(p)
         bx = [min(p['x'] for p in layers), min(p['y'] for p in layers), max(p['x'] + p['w'] for p in layers), max(p['y'] + p['h'] for p in layers)]
-        items.append(dict(id=slug, title=title, kind='wipe', beat=beat, intro=dur, dir=direction, layers=layers, box=bx))
+        items.append(dict(id=slug, name=PFX + title, title=title, kind='wipe', main=True, beat=beat, intro=dur, dir=direction, layers=layers, box=bx))
 
-    # ── 바닥에서 위로 (옛 a3_build 순서와 등장 시각) ──
-    add_wipe('sl_box', '손절 박스', 21, 12, 'lr', [
-        ('zone', lambda c: T.wash(c, (x44, yE, xr, yS), T.JJOK, 30), T.JJOK),
-        ('line', lambda c: dashed(c, x44, xs - 50, yS, 2, T.JJOK, (10, 8)), T.JJOK)], 11)
-    add_wipe('tp_box', '익절 박스', 9, 12, 'lr', [
-        ('zone', lambda c: T.wash(c, (x44, yT, xr, yE), T.RED, 34), T.RED),
-        ('line', lambda c: dashed(c, x44, xs - 50, yT, 2, T.RED, (10, 8)), T.RED)], 21)
-    add_wipe('entry', '진입선', 9, 12, 'lr', [
-        ('line', lambda c: T.ink_line(ImageDraw.Draw(c), x44, xs - 50, yE, 3), T.INK)], 31)
+    def add_set(slug, name, title, beat, y, text, color, line_color, line_w, dash=None, zone=None,
+                sw=96, sh=50, size=32, alpha=235, seed=0, main=True):
+        """버튼-선 세트: 버튼(낙관)은 왼쪽 열에서 먼저 찍히고, 선(·박스)은 화면 전체 폭 PNG 를 왼→오 마스크로 드러낸다"""
+        f = T.gung(size)
+        layers = []
+        if zone:
+            y0, y1, zc, za = zone
+            zdraw = lambda c: T.wash(c, (-30, y0, W + 30, y1), zc, za)     # 화면 밖까지 칠해 양끝이 흐려지지 않게
+            p = png(slug + '_zone', zdraw, seed); p.update(name='zone', fill=hx(zc)); layers.append(p)
+            R(slug, zdraw, seed, main)
+        if dash:
+            ldraw = lambda c: dashed(c, 0, W, y, line_w, line_color, dash)
+        else:
+            ldraw = lambda c: T.ink_line(ImageDraw.Draw(c), 0, W, y, line_w, line_color)
+        p = png(slug + '_line', ldraw, seed + 1); p.update(name='line', fill=hx(line_color)); layers.append(p)
+        R(slug, ldraw, seed + 1, main)
+        face = png(slug + '_face', lambda c: T.seal(c, XB, y, '', color, sw, sh, f, tilt=0, alpha=alpha), seed + 2)
+        R(slug, lambda c: T.seal(c, XB, y, text, color, sw, sh, f, tilt=0, alpha=alpha), seed + 2, main)
+        dx, dy = ink_offset(f, text)
+        top = min([p['y'] for p in layers] + [y - sh / 2 - 12])
+        bot = max([p['y'] + p['h'] for p in layers] + [y + sh / 2 + 12])
+        items.append(dict(id=slug, name=name, title=title, kind='set', main=main, beat=beat,
+                          intro=SET_ZONE[1] if zone else SET_LINE[1], cx=XB, cy=y, text=text, size=size,
+                          color=hx(color), fg=hx(T.HANJI2), tilt=0, sw=sw, sh=sh, pad=sw - T.tw(f, text),
+                          tdx=dx, tdy=2 + dy, face=face, layers=layers,
+                          reveal=dict(line=list(SET_LINE), zone=list(SET_ZONE)), box=[0, top, W, bot]))
+
+    # ── 버튼-선 세트 (전체 컴포지션 박자: 진입 f9 → 익절 f15 → 손절 f21) ──
+    add_set('sl_set', PFX + '손절선&박스', '손절선&박스', 21, yS, '손절', T.JJOK, T.JJOK, 2, dash=(10, 8),
+            zone=(yE, yS, T.JJOK, 30), seed=11)
+    add_set('tp_set', PFX + '익절선&박스', '익절선&박스', 15, yT, '익절', T.RED, T.RED, 2, dash=(10, 8),
+            zone=(yT, yE, T.RED, 34), seed=21)
+    add_set('entry_set', PFX + '진입선', '진입선', 9, yE, '진입', T.INK, T.INK, 3, alpha=210, seed=31)
+    add_set('support', '전통 · 지지선', '지지선', 0, ySup, '지지', T.GRN, T.INK, 2, dash=(12, 9),
+            sw=90, sh=48, size=30, seed=81, main=False)
+    add_set('resist', '전통 · 저항선', '저항선', 0, yRes, '저항', T.RED, T.INK, 2, dash=(12, 9),
+            sw=90, sh=48, size=30, seed=91, main=False)
+
     add_wipe('missed', '놓친 구간', 107, 27, 'bt', [
         ('hatch', lambda c: hatch(c, (xX, yMiss, xr, yT)), None)], 41)
 
-    # 손익비 현판 — 오른쪽 낙관 열 아래
+    # 손익비 현판 — 오른쪽 빈자리(손절선 아래). 왼쪽 버튼 열 아래로 옮겨 봤더니 초반 캔들·이평을 덮었다 (2026-09-14 배치 확인)
     rr_text, rr_size = '손익비  1 : 2', 36
     fp = T.gung(rr_size)
     pw, ph = T.tw(fp, rr_text) + 64, rr_size + 40
+    xs = xr + 132
     px, py = xs - pw / 2, yS + 42
     R('rr', lambda c: T.hyeonpan(c, px, py, rr_text, rr_size), 51)
     dx, dy = ink_offset(fp, rr_text)
-    items.append(dict(id='rr', title='손익비 현판', kind='plate', beat=39, intro=12, cx=xs, top=py, text=rr_text, size=rr_size,
-                      pad=64, ph=ph, tdx=dx, tdy=1 + dy, bg=hx(T.LACQ), gold=hx(T.GOLD), fg=hx(T.HANJI2),
-                      box=[px - 8, py - 8, px + pw + 14, py + ph + 16]))
+    items.append(dict(id='rr', name=PFX + '손익비 현판', title='손익비 현판', kind='plate', main=True, beat=39, intro=12,
+                      cx=px + pw / 2, top=py, text=rr_text, size=rr_size, pad=64, ph=ph, tdx=dx, tdy=1 + dy,
+                      bg=hx(T.LACQ), gold=hx(T.GOLD), fg=hx(T.HANJI2), box=[px - 8, py - 8, px + pw + 14, py + ph + 16]))
 
-    add_seal('tp_seal', '익절 낙관', 19, xs, yT, '익절', T.RED, 96, 50, 32, 0, seed=61)
-    add_seal('entry_seal', '진입 낙관', 22, xs, yE, '진입', T.INK, 96, 50, 32, 0, alpha=210, seed=62)
-    add_seal('sl_seal', '손절 낙관', 31, xs, yS, '손절', T.JJOK, 96, 50, 32, 0, seed=63)
     add_seal('buy', '매수 낙관', 0, cam.x(43), yS + 108, '매수', T.RED, 104, 104, int(104 * 0.48), -5, seed=64)
     add_seal('exit', '익절 실행 낙관', 99, xX, yHi - 39, '익절', T.RED, 96, 50, 32, 4, seed=65)
 
@@ -191,33 +224,36 @@ def main():
     ncx, ncy = xX - 92 - nw / 2, yMiss + 16     # 밑줄 오른끝과 익절 실행 낙관 사이 35px
     R('note', lambda c: T.btext(c, (ncx, ncy), nt, fn_, T.INK, anchor='mm', halo=T.HANJI))
     dx, dy = ink_offset(fn_, nt)
-    items.append(dict(id='note', title='놓친 구간 문구', kind='note', beat=122, intro=13, cx=ncx, cy=ncy, text=nt, size=ns,
-                      tdx=dx, tdy=dy, fill=hx(T.INK), halo=hx(T.HANJI), box=[ncx - nw / 2 - 8, ncy - 34, ncx + nw / 2 + 8, ncy + 34]))
+    items.append(dict(id='note', name=PFX + '놓친 구간 문구', title='놓친 구간 문구', kind='note', main=True, beat=122, intro=13,
+                      cx=ncx, cy=ncy, text=nt, size=ns, tdx=dx, tdy=dy, fill=hx(T.INK), halo=hx(T.HANJI),
+                      box=[ncx - nw / 2 - 8, ncy - 34, ncx + nw / 2 + 8, ncy + 34]))
 
     pts = underline_pts(ncx, ncy + 36, nw + 12)
     p = png('under', lambda c: brush_under(c, pts), 71)
     R('under', lambda c: brush_under(c, pts), 71)
-    items.append(dict(id='under', title='붓 밑줄', kind='brush', beat=129, intro=11, layer=p, fill=hx(T.RED),
-                      pts=[[round(x, 2), round(y, 2)] for x, y in pts], stroke=9 * 2 + 10, box=[p['x'], p['y'], p['x'] + p['w'], p['y'] + p['h']]))
+    items.append(dict(id='under', name=PFX + '붓 밑줄', title='붓 밑줄', kind='brush', main=True, beat=129, intro=11, layer=p,
+                      fill=hx(T.RED), pts=[[round(x, 2), round(y, 2)] for x, y in pts], stroke=9 * 2 + 10,
+                      box=[p['x'], p['y'], p['x'] + p['w'], p['y'] + p['h']]))
 
     ref.save(os.path.join(a.out, '_ref.png'))
     # 배치 확인용 — v2 차트(한지 + 곱하기 차트) 위에 얹은 그림. 납품물엔 바닥이 없다.
     np.random.seed(7)
-    base = T.hanji().convert('RGB')
-    from PIL import ImageChops
-    chart = Image.open(a.chart).convert('RGB')
-    base = ImageChops.multiply(base, chart).convert('RGBA')
-    base.alpha_composite(ref)
-    base.convert('RGB').save(os.path.join(a.out, '_ref_on_chart.png'))
+    base = ImageChops.multiply(T.hanji().convert('RGB'), Image.open(a.chart).convert('RGB'))
+    for img, fn in ((ref, '_ref_on_chart.png'), (extra, '_ref_extra_on_chart.png')):
+        c = base.convert('RGBA'); c.alpha_composite(img); c.convert('RGB').save(os.path.join(a.out, fn))
 
-    order = ['buy', 'tp_box', 'entry', 'tp_seal', 'sl_box', 'entry_seal', 'sl_seal', 'rr', 'exit', 'missed', 'note', 'under']
+    order = ['buy', 'entry_set', 'tp_set', 'sl_set', 'rr', 'exit', 'missed', 'note', 'under', 'support', 'resist']
     items.sort(key=lambda i: order.index(i['id']))
-    man = {'fps': FPS, 'frames': FRAMES, 'out': list(OUT_AT), 'w': W, 'h': H, 'name': '차11-4 손익비 (전통)',
-           'geo': dict(x44=x44, xr=xr, xs=xs, yT=yT, yE=yE, yS=yS, exit_bar=exit_bar, xX=xX, yHi=yHi, missed_hi=missed_hi, yMiss=yMiss),
+    stack = ['sl_set', 'tp_set', 'entry_set', 'missed', 'rr', 'buy', 'exit', 'note', 'under']   # 전체 컴포지션 아래 → 위
+    names = [i['name'] for i in items]
+    assert len(names) == len(set(names)), names
+    man = {'fps': FPS, 'frames': FRAMES, 'out': list(OUT_AT), 'w': W, 'h': H, 'name': '차11-4 손익비 (전통)', 'stack': stack,
+           'geo': dict(XB=XB, xr=xr, yT=yT, yE=yE, yS=yS, ySup=ySup, yRes=yRes, exit_bar=exit_bar, xX=xX, yHi=yHi,
+                       missed_hi=missed_hi, yMiss=yMiss),
            'items': items}
     io.open(os.path.join(foot, 'rr.json'), 'w', encoding='utf-8').write(json.dumps(man, ensure_ascii=False, indent=1))
     io.open(os.path.join(foot, 'rr.jsx'), 'w', encoding='ascii').write('var RR = ' + json.dumps(man, ensure_ascii=True) + ';\n')
-    print('청산 봉', exit_bar, '놓친 고점', missed_hi, '| 소스', len(items), [i['title'] for i in items])
+    print('청산 봉', exit_bar, '놓친 고점', missed_hi, '| 소스', len(items), names)
 
 
 if __name__ == '__main__':

@@ -53,7 +53,10 @@ def main():
     for it in rr['items']:
         box = tuple(int(round(v)) for v in it['box'])
         box = (max(0, box[0]), max(0, box[1]), min(1920, box[2]), min(1080, box[3]))
-        p_main, m_main = diff(got, want, box)
+        if it.get('main', True):
+            p_main, m_main = diff(got, want, box)
+        else:                                   # 지지선·저항선은 전체 컴포지션에 없다 — 소스 대조만
+            p_main, m_main = None, None
         src = os.path.join(a.cap, 'src_%s.png' % it['id'])
         one = os.path.join(a.pack, 'refs', '%s.png' % it['id'])       # 그 요소 하나만 그린 기준
         if os.path.exists(src) and os.path.exists(one):
@@ -64,7 +67,7 @@ def main():
     full_pct, _ = diff(got, want, (0, 0, 1920, 1080))
 
     # 대조 한 장: 위 합성기 · 아래 AE
-    crop = (820, 250, 1760, 800)
+    crop = (0, 270, 1920, 810)      # 선·박스가 화면 전체 폭이다 (2026-09-14 2차)
     w, h = crop[2] - crop[0], crop[3] - crop[1]
     sb = Image.new('RGB', (w, h * 2 + 8), (200, 0, 0))
     sb.paste(want.crop(crop), (0, 0)); sb.paste(got.crop(crop), (0, h + 8))
@@ -98,7 +101,8 @@ def main():
 
     print('%-14s %-6s %s' % ('소스', '종류', 'f150 AE vs 합성기 (8/255 초과 · 최대차) | 소스 컴포 f30 vs 전체 f150'))
     for t, k, p, m, ps in rows:
-        print('%-14s %-6s %6.2f%%  %3d   | %s' % (t, k, p, m, '-' if ps is None else '%.2f%%' % ps))
+        head = '   (전체에 없음)   ' if p is None else '%6.2f%%  %3d   ' % (p, m)
+        print('%-14s %-6s %s| %s' % (t, k, head, '-' if ps is None else '%.2f%%' % ps))
     print('화면 전체 %.2f%%' % full_pct)
 
 

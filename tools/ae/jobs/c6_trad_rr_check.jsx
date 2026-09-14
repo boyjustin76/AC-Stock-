@@ -80,7 +80,7 @@ probe("캡처 전체 f150 + 움직임", function () {
 for (var s = 0; s < RR.items.length; s++) {
     (function (it) {
         probe("  캡처 " + it.title, function () {
-            var cc = comps[PFX + it.title];
+            var cc = comps[it.name];
             if (!cc) throw new Error("소스 컴포지션 없음");
             cc.saveFrameToPng(30 / cc.frameRate, new File(OUT + "/src_" + it.id + ".png"));
             map.push(it.id + "\t" + it.title);

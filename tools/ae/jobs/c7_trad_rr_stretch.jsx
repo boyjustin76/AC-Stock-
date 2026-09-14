@@ -10,7 +10,7 @@ logTo("c7");
 var AEP = LAB + "/pack/trad_rr/trad_rr.aep";
 var OUT = LAB + "/trad_rr_check";
 var TESTS = [
-    { id: "tp_seal", comp: "손익비 · 익절 낙관", text: "1차 익절" },
+    { id: "tp_set", comp: "손익비 · 익절선&박스", text: "1차 익절" },
     { id: "rr", comp: "손익비 · 손익비 현판", text: "손익비  1 : 3.5" },
     { id: "note", comp: "손익비 · 놓친 구간 문구", text: "놓친 수익 구간" }
 ];

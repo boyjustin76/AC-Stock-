@@ -10,15 +10,17 @@ c5x_trad_rr_export.jsx 가 _only.txt 에 적힌 이름만 다시 내보낸다. �
 """
 import argparse, glob, io, json, os, sys, zipfile
 
-WANT = ['차11-4 손익비 (전통)'] + ['손익비 · ' + t for t in [
-    '매수 낙관', '익절 박스', '진입선', '익절 낙관', '손절 박스', '진입 낙관', '손절 낙관',
-    '손익비 현판', '익절 실행 낙관', '놓친 구간', '놓친 구간 문구', '붓 밑줄']]
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--out', default='C:/aelab/trad_rr_mogrt_out')
+    ap.add_argument('--rr', default='C:/aelab/pack/trad_rr/footage/rr.json')
     a = ap.parse_args()
+    rr = json.load(io.open(a.rr, encoding='utf-8'))
+    WANT = [rr['name']] + [i['name'] for i in rr['items']]      # 전체 + 소스 (이름은 trad_rr.py 가 정한다)
+    # 예전 이름의 mogrt 가 밖 폴더에 남아 있으면 헷갈린다 — 알려만 준다
+    extra = sorted(set(os.path.basename(f)[:-6] for f in glob.glob(a.out + '/*.mogrt')) - set(WANT))
+    if extra:
+        print('목록에 없는 mogrt (무시):', extra)
     files = {os.path.basename(f)[:-6]: f for f in glob.glob(a.out + '/*.mogrt')}
     bad = []
     for name in WANT:
