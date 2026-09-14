@@ -92,6 +92,21 @@ def brush_under(canvas, pts, color=T.RED, wmin=3.0, wmax=9.0):
     return wmax
 
 
+def seal_line(canvas, y, thick, color, alpha=235, cut=None):
+    """낙관과 같은 인주 질감의 굵은 선 — 화면 밖(-20~W+20)까지 긋고 가장자리는 노이즈로 침식, 안쪽엔 미세한 빈틈.
+    옛 차트명가 cmgLevel 의 비율(선 13px + 선 시작점에 붙은 같은 색 라벨판 높이 54)을 낙관(높이 50)에 옮긴 것.
+    2026-09-14 3차: 가는 점선이 잘 안 보인다 → 버튼과 같은 재질·같은 색의 굵은 선.
+    cut(L 마스크)이 있으면 그 자리를 비운다 — 반투명 낙관 뒤로 선이 비쳐 버튼 가운데에 진한 띠가 생겼다(확대 확인)."""
+    m = Image.new('L', (W, H), 0)
+    ImageDraw.Draw(m).rectangle((-20, y - thick / 2.0, W + 20, y + thick / 2.0), fill=255)
+    m = T.rough_mask(m, blur=1.6, erode=0.45, holes=0.02)
+    if cut is not None:
+        m = ImageChops.multiply(m, ImageChops.invert(cut))
+    face = Image.new('RGBA', (W, H), color + (0,))
+    face.putalpha(m.point(lambda v: v * alpha // 255))
+    canvas.alpha_composite(face)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--cam', required=True)
@@ -161,9 +176,10 @@ def main():
         bx = [min(p['x'] for p in layers), min(p['y'] for p in layers), max(p['x'] + p['w'] for p in layers), max(p['y'] + p['h'] for p in layers)]
         items.append(dict(id=slug, name=PFX + title, title=title, kind='wipe', main=True, beat=beat, intro=dur, dir=direction, layers=layers, box=bx))
 
-    def add_set(slug, name, title, beat, y, text, color, line_color, line_w, dash=None, zone=None,
+    def add_set(slug, name, title, beat, y, text, color, thick=13, zone=None,
                 sw=96, sh=50, size=32, alpha=235, seed=0, main=True):
-        """버튼-선 세트: 버튼(낙관)은 왼쪽 열에서 먼저 찍히고, 선(·박스)은 화면 전체 폭 PNG 를 왼→오 마스크로 드러낸다"""
+        """버튼-선 세트: 버튼(낙관)은 왼쪽 열에서 먼저 찍히고, 버튼과 같은 색·재질의 굵은 선(·박스)이
+        화면 전체 폭 PNG 를 왼→오 마스크로 드러낸다. 선은 버튼 뒤를 지나가 버튼 오른끝에서 이어져 보인다."""
         f = T.gung(size)
         layers = []
         if zone:
@@ -171,11 +187,16 @@ def main():
             zdraw = lambda c: T.wash(c, (-30, y0, W + 30, y1), zc, za)     # 화면 밖까지 칠해 양끝이 흐려지지 않게
             p = png(slug + '_zone', zdraw, seed); p.update(name='zone', fill=hx(zc)); layers.append(p)
             R(slug, zdraw, seed, main)
-        if dash:
-            ldraw = lambda c: dashed(c, 0, W, y, line_w, line_color, dash)
-        else:
-            ldraw = lambda c: T.ink_line(ImageDraw.Draw(c), 0, W, y, line_w, line_color)
-        p = png(slug + '_line', ldraw, seed + 1); p.update(name='line', fill=hx(line_color)); layers.append(p)
+        # 버튼 면 안쪽(가장자리에서 3px 들어온 곳)만 선에서 비운다 — 가장자리는 겹쳐 남겨 이음새에 틈이 안 생기게.
+        # 문구를 길게 바꿔 면이 가로로 늘어나도 빈자리는 면이 덮는다(면은 커지기만 한다).
+        np.random.seed(seed + 2)
+        tile = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+        T.seal(tile, XB, y, '', color, sw, sh, f, tilt=0, alpha=255)
+        # 면에는 인주 빈틈(점)이 섞여 있어 바로 줄이면 빈틈이 번져 비움 자리가 사라진다 → 흐려서 빈틈을 메운 뒤 문턱·줄이기
+        cut = (tile.getchannel('A').filter(ImageFilter.GaussianBlur(2))
+               .point(lambda v: 255 if v > 150 else 0).filter(ImageFilter.MinFilter(5)))
+        ldraw = lambda c: seal_line(c, y, thick, color, alpha, cut)
+        p = png(slug + '_line', ldraw, seed + 1); p.update(name='line', fill=hx(color)); layers.append(p)
         R(slug, ldraw, seed + 1, main)
         face = png(slug + '_face', lambda c: T.seal(c, XB, y, '', color, sw, sh, f, tilt=0, alpha=alpha), seed + 2)
         R(slug, lambda c: T.seal(c, XB, y, text, color, sw, sh, f, tilt=0, alpha=alpha), seed + 2, main)
@@ -189,15 +210,12 @@ def main():
                           reveal=dict(line=list(SET_LINE), zone=list(SET_ZONE)), box=[0, top, W, bot]))
 
     # ── 버튼-선 세트 (전체 컴포지션 박자: 진입 f9 → 익절 f15 → 손절 f21) ──
-    add_set('sl_set', PFX + '손절선&박스', '손절선&박스', 21, yS, '손절', T.JJOK, T.JJOK, 2, dash=(10, 8),
-            zone=(yE, yS, T.JJOK, 30), seed=11)
-    add_set('tp_set', PFX + '익절선&박스', '익절선&박스', 15, yT, '익절', T.RED, T.RED, 2, dash=(10, 8),
-            zone=(yT, yE, T.RED, 34), seed=21)
-    add_set('entry_set', PFX + '진입선', '진입선', 9, yE, '진입', T.INK, T.INK, 3, alpha=210, seed=31)
-    add_set('support', '전통 · 지지선', '지지선', 0, ySup, '지지', T.GRN, T.INK, 2, dash=(12, 9),
-            sw=90, sh=48, size=30, seed=81, main=False)
-    add_set('resist', '전통 · 저항선', '저항선', 0, yRes, '저항', T.RED, T.INK, 2, dash=(12, 9),
-            sw=90, sh=48, size=30, seed=91, main=False)
+    # 선 굵기 = 낙관 높이 × 0.26 (옛 cmgLevel 13/54) → 높이 50 은 13px, 48 은 12px
+    add_set('sl_set', PFX + '손절선&박스', '손절선&박스', 21, yS, '손절', T.JJOK, 13, zone=(yE, yS, T.JJOK, 30), seed=11)
+    add_set('tp_set', PFX + '익절선&박스', '익절선&박스', 15, yT, '익절', T.RED, 13, zone=(yT, yE, T.RED, 34), seed=21)
+    add_set('entry_set', PFX + '진입선', '진입선', 9, yE, '진입', T.INK, 13, alpha=210, seed=31)
+    add_set('support', '전통 · 지지선', '지지선', 0, ySup, '지지', T.GRN, 12, sw=90, sh=48, size=30, seed=81, main=False)
+    add_set('resist', '전통 · 저항선', '저항선', 0, yRes, '저항', T.RED, 12, sw=90, sh=48, size=30, seed=91, main=False)
 
     add_wipe('missed', '놓친 구간', 107, 27, 'bt', [
         ('hatch', lambda c: hatch(c, (xX, yMiss, xr, yT)), None)], 41)

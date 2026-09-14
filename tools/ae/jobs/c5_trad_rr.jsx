@@ -238,7 +238,7 @@ function buildSeal(it) {
 function buildSet(it) {
     var comp = newComp(it.name);
     var n = controller(comp, "조절", it.cx, it.cy);          /* 조절 널 = 버튼 자리 */
-    var FE = 16, M = 30, zone = null, line = null;
+    var FE = 10, M = 30, zone = null, line = null;          /* 굵은 인주 선이라 앞끝 흐림은 짧게 (3차) */
     for (var i = 0; i < it.layers.length; i++) {
         var p = it.layers[i];
         var L = comp.layers.add(importPng(p.file));
@@ -257,18 +257,20 @@ function buildSet(it) {
         sp.setValueAtTime(f(rv[1]), rectShape(-M - FE - p.x, -M, RR.w + FE + M - p.x, p.h + M));
         setEase(sp, 1, 33, 25); setEase(sp, 2, 80, 33);          /* 빠르게 뻗고 오른끝에서 가라앉는다 */
     }
-    if (zone) fillColorOf(zone).expression = 'thisComp.layer("선").effect("색")("ADBE Fill-0002")';
     var o = makeSeal(comp, n, it);                             /* 버튼은 맨 위 */
+    /*  3차(2026-09-14): 선은 버튼과 같은 재질·같은 색이다 — 색 컨트롤 하나가 버튼 → 선 → 박스를 몬다.  */
+    fillColorOf(line).expression = 'thisComp.layer("낙관 면").effect("색")("ADBE Fill-0002")';
+    if (zone) fillColorOf(zone).expression = 'thisComp.layer("선").effect("색")("ADBE Fill-0002")';
 
     comp.time = f(30);
+    exprOk(fillColorOf(line), "선 색 묶음");
     if (zone) exprOk(fillColorOf(zone), "박스 색 묶음");
     exprOk(tr(o.F).property("ADBE Scale"), "면 크기");
     exprOk(tr(o.Tx).property("ADBE Position"), "문구 자리");
     protect(comp, 0, it.intro, "버튼→선");
     comp.motionGraphicsTemplateName = comp.name;
     expose(comp, textProp(o.Tx), "문구");
-    expose(comp, fillColorOf(o.F), "버튼 색");
-    expose(comp, fillColorOf(line), "선 색");
+    expose(comp, fillColorOf(o.F), "색");
     expose(comp, tr(n).property("ADBE Position"), "위치");
     expose(comp, tr(n).property("ADBE Scale"), "크기");
     return { comp: comp, note: "버튼 f0 · 선 f" + it.reveal.line[0] + "~" + it.reveal.line[1] + (zone ? " · 박스 f" + it.reveal.zone[0] + "~" + it.reveal.zone[1] : "") };
