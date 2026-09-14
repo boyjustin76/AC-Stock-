@@ -13,14 +13,29 @@ $.evalFile(new File(HERE + "/_lib.jsx"));
 logTo("c5x");
 var PACK = LAB + "/pack/trad_rr";
 var AEP = PACK + "/trad_rr.aep";
-/*  ⚠ 실측(2026-09-14 13:17, c5t_export_trial): **프로젝트 폴더 안**(pack/trad_rr/mogrt)으로 내보내면 '손절 박스' 가
-    푸티지 누락 2 로 적히고 프로젝트가 7항목으로 줄어 남았다. **폴더 밖**으로 같은 컴포지션을 내보내니 누락 0 · 항목 그대로.
-    그래서 밖(trad_rr_mogrt_out)으로 내보내고, 누락 검사를 통과한 파일만 밖에서 pack/trad_rr/mogrt 로 옮긴다.
+/*  ⚠ 실측(2026-09-14 13:05~13:22): 내보낸 mogrt 13개 중 **한 개쯤이 무작위로** definition.json 에 푸티지 누락이 적힌다.
+      13:09 팩 안으로 → '손절 박스' 누락 2 (그 뒤 프로젝트 7항목)   13:14 '손절 박스' 만 다시 → 또 누락 2
+      13:17 c5t 시험(밖으로) → '손절 박스' 누락 0                   13:22 전부 밖으로 → '손절 박스' 0 인데 **전체** 누락 12
+    폴더 위치 탓이 아니다(처음엔 그렇게 봤다가 13:22 결과로 뒤집혔다). 반환값은 늘 true 라 증거가 못 된다.
+    → 밖(trad_rr_mogrt_out)으로 내보내고, **밖에서 zip 을 열어 누락을 검사해 실패한 것만 다시** 내보낸다(_only.txt).
+      전부 통과한 뒤에만 pack/trad_rr/mogrt 로 옮긴다.
     또 하나: 내보내기는 **수정된(dirty) 프로젝트를 디스크에 저장한다** — 이 잡에서 프로젝트를 바꾸는 코드를 넣지 말 것.  */
 var MOG = LAB + "/trad_rr_mogrt_out";
+/** 다시 내보낼 이름 목록 — MOG/_only.txt (UTF-8, 한 줄에 하나) 가 있으면 그것을 쓴다 */
+function readOnlyFile() {
+    var f = new File(MOG + "/_only.txt");
+    if (!f.exists) return null;
+    f.encoding = "UTF-8";
+    if (!f.open("r")) return null;
+    var lines = f.read().split(/\r?\n/);
+    f.close();
+    var t = [];
+    for (var i = 0; i < lines.length; i++) { var s = lines[i].replace(/^\s+|\s+$/g, "").replace(/^﻿/, ""); if (s) t.push(s); }
+    return t;
+}
 /*  비워 두면 전부. 이름을 넣으면 그것만 다시 내보내고 **그 파일만** 지운다
     (2026-09-14: '손익비 · 손절 박스' 가 내보낸 뒤 프로젝트가 7항목으로 줄면서 누락 자산 2 로 나왔다).  */
-var ONLY = [];
+var ONLY = readOnlyFile() || [];
 
 function templates() {
     var t = [];
