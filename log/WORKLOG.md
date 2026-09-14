@@ -894,6 +894,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 **79. 프리미어 저장하고 끄고, 도움되는 MCP 를 공식 GitHub README 대로 설치해 제대로 작동할 때까지 시험**
 → tools/premiere/jobs/save_quit.jsx — 열린 프로젝트 1개 save()(수정시각 갱신 확인) 후 app.quit, 프로세스 종료 확인. MCP 8개 사용자 범위 등록: magicuidesign-mcp · chrome-devtools(--headless --workspace) · pixelmatch · opencv(uvx --with mcp<2) · color-theory(npm 미등록이라 소스 빌드) · color-palette(소스 빌드) · imagetosvg · svg2png(GTK3 런타임이 관리자 요구 → 7-Zip MSI 를 관리자 없이 풀어 DLL 을 PATH 로). stdio 시험기(mcp_test*.mjs)로 실제 도구 호출 전부 성공, claude mcp list 전부 Connected. 막힌 곳: mcp 파이썬 SDK 2.x 가 FastMCP 를 없앰, opencv 한글 경로 불가, chrome 파일 쓰기는 roots 밖 차단. (C:/Users/user/mcp-servers/설치기록.md — 새 도구는 Claude Code 재시작 후 세션에 보인다)
 
+**80. 익절&손절 박스 모션(C:/aelab/mogrt/차11-4 손익비.mogrt)을 신규안_v2_전통 스타일로. 중간: '차트 배경은 빼도 돼. 소스별로 잘라서 쓸거야.' 컴퓨터 비정상 종료 뒤 '보수적으로 되돌아가서 안전하게 이어서' (2026-09-14)**
+→ 옛 a3_build 의 요소 9종·등장 박자를 그대로 옮기고 모양만 전통으로 — tools/style/trad_rr.py(낙관 면·담채·점선·빗금·붓 밑줄 PNG + 요소별 대조 기준, 청산 봉 53·놓친 고점 24,418.25 는 데이터에서 계산) → c5_trad_rr.jsx 소스 컴포 12(0프레임 등장, 표현식은 자기 컴포 안만) + 전체 1(176f) · 글자는 AE 궁서라 문구를 바꾸면 낙관 면·현판 판이 따라 늘어남(c7 시험 3건). 실측: 낙관 기울기 부호 반대(PIL 반시계/AE 시계) · 필수 속성은 스크립트로 부모 템플릿에 못 연다(canAdd=false, c5b) → 전체는 위치·크기만. 12:58 컴퓨터 비정상 종료(멈춘 AE 강제 종료·재실행 사슬 중) → 재부팅 뒤 파일 무결성(NUL·py_compile·node --check) 확인 · 로컬 WIP 커밋 · AE 잡 한 번에 하나. mogrt 내보내기 함정: 내보낸 뒤 프로젝트가 줄어 남음(c5c) → 하나마다 aep 새로 열기(c5x) · 반환값 true 여도 무작위로 한 개씩 푸티지 누락(손절 박스 2 → 전체 12) → zip 안 definition.json 검사 후 실패분만 재내보내기(trad_rr_mogrt_check.py · trad_rr_export.ps1) · 내보내기는 수정된 프로젝트를 저장한다(c5t 시험이 aep 를 오염 → 소스에서 다시 지음). 검증: 재열기 푸티지 12·표현식 85 무오류 · mogrt 13 누락 0 · AE f150 vs 합성 기준 화면 0.85%. (신규안_v2_전통/AE_손익비_trad_rr (aep + footage 12 + mogrt 13 + 미리보기 · 읽어보기) · C:/aelab/mogrt/차11-4 손익비 (전통).mogrt 추가(옛 파일 그대로))
+
 ## 문제와 해결
 
 ### 1. Playwright 브라우저 빌드 불일치  `fixed`
@@ -1420,3 +1423,8 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 277 | `06d86761` | 틀만 조립 완성본 — 가운데 뚫은 투명 PNG 2종 (브라우저창 · 병풍) | 1파일 +128/-0 |
 | 278 | `71c6f84f` | newch-trad: 실사 닥종이 바탕 + 애니메이션 소스 20개를 AE 컴포지션·mogrt 로 | 6파일 +703/-35 |
 | 279 | `78f8890a` | 세이브 save/2026-09-14-1211 — 시즌3 새 채널 — 전통 v2 '병풍 위의 차트' 스틸·틀만·AE 층 꾸러미·모션 20(aep/mogrt), 실사 닥종이 바탕, 프리미어 저장 종료, MCP 8개 설치·시험 (요청 73~79) | 6파일 +149/-20 |
+| 280 | `b3ee1071` | 세이브 기록 save/2026-09-14-1211 | 5파일 +11/-3 |
+| 281 | `bbff0259` | WIP newch-trad: 차11-4 손익비 모션을 전통 v2 로 (소스 합성기 · AE 빌드/검사/늘림 잡) | 6파일 +1019/-0 |
+| 282 | `471e33ba` | WIP newch-trad 손익비: mogrt 내보내기를 c5x 로 분리 (하나마다 aep 새로 열기) | 3파일 +125/-21 |
+| 283 | `bcc8f395` | WIP newch-trad 손익비: mogrt 를 프로젝트 폴더 밖으로 내보내기 (c5t 시험 근거) | 2파일 +126/-4 |
+| 284 | `97c375d1` | WIP newch-trad 손익비: mogrt 누락은 무작위 — 검사 후 실패분만 재내보내기(_only.txt) | 1파일 +19/-4 |
