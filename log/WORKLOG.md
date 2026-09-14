@@ -1419,3 +1419,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 276 | `99a2845c` | newch-trad: 요소를 층으로 쪼개 AE 컴포지션으로 (--split + c1_trad_build) | 3파일 +328/-134 |
 | 277 | `06d86761` | 틀만 조립 완성본 — 가운데 뚫은 투명 PNG 2종 (브라우저창 · 병풍) | 1파일 +128/-0 |
 | 278 | `71c6f84f` | newch-trad: 실사 닥종이 바탕 + 애니메이션 소스 20개를 AE 컴포지션·mogrt 로 | 6파일 +703/-35 |
+| 279 | `78f8890a` | 세이브 save/2026-09-14-1211 — 시즌3 새 채널 — 전통 v2 '병풍 위의 차트' 스틸·틀만·AE 층 꾸러미·모션 20(aep/mogrt), 실사 닥종이 바탕, 프리미어 저장 종료, MCP 8개 설치·시험 (요청 73~79) | 6파일 +149/-20 |
