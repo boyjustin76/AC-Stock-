@@ -13,7 +13,14 @@ $.evalFile(new File(HERE + "/_lib.jsx"));
 logTo("c5x");
 var PACK = LAB + "/pack/trad_rr";
 var AEP = PACK + "/trad_rr.aep";
-var MOG = PACK + "/mogrt";
+/*  ⚠ 실측(2026-09-14 13:17, c5t_export_trial): **프로젝트 폴더 안**(pack/trad_rr/mogrt)으로 내보내면 '손절 박스' 가
+    푸티지 누락 2 로 적히고 프로젝트가 7항목으로 줄어 남았다. **폴더 밖**으로 같은 컴포지션을 내보내니 누락 0 · 항목 그대로.
+    그래서 밖(trad_rr_mogrt_out)으로 내보내고, 누락 검사를 통과한 파일만 밖에서 pack/trad_rr/mogrt 로 옮긴다.
+    또 하나: 내보내기는 **수정된(dirty) 프로젝트를 디스크에 저장한다** — 이 잡에서 프로젝트를 바꾸는 코드를 넣지 말 것.  */
+var MOG = LAB + "/trad_rr_mogrt_out";
+/*  비워 두면 전부. 이름을 넣으면 그것만 다시 내보내고 **그 파일만** 지운다
+    (2026-09-14: '손익비 · 손절 박스' 가 내보낸 뒤 프로젝트가 7항목으로 줄면서 누락 자산 2 로 나왔다).  */
+var ONLY = [];
 
 function templates() {
     var t = [];
@@ -46,12 +53,24 @@ probe("aep 확인", function () {
     return app.project.numItems + "항목 · 템플릿 " + names.length + "개";
 });
 if (names.length < 13) { flush(); return fail("aep 가 온전하지 않다"); }
+if (ONLY.length) {
+    var pick = [];
+    for (var s = 0; s < names.length; s++) for (var t = 0; t < ONLY.length; t++) if (names[s] === ONLY[t]) pick.push(names[s]);
+    if (pick.length !== ONLY.length) { flush(); return fail("ONLY 에 aep 에 없는 이름이 있다: " + ONLY.join(", ")); }
+    names = pick;
+    say("대상", names.join(", "));
+}
 
 probe("mogrt 폴더 비우기", function () {
     var dd = new Folder(MOG);
-    if (dd.exists) { var old = dd.getFiles("*.mogrt"); for (var q = 0; q < old.length; q++) old[q].remove(); }
-    else dd.create();
-    return dd.fsName;
+    if (!dd.exists) { dd.create(); return dd.fsName + " (새로 만듦)"; }
+    if (ONLY.length) {
+        var gone = [];
+        for (var o = 0; o < ONLY.length; o++) { var fo = new File(MOG + "/" + ONLY[o] + ".mogrt"); if (fo.exists && fo.remove()) gone.push(ONLY[o]); }
+        return "지정한 것만 지움: " + gone.join(", ");
+    }
+    var old = dd.getFiles("*.mogrt"); for (var q = 0; q < old.length; q++) old[q].remove();
+    return dd.fsName + " 전부 비움";
 });
 
 var ok = 0, bad = [];
