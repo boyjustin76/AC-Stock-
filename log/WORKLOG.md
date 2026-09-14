@@ -1428,3 +1428,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 282 | `471e33ba` | WIP newch-trad 손익비: mogrt 내보내기를 c5x 로 분리 (하나마다 aep 새로 열기) | 3파일 +125/-21 |
 | 283 | `bcc8f395` | WIP newch-trad 손익비: mogrt 를 프로젝트 폴더 밖으로 내보내기 (c5t 시험 근거) | 2파일 +126/-4 |
 | 284 | `97c375d1` | WIP newch-trad 손익비: mogrt 누락은 무작위 — 검사 후 실패분만 재내보내기(_only.txt) | 1파일 +19/-4 |
+| 285 | `6ad63af0` | 세이브 save/2026-09-14-1331 — 시즌3 새 채널 — 차11-4 손익비 모션 전통판(소스 컴포 12 + 전체, mogrt 13 · 문구 늘림 · 누락 검사 후 재내보내기) · 12:58 비정상 종료 뒤 무결성 확인하고 이어감 (요청 80) | 7파일 +150/-1 |
