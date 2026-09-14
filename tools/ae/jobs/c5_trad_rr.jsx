@@ -271,6 +271,8 @@ function buildSet(it) {
     comp.motionGraphicsTemplateName = comp.name;
     expose(comp, textProp(o.Tx), "문구");
     expose(comp, fillColorOf(o.F), "색");
+    /* 4차: 박스는 선명한 단색(기본 100%) — 흐리기는 편집자가 직접 (레이어 불투명도는 템플릿에 열린다, c5b 실측) */
+    if (zone) expose(comp, tr(zone).property("ADBE Opacity"), "박스 불투명도");
     expose(comp, tr(n).property("ADBE Position"), "위치");
     expose(comp, tr(n).property("ADBE Scale"), "크기");
     return { comp: comp, note: "버튼 f0 · 선 f" + it.reveal.line[0] + "~" + it.reveal.line[1] + (zone ? " · 박스 f" + it.reveal.zone[0] + "~" + it.reveal.zone[1] : "") };

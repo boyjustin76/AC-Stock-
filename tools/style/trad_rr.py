@@ -184,7 +184,9 @@ def main():
         layers = []
         if zone:
             y0, y1, zc, za = zone
-            zdraw = lambda c: T.wash(c, (-30, y0, W + 30, y1), zc, za)     # 화면 밖까지 칠해 양끝이 흐려지지 않게
+            # 4차(2026-09-14): 담채(알파 30·흐림)는 손절 박스가 너무 흐리다 → 버튼·선과 같은 색의 선명한 단색 박스(기본 불투명).
+            # 불투명도는 편집자가 AE 레이어 불투명도(mogrt '박스 불투명도')로 직접 내린다.
+            zdraw = lambda c: ImageDraw.Draw(c).rectangle((0, round(min(y0, y1)), W, round(max(y0, y1))), fill=zc + (za,))
             p = png(slug + '_zone', zdraw, seed); p.update(name='zone', fill=hx(zc)); layers.append(p)
             R(slug, zdraw, seed, main)
         # 버튼 면 안쪽(가장자리에서 3px 들어온 곳)만 선에서 비운다 — 가장자리는 겹쳐 남겨 이음새에 틈이 안 생기게.
@@ -211,8 +213,8 @@ def main():
 
     # ── 버튼-선 세트 (전체 컴포지션 박자: 진입 f9 → 익절 f15 → 손절 f21) ──
     # 선 굵기 = 낙관 높이 × 0.26 (옛 cmgLevel 13/54) → 높이 50 은 13px, 48 은 12px
-    add_set('sl_set', PFX + '손절선&박스', '손절선&박스', 21, yS, '손절', T.JJOK, 13, zone=(yE, yS, T.JJOK, 30), seed=11)
-    add_set('tp_set', PFX + '익절선&박스', '익절선&박스', 15, yT, '익절', T.RED, 13, zone=(yT, yE, T.RED, 34), seed=21)
+    add_set('sl_set', PFX + '손절선&박스', '손절선&박스', 21, yS, '손절', T.JJOK, 13, zone=(yE, yS, T.JJOK, 255), seed=11)
+    add_set('tp_set', PFX + '익절선&박스', '익절선&박스', 15, yT, '익절', T.RED, 13, zone=(yT, yE, T.RED, 255), seed=21)
     add_set('entry_set', PFX + '진입선', '진입선', 9, yE, '진입', T.INK, 13, alpha=210, seed=31)
     add_set('support', '전통 · 지지선', '지지선', 0, ySup, '지지', T.GRN, 12, sw=90, sh=48, size=30, seed=81, main=False)
     add_set('resist', '전통 · 저항선', '저항선', 0, yRes, '저항', T.RED, 12, sw=90, sh=48, size=30, seed=91, main=False)
