@@ -478,27 +478,10 @@ probe("aep 저장", function () {
 });
 if (bad.length) { flush(); return fail("못 지은 것: " + bad.join(", ")); }
 
-probe("mogrt 폴더", function () {
-    var dd = new Folder(MOG);
-    if (dd.exists) { var old = dd.getFiles("*.mogrt"); for (var q = 0; q < old.length; q++) old[q].remove(); }
-    else dd.create();
-    return dd.fsName;
-});
-/* 내보내기 한 번 뒤에 들고 있던 CompItem 이 전부 무효가 된다 (C3 실측) — 이름으로 매번 다시 찾는다 */
-app.beginSuppressDialogs();
-var exported = 0;
-for (var m = 0; m < built.length; m++) {
-    (function (nm) {
-        var r = probe("  mogrt " + nm, function () {
-            var c = compNamed(nm);
-            if (!c) throw new Error("컴포지션을 다시 못 찾았다");
-            return String(c.exportAsMotionGraphicsTemplate(true, MOG));
-        });
-        if (r === "true") exported++;
-    })(built[m]);
-}
-app.endSuppressDialogs(false);
+/*  mogrt 내보내기는 여기서 하지 않는다 → c5x_trad_rr_export.jsx (하나마다 aep 를 새로 연다).
+    ⚠ 실측(2026-09-14 13:05): 내보내기가 메모리의 프로젝트를 템플릿 컴포지션 하나만 남게 줄여 놓고 되돌리지 않아
+    3번째부터 '컴포지션을 다시 못 찾았다'. 이 잡은 짓고 저장까지만 한다.  */
 flush();
-return done("컴포지션 " + built.length + "개 · mogrt " + exported + "개 호출 성공");
+return done("컴포지션 " + built.length + "개 · aep 저장 (mogrt 는 c5x)");
 }
 __main();
