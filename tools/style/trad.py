@@ -26,6 +26,7 @@ HANJI2 = (0xFA, 0xF6, 0xEE)
 INK = (0x1C, 0x1A, 0x17)
 RED = (0xD4, 0x2A, 0x26)      # 인주 적
 JJOK = (0x2C, 0x33, 0x58)     # 쪽
+BLUE = (0x1F, 0x60, 0xE0)     # 매도 파랑 (2026-09-15 사용자: 매수:매도 = 빨강:파랑) — 인주 적과 채도 같게(oklch C 0.206) · 색상 262° · 도장 글자 대비 5.12
 YEL = (0xC9, 0xA2, 0x27)      # 단청 황
 GRN = (0x0B, 0x8A, 0x4C)      # 단청 녹
 YEL_TXT = (0x9E, 0x7B, 0x12)  # 황 글자용(한지 위 대비)
@@ -413,7 +414,7 @@ def toolkit_layers(L, cam, chart):
         L.add('이평 라벨 ' + name, (lambda yy, nm, cc: lambda c: btext(c, (cam.x(63) + cam.BW * 1.2, yy), nm, gung(32), YEL_TXT if cc == YEL else cc, halo=HANJI))(y, name, col), slug='label_' + slug)
     # 매수/매도 낙관
     L.add('매수 낙관', lambda c: seal(c, cam.x(43), cam.y(LV_STOP) + 108, '매수', RED, 104, 104, tilt=-5), slug='seal_buy', anim={'type': 'stamp', 'title': '낙관 매수'})
-    L.add('매도 낙관', lambda c: seal(c, cam.x(36), cam.y(24085), '매도', JJOK, 104, 104, tilt=4), slug='seal_sell', anim={'type': 'stamp', 'title': '낙관 매도'})
+    L.add('매도 낙관', lambda c: seal(c, cam.x(36), cam.y(24085), '매도', BLUE, 104, 104, tilt=4), slug='seal_sell', anim={'type': 'stamp', 'title': '낙관 매도'})
     # 붓 원 — 재지지
     bcx, bcy = cam.x(52), cam.y(LV_ENTRY + 130)
     L.add('붓 원 (강조)', lambda c: brush_ellipse(c, bcx, bcy, 68, 76, wmin=2.5, wmax=8), slug='brush_circle',
@@ -517,15 +518,16 @@ def still_palette(out):
     c = hanji().convert('RGBA'); d = ImageDraw.Draw(c)
     d.text((960, 90), '팔레트 — 오방색 · 한지 · 먹 (레퍼런스 실측: 판독/색실측.md)', font=gung(40), fill=INK, anchor='mm')
     items = [('한지', HANJI, '#ECE3D3  창호 띠 종이(실측 D5C6B1)와 같은 톤 · 닥종이 사진 결'), ('먹', INK, '#1C1A17  글자·진입선'),
-             ('인주 적', RED, '#D42A26  매수·익절·10일선 (도장 실측 D71E22)'), ('쪽', JJOK, '#2C3358  매도·손절·병풍 테두리'),
+             ('인주 적', RED, '#D42A26  매수·익절·10일선 (도장 실측 D71E22)'), ('매도 파랑', BLUE, '#1F60E0  매도 — 매수 적과 짝 (채도 같게 · 색상 262°)'),
+             ('쪽', JJOK, '#2C3358  손절·병풍 테두리'),
              ('단청 황', YEL, '#C9A227  20일선 (단청 실측 B89E2C)'), ('단청 녹', GRN, '#0B8A4C  50일선·지지 (실측 069853)'),
              ('창호 나무', WOOD, '#5A4029  자막 축·창호 띠'), ('금테', GOLD, '#B08D3C  현판 테두리')]
-    y = 170
+    y = 150                                   # 9칸 — 매도 파랑이 들어가 칸 간격 108 → 100
     for name, col, desc in items:
-        d.rectangle((160, y, 420, y + 92), fill=col, outline=INK, width=2)
-        d.text((460, y + 46), name, font=gung(40), fill=INK, anchor='lm')
-        d.text((720, y + 46), desc, font=gung(28), fill=JJOK, anchor='lm')
-        y += 108
+        d.rectangle((160, y, 420, y + 88), fill=col, outline=INK, width=2)
+        d.text((460, y + 44), name, font=gung(40), fill=INK, anchor='lm')
+        d.text((720, y + 44), desc, font=gung(28), fill=JJOK, anchor='lm')
+        y += 100
     c.convert('RGB').save(os.path.join(out, '전통_5_컬러팔레트.png'))
 
 
