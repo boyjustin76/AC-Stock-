@@ -3,10 +3,13 @@
 틀만(조립 완성본) — 가운데를 뚫은 투명 PNG. 레퍼런스 '트레이딩팩토리_2_틀만.png' 와 같은 형식
 (1920×1080 RGBA, 콘텐츠 자리 알파 0). 제목·자막·배지·낙관 같은 회차 요소는 넣지 않는다.
 
-  python tools/style/frames_clean.py --out <폴더> [--chart-v1 PNG] [--chart-v2 PNG]
+  python tools/style/frames_clean.py --out <폴더> [--chart-v1 PNG] [--chart-v2 PNG] [--variant all|clean]
 
   A 브라우저 창 (신규안 v1 계열)  — 기기 테두리 · 점 셋 · + · 주소창(뒤로/앞으로/새로고침 · URL · 메뉴)
   B 병풍 (신규안 v2 전통)          — 한지 여백 · 창호 실물 띠 · 쪽빛 병풍 테두리
+  --variant clean (2026-09-15 팀장 요청) — B 병풍에서 위 창호(기와) 띠를 빼고 한지만, 한지는 살짝 더 하얗게.
+      B_병풍_한지만          뚫린 자리가 기존 B 와 **똑같다** (그대로 바꿔 끼우는 용)
+      B_병풍_한지만_여백균등  띠가 빠진 만큼 위 여백을 좌우·아래(60px)와 맞춤 — 뚫린 자리가 위로 58px 커진다
 
 각 틀마다  <이름>_틀만.png (투명)  ·  <이름>_적용예시.png (차트를 밑에 깐 미리보기)  를 낸다.
 """
@@ -20,6 +23,8 @@ import frame as V1          # 브라우저 크롬 기하·팔레트·글꼴
 import trad as V2           # 한지·창호·병풍
 
 W, H = 1920, 1080
+# 한지를 살짝 더 하얗게 (2026-09-15 팀장) — 기존 V2.HANJI #ECE3D3 에서 흰색 쪽으로 약 40%. 종이 결(닥종이 사진 편차)은 그대로.
+HANJI_WHITE = (0xF3, 0xEE, 0xE3)
 
 
 def punch(canvas, box, r=0, ss=4, flat_top=False):
@@ -81,12 +86,24 @@ def frame_byeongpung():
     return punch(c, hole, r=0), hole
 
 
-def preview(frame, hole, chart_path, under='white'):
+def frame_byeongpung_clean(panel=(60, 118, 1860, 1020), base=HANJI_WHITE):
+    """B 병풍 한지만 — 위 창호(기와) 띠 없이 한지 + 쪽빛 병풍 테두리만 (2026-09-15 팀장 요청).
+    바탕은 살짝 더 하얀 한지. 결은 기존과 같은 닥종이 사진(같은 씨앗)이라 톤만 바뀐다."""
+    V2.random.seed(7); np.random.seed(7)
+    c = V2.hanji(base=base).convert('RGBA')
+    V2.byeongpung_frame(c, panel)
+    g = 14 + 5 + 2
+    hole = (panel[0] + g, panel[1] + g, panel[2] - g, panel[3] - g)
+    return punch(c, hole, r=0), hole
+
+
+def preview(frame, hole, chart_path, under='white', hanji_base=None):
     """적용 예시 — 차트를 뚫린 자리에 맞춰 깔고 틀을 얹는다. 차트는 흰 바탕 렌더를 자리에 맞게 줄인다."""
     x0, y0, x1, y1 = hole
     base = Image.new('RGBA', (W, H), (255, 255, 255, 255))
     if under == 'hanji':
-        base = V2.hanji().convert('RGBA')
+        np.random.seed(7)
+        base = (V2.hanji(base=hanji_base) if hanji_base else V2.hanji()).convert('RGBA')
     if chart_path and os.path.exists(chart_path):
         ch = Image.open(chart_path).convert('RGB')
         bb = Image.eval(ch.convert('L'), lambda v: 255 if v < 245 else 0).getbbox()  # 그림이 있는 영역
@@ -107,21 +124,34 @@ def preview(frame, hole, chart_path, under='white'):
     return base.convert('RGB')
 
 
+def report(name, fr, hole):
+    al = np.array(fr.getchannel('A'))
+    tb = Image.fromarray((al < 10).astype(np.uint8) * 255).getbbox()
+    top = np.array(fr.convert('RGB'))[4:40, 200:1720].reshape(-1, 3).mean(axis=0)   # 위 여백 한지 평균색
+    print(name, 'hole', hole, '투명 상자', tb, '투명 비율 %.3f' % (al < 10).mean(),
+          '위 여백 평균색 #%02X%02X%02X' % tuple(int(round(v)) for v in top))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--out', required=True)
     ap.add_argument('--chart-v1', default='out/newch-trad/stills/trad_t0.00s.png')
     ap.add_argument('--chart-v2', default='out/newch-trad/stills/trad_t0.00s.png')
+    ap.add_argument('--variant', choices=['all', 'clean'], default='all',
+                    help="all = A 브라우저창 · B 병풍 (기존) / clean = B 병풍 한지만 2종만 (기존 파일은 안 건드린다)")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
-    for name, make, chart, under in (('A_브라우저창', frame_browser, a.chart_v1, 'white'),
-                                     ('B_병풍', frame_byeongpung, a.chart_v2, 'hanji')):
+    if a.variant == 'all':
+        jobs = (('A_브라우저창', frame_browser, a.chart_v1, 'white', None),
+                ('B_병풍', frame_byeongpung, a.chart_v2, 'hanji', None))
+    else:
+        jobs = (('B_병풍_한지만', lambda: frame_byeongpung_clean((60, 118, 1860, 1020)), a.chart_v2, 'hanji', HANJI_WHITE),
+                ('B_병풍_한지만_여백균등', lambda: frame_byeongpung_clean((60, 60, 1860, 1020)), a.chart_v2, 'hanji', HANJI_WHITE))
+    for name, make, chart, under, hb in jobs:
         fr, hole = make()
         fr.save(os.path.join(a.out, name + '_틀만.png'))
-        preview(fr, hole, chart, under).save(os.path.join(a.out, name + '_적용예시.png'))
-        al = np.array(fr.getchannel('A'))
-        tb = Image.fromarray((al < 10).astype(np.uint8) * 255).getbbox()
-        print(name, 'hole', hole, '투명 상자', tb, '투명 비율 %.3f' % (al < 10).mean())
+        preview(fr, hole, chart, under, hb).save(os.path.join(a.out, name + '_적용예시.png'))
+        report(name, fr, hole)
 
 
 if __name__ == '__main__':
