@@ -304,8 +304,23 @@ function cap(b, name, x, y, w, h, mode) {
 /** 오른쪽 패널 네 칸 + 롤링 광고 — 두 샘플이 똑같이 쓴다 */
 function capPanel(b) {
     var T = 2;
-    /* 광고는 글자가 양끝까지 차 있어 자르면 안 된다 — 틀 안쪽에 통째로 넣는다 */
-    cap(b, "롤링광고", 17, 17, 1886, Z.광고.h - 20, "fit");
+    /* 롤링 광고 — D 가 만든 전통판 배너를 쓴다 (2026-09-16).
+       트팩 원본에서 복사하던 것을 대체한다. 문구는 트팩 것 그대로라 바뀐 건 톤뿐이고,
+       한지 바탕이라 광고가 돌든 안 돌든 같은 종이 위에서 이어진다.
+       글자가 양끝까지 차 있어 자르면 안 되므로 틀 안쪽에 통째로 넣는다. */
+    var ad = new File(OUT + "/" + CFG.rollAdJpg);
+    if (ad.exists) {
+        var ap = LY["캡쳐"].placedItems.add();
+        ap.file = ad;
+        var ak = 1886 / ap.width;
+        ap.resize(ak * 100, ak * 100);
+        ap.left = OX(b, 17);
+        ap.top  = OY(b, 17 + (Z.광고.h - 20 - ap.height) / 2);
+        ap.embed();
+    } else {
+        L("  !! 롤링 광고 배너가 없어 트팩 것을 씁니다: " + ad.fsName);
+        cap(b, "롤링광고", 17, 17, 1886, Z.광고.h - 20, "fit");
+    }
     cap(b, "시계",     Z.시계.x + T,   Z.시계.y + T,   Z.시계.w - T * 2,   Z.시계.h - T * 2,   "fit");
     cap(b, "포지션표", Z.포지션.x + T, Z.포지션.y + T, Z.포지션.w - T * 2, Z.포지션.h - T * 2, "fit");
     cap(b, "수익요약", Z.메모.x + T,   Z.메모.y + T,   Z.메모.w - T * 2,   Z.메모.h - T * 2,   "fit");

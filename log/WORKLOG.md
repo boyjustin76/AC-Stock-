@@ -235,6 +235,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `lab/finalscan` | 기록 | 최종본 #1~#10 기계 실측 원자료 — 콘택트시트·프레임별 YDIF/장면점수 csv·freeze·단일 프레임·카피맵 후보 23장·prproj 드라이브 지도. FX-WHITELIST 의 원천 (2026-09-11 등재) |
 | `.gitignore` | 기타 |  |
 | `CLAUDE.md` | 기타 |  |
+| `brand/EXTENDSCRIPT-TRAPS.md` | 기타 |  |
 | `brand/FX-WHITELIST.md` | 기타 |  |
 | `data/nq/NQ_1d.json` | 기타 |  |
 | `data/nq/NQ_1m.json` | 기타 |  |
@@ -1487,3 +1488,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 311 | `64ab170f` | 라이브화면 D 검수 반영 — 바깥만 병풍·편액은 이름만·낙관은 차트 밖 | 3파일 +84/-32 |
 | 312 | `744b4b55` | 라이브화면 — 최종출력샘플 2종 추가 · 캡쳐는 원본 .ai 에서 복사 · 편액에 실제 로고 | 4파일 +310/-60 |
 | 313 | `d1eee17b` | 세이브 save/2026-09-16-1605 — 라이브 롤링 광고 차트명가 NEW 전통판 - 배너 11장(원본 좌표 실측·문구 그대로·톤만 교체) (요청 90) | 5파일 +325/-1 |
+| 314 | `45aa2b1f` | 세이브 기록 save/2026-09-16-1605 | 5파일 +11/-3 |
