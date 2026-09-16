@@ -235,7 +235,6 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `lab/finalscan` | 기록 | 최종본 #1~#10 기계 실측 원자료 — 콘택트시트·프레임별 YDIF/장면점수 csv·freeze·단일 프레임·카피맵 후보 23장·prproj 드라이브 지도. FX-WHITELIST 의 원천 (2026-09-11 등재) |
 | `.gitignore` | 기타 |  |
 | `CLAUDE.md` | 기타 |  |
-| `brand/EXTENDSCRIPT-TRAPS.md` | 기타 |  |
 | `brand/FX-WHITELIST.md` | 기타 |  |
 | `data/nq/NQ_1d.json` | 기타 |  |
 | `data/nq/NQ_1m.json` | 기타 |  |
@@ -364,6 +363,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `src/tools/profile-render.mjs` | 도구 | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
 | `tools` | 도구 | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
 | `tools/cutedit` | 도구 | 숏폼 컷편집 파이프라인 — transcribe(전사)·align_cut(대본 정렬)·build_cuts(컷·자막·내레이션 생성, 무음 스냅·침묵 압축) |
+| `tools/illustrator` | 도구 | 일러스트레이터 COM 자동화 — 라이브화면구성.ai 를 짓고 OBS 용 8000x4500 을 뽑는다. tools/photoshop 과 같은 구조로 경로를 안 박는다 |
 | `tools/legacy` | 도구 | 1세대 썸네일 도구 격리(실행 금지) — psdwrite.py·thumbnail.py. 효과 손그림·폭 역산 |
 | `tools/photoshop` | 도구 | 포토샵 COM+ExtendScript 로 템플릿 .psd 를 직접 편집한다 — 썸네일은 이 경로가 최신 |
 | `tools/photoshop/build_thumb.jsx` | 도구 | 회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg |
@@ -378,6 +378,7 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | `log/AE-LAB-MANUAL.md` | 매뉴얼 | AE .aep/.mogrt 파일럿(sl-11-4 컷② 손익비) — D 세션용 마일스톤 A1~A6 + 사용자 단계. 보고는 log/AE-LAB.md, 잡은 tools/ae/jobs/, 옆가지 local/ae-lab |
 | `README.md` | 문서 | 렌더러 사용법 · 포맷 선택 기준 · 씬 설정 레퍼런스 |
 | `brand/EDIT-RULEBOOK.md` | 문서 | 연출 룰북 — 피드백에서 확정된 규칙 12개 (반려 사례·코드 대응 포함). 피드백 라운드마다 여기에 쌓는다 |
+| `brand/EXTENDSCRIPT-TRAPS.md` | 문서 | 포토샵·일러스트레이터·AE·프리미어가 같은 ExtendScript 를 쓰면서 서로 밟은 함정 모음. 증상 → 원인 → 처방. 새로 밟으면 여기 적는다 |
 | `brand/SHORTFORM-FX-POOL.md` | 문서 | 숏폼 1:1 박스 효과 pool 실측 22종 + 팀장 규칙 4개 (최종본 6편 전수 조사) |
 | `brand/STYLE.md` | 문서 | 차트명가 브랜드 스펙. 색·레이아웃·폰트·스크립트 6단 구조 |
 | `lab/ae/AEP-MOGRT-조사보고.txt` | 문서 | .aep/.mogrt 납품 가능성 조사 — 공식 자료 vs 우리 실측, 결론: 파일 직접 쓰기 배제, ExtendScript 로 AE 가 굽게 한다 (next_step 27) |
@@ -927,6 +928,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 
 **90. 라이브 롤링 광고(라이브_롤링 광고_1.prproj)를 차트명가 NEW 판으로. 영상 구성은 이미지 이어 붙이기+디졸브뿐이라 핵심은 원본()_ 두 폴더의 이미지. 트레이딩팩토리 문구·구성은 똑같이 두고 에셋 스타일·톤앤매너만 바꿀 것. 로고는 준 파일을 그대로 쓸 것 (2026-09-16)**
 → 원본 11장(8000x504 5 · 8000x750 5 · 고정댓글 377x71)을 색 무리별 바운딩 박스로 실측해 좌표를 옮겼다 — 긴 판 글자띠 y127~399·CTA x6347~7915, 짧은 판 글자띠 y224~606·CTA x5970~7835. 문구는 gemini flash 로 판독해 한 자도 안 바꿨다(pro 는 무료 할당 소진). 바꾼 것: 검정→한지 #F3EEE3 · 형광연두 #01FF17→인주 적 · 흰 본문→먹 · 노랑→단청 황 #9E7B12 · 청록/보라 평행사변형→쪽 두 겹 · 빨강 알약 CTA→현판(옻칠+금테+흰 궁서) · 연두 테두리 박스→인주 적 박스 · TF 로고→차트명가 로고를 그대로 얹음 · 글꼴 궁서. 실측으로 바로잡은 것 둘 — (1) 왼쪽에 박스나 로고가 오는 판에는 원본도 모서리 장식이 없다, (2) 글자가 CTA 현판에 물려서 남은 폭에 맞춰 크기를 자동으로 줄이는 fit() 을 넣었다. trad.hanji() 의 결 텍스처가 1920 폭 고정이라 8000 을 한 번에 못 만들어 1920 조각을 좌우 반전해 이어 붙였다(이음매 안 보임). 파일 이름·폴더명·크기를 원본과 똑같이 맞춰 11/11 일치 — 프리미어에서 푸티지 바꾸기로 갈아 끼우면 편집이 산다. 프리미어가 켜져 있어 .prproj 는 건드리지 않았다. (01_납품_차트명가NEW/라이브화면/롤링광고 (이미지 11 + 읽어보기) · tools/style/roll_ad.py (문구는 COPY 한 곳에 모음))
+
+**91. '차트명가 NEW 라이브화면구성.ai' 를 만들어라. 구성·양식은 Claude/라이브화면 프레임 의 260114_라이브화면구성(2026v).ai, 톤앤매너는 local/newch-style(D 의 전통안). 핵심은 Reference_01~03 같은 세트를 우리도 똑같이 만드는 것 — MVP 완성도 우선. 문구는 트팩 것 그대로 쓰고(갖다 쓸 게 바꿀 것보다 많다), 단순 캡쳐 유형(차트·종류/거래량·수익·스티커메모·댓글창)은 트팩 것을 그대로 갖다 쓴다. 로고는 준 파일을 그냥 쓴다. 차트명가NEW_통합 안을 건드리려면 D 승인을 받아라 (2026-09-16)**
+→ tools/illustrator 신설(D 승인) — run.ps1·labdir.ps1·_lib.jsx·config.json·build_live.jsx·make_bg.py·dump_ai·dump_caps·dump_board·export_obs. 아트보드 6개(배경·오프닝틀·메인틀·가이드·최종출력샘플 오프닝/메인)로 트팩 Reference_01~03 대응. **실측이 전제를 뒤집었다**: 원본 .ai 는 8000x4500 이 아니라 1920x1080 pt 이고 OBS png 가 417% 출력본이다 — 덕분에 D 의 전통 소스를 1:1 로 썼다(낙관 재생성·한지 타일링 불필요). 구역 좌표는 가이드·프레임 png 의 알파를 재서 얻었다. 캡쳐는 참고용 PNG 를 줄여 자르던 것을 원본 .ai 에서 duplicate() 로 항목째 복사하도록 고쳤다(정찬님 지적 — 압축+축소로 두 번 열화). 한지·낙관은 D 의 trad.py 함수를 그대로 불러 구웠다. D 검수 4건 반영: 칸마다 두꺼운 띠 → 바깥 한 바퀴만(병풍은 폭 사이가 이음선), 정보 띠 19.6:1 현판 → 편액은 채널 이름만(글자가 판 길이를 정한다), 낙관을 차트 밖으로, 광고 자리 인주 적 전폭 → 한지. 이후 정찬님이 06 을 직접 고친 것을 dump_board 로 떠서 값으로 옮겨 여섯 아트보드에 반영(27항목 일치). 색은 컬러팔레트.png 의 역할 기반 브랜드 팔레트를 따른다 — 방송시간·입장문의에 0D9488(반대 개념 강조)을 쓴 것은 잘못이라 334155(부가 설명 자막)로 정정. (01_납품_차트명가NEW/라이브화면/ (.ai 6보드 + 미리보기 6 + OBS 3 + 읽어보기) · tools/illustrator/ · brand/EXTENDSCRIPT-TRAPS.md)
 
 ## 문제와 해결
 
@@ -1505,3 +1509,5 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 328 | `b082f603` | 함정 문서 — '모양 조건도 참을 거짓으로 만든다' 보강 | 1파일 +13/-4 |
 | 329 | `cdbb2f1d` | 세이브 기록 save/2026-09-16-1638 | 5파일 +11/-3 |
 | 330 | `b7ae8872` | 세이브 save/2026-09-16-1641 — a3_frame2 판정 정정 - saveFrameToPng 은 표기법이 아니라 타이밍 문제였다(디스크에 v1~v4 전부 존재) | 4파일 +17/-2 |
+| 331 | `ef4e1a80` | 세이브 기록 save/2026-09-16-1641 | 5파일 +11/-3 |
+| 332 | `7cf4c5a4` | 함정 문서 — ⑯ 쓰기 직후 확인은 거짓 실패를 만든다 · 원칙 둘 | 1파일 +34/-6 |
