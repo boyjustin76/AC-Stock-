@@ -1513,3 +1513,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 332 | `7cf4c5a4` | 함정 문서 — ⑯ 쓰기 직후 확인은 거짓 실패를 만든다 · 원칙 둘 | 1파일 +34/-6 |
 | 333 | `fd47fc54` | 라이브화면 — 사용자 직접수정 반영 · 브랜드 팔레트 도입 · 기록 정리 | 7파일 +290/-37 |
 | 334 | `8b94a067` | 생성물 갱신 (worklog.db · WORKLOG.md · worklog.html · README) | 4파일 +11/-3 |
+| 335 | `ad605f3f` | 세이브 save/2026-09-16-1757 — 롤링 광고 옻칠판 추가 - 옻칠 편액을 띠 전체로(금테·흰 궁서·CTA 뒤집기) · 브랜드 팔레트 역할 반영, 대비 실측 · 한지판 11장 해시 불변 | 4파일 +84/-27 |
