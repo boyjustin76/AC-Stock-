@@ -65,16 +65,23 @@ var 궁서B = pickFont(["Gungsuh", "궁서", "Batang"], null);
 L("글꼴: " + 궁서.name);
 
 /* ── 문서 ────────────────────────────────────────────────────── */
-var BOARDS = ["01_고정_배경_레이어", "02_오프닝_프레임", "03_메인_방송프레임", "04_레이어_가이드"];
-var GAP = 120;
+var BOARDS = ["01_고정_배경_레이어", "02_오프닝_프레임", "03_메인_방송프레임",
+              "04_레이어_가이드", "05_최종출력샘플_오프닝", "06_최종출력샘플_메인"];
+/* 04~06 은 트팩 Reference_01~03 에 대응한다. 04 는 OBS 배치 설명도, 05·06 은 실제로
+   소스가 다 얹혔을 때의 그림이다. 05·06 에 들어가는 캡쳐는 트팩 것을 그대로 쓴다 —
+   차트명가도 같은 프로그램(MT5·텔레그램·유튜브 댓글)을 쓰기 때문이다 (2026-09-16 이정찬).
+   우리가 새로 만드는 것은 틀과 그 위의 우리 그래픽(편액·목차·낙관)뿐이다. */
+var GAP = 120, COLS = 3;
 
 var doc = app.documents.add(DocumentColorSpace.RGB, 1920, 1080);
 while (doc.artboards.length > 1) doc.artboards.remove(doc.artboards.length - 1);
 doc.artboards[0].artboardRect = [0, 0, 1920, -1080];
 doc.artboards[0].name = BOARDS[0];
+/* 가로로만 늘어놓으면 일러스트레이터 캔버스 한계(원점에서 ±8172pt)를 넘는다 —
+   6개째에서 'AOoC' 오류가 났다 (2026-09-16 실측). 2행 3열 격자로 놓는다. */
 for (var b = 1; b < BOARDS.length; b++) {
-    var L0 = b * (1920 + GAP);
-    doc.artboards.add([L0, 0, L0 + 1920, -1080]).name = BOARDS[b];
+    var cL = (b % COLS) * (1920 + GAP), cT = -Math.floor(b / COLS) * (1080 + GAP);
+    doc.artboards.add([cL, cT, cL + 1920, cT - 1080]).name = BOARDS[b];
 }
 /* 기본 레이어를 치우고 이름 있는 레이어로만 간다 — 원본은 레이어 1개에 155항목이 뭉쳐 있었다 */
 var base = doc.layers[0];
@@ -83,16 +90,16 @@ function layer(name) { var y = doc.layers.add(); y.name = name; return y; }
 /* layers.add() 는 맨 위에 넣는다. 그래서 바닥에 깔릴 것부터 만든다 —
    바탕(한지) → 틀(병풍·현판) → 글자 → 가이드 순. */
 var LY = {};
-var order = ["바탕", "틀", "글자", "가이드"];
+var order = ["바탕", "캡쳐", "틀", "글자", "가이드"];
 for (var i = 0; i < order.length; i++) LY[order[i]] = layer(order[i]);
 
-/* 아트보드 b 의 화면좌표 (x,y) → 문서좌표 */
-function OX(b, x) { return b * (1920 + GAP) + x; }
-function OY(y)    { return -y; }
+/* 아트보드 b 의 화면좌표 (x,y) → 문서좌표. 격자 배치라 행·열을 같이 본다. */
+function OX(b, x) { return (b % COLS) * (1920 + GAP) + x; }
+function OY(b, y) { return -(Math.floor(b / COLS) * (1080 + GAP) + y); }
 
 /* ── 그리기 헬퍼 ─────────────────────────────────────────────── */
 function box(ly, b, x, y, w, h, fill, strokeCol, strokeW) {
-    var r = ly.pathItems.rectangle(OY(y), OX(b, x), w, h);
+    var r = ly.pathItems.rectangle(OY(b, y), OX(b, x), w, h);
     if (fill) { r.filled = true; r.fillColor = fill; } else r.filled = false;
     if (strokeCol) { r.stroked = true; r.strokeColor = strokeCol; r.strokeWidth = strokeW || 1; }
     else r.stroked = false;
@@ -173,7 +180,7 @@ function text(ly, b, x, y, s, size, color, align, maxW) {
         var wantL = OX(b, x);
         if (align == "center") wantL = OX(b, x) - w / 2;
         else if (align == "right") wantL = OX(b, x) - w;
-        var dx = wantL - gb[0], dy = (OY(y) + h / 2) - gb[1];
+        var dx = wantL - gb[0], dy = (OY(b, y) + h / 2) - gb[1];
         if (DEBUG_TEXT) L("    [" + pass + "] \"" + s + "\" w=" + Math.round(w)
             + " gbL=" + Math.round(gb[0]) + " wantL=" + Math.round(wantL)
             + " dx=" + Math.round(dx) + " align=<" + align + ">");
@@ -192,9 +199,136 @@ function hanji(ly, b) {
     var p = ly.placedItems.add();
     p.file = bg;
     p.left = OX(b, 0);
-    p.top  = OY(0);
+    p.top  = OY(b, 0);
     p.embed();
     L("  한지 바탕: " + bg.name);
+}
+
+/* ── 캡쳐 가져오기 ───────────────────────────────────────────
+   차트·포지션표·수익요약·댓글창·시계·롤링광고·카드는 우리가 그릴 그림이 아니다.
+   차트명가도 같은 프로그램(MT5·유튜브 댓글)을 쓰니 트팩 것을 그대로 쓴다 (2026-09-16 이정찬).
+
+   **원본 .ai 에서 항목째 복사한다.** 참고용 PNG(8000px JPG 압축본)를 1920 으로 줄여서
+   자르면 압축+축소로 두 번 열화된다. 원본 .ai 안에는 같은 그림이 원해상도 래스터로 들어 있다.
+
+   자리 기준은 dump_caps.jsx 로 실측한 값이다 (아트보드 안 좌표, 1920x1080 기준).
+     보드 08 = 최종 출력 샘플(메인) · 보드 04 = 오프닝
+   텔레그램은 원본 .ai 에도 빈 자리(시안 테두리)로만 있다 — 트팩도 캡쳐를 안 넣어 뒀다. */
+var CAPS = {
+    롤링광고: { ab: 8, x:    0, y:   2, w: 1920, h: 121 },
+    시계:     { ab: 8, x: 1566, y: 122, w:  308, h:  90 },
+    차트화면: { ab: 8, x:    1, y: 181, w: 1520, h: 901 },
+    포지션표: { ab: 8, x: 1526, y: 263, w:  386, h: 282 },
+    수익요약: { ab: 8, x: 1525, y: 540, w:  390, h: 125 },
+    댓글창:   { ab: 8, x: 1534, y: 665, w:  379, h: 417 },
+    카드4장:  { ab: 4, x:  661, y: 761, w:  770, h: 289 },
+    신청버튼: { ab: 4, x: 1137, y: 714, w:  213, h:  40 }
+};
+
+var refDoc = null, refABS = null;
+function openRef() {
+    if (refDoc) return refDoc;
+    var f = new File(LAB + "/" + CFG.refAi);
+    if (!f.exists) { L("  !! 원본 .ai 가 없습니다: " + f.fsName); return null; }
+    refDoc = app.open(f);
+    refABS = [];
+    for (var i = 0; i < refDoc.artboards.length; i++) {
+        var r = refDoc.artboards[i].artboardRect;
+        refABS.push({ l: r[0], t: r[1], r: r[2], b: r[3] });
+    }
+    L("  원본 열기: " + refDoc.name);
+    return refDoc;
+}
+function closeRef() {
+    if (!refDoc) return;
+    refDoc.close(SaveOptions.DONOTSAVECHANGES);   // 원본은 절대 건드리지 않는다
+    refDoc = null;
+    app.activeDocument = doc;
+}
+
+/** 원본에서 spec 에 맞는 항목을 찾는다 (가운데 좌표·크기로 식별) */
+function findCap(spec) {
+    var A = refABS[spec.ab], tol = 6;
+    var found = null;
+    function walk(c, depth) {
+        for (var i = 0; i < c.pageItems.length && !found; i++) {
+            var it = c.pageItems[i];
+            if (it.typename === "GroupItem") { if (depth < 4) walk(it, depth + 1); continue; }
+            if (it.typename !== "RasterItem" && it.typename !== "PlacedItem") continue;
+            var bb;
+            try { bb = it.geometricBounds; } catch (e) { continue; }
+            var lx = bb[0] - A.l, ly = A.t - bb[1];
+            var w = bb[2] - bb[0], h = bb[1] - bb[3];
+            if (Math.abs(lx - spec.x) <= tol && Math.abs(ly - spec.y) <= tol
+             && Math.abs(w - spec.w) <= tol && Math.abs(h - spec.h) <= tol) found = it;
+        }
+    }
+    for (var L2 = 0; L2 < refDoc.layers.length && !found; L2++) walk(refDoc.layers[L2], 0);
+    return found;
+}
+
+/** 자른 자리 밖으로 넘치는 것을 가린다 — 클리핑 그룹 */
+function clipTo(item, b, x, y, w, h) {
+    var g = LY["캡쳐"].groupItems.add();
+    item.move(g, ElementPlacement.PLACEATEND);
+    var r = g.pathItems.rectangle(OY(b, y), OX(b, x), w, h);
+    r.clipping = true; r.filled = false; r.stroked = false;
+    g.clipped = true;
+    return g;
+}
+
+/**
+ * 캡쳐 하나를 내 칸에 놓는다.
+ *   mode "cover" — 칸을 꽉 채우고 넘치는 건 자른다 (차트처럼 비율이 다른 것)
+ *   mode "fit"   — 비율 그대로 칸 안에 들어가게 (표·댓글처럼 잘리면 안 되는 것)
+ */
+function cap(b, name, x, y, w, h, mode) {
+    if (!openRef()) return null;
+    var spec = CAPS[name];
+    var it = findCap(spec);
+    if (!it) { L("  !! 원본에서 못 찾음: " + name); return null; }
+
+    app.activeDocument = refDoc;
+    var dup = it.duplicate(LY["캡쳐"], ElementPlacement.PLACEATEND);   // 문서 사이 복사
+    app.activeDocument = doc;
+
+    var sw = dup.width, sh = dup.height;
+    var k = (mode === "cover") ? Math.max(w / sw, h / sh) : Math.min(w / sw, h / sh);
+    dup.resize(k * 100, k * 100);
+    dup.left = OX(b, x + (w - sw * k) / 2);
+    dup.top  = OY(b, y + (h - sh * k) / 2);
+    if (mode === "cover") clipTo(dup, b, x, y, w, h);
+    return dup;
+}
+
+/** 오른쪽 패널 네 칸 + 롤링 광고 — 두 샘플이 똑같이 쓴다 */
+function capPanel(b) {
+    var T = 2;
+    /* 광고는 글자가 양끝까지 차 있어 자르면 안 된다 — 틀 안쪽에 통째로 넣는다 */
+    cap(b, "롤링광고", 17, 17, 1886, Z.광고.h - 20, "fit");
+    cap(b, "시계",     Z.시계.x + T,   Z.시계.y + T,   Z.시계.w - T * 2,   Z.시계.h - T * 2,   "fit");
+    cap(b, "포지션표", Z.포지션.x + T, Z.포지션.y + T, Z.포지션.w - T * 2, Z.포지션.h - T * 2, "fit");
+    cap(b, "수익요약", Z.메모.x + T,   Z.메모.y + T,   Z.메모.w - T * 2,   Z.메모.h - T * 2,   "fit");
+    cap(b, "댓글창",   Z.댓글.x + T,   Z.댓글.y + T,   Z.댓글.w - T * 2,   Z.댓글.h - 14,      "fit");
+}
+
+/** 오프닝에 얹는 우리 그래픽 — 편액·목차. 자리는 트팩 오프닝 실측 행에 맞췄다.
+    (트팩: 종목 y271~350 · 1줄 y402~487 · 2줄 y529~614 · 버튼 y714~756 · 카드 y765~1050) */
+function openingArt(b) {
+    var 글 = LY["글자"], cx = 1046;          // 트팩 오른쪽 블록 가운데 (682~1409)
+    var probe = 글.textFrames.add();
+    probe.contents = COPY.종목;
+    probe.textRange.characterAttributes.textFont = 궁서;
+    probe.textRange.characterAttributes.size = 46;
+    app.redraw();
+    var pw = probe.geometricBounds[2] - probe.geometricBounds[0] + 64;
+    probe.remove();
+    hyeonpan(LY["틀"], 글, b, cx - pw / 2, 271, pw, 79, COPY.종목, 46);
+    text(글, b, cx, 444, COPY.오프닝1, 66, 먹, "center");
+    text(글, b, cx, 571, COPY.오프닝2, 66, 먹, "center");
+    /* 신청 버튼·카드 4장은 트팩 그래픽을 그대로 쓴다 (문구도 트팩 것 그대로 — 2026-09-16 이정찬) */
+    cap(b, "신청버튼", 1137, 714, 213, 40, "fit");
+    cap(b, "카드4장",   661, 761, 770, 289, "fit");
 }
 
 /* ── 공통 틀 ─────────────────────────────────────────────────
@@ -235,23 +369,32 @@ function drawFrame(b, opts) {
         var bp = 틀.placedItems.add();
         bp.file = 띠;
         bp.left = OX(b, L0);
-        bp.top  = OY(Z.현판띠.y);
+        bp.top  = OY(b, Z.현판띠.y);
         bp.embed();
     }
     var 띠중 = Z.현판띠.y + Z.현판띠.h / 2;
-    var plaque = hyeonpan(틀, 글, b, L0 + 18, Z.현판띠.y + 9, 0, Z.현판띠.h - 18, COPY.채널, 34);
 
-    /* 두인 — 편액 옆에 도장. 실제 관행이고, 차트 위에 얹지 않아 캔들을 안 가린다.
-       (D 추천은 '패널 맨 아래 빈 칸' 이었지만 패널 칸이 전부 라이브 소스라 자리가 없다.) */
-    var seal = new File(OUT + "/" + CFG.sealPng);
-    var seamX = plaque.x + plaque.w + 16;
-    if (seal.exists) {
-        var sp = 글.placedItems.add();
-        sp.file = seal;
-        sp.left = OX(b, seamX);
-        sp.top  = OY(띠중 - sp.height / 2);
-        sp.embed();
-        seamX += sp.width + 18;
+    /* 편액 — 옻칠 판 + 금테 + 채널 로고.
+       로고는 사용자가 준 원본을 그대로 쓴다(색 변경 없음). 이름을 궁서로 다시 쓰지 않는다 —
+       로고에 이미 워드마크가 들어 있다. 판은 로고 크기에 맞춰 깎는다. */
+    var logo = new File(OUT + "/" + CFG.logoPng);
+    var padY = 13, ph = Z.현판띠.h - padY * 2;
+    var seamX;
+    if (logo.exists) {
+        var lp = 글.placedItems.add();
+        lp.file = logo;
+        var lk = (ph - 16) / lp.height;                 // 판 안에 위아래 여백 8px
+        lp.resize(lk * 100, lk * 100);
+        var pw2 = lp.width + 52;
+        hyeonpan(틀, 글, b, L0 + 18, Z.현판띠.y + padY, pw2, ph, null, 0);
+        lp.left = OX(b, L0 + 18 + (pw2 - lp.width) / 2);
+        lp.top  = OY(b, 띠중 - lp.height / 2);
+        lp.embed();
+        seamX = L0 + 18 + pw2 + 22;
+    } else {
+        L("  !! 로고가 없습니다 — make_bg.py 를 먼저 돌리세요: " + logo.fsName);
+        var pl = hyeonpan(틀, 글, b, L0 + 18, Z.현판띠.y + padY, 0, ph, COPY.채널, 32);
+        seamX = pl.x + pl.w + 22;
     }
 
     /* 정보 둘 — 사이를 쪽빛 세로 가는 선으로 가른다 */
@@ -283,34 +426,20 @@ hanji(LY["바탕"], 0);
    붉은 띠가 통째로 방송에 뜨는 문제도 있다 (D 검수 2026-09-16). */
 drawFrame(0, { hole: true });
 
-/* ── [1] 오프닝 프레임 ──────────────────────────────────────── */
+/* ── [1] 오프닝 프레임 — 틀 + 우리 그래픽. 바탕은 안 깐다 ──────────
+   OBS 에서 맨 아래 배경 레이어 위에 얹는 오버레이다. 텔레그램 자리는 캡쳐가 들어오므로
+   비워 둔다 (트팩 오프닝 프레임도 그 자리만 뚫려 있다). */
 L("");
 L("■ " + BOARDS[1]);
-hanji(LY["바탕"], 1);
 drawFrame(1);
-(function () {
-    var 글 = LY["글자"], b = 1;
-    /* 종목 현판 + 오프닝 두 줄 — 차트 구멍 가운데에 건다.
-       현판 폭은 글자에 맞춰 늘어나므로 가운데 정렬하려면 먼저 재고 x 를 잡는다. */
-    var cx = 17 + (1510 - 17) / 2;
-    var probe = 글.textFrames.add();
-    probe.contents = COPY.종목;
-    probe.textRange.characterAttributes.textFont = 궁서;
-    probe.textRange.characterAttributes.size = 52;
-    app.redraw();
-    var pw = probe.geometricBounds[2] - probe.geometricBounds[0] + 64;
-    probe.remove();
-    hyeonpan(LY["틀"], 글, b, cx - pw / 2, 300, pw, 96, COPY.종목, 52);
-    text(글, b, cx, 540, COPY.오프닝1, 76, 먹, "center");
-    text(글, b, cx, 660, COPY.오프닝2, 76, 먹, "center");
-})();
+openingArt(1);
 
 /* ── [2] 메인 방송 프레임 — 틀만. 가운데는 뚫려 있어야 한다 ───────── */
 L("");
 L("■ " + BOARDS[2]);
 drawFrame(2);
 
-/* ── [3] 레이어 가이드 — OBS 에 뭘 어디 올리는지 ────────────────── */
+/* ── [3] 레이어 가이드 — OBS 에 뭘 어디 올리는지 (트팩 Reference_01) ── */
 L("");
 L("■ " + BOARDS[3]);
 (function () {
@@ -324,7 +453,6 @@ L("■ " + BOARDS[3]);
         /* 칸보다 넓으면 줄인다 — 오른쪽 패널은 399px 라 긴 라벨이 넘친다 */
         text(가, b, z.x + z.w / 2, z.y + z.h / 2, s, Math.min(34, z.h * 0.42), 인주, "center", z.w - pad * 4);
     }
-
     라벨("광고",   COPY.가이드.광고);
     라벨("시계",   COPY.가이드.시계);
     라벨("차트",   COPY.가이드.차트);
@@ -332,6 +460,27 @@ L("■ " + BOARDS[3]);
     라벨("메모",   COPY.가이드.메모);
     라벨("댓글",   COPY.가이드.댓글);
 })();
+
+/* ── [4] 최종 출력 샘플 — 오프닝 (트팩 Reference_02) ───────────── */
+L("");
+L("■ " + BOARDS[4]);
+hanji(LY["바탕"], 4);
+capPanel(4);
+/* 텔레그램은 원본 .ai 에도 빈 자리로만 있다 — 트팩도 캡쳐를 안 넣어 뒀다.
+   자리만 쪽빛 가는 테두리로 표시한다 (방송 때 디스플레이 캡쳐가 들어온다). */
+box(LY["틀"], 4, 110, 245, 464, 786, null, 쪽, 2);
+drawFrame(4);
+openingArt(4);
+
+/* ── [5] 최종 출력 샘플 — 메인 (트팩 Reference_03) ─────────────── */
+L("");
+L("■ " + BOARDS[5]);
+hanji(LY["바탕"], 5);
+capPanel(5);
+cap(5, "차트화면", 17, Z.차트.y + 2, 1502, 843, "cover");
+drawFrame(5);
+
+closeRef();
 
 /* ── 저장 ───────────────────────────────────────────────────── */
 try { base.remove(); } catch (e) {}
@@ -356,7 +505,13 @@ for (var e = 0; e < doc.artboards.length; e++) {
 }
 L("미리보기 png " + doc.artboards.length + "장");
 
+/* 다 만들었으면 닫는다 — 안 닫으면 돌릴 때마다 문서가 쌓인다.
+   내용은 위 saveAs 로 이미 디스크에 있다. (2026-09-16: 11개까지 쌓여 있는 걸 사용자가 발견) */
+var nBoards = doc.artboards.length;          // 닫기 전에 세어 둔다 — 닫은 doc 은 못 읽는다
+doc.close(SaveOptions.DONOTSAVECHANGES);
+L("문서 닫음 — 결과는 디스크에 있다");
+
 var lf = new File(OUT + "/build_log.txt");
 lf.encoding = "UTF-8"; lf.open("w"); lf.write(log.join(String.fromCharCode(10))); lf.close();
 
-"OK 아트보드 " + doc.artboards.length;
+"OK 아트보드 " + nBoards;

@@ -37,6 +37,7 @@ def main():
     a = ap.parse_args()
 
     import numpy as np
+    from PIL import Image
     np.random.seed(a.seed)
 
     out = Path(a.out)
@@ -50,18 +51,20 @@ def main():
     print(f'  평균 #{int(arr[:,0].mean()):02X}{int(arr[:,1].mean()):02X}{int(arr[:,2].mean()):02X}'
           f'  편차 {arr.std():.1f}  (바탕 #{HANJI_WHITE[0]:02X}{HANJI_WHITE[1]:02X}{HANJI_WHITE[2]:02X})')
 
-    # ── 채널 낙관 (알파 포함) ──────────────────────────────────
-    # 벡터로 바꾸지 않는다: 인주 질감(노이즈 침식)이 낙관의 정체성이라 벡터화하면 그게 죽는다.
-    # imagetosvg 로 시험해 보니 단색 한 덩어리로 뭉갰다 (2026-09-16).
-    # 필요한 치수로 '다시 그린다' — 확대가 아니다. seal() 이 잉크폭·거친 가장자리를 치수에 맞춰 다시 잡는다.
-    from PIL import Image
-    side = a.seal
-    canvas = Image.new('RGBA', (side * 2, side * 2), (0, 0, 0, 0))
-    V2.seal(canvas, side, side, '차트명가', w=side, h=side, cols=2)
-    seal_img = canvas.crop(canvas.getbbox())
-    ps = out / a.seal_name
-    seal_img.save(ps)
-    print(f'{ps}  {seal_img.size}')
+    # ── 로고 ────────────────────────────────────────────────────
+    # 사용자가 준 원본을 **그대로** 쓴다 (2026-09-16: "기준이 아니라 그냥 그걸 써").
+    # 색도 안 바꾼다. 하는 일은 캔버스의 빈 투명 여백을 잘라내는 것뿐이다 —
+    # 원본은 1280x720 판에 로고가 742x185 로 얹혀 있어서, 그대로 놓으면 자리를 못 잡는다.
+    for src_name, out_name in (('차트명가_로고(최종+핑크).png', '로고_가로.png'),
+                               ('차트명가_로고(투명).png', '로고_심볼.png')):
+        sp = out / src_name
+        if not sp.exists():
+            print(f'  (없음, 건너뜀) {src_name}')
+            continue
+        lg = Image.open(sp).convert('RGBA')
+        lg = lg.crop(lg.getbbox())
+        lg.save(out / out_name)
+        print(f'  {out_name}  {lg.size}  (원본 색 그대로 · 빈 여백만 제거)')
 
     # ── 정보 띠에 깔 한지 띠 ────────────────────────────────────
     # 메인 프레임은 가운데가 뚫려 있어 바탕이 없다. 그런데 정보 띠에는 먹 글씨가 앉으므로
