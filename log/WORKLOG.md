@@ -1469,3 +1469,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 299 | `4a86090a` | 세이브 기록 save/2026-09-16-1314 | 5파일 +11/-3 |
 | 300 | `9af71908` | 세이브 save/2026-09-16-1329 — 포토샵 경로 단일화 — C:/cmgwork 을 박던 자리를 스스로 찾게 (labdir.ps1·_labdir.jsx, 규칙 30, 요청 87) | 13파일 +216/-40 |
 | 301 | `afc169f3` | 세이브 기록 save/2026-09-16-1329 | 5파일 +11/-3 |
+| 302 | `874a711e` | 세이브 save/2026-09-16-1333 — 더원 L08 프로젝트 경로 복구(끊김 10→0, .prproj 21개) · 프리미어 실험실 경로도 스스로 찾게 (_labdir.jsx/labdir.ps1, 잡 29개) (요청 88) | 38파일 +331/-155 |
