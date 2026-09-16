@@ -1478,3 +1478,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 305 | `d65a1ab5` | 세이브 기록 save/2026-09-16-1338 | 5파일 +11/-3 |
 | 306 | `22dabe73` | 세이브 save/2026-09-16-1340 — 차12 썸네일 건 닫음 — 회차 종료로 next_step 31 완료 처리 | 4파일 +10/-5 |
 | 307 | `dc80a1f1` | 세이브 기록 save/2026-09-16-1340 | 5파일 +11/-3 |
+| 308 | `1a6fc595` | 세이브 save/2026-09-16-1406 — 손익비 4차(박스 단색) 재생성 - aep·세트 aep 5·mogrt 12 · AE 꾸러미를 pack 한 벌로 단일화 (요청 89) | 4파일 +8/-1 |
