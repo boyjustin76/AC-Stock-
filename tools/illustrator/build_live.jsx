@@ -29,7 +29,10 @@ var LAB = PATHS.liveframeDir, OUT = PATHS.outDir, REPO = PATHS.repoDir;
 var P = CFG.palette;
 var 한지 = rgb(P["한지"]), 먹 = rgb(P["먹"]), 인주 = rgb(P["인주적"]),
     쪽   = rgb(P["쪽남"]), 금테 = rgb(P["금테"]), 옻칠 = rgb("#221E1B"),
-    한지밝 = rgb("#FAF6EE"), 흰   = rgb("#FFFFFF");
+    한지밝 = rgb("#FAF6EE"), 흰   = rgb("#FFFFFF"),
+    /* 브랜드 팔레트 (컬러팔레트.png) — 역할이 정해져 있다. '잘 보이는 색' 으로 고르지 않는다. */
+    메인타이틀 = rgb(P["메인타이틀"]), 서브타이틀 = rgb(P["서브타이틀"]),
+    배경먹 = rgb(P["배경먹"]), 대비강조 = rgb(P["대비강조"]), 부가설명 = rgb(P["부가설명"]);
 
 /* ── 구역 (1920x1080 화면 좌표, y 는 위에서 아래) ─────────────────
    트팩 원본 실측값이다. OBS 소스가 이 자리에 맞춰 놓이므로 함부로 바꾸지 않는다. */
@@ -301,9 +304,35 @@ function cap(b, name, x, y, w, h, mode) {
     return dup;
 }
 
-/** 오른쪽 패널 네 칸 + 롤링 광고 — 두 샘플이 똑같이 쓴다 */
+/** 캡쳐를 칸에 **꽉 채운다** — 비율을 지키지 않고 늘린다.
+    화면 캡쳐는 OBS 에서도 칸을 채우는 것이라, 비율을 지키면 좌우에 한지 띠가 남아 어색하다.
+    2026-09-16 사용자가 06 에서 직접 그렇게 고쳤다 (fit 으로 남던 여백을 없앰). */
+function capFill(b, name, x, y, w, h) {
+    if (!openRef()) return null;
+    var it = findCap(CAPS[name]);
+    if (!it) { L("  !! 원본에서 못 찾음: " + name); return null; }
+    app.activeDocument = refDoc;
+    var dup = it.duplicate(LY["캡쳐"], ElementPlacement.PLACEATEND);
+    app.activeDocument = doc;
+    /* 크기는 **resize() 로** 바꾼다. `.width = w; .height = h` 로 주면 일러스트레이터가 멈춘다 —
+       문서 사이로 복사해 온 래스터에 치수를 직접 박으면 원본 문서를 다시 보러 가는 듯하다.
+       2026-09-16 두 번 다 9분 넘게 응답 없음(CPU 20초에 +1s = 사실상 0)으로 굳었다.
+       처음엔 '사용자가 쓰던 인스턴스와 엉켰다' 고 봤는데, 내가 띄운 깨끗한 인스턴스에서도
+       똑같이 굳어서 원인이 이쪽임이 드러났다. resize() 는 앞서 cap() 에서 잘 돌던 길이다. */
+    var sx = w / dup.width * 100, sy = h / dup.height * 100;
+    dup.resize(sx, sy);
+    dup.left = OX(b, x);
+    dup.top  = OY(b, y);
+    return dup;
+}
+
+/** 오른쪽 패널 네 칸 + 롤링 광고 — 두 샘플이 똑같이 쓴다.
+    칸 좌표는 사용자 직접 수정판(06) 실측값이다. 내 1차판은 폭을 395 로 잡아
+    패널 오른쪽 끝(1903)을 15px 넘고 있었다 — 사용자가 379 로 맞춰 놓은 것을 따른다. */
 function capPanel(b) {
-    var T = 2;
+    var T = 2, PX = Z.패널.x + T, PW = 379;       // 1523 ~ 1902
+    var B0 = 1063;                                 // 바깥 병풍 안쪽 아래
+
     /* 롤링 광고 — D 가 만든 전통판 배너를 쓴다 (2026-09-16).
        트팩 원본에서 복사하던 것을 대체한다. 문구는 트팩 것 그대로라 바뀐 건 톤뿐이고,
        한지 바탕이라 광고가 돌든 안 돌든 같은 종이 위에서 이어진다.
@@ -322,10 +351,13 @@ function capPanel(b) {
         L("  !! 롤링 광고 배너가 없어 트팩 것을 씁니다: " + ad.fsName);
         cap(b, "롤링광고", 17, 17, 1886, Z.광고.h - 20, "fit");
     }
-    cap(b, "시계",     Z.시계.x + T,   Z.시계.y + T,   Z.시계.w - T * 2,   Z.시계.h - T * 2,   "fit");
-    cap(b, "포지션표", Z.포지션.x + T, Z.포지션.y + T, Z.포지션.w - T * 2, Z.포지션.h - T * 2, "fit");
-    cap(b, "수익요약", Z.메모.x + T,   Z.메모.y + T,   Z.메모.w - T * 2,   Z.메모.h - T * 2,   "fit");
-    cap(b, "댓글창",   Z.댓글.x + T,   Z.댓글.y + T,   Z.댓글.w - T * 2,   Z.댓글.h - 14,      "fit");
+
+    /* 시계만 비율을 지킨다 — 사용자 판에서도 안 바뀌었다 (253x74 그대로) */
+    cap(b, "시계", Z.시계.x + T, Z.시계.y + T, Z.시계.w - T * 2, Z.시계.h - T * 2, "fit");
+
+    capFill(b, "포지션표", PX, Z.포지션.y + 1, PW, Z.메모.y - (Z.포지션.y + 1));
+    capFill(b, "수익요약", PX, Z.메모.y + 2,   PW, Z.댓글.y + 1 - (Z.메모.y + 2));
+    capFill(b, "댓글창",   PX, Z.댓글.y + 2,   PW, B0 - (Z.댓글.y + 2));
 }
 
 /** 오프닝에 얹는 우리 그래픽 — 편액·목차. 자리는 트팩 오프닝 실측 행에 맞췄다.
@@ -390,38 +422,50 @@ function drawFrame(b, opts) {
     }
     var 띠중 = Z.현판띠.y + Z.현판띠.h / 2;
 
-    /* 편액 — 옻칠 판 + 금테 + 채널 로고.
-       로고는 사용자가 준 원본을 그대로 쓴다(색 변경 없음). 이름을 궁서로 다시 쓰지 않는다 —
-       로고에 이미 워드마크가 들어 있다. 판은 로고 크기에 맞춰 깎는다. */
+    /* ── 정보 띠 안 (2026-09-16 사용자 직접 수정판을 그대로 따른다) ──────
+       06 아트보드를 사용자가 손으로 고친 것을 값으로 떠서(dump_board.jsx) 옮겼다.
+
+       바뀐 것
+         · 편액(옻칠 판 + 금테)을 **없앴다** — 로고를 한지 띠 위에 직접 올린다.
+           로고 자체가 워드마크+심볼이라 판까지 두르면 무거웠다.
+         · 로고를 키웠다 (144x36 → 215x54)
+         · 정보 글자를 27pt 먹 → **31pt 부가설명 #334155** 로 (컬러팔레트.png).
+           방송시간·입장문의는 '부가 설명 자막' 이다. 한때 #0D9488 을 썼는데 그건
+           매수/매도처럼 반대되는 개념에만 쓰는 색이라 잘못이었다.
+         · 구분선을 글자 길이에 맞게 옮겼다 (253/1051 → 395/975)
+       좌표는 사용자 판 실측값이다. 바꾸려면 여기만 고치면 여섯 아트보드에 다 걸린다. */
+    var LOGO = { x: 90, y: 152, w: 215 };          // 높이는 비율로 따라온다
+    var 정보 = [
+        { x: 469,  seam: 395, text: COPY.방송시간 },
+        { x: 1034, seam: 975, text: COPY.입장문의 }
+    ];
+    var 정보크기 = 31;
+    /* 글자 세로 가운데는 띠 가운데보다 2px 아래다 — 사용자 판 실측(상자 위 165 · 내 것 163).
+       궁서는 글자 상자 안에서 아래로 치우쳐 있어 기하 가운데에 맞추면 살짝 떠 보인다. */
+    var 정보중 = 띠중 + 2;
+
     var logo = new File(OUT + "/" + CFG.logoPng);
-    var padY = 13, ph = Z.현판띠.h - padY * 2;
-    var seamX;
     if (logo.exists) {
         var lp = 글.placedItems.add();
         lp.file = logo;
-        var lk = (ph - 16) / lp.height;                 // 판 안에 위아래 여백 8px
+        var lk = LOGO.w / lp.width;
         lp.resize(lk * 100, lk * 100);
-        var pw2 = lp.width + 52;
-        hyeonpan(틀, 글, b, L0 + 18, Z.현판띠.y + padY, pw2, ph, null, 0);
-        lp.left = OX(b, L0 + 18 + (pw2 - lp.width) / 2);
-        lp.top  = OY(b, 띠중 - lp.height / 2);
+        lp.left = OX(b, LOGO.x);
+        lp.top  = OY(b, LOGO.y);
         lp.embed();
-        seamX = L0 + 18 + pw2 + 22;
     } else {
         L("  !! 로고가 없습니다 — make_bg.py 를 먼저 돌리세요: " + logo.fsName);
-        var pl = hyeonpan(틀, 글, b, L0 + 18, Z.현판띠.y + padY, 0, ph, COPY.채널, 32);
-        seamX = pl.x + pl.w + 22;
+        text(글, b, LOGO.x, 띠중, COPY.채널, 34, 먹, "left");
     }
 
-    /* 정보 둘 — 사이를 쪽빛 세로 가는 선으로 가른다 */
-    seam(틀, b, seamX, Z.현판띠.y + 16, T, Z.현판띠.h - 32);
-    text(글, b, seamX + 26, 띠중, COPY.방송시간, 27, 먹, "left");
-    var midX = PX - 470;
-    seam(틀, b, midX, Z.현판띠.y + 16, T, Z.현판띠.h - 32);
-    text(글, b, midX + 26, 띠중, COPY.입장문의, 27, 먹, "left");
+    /* 정보 둘 — 앞에 쪽빛 세로 가는 선을 세워 가른다 */
+    for (var q = 0; q < 정보.length; q++) {
+        seam(틀, b, 정보[q].seam, Z.현판띠.y + 16, T, Z.현판띠.h - 32);
+        text(글, b, 정보[q].x, 정보중, 정보[q].text, 정보크기, 부가설명, "left");
+    }
 
     /* 4) 포지션 헤더 — 트팩은 회색 그라디언트. 여기서는 쪽빛 바 + 흰 궁서 */
-    box(틀, b, Z.헤더.x + T, Z.헤더.y + T, R0 - Z.헤더.x - T, Z.헤더.h - T * 2, 쪽, null, 0);
+    box(틀, b, Z.헤더.x + T, Z.헤더.y + T, R0 - Z.헤더.x - T, Z.헤더.h - T, 쪽, null, 0);   // 높이 24 (사용자 판)
     var colX = [Z.헤더.x + 70, Z.헤더.x + 200, Z.헤더.x + 330];
     for (var h = 0; h < COPY.헤더.length; h++)
         text(글, b, colX[h], Z.헤더.y + Z.헤더.h / 2, COPY.헤더[h], 17, 흰, "center");
