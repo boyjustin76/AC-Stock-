@@ -7,3 +7,4 @@ log/*.db-wal
 log/*.db-shm
 __pycache__/
 *.pyc
+tools/illustrator/_paths.json
