@@ -1139,6 +1139,18 @@ REQUESTS = [
     (86, "로컬에 흩어진 것을 한 폴더로 단일화 + Portable, 최신만 zip. 중간: 'G드라이브 업로드는 내가 할거니까 로컬에만 둬' · '남은 부산물 전부 지워, 똑같은 파일이 여러 곳에 있지 않게' · C:/aelab 을 연결(junction)로만 둔 1차안은 '경로가 둘이면 그것도 흩뿌려짐' 이라고 반려 (2026-09-16)",
      "차트명가NEW_통합/ 하나로 모음 — 01 납품 · 02 AE작업실 · 03 저장소(작업본+bundle) · 04 작업메모 · 05 도구와설정 · 06 실험실 · 99 이전판. 지우기 전에 파일마다 sha256 으로 꾸러미 안 존재를 확인(차트명가 NEW 397개 · aelab 3527개 · cmgwork · pprolab). **C:/aelab 을 완전히 없앰**: 경로를 박던 자리를 자기 위치에서 위로 올라가며 '02_AE작업실_aelab' 을 찾는 방식으로 교체 — labdir.py/.mjs/.ps1 신설(순서: AELAB_DIR → config.labDir → 위로 탐색 → 옛 자리), _lib.jsx·bridge.jsx·a1_smoke.jsx 는 ExtendScript 라 같은 해석기를 인라인. config.json labDir 을 빈 값(=자동)으로. 실측: a1 스모크 통과(새 작업실에 로그 씀) · c11_relink_check 로 팩 5개 112개 푸티지 '못 찾음 0' — .aep 에 옛 절대경로가 박혀 있어도 footage/ 가 .aep 옆에 함께 있어 AE 가 상대경로로 재연결한다(열면 dirty=true 가 되므로 저장하지 않고 닫는다). 버린 것은 ae/ref·diff·frames 검증 PNG 2906장뿐, 그 폴더의 스크립트·설정·로그·영상 소스 117개는 _기타 로 살림.",
      '차트명가NEW_통합/ (00_먼저읽기.md · 도구/복원.ps1) · 차트명가NEW_통합_20260916.zip(로컬 보관, 업로드는 사용자가 직접) · 틀만_완성/읽어보기.txt 실측 정정'),
+    (87, "D 알림 — C:/cmgwork 을 지우고 통합 폴더로 옮겼다. 포토샵 자동화가 그 경로를 쓰고 있었다면 끊겨 있다. "
+     "경로를 박지 말고 스스로 찾게 하라(tools/ae/labdir.* 방식). .psd 의 링크 자원도 함께 볼 것 (2026-09-16)",
+     "끊겨 있었다 — tools/photoshop/config.json 이 template·chartDir·outDir 세 개를 C:/cmgwork 으로 박고 있었다. "
+     "labdir 규칙을 그대로 가져와 고쳤다: labdir.ps1(run.ps1 용) + _labdir.jsx(jsx 4개 공용) 신설, "
+     "찾는 순서 CMGWORK_DIR → config.labDir → 위로 8단계 '06_실험실/cmgwork' → 'cmgwork' → 옛 자리 C:/cmgwork. "
+     "config 의 세 경로는 작업실 기준 상대경로로 바꿨다(src.psd · . · out). "
+     "D 는 jsx 에 같은 코드를 인라인했지만 여기는 $.evalFile 로 한 파일을 불러 쓴다 — 4벌 복사가 곧 같은 문제라서. "
+     "실측: run.ps1 이 작업실을 06_실험실/cmgwork 으로 찾았고 A안을 실제로 빌드해 "
+     "9/3 납품본과 픽셀 동일(diff bbox None, 최대 채널차 0)·격자박스 x0.827 재현. "
+     "링크 자원 문제는 없었다 — 템플릿이 전부 임베드라 대화상자 없이 열렸다. "
+     "남은 것: tools/premiere/jobs 의 m2_swap·m4_place·m5_intro·m2_check 가 아직 C:/cmgwork 을 박고 있다(프리미어 영역).",
+     "tools/photoshop/labdir.ps1 · _labdir.jsx 신설 · config.json 경로 3개 상대화 · A안 픽셀 동일 검증"),
 ]
 # 주의: 66·67 은 B(썸네일 로컬), 68 은 총괄 — 같은 날 병합하며 시간순으로 재배번 (2026-09-03)
 
@@ -2626,6 +2638,15 @@ THUMBNAIL_RULES = [
      "같은 것은 방식이다: 크기를 회차마다 손으로 정하지 말고 상자를 먼저 정하고 거기 맞춘다. "
      "2026-09-03 이정찬이 그 프리미어 스샷 4장을 다시 들고 와 '썸네일도 이렇게 하라'고 지시해 "
      "규칙 28 이 나왔다 (요청 67)"),
+    (30, "작업실 경로를 박지 않는다 — 스스로 찾게 한다",
+     "config.json 의 template·chartDir·outDir 은 작업실 폴더 기준 상대경로다. 작업실은 "
+     "CMGWORK_DIR → config.labDir → 위로 8단계 '06_실험실/cmgwork' → 'cmgwork' → C:/cmgwork 순서로 찾는다",
+     "2026-09-16 C:/cmgwork 이 통합 폴더로 옮겨지며 박아 둔 경로 셋이 한꺼번에 끊긴 뒤 고침. "
+     "고친 뒤 A안을 실제로 빌드해 9/3 납품본과 픽셀 동일 확인",
+     "구현은 labdir.ps1(PowerShell)·_labdir.jsx(ExtendScript). jsx 는 import 가 없지만 $.evalFile 은 있어서 "
+     "파일마다 복사하지 않고 한 파일을 불러 쓴다. run.ps1 이 맨 처음 '작업실: …' 을 찍으니 거기서 확인한다. "
+     "tools/ae/labdir.py·.mjs·.ps1 과 같은 규칙이다 — 규칙을 두 개로 만들지 않는다. "
+     "포토샵 템플릿은 링크 자원이 없어(전부 임베드) 옮겨도 다시 연결할 것이 없었다"),
 ]
 
 NAMING_RULES = [

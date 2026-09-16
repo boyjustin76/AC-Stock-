@@ -26,8 +26,15 @@ $cfgPath = Join-Path $here 'config.json'
 if (-not (Test-Path $cfgPath)) { throw "config.json 이 없습니다: $cfgPath" }
 $cfg = Get-Content $cfgPath -Raw -Encoding UTF8 | ConvertFrom-Json
 
-if (-not (Test-Path $cfg.template)) {
-    throw "템플릿을 찾을 수 없습니다: $($cfg.template)`n   config.json 의 template 경로를 확인하세요. 원본 .psd 는 저장소에 없습니다(180MB)."
+# 작업실 폴더는 박아 두지 않고 찾는다 (labdir.ps1 · _labdir.jsx 가 같은 규칙)
+. (Join-Path $here 'labdir.ps1')
+$lab      = Get-CmgWorkDir $cfg.labDir
+$template = Resolve-UnderLab $cfg.template $lab
+$outDir   = Resolve-UnderLab $cfg.outDir   $lab
+Write-Host "  작업실: $lab"
+
+if (-not (Test-Path $template)) {
+    throw "템플릿을 찾을 수 없습니다: $template`n   작업실 폴더는 '$lab' 로 잡혔습니다. 여기가 아니면 CMGWORK_DIR 환경변수나 config.json 의 labDir 을 주세요.`n   원본 .psd 는 저장소에 없습니다(180MB)."
 }
 
 Write-Host "  포토샵 연결 중..."
@@ -41,7 +48,7 @@ Write-Host "  결과: $result"
 
 # jsx 가 남긴 로그를 그대로 보여 준다
 foreach ($name in 'build_log.txt', 'layer_fx.txt', 'ref_tree.txt', 'text_runs.txt') {
-    $log = Join-Path $cfg.outDir $name
+    $log = Join-Path $outDir $name
     if ((Test-Path $log) -and ((Get-Item $log).LastWriteTime -gt (Get-Date).AddMinutes(-5))) {
         Write-Host ""
         Write-Host "  ---- $name ----"

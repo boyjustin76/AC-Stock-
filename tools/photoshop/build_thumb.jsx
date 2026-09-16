@@ -35,16 +35,10 @@ var HERE = new File($.fileName).parent;
 var log = [];
 function L(s) { log.push(String(s)); }
 
-function readConfig() {
-    var f = new File(HERE.fsName + "/config.json");
-    if (!f.exists) throw new Error("config.json 이 없습니다: " + f.fsName);
-    f.encoding = "UTF-8";          // 한글이 들어 있다. 이걸 빼면 깨진다.
-    f.open("r");
-    var txt = f.read();
-    f.close();
-    return eval("(" + txt + ")");  // ExtendScript 에는 JSON 이 없는 판이 있다
-}
-var CFG = readConfig();
+/* config 읽기와 작업실 경로 풀기는 _labdir.jsx 한 곳에 있다.
+   경로를 박지 않는다 — 꾸러미를 어디에 풀어도 작업실을 스스로 찾는다. */
+$.evalFile(new File(HERE.fsName + "/_labdir.jsx"));
+var CFG = loadConfig(HERE);
 
 /** 템플릿을 연다. 이미 열려 있으면 그것을 쓴다 (180MB 라 여는 데 시간이 걸린다) */
 function openTemplate() {

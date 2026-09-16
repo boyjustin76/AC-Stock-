@@ -31,13 +31,10 @@ var out = [];
 function O(s) { out.push(String(s)); }
 function hex2(n) { var s = Math.round(n).toString(16).toUpperCase(); return s.length < 2 ? "0" + s : s; }
 
-function readConfig() {
-    var f = new File(HERE.fsName + "/config.json");
-    f.encoding = "UTF-8"; f.open("r");
-    var t = f.read(); f.close();
-    return eval("(" + t + ")");
-}
-var CFG = readConfig();
+/* config 읽기와 작업실 경로 풀기는 _labdir.jsx 한 곳에 있다.
+   경로를 박지 않는다 — 꾸러미를 어디에 풀어도 작업실을 스스로 찾는다. */
+$.evalFile(new File(HERE.fsName + "/_labdir.jsx"));
+var CFG = loadConfig(HERE);
 
 /* 기본은 템플릿을 읽는다. config 에 runsTarget 이 있으면 그 .psd 를 읽는다 —
    build_thumb 이 뽑은 결과에 강조가 실제로 박혔는지 확인할 때 쓴다. */

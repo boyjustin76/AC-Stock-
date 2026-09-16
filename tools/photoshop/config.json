@@ -1,15 +1,18 @@
 {
   "_설명": "tools/photoshop/*.jsx 가 읽는 설정. 경로는 슬래시(/)로 쓴다 — 역슬래시는 JSX 문자열에서 이스케이프로 먹힌다.",
 
-  "template": "C:/cmgwork/src.psd",
+  "labDir": "",
+  "_labDir": "썸네일 작업실 폴더. 비워 두면 스스로 찾는다 — 환경변수 CMGWORK_DIR → 이 값 → 자기 위치에서 위로 올라가며 '06_실험실/cmgwork' → 옛 자리 C:/cmgwork 순서. 2026-09-16 에 C:/cmgwork 가 통합 폴더 안으로 들어가면서 박아 둔 경로가 전부 끊겨 이렇게 바꿨다(tools/ae/labdir.* 와 같은 규칙). 아래 세 경로는 이 폴더 기준 상대경로다 — 절대경로를 써도 그대로 쓴다.",
+
+  "template": "src.psd",
   "_template": "차트명가(롱)_하이라이트 - 복사본.psd 의 사본. 원본은 회사 드라이브에 있고 저장소에는 없다(180MB). 원본을 직접 열지 말고 사본으로 작업한다.",
 
-  "chartDir": "C:/cmgwork",
+  "chartDir": ".",
   "_chartDir": "렌더러가 뽑은 차트 png 가 있는 폴더. npm run render 의 out/stills 에서 여기로 복사해 둔다.",
 
-  "outDir": "C:/cmgwork/out",
+  "outDir": "out",
 
-  "_runsTarget": "dump_text_runs 에 이 키(예: C:/cmgwork/out/A2.psd)를 넣으면 템플릿 대신 그 .psd 를 읽는다. 결과물에 강조가 실제로 박혔는지 확인할 때만 잠깐 넣고 뺀다.",
+  "_runsTarget": "dump_text_runs 에 이 키(예: out/A2.psd — 작업실 기준 상대경로)를 넣으면 템플릿 대신 그 .psd 를 읽는다. 결과물에 강조가 실제로 박혔는지 확인할 때만 잠깐 넣고 뺀다.",
 
   "base": "#6",
   "_base": "복제할 베이스 회차. #6 지지와 저항은 인물이 없고 타이틀 좌표가 #2~#6 표준과 같다. 인물이 있는 회차를 만들 때는 #5 나 #7 을 쓰고 '그룹 1'(인물 자리)에 이미지를 넣는다.",

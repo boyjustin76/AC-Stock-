@@ -37,8 +37,22 @@ node src/cli.mjs --config scenes/thumb-ch11-A.scenes.js --all --stills 1
 
 **2. `config.json` 을 채운다**
 
-`template` · `chartDir` · `outDir` 경로와, 회차 이름 · 타이틀 두 줄.
+회차 이름 · 타이틀 두 줄 · `titleBox`. **경로는 보통 손댈 일이 없다.**
+
+`template` · `chartDir` · `outDir` 은 **작업실 폴더 기준 상대경로**이고,
+작업실은 스스로 찾는다 (`labdir.ps1` · `_labdir.jsx`, `tools/ae/labdir.*` 와 같은 규칙):
+
+```
+CMGWORK_DIR 환경변수  →  config.json 의 labDir  →
+자기 위치에서 위로 8단계 올라가며 '06_실험실/cmgwork' → 'cmgwork'  →  옛 자리 C:/cmgwork
+```
+
+`run.ps1` 이 맨 처음 `작업실: …` 을 찍으니 어디로 잡혔는지 거기서 확인한다.
+다른 데를 쓰려면 `labDir` 에 넣거나 `CMGWORK_DIR` 을 준다. 절대경로를 써도 그대로 쓴다.
 경로는 슬래시(`/`)로 쓴다. 역슬래시는 JSX 문자열에서 이스케이프로 먹힌다.
+
+> 2026-09-16 에 `C:\cmgwork` 이 통합 폴더 안으로 들어가면서 박아 둔 경로 세 개가
+> 한꺼번에 끊겼다. 그래서 경로를 박지 않는 방식으로 바꿨다 — 꾸러미를 어디에 풀어도 따라온다.
 
 **3. 만든다**
 

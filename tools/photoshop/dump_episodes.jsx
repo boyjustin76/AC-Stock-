@@ -26,13 +26,10 @@ var out = [];
 function O(s) { out.push(String(s)); }
 function pad(n) { var s = ""; for (var i = 0; i < n; i++) s += "  "; return s; }
 
-function readConfig() {
-    var f = new File(HERE.fsName + "/config.json");
-    f.encoding = "UTF-8"; f.open("r");
-    var t = f.read(); f.close();
-    return eval("(" + t + ")");
-}
-var CFG = readConfig();
+/* config 읽기와 작업실 경로 풀기는 _labdir.jsx 한 곳에 있다.
+   경로를 박지 않는다 — 꾸러미를 어디에 풀어도 작업실을 스스로 찾는다. */
+$.evalFile(new File(HERE.fsName + "/_labdir.jsx"));
+var CFG = loadConfig(HERE);
 
 var doc = null;
 var want = decodeURI(new File(CFG.template).name);
