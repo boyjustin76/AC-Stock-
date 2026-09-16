@@ -87,6 +87,11 @@ python tools/cutedit/assemble_longform.py <캠폴더> <PD폴더> <대본.txt> --
         --motion <움직임.json> --name <이름> --out <결과폴더>      # 움직임 파일 없으면 만든다
 python tools/cutedit/make_xml.py    <결과폴더>/assembled.json <전체.xml>
 
+# 규칙을 바꾸기 전에 — 정답 자료(S015·S016 수정본)에 대고 채점한다
+python tools/cutedit/grade/tune.py --current     # 컷 경계 50개 · 지금 평균 0.051초
+python tools/cutedit/grade/cuetune.py            # 자막 끊는 자리 · 지금 35/53
+python tools/cutedit/grade/tgrade.py             # 자막 큐 시각 · 비례 0.279 대 낱말 0.315
+
 # 더원트레이더 전용
 python tools/theone/srt_index.py   <자막폴더> --out 인덱스.md --json 인덱스.json
 python tools/theone/srt_index.py   <자막폴더> --find 눌림목 역추세
@@ -200,6 +205,10 @@ S015·S016 은 −45·−47). silencedetect 는 피크로 보므로 **문턱을 
 `srt_rules check` 가 이것을 못 잡았다 — 글자 수만 봤다. **시각 검사를 넣었다**: 끝≤시작 · 앞 큐와 겹침/뒤로 감 ·
 0.3초 미만. 기존 srt 18개(사람 것 포함) 실측으로 앞 둘은 0건, 0.3초 미만은 약 1,400큐 중 1개(차명12 롱폼 0.134초).
 첫 납품 합본 srt 는 새 검사에서 65건 걸린다.
+
+**자료는 저장소 안에 있다** (임시폴더는 세션이 끝나면 사라진다).
+- 채점대와 정답 자료 — `tools/cutedit/grade/` (S015·S016 수정본 · 작업폴더 · 세 채점 도구)
+- L08 판단 자료 — `tools/theone/longform/L08/` (대본 txt · 확인·수정값 · 합본 컷리스트 · 움직임 파일)
 
 **롱폼 수정본이 오면** 같은 채점대로 다시 잰다 — 컷 경계, 자막 끊기·길이·시각, 시연 고르기.
 
