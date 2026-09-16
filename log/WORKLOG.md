@@ -1464,3 +1464,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 297 | `bc42fa71` | 세이브 기록 save/2026-09-16-1043 | 5파일 +11/-3 |
 | 298 | `ebe0061d` | 세이브 save/2026-09-16-1314 — 작업실 경로 단일화 - C:/aelab 을 없애고 스스로 찾게 (labdir.py/.mjs/.ps1, config.labDir 자동) · c11 로 팩 5개 112개 푸티지 재연결 실측 (요청 86) | 38파일 +492/-188 |
 | 299 | `4a86090a` | 세이브 기록 save/2026-09-16-1314 | 5파일 +11/-3 |
+| 300 | `9af71908` | 세이브 save/2026-09-16-1329 — 포토샵 경로 단일화 — C:/cmgwork 을 박던 자리를 스스로 찾게 (labdir.ps1·_labdir.jsx, 규칙 30, 요청 87) | 13파일 +216/-40 |
