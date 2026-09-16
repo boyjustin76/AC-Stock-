@@ -76,6 +76,8 @@ python tools/cutedit/verify_text.py <작업폴더>            # 갈린 문구만
 python tools/cutedit/cut_and_srt.py <작업폴더> --source <원본.mp4> --name <이름>
 python tools/cutedit/make_xml.py    <작업폴더>/cuts.json <결과.xml>
 python tools/cutedit/srt_rules.py   check <자막.srt>      # 납품 전 필수
+python tools/cutedit/prlinks.py     check <회차폴더>       # 프리미어가 무는 소스가 다 있는지
+python tools/cutedit/prlinks.py     find  <경로조각> <폴더> # **폴더를 옮기기 전에** 누가 무는지
 
 # 롱폼 (L08 부터) — 캠 녹화와 PD 설명 녹화를 각각 STT·정렬·컷편집한 뒤 합친다
 python tools/cutedit/docx_script.py <대본.docx> <대본.txt>
