@@ -197,52 +197,90 @@ function hanji(ly, b) {
     L("  한지 바탕: " + bg.name);
 }
 
-/* ── 공통 틀: 현판 띠 · 병풍 차트 · 오른쪽 패널 ────────────────── */
+/* ── 공통 틀 ─────────────────────────────────────────────────
+   D 검수(2026-09-16) 반영. 실물 병풍은 **두꺼운 비단 테두리가 바깥을 한 바퀴** 두르고,
+   폭과 폭 사이는 접히는 좁은 이음선뿐이다. 폭마다 두꺼운 테두리를 두르지 않는다.
+   1차 시안은 칸마다 12px 띠를 둘러 띠끼리 맞닿았고, 그래서 병풍이 아니라 '표' 로 읽혔다.
+       바깥 한 바퀴  쪽빛 12px + 안쪽 가는 선 2px
+       칸과 칸 사이  쪽빛 2px 한 줄
+   덤으로 뚫린 자리가 트팩 크기를 되찾는다.                                        */
+
+/** 이음선 — 칸과 칸을 가르는 쪽빛 가는 줄 */
+function seam(ly, b, x, y, w, h) { return box(ly, b, x, y, w, h, 쪽, null, 0); }
+
 function drawFrame(b, opts) {
     var 틀 = LY["틀"], 글 = LY["글자"];
+    var T = 2;                                   // 이음선 두께
 
-    /* 채널 정보 띠 — 트팩은 검정 띠였다. 여기서는 현판(옻칠+금테)으로 바꾼다 */
-    hyeonpan(틀, 글, b, Z.현판띠.x, Z.현판띠.y, Z.현판띠.w, Z.현판띠.h, null, 0);
+    /* 1) 바깥 병풍 한 바퀴 — 화면 전체를 두른다 */
+    var hole = byeongpung(틀, b, 0, 0, 1920, 1080, 12);     // 뚫린 자리 17~1903 / 17~1063
+    var L0 = hole.x, R0 = hole.x + hole.w, T0 = hole.y, B0 = hole.y + hole.h;
+
+    /* 2) 칸과 칸 사이 이음선 */
+    var PX = Z.패널.x;                            // 차트 | 패널 경계
+    seam(틀, b, L0, Z.광고.h,   R0 - L0, T);      // 광고 아래 (전폭)
+    seam(틀, b, L0, Z.차트.y,   PX - L0, T);      // 정보 띠 아래
+    seam(틀, b, PX, Z.광고.h,   T,  B0 - Z.광고.h);  // 차트 | 패널 (세로)
+    seam(틀, b, PX, Z.헤더.y,   R0 - PX, T);      // 시계 아래
+    seam(틀, b, PX, Z.포지션.y, R0 - PX, T);      // 헤더 아래
+    seam(틀, b, PX, Z.메모.y,   R0 - PX, T);      // 포지션 아래
+    seam(틀, b, PX, Z.댓글.y,   R0 - PX, T);      // 메모 아래
+
+    /* 3) 정보 띠 — 한지 띠 위에 편액(채널 이름) + 먹 궁서 둘.
+       편액(扁額)은 가로로 긴 판이 맞다(扁 = 납작하다). 다만 판은 **글자에 맞춰 깎는다** —
+       1527x78(19.6:1)로 늘리면 편액이 아니라 그냥 검정 바로 읽힌다(D 검수).
+       채널 이름만 판에 걸고, 방송시간·입장문의는 한지 위 먹 글씨로 둔다. */
+    var 띠 = new File(OUT + "/" + CFG.bandPng);
+    if (띠.exists) {
+        var bp = 틀.placedItems.add();
+        bp.file = 띠;
+        bp.left = OX(b, L0);
+        bp.top  = OY(Z.현판띠.y);
+        bp.embed();
+    }
     var 띠중 = Z.현판띠.y + Z.현판띠.h / 2;
-    text(글, b, 44,   띠중, COPY.채널,     40, 한지밝, "left");
-    text(글, b, 520,  띠중, COPY.방송시간, 27, 금테,   "left");
-    text(글, b, 1070, 띠중, COPY.입장문의, 27, 금테,   "left");
+    var plaque = hyeonpan(틀, 글, b, L0 + 18, Z.현판띠.y + 9, 0, Z.현판띠.h - 18, COPY.채널, 34);
 
-    /* 차트 자리 — 병풍 한 폭 */
-    var hole = byeongpung(틀, b, Z.차트.x, Z.차트.y, Z.차트.w, Z.차트.h, 12);
-    if (opts && opts.hole) L("  차트 뚫린 자리: x " + Math.round(hole.x) + "~" + Math.round(hole.x + hole.w)
-                            + " · y " + Math.round(hole.y) + "~" + Math.round(hole.y + hole.h));
-
-    /* 오른쪽 패널 — 셀마다 쪽빛 가는 테두리 */
-    var cells = ["시계", "포지션", "메모", "댓글"];
-    for (var i = 0; i < cells.length; i++) {
-        var c = Z[cells[i]];
-        box(틀, b, c.x + 3, c.y + 3, c.w - 6, c.h - 6, null, 쪽, 6);
-    }
-    /* 채널 낙관 — 차트 자리 오른쪽 아래. D 의 틀만(전통_3)이 같은 자리에 찍는다 */
+    /* 두인 — 편액 옆에 도장. 실제 관행이고, 차트 위에 얹지 않아 캔들을 안 가린다.
+       (D 추천은 '패널 맨 아래 빈 칸' 이었지만 패널 칸이 전부 라이브 소스라 자리가 없다.) */
     var seal = new File(OUT + "/" + CFG.sealPng);
+    var seamX = plaque.x + plaque.w + 16;
     if (seal.exists) {
-        var sp = LY["글자"].placedItems.add();
+        var sp = 글.placedItems.add();
         sp.file = seal;
-        sp.left = OX(b, hole.x + hole.w - sp.width - 34);
-        sp.top  = OY(hole.y + hole.h - sp.height - 30);
+        sp.left = OX(b, seamX);
+        sp.top  = OY(띠중 - sp.height / 2);
         sp.embed();
-    } else {
-        L("  !! 낙관이 없습니다 — make_bg.py 를 먼저 돌리세요: " + seal.fsName);
+        seamX += sp.width + 18;
     }
 
-    /* 포지션 헤더 — 트팩은 회색 그라디언트. 여기서는 쪽빛 바 + 흰 궁서 */
-    box(틀, b, Z.헤더.x + 6, Z.헤더.y, Z.헤더.w - 12, Z.헤더.h, 쪽, null, 0);
+    /* 정보 둘 — 사이를 쪽빛 세로 가는 선으로 가른다 */
+    seam(틀, b, seamX, Z.현판띠.y + 16, T, Z.현판띠.h - 32);
+    text(글, b, seamX + 26, 띠중, COPY.방송시간, 27, 먹, "left");
+    var midX = PX - 470;
+    seam(틀, b, midX, Z.현판띠.y + 16, T, Z.현판띠.h - 32);
+    text(글, b, midX + 26, 띠중, COPY.입장문의, 27, 먹, "left");
+
+    /* 4) 포지션 헤더 — 트팩은 회색 그라디언트. 여기서는 쪽빛 바 + 흰 궁서 */
+    box(틀, b, Z.헤더.x + T, Z.헤더.y + T, R0 - Z.헤더.x - T, Z.헤더.h - T * 2, 쪽, null, 0);
     var colX = [Z.헤더.x + 70, Z.헤더.x + 200, Z.헤더.x + 330];
     for (var h = 0; h < COPY.헤더.length; h++)
         text(글, b, colX[h], Z.헤더.y + Z.헤더.h / 2, COPY.헤더[h], 17, 흰, "center");
+
+    if (opts && opts.hole) {
+        L("  바깥 뚫린 자리: x " + L0 + "~" + R0 + " · y " + T0 + "~" + B0);
+        L("  차트 자리: x " + L0 + "~" + PX + " · y " + (Z.차트.y + T) + "~" + B0);
+    }
 }
 
 /* ── [0] 고정 배경 레이어 — 맨 아래. 전부 불투명 ────────────────── */
 L("");
 L("■ " + BOARDS[0]);
 hanji(LY["바탕"], 0);
-box(LY["틀"], 0, Z.광고.x, Z.광고.y, Z.광고.w, Z.광고.h, 인주, null, 0);   // 광고 자리
+/* 광고 자리는 따로 칠하지 않는다 — 바탕 한지 그대로 둔다.
+   1차 시안은 인주 적(#D42A26)을 전폭으로 깔았는데, 인주는 낙관·매수·익절에 '점 찍는' 색이라
+   1920x138 면으로 쓰면 팔레트 규칙(면 3개·화이트 톤)과 부딪힌다. 광고 소스가 끊기면
+   붉은 띠가 통째로 방송에 뜨는 문제도 있다 (D 검수 2026-09-16). */
 drawFrame(0, { hole: true });
 
 /* ── [1] 오프닝 프레임 ──────────────────────────────────────── */
@@ -286,7 +324,7 @@ L("■ " + BOARDS[3]);
         /* 칸보다 넓으면 줄인다 — 오른쪽 패널은 399px 라 긴 라벨이 넘친다 */
         text(가, b, z.x + z.w / 2, z.y + z.h / 2, s, Math.min(34, z.h * 0.42), 인주, "center", z.w - pad * 4);
     }
-    box(가, b, Z.광고.x, Z.광고.y, Z.광고.w, Z.광고.h, 인주, null, 0);
+
     라벨("광고",   COPY.가이드.광고);
     라벨("시계",   COPY.가이드.시계);
     라벨("차트",   COPY.가이드.차트);

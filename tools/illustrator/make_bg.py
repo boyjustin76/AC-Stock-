@@ -27,7 +27,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--out', required=True, help='결과를 넣을 폴더')
     ap.add_argument('--name', default='한지바탕_1920x1080.png')
-    ap.add_argument('--seal', type=int, default=104, help='채널 낙관 한 변(px)')
+    ap.add_argument('--seal', type=int, default=56, help='채널 낙관 한 변(px)')
+    ap.add_argument('--band', type=int, nargs=4, default=(17, 140, 1519, 218),
+                    help='정보 띠 자리 x0 y0 x1 y1 — 여기만 잘라 따로 저장한다')
+    ap.add_argument('--band-name', default='한지띠_정보.png')
     ap.add_argument('--seal-name', default='낙관_차트명가.png')
     ap.add_argument('--seed', type=int, default=11,
                     help='결을 자르는 자리가 난수다. 같은 그림을 다시 얻으려면 고정한다')
@@ -55,11 +58,19 @@ def main():
     side = a.seal
     canvas = Image.new('RGBA', (side * 2, side * 2), (0, 0, 0, 0))
     V2.seal(canvas, side, side, '차트명가', w=side, h=side, cols=2)
-    bb = canvas.getbbox()
-    seal_img = canvas.crop(bb)
+    seal_img = canvas.crop(canvas.getbbox())
     ps = out / a.seal_name
     seal_img.save(ps)
     print(f'{ps}  {seal_img.size}')
+
+    # ── 정보 띠에 깔 한지 띠 ────────────────────────────────────
+    # 메인 프레임은 가운데가 뚫려 있어 바탕이 없다. 그런데 정보 띠에는 먹 글씨가 앉으므로
+    # 그 자리만 불투명한 한지가 필요하다. 같은 바탕에서 잘라 써야 결이 이어진다.
+    bx0, by0, bx1, by1 = a.band
+    strip = img.crop((bx0, by0, bx1, by1))
+    pb = out / a.band_name
+    strip.save(pb)
+    print(f'{pb}  {strip.size}')
 
 
 if __name__ == '__main__':
