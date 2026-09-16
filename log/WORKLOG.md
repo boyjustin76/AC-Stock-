@@ -918,6 +918,9 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 **87. D 알림 — C:/cmgwork 을 지우고 통합 폴더로 옮겼다. 포토샵 자동화가 그 경로를 쓰고 있었다면 끊겨 있다. 경로를 박지 말고 스스로 찾게 하라(tools/ae/labdir.* 방식). .psd 의 링크 자원도 함께 볼 것 (2026-09-16)**
 → 끊겨 있었다 — tools/photoshop/config.json 이 template·chartDir·outDir 세 개를 C:/cmgwork 으로 박고 있었다. labdir 규칙을 그대로 가져와 고쳤다: labdir.ps1(run.ps1 용) + _labdir.jsx(jsx 4개 공용) 신설, 찾는 순서 CMGWORK_DIR → config.labDir → 위로 8단계 '06_실험실/cmgwork' → 'cmgwork' → 옛 자리 C:/cmgwork. config 의 세 경로는 작업실 기준 상대경로로 바꿨다(src.psd · . · out). D 는 jsx 에 같은 코드를 인라인했지만 여기는 $.evalFile 로 한 파일을 불러 쓴다 — 4벌 복사가 곧 같은 문제라서. 실측: run.ps1 이 작업실을 06_실험실/cmgwork 으로 찾았고 A안을 실제로 빌드해 9/3 납품본과 픽셀 동일(diff bbox None, 최대 채널차 0)·격자박스 x0.827 재현. 링크 자원 문제는 없었다 — 템플릿이 전부 임베드라 대화상자 없이 열렸다. 남은 것: tools/premiere/jobs 의 m2_swap·m4_place·m5_intro·m2_check 가 아직 C:/cmgwork 을 박고 있다(프리미어 영역). (tools/photoshop/labdir.ps1 · _labdir.jsx 신설 · config.json 경로 3개 상대화 · A안 픽셀 동일 검증)
 
+**88. E 긴급 보고 — 통합 폴더로 옮긴 탓에 정찬님이 편집 중이던 더원 L08 프로젝트의 소스 10개가 오프라인이 됐다. 되돌릴지 새 자리를 알릴지 판단 요청 (2026-09-16)**
+→ 되돌리지 않고 .prproj 안의 경로를 새 자리로 고쳐 썼다 — 프리미어는 열지 않고 gzip XML 을 풀어 접두사만 치환('차트명가 NEW' → '차트명가NEW_통합_납품_차트명가NEW'). 세 군데에 들어 있었다: ActualMediaFilePath 10 · FilePath 10 (절대) · RelativePath 20 ('..\..\..' 는 새 폴더도 이정찬\ 바로 아래라 그대로 유효). 접두사에 & 가 없어 '손절선&박스.aep' 이스케이프는 건드리지 않았다. 본편 40건 + 자동저장 20개 588건 = 628건 (자동저장까지 고친 이유는 되돌렸을 때 다시 끊기는 함정을 남기지 않으려고). 검증: 끊김 10→0 · gzip 해제 정상·</PremiereData> 로 닫힘 · 이정찬\ 아래 모든 .prproj 재검사 결과 옛 경로 0개 · 원본 21개 백업. 이어서 tools/premiere 의 박힌 C:/pprolab·C:/cmgwork 를 _labdir.jsx·labdir.ps1 자동 탐색으로 교체(잡 29개+config+bridge+run.ps1) — m4_place 는 작은따옴표라 1차에 안 잡혔고 B 지적으로 발견. **원인: 옮기기 전에 '파일이 다 담겼는지'(해시)만 재고 '누가 이 경로를 물고 있는지'를 안 쟀다.** 담는 쪽만 보고 쓰는 쪽을 안 봤다. (더원 L08 .prproj 21개 경로 정정 · tools/premiere/_labdir.jsx·labdir.ps1 신설 · 잡 29개 경로 자동화)
+
 ## 문제와 해결
 
 ### 1. Playwright 브라우저 빌드 불일치  `fixed`
@@ -1465,3 +1468,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 298 | `ebe0061d` | 세이브 save/2026-09-16-1314 — 작업실 경로 단일화 - C:/aelab 을 없애고 스스로 찾게 (labdir.py/.mjs/.ps1, config.labDir 자동) · c11 로 팩 5개 112개 푸티지 재연결 실측 (요청 86) | 38파일 +492/-188 |
 | 299 | `4a86090a` | 세이브 기록 save/2026-09-16-1314 | 5파일 +11/-3 |
 | 300 | `9af71908` | 세이브 save/2026-09-16-1329 — 포토샵 경로 단일화 — C:/cmgwork 을 박던 자리를 스스로 찾게 (labdir.ps1·_labdir.jsx, 규칙 30, 요청 87) | 13파일 +216/-40 |
+| 301 | `afc169f3` | 세이브 기록 save/2026-09-16-1329 | 5파일 +11/-3 |

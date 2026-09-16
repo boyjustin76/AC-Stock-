@@ -1,7 +1,9 @@
 /*
     프리미어 안에서 돈다 (BridgeTalk 로 배달됨). 아무것도 열지 않고 바꾸지 않는다.
-    스크립팅 계층이 어디까지 열려 있는지만 재서 C:/pprolab/probe_premiere.txt 에 적는다.
+    스크립팅 계층이 어디까지 열려 있는지만 재서 <실험실>/probe_premiere.txt 에 적는다.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
@@ -42,7 +44,7 @@
     }
 
     var text = out.join("\n");
-    var f = new File("C:/pprolab/probe_premiere.txt");
+    var f = new File(LAB + "/probe_premiere.txt");
     f.encoding = "UTF-8";
     f.open("w");
     f.write(text);

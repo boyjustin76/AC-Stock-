@@ -5,8 +5,10 @@
     이 PC 는 G:\ 라 전부 오프라인이다. M1 은 구조만 보므로 오프라인이어도 된다.
     (되살리는 것은 M2 직전에 사람이 GUI 에서 한 번 한다.)
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var SRC = "C:/pprolab/src.prproj";
+    var SRC = LAB + "/src.prproj";
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
     function probe(k, fn) { try { say(k, String(fn())); } catch (e) { say(k + "_ERR", e.toString()); } }
@@ -81,7 +83,7 @@
         return n + " / " + total;
     });
 
-    var f = new File("C:/pprolab/m1_open.txt");
+    var f = new File(LAB + "/m1_open.txt");
     f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
     return "m1_open ok, " + out.length + " lines, seqs=" + seqs;
 })();

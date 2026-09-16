@@ -5,16 +5,18 @@
     저장은 saveAs — 원본 사본(src.prproj)은 디스크에서 건드리지 않는다.
     검증은 이 스크립트가 하지 않는다. 저장된 파일을 gunzip 해서 따로 읽는다 (§3-5).
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var SRC  = "C:/pprolab/src.prproj";
+    var SRC  = LAB + "/src.prproj";
     var BASE = "롱폼 고정 양식";
-    var OUT  = "C:/pprolab/m1_out.prproj";
+    var OUT  = LAB + "/m1_out.prproj";
 
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
     function fail(msg) {
         say("FAILED", msg);
-        var f = new File("C:/pprolab/m1_clone.txt");
+        var f = new File(LAB + "/m1_clone.txt");
         f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
         return "m1_clone FAILED: " + msg;
     }
@@ -76,7 +78,7 @@
     say("saveAs_return", String(res));
     say("project.path_after", app.project.path);
 
-    var f2 = new File("C:/pprolab/m1_clone.txt");
+    var f2 = new File(LAB + "/m1_clone.txt");
     f2.encoding = "UTF-8"; f2.open("w"); f2.write(out.join("\n")); f2.close();
     return "m1_clone ok, " + before + " -> " + after + " sequences, saved " + OUT;
 })();

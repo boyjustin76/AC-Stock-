@@ -28,9 +28,12 @@
     격자(실측, M4-a): 컷 경계는 30.0, 모션 키프레임은 29.97. 여기서도 그대로 지킨다.
     키프레임 시각은 타임라인 시각이 아니라 '소스 시각' 이다 — clip.inPoint 기준으로 잡는다.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
+var CMG = cmgDirPath();   /* 썸네일 실험실 — 차트 PNG 등 */
 (function () {
-    var SRC = "C:/pprolab/m5_relink.prproj";
-    var OUT = "C:/pprolab/m5_intro.prproj";
+    var SRC = LAB + "/m5_relink.prproj";
+    var OUT = LAB + "/m5_intro.prproj";
     var CLONE = "롱폼 고정 양식 복사";
 
     var TICKS = 254016000000;          // 1초
@@ -39,15 +42,15 @@
 
     /*  경계는 자막 초를 30.0 프레임으로 반올림한 값 (M4-c 와 동일)  */
     var CUTS = [
-        { id: "cut1", png: "C:/cmgwork/cmg12/cut1.png",
+        { id: "cut1", png: CMG + "/cmg12/cut1.png",
           start:  863654400000, end: 1879718400000,   // 3.390 ~ 7.400s
           scale: [ { f: 0, v: 100, i: 0 }, { f: "end", v: 103.5, i: 5 } ],
           fade: 6 },
-        { id: "cut2", png: "C:/cmgwork/cmg12/cut2.png",
+        { id: "cut2", png: CMG + "/cmg12/cut2.png",
           start: 1879718400000, end: 3496953600000,   // 7.400 ~ 13.770s
           scale: [ { f: 0, v: 103.5, i: 0 }, { f: "end", v: 100, i: 5 } ],
           fade: 0 },
-        { id: "cut3", png: "C:/cmgwork/cmg12/cut3.png",
+        { id: "cut3", png: CMG + "/cmg12/cut3.png",
           start: 3496953600000, end: 3945715200000,   // 13.770 ~ 15.520s
           scale: [ { f: 0, v: 100, i: 0 }, { f: 4, v: 104, i: 5 }, { f: "end", v: 108, i: 5 } ],
           fade: 0 }
@@ -57,7 +60,7 @@
     function say(k, v) { out.push(k + "\t" + v); }
     function probe(k, fn) { try { say(k, String(fn())); } catch (e) { say(k + "_ERR", e.toString()); } }
     function done(m) {
-        var f = new File("C:/pprolab/m5_intro.txt");
+        var f = new File(LAB + "/m5_intro.txt");
         f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
         return m;
     }

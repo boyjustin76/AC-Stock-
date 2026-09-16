@@ -1,6 +1,8 @@
 /* M4 되읽기. 저장본 사본을 새로 열어 컷 배치가 파일에 박혔는지 본다 (§3-5). */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var P = "C:/pprolab/m4_readback.prproj";
+    var P = LAB + "/m4_readback.prproj";
     var TICKS = 254016000000;
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
@@ -52,7 +54,7 @@
         }
     } else say("chartA.png", "(못 찾음)");
 
-    var f = new File("C:/pprolab/m4_readback.txt");
+    var f = new File(LAB + "/m4_readback.txt");
     f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
     return "m4_readback ok";
 })();

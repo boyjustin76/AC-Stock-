@@ -11,11 +11,13 @@
     ⚠ 이 잡은 **매 줄마다 파일을 다시 쓴다.** 모달이 떠서 멈추면 어디서 멈췄는지
       로그에 남아 있어야 한다. 안 그러면 타임아웃만 보고 원인을 못 찾는다.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
     var BS = String.fromCharCode(92);
-    var SLASH = "C:/pprolab/cmg_1080p_30fps.sqpreset";
+    var SLASH = LAB + "/cmg_1080p_30fps.sqpreset";
     var BACK = SLASH.split("/").join(BS);
-    var LOG = "C:/pprolab/m6_probe2.txt";
+    var LOG = LAB + "/m6_probe2.txt";
 
     var out = [];
     function flush() {
@@ -34,7 +36,7 @@
     for (var g = 0; g < 50 && app.projects.numProjects > 0; g++) {
         try { app.projects[app.projects.numProjects - 1].closeDocument(0, 0); } catch (e) { break; }
     }
-    var NEWPROJ = "C:/pprolab/m6_scratch.prproj";
+    var NEWPROJ = LAB + "/m6_scratch.prproj";
     var old = new File(NEWPROJ); if (old.exists) old.remove();
     probe("newProject", function () { return app.newProject(NEWPROJ); });
     say("시퀀스 수(처음)", app.project.sequences.numSequences);

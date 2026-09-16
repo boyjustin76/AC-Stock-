@@ -24,9 +24,11 @@
     격자(실측): 컷 경계는 30.0, 모션 키프레임은 29.97.
     키프레임 시각은 타임라인 시각이 아니라 소스 시각 — clip.inPoint 기준.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var SRC = "C:/pprolab/m5_relink.prproj";
-    var OUT = "C:/pprolab/m5_intro2.prproj";
+    var SRC = LAB + "/m5_relink.prproj";
+    var OUT = LAB + "/m5_intro2.prproj";
     /*  out/ 은 gitignore 라 프로젝트가 참조하면 다른 PC 에서 오프라인이 된다.
         납품 폴더(저장소에 커밋되는 자리)를 가리킨다.  */
     var REND = "C:/Users/user/Desktop/이정찬/Claude/AC-Stock-/deliver/cutscene/차12_RSI+이평선 스캘핑/";
@@ -59,7 +61,7 @@
     function say(k, v) { out.push(k + "\t" + v); }
     function probe(k, fn) { try { say(k, String(fn())); } catch (e) { say(k + "_ERR", e.toString()); } }
     function done(m) {
-        var f = new File("C:/pprolab/m5_intro2.txt");
+        var f = new File(LAB + "/m5_intro2.txt");
         f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
         return m;
     }

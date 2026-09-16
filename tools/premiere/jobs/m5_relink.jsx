@@ -15,16 +15,18 @@
     경로를 문자열로 조작하기 전에 파일이 실제로 있는지 File.exists 로 확인하고,
     없으면 건드리지 않는다 (엉뚱한 데로 연결하느니 오프라인이 낫다).
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var SRC = "C:/pprolab/m4_purged.prproj";
-    var OUT = "C:/pprolab/m5_relink.prproj";
+    var SRC = LAB + "/m4_purged.prproj";
+    var OUT = LAB + "/m5_relink.prproj";
     var BS = String.fromCharCode(92);
     var NEW_ROOT = "G:" + BS + "내 드라이브" + BS;
 
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
     function done(m) {
-        var f = new File("C:/pprolab/m5_relink.txt");
+        var f = new File(LAB + "/m5_relink.txt");
         f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
         return m;
     }

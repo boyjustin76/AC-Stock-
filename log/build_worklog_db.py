@@ -1151,6 +1151,9 @@ REQUESTS = [
      "링크 자원 문제는 없었다 — 템플릿이 전부 임베드라 대화상자 없이 열렸다. "
      "남은 것: tools/premiere/jobs 의 m2_swap·m4_place·m5_intro·m2_check 가 아직 C:/cmgwork 을 박고 있다(프리미어 영역).",
      "tools/photoshop/labdir.ps1 · _labdir.jsx 신설 · config.json 경로 3개 상대화 · A안 픽셀 동일 검증"),
+    (88, "E 긴급 보고 — 통합 폴더로 옮긴 탓에 정찬님이 편집 중이던 더원 L08 프로젝트의 소스 10개가 오프라인이 됐다. 되돌릴지 새 자리를 알릴지 판단 요청 (2026-09-16)",
+     "되돌리지 않고 .prproj 안의 경로를 새 자리로 고쳐 썼다 — 프리미어는 열지 않고 gzip XML 을 풀어 접두사만 치환('차트명가 NEW\' → '차트명가NEW_통합\01_납품_차트명가NEW\'). 세 군데에 들어 있었다: ActualMediaFilePath 10 · FilePath 10 (절대) · RelativePath 20 ('..\..\..\' 는 새 폴더도 이정찬\ 바로 아래라 그대로 유효). 접두사에 & 가 없어 '손절선&박스.aep' 이스케이프는 건드리지 않았다. 본편 40건 + 자동저장 20개 588건 = 628건 (자동저장까지 고친 이유는 되돌렸을 때 다시 끊기는 함정을 남기지 않으려고). 검증: 끊김 10→0 · gzip 해제 정상·</PremiereData> 로 닫힘 · 이정찬\ 아래 모든 .prproj 재검사 결과 옛 경로 0개 · 원본 21개 백업. 이어서 tools/premiere 의 박힌 C:/pprolab·C:/cmgwork 를 _labdir.jsx·labdir.ps1 자동 탐색으로 교체(잡 29개+config+bridge+run.ps1) — m4_place 는 작은따옴표라 1차에 안 잡혔고 B 지적으로 발견. **원인: 옮기기 전에 '파일이 다 담겼는지'(해시)만 재고 '누가 이 경로를 물고 있는지'를 안 쟀다.** 담는 쪽만 보고 쓰는 쪽을 안 봤다.",
+     '더원 L08 .prproj 21개 경로 정정 · tools/premiere/_labdir.jsx·labdir.ps1 신설 · 잡 29개 경로 자동화'),
 ]
 # 주의: 66·67 은 B(썸네일 로컬), 68 은 총괄 — 같은 날 병합하며 시간순으로 재배번 (2026-09-03)
 
@@ -1605,6 +1608,8 @@ REPO_FILES = {
     'tools/ae/labdir.mjs': ('도구', '같은 것의 Node 판 — pack.mjs·diff.mjs·anchors.mjs·scene-export.mjs 가 쓴다'),
     'tools/ae/labdir.ps1': ('도구', '같은 것의 PowerShell 판 — run.ps1·trad_rr_export.ps1 이 점으로 불러 쓴다'),
     'tools/ae/jobs/c11_relink_check.jsx': ('도구', '작업실을 옮긴 뒤 .aep 5개가 푸티지를 스스로 찾는지 실측 (저장 안 함)'),
+    'tools/premiere/_labdir.jsx': ('도구', '프리미어 실험실 폴더를 박지 않고 찾는다 (ExtendScript · 잡들이 $.evalFile 로 불러 쓴다)'),
+    'tools/premiere/labdir.ps1': ('도구', '같은 것의 PowerShell 판 — run.ps1 이 점으로 불러 쓴다'),
     'tools/ae/trad_rr_mogrt_check.py': ('도구', 'mogrt zip 안 definition.json 누락 자산 검사 → 실패 이름을 _only.txt 로 (반환값 true 는 증거가 아니다)'),
     'tools/ae/trad_rr_export.ps1': ('도구', '내보내기 → 검사 → 누락분만 재내보내기(최대 3회) → 전부 통과 + aep 그대로일 때만 팩으로 (UTF-8 BOM)'),
     'tools/ae/jobs/c6_trad_rr_check.jsx': ('도구', 'trad_rr.aep 재열기 검사 + 전체 f150·소스 f30·움직임 캡처'),

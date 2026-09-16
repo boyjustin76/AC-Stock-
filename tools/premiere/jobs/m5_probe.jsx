@@ -9,15 +9,17 @@
     2) 트랙 삽입 : 차트는 스택에서 흰 배경(V0/V1) 위, 그래픽·로고(V2 이상) 아래에 와야 한다.
        공개 DOM 에 트랙 추가가 없다. qe 층의 addTracks 가 있는지 본다.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var SRC = "C:/pprolab/m4_purged.prproj";
+    var SRC = LAB + "/m4_purged.prproj";
     var CLONE = "롱폼 고정 양식 복사";
 
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
     function probe(k, fn) { try { say(k, String(fn())); } catch (e) { say(k + "_ERR", e.toString()); } }
     function done(m) {
-        var f = new File("C:/pprolab/m5_probe.txt");
+        var f = new File(LAB + "/m5_probe.txt");
         f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
         return m;
     }

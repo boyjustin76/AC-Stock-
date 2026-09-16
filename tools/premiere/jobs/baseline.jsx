@@ -5,9 +5,11 @@
     m1_after_open_only.prproj 는 saveAs 없이 열기만 한 in-place 재작성본이라
     저장 정규화가 빠져 있다 — 복제 손실과 저장 정규화를 구분하려면 이 파일이 필요하다.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var SRC = "C:/pprolab/baseline_src.prproj";
-    var OUT = "C:/pprolab/baseline.prproj";
+    var SRC = LAB + "/baseline_src.prproj";
+    var OUT = LAB + "/baseline.prproj";
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
 
@@ -27,7 +29,7 @@
     say("saveAs", String(app.project.saveAs(OUT)));
     say("out_size", new File(OUT).length);
 
-    var f = new File("C:/pprolab/baseline.txt");
+    var f = new File(LAB + "/baseline.txt");
     f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
     return "baseline ok";
 })();

@@ -5,8 +5,10 @@
     (prproj_fact 23). 그러면 projectItem.changeMediaPath() 는 원본 시퀀스까지 같이 바꾼다.
     복제본의 클립과 원본의 클립이 같은 nodeId 를 쓰는지 여기서 확인한다.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var SRC   = "C:/pprolab/m2_src.prproj";
+    var SRC   = LAB + "/m2_src.prproj";
     var CLONE = "롱폼 고정 양식 복사";
     var BASE  = "롱폼 고정 양식";
 
@@ -122,7 +124,7 @@
     probe("rootItem_members", function () { return members(app.project.rootItem); });
     probe("projectItem_proto", function () { return members(app.project.rootItem.children[0]); });
 
-    var f = new File("C:/pprolab/m2_probe.txt");
+    var f = new File(LAB + "/m2_probe.txt");
     f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
     return "m2_probe ok, " + out.length + " lines";
 })();

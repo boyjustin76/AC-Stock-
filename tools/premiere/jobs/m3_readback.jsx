@@ -3,8 +3,10 @@
     포토샵 때 psd-tools 가 쓴 파일을 포토샵이 거부한 전례가 있다 — 파일이 파싱된다고
     앱이 받아들인다는 뜻은 아니다.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var P = "C:/pprolab/m3_readback.prproj";
+    var P = LAB + "/m3_readback.prproj";
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
 
@@ -52,7 +54,7 @@
     dump(findClip(base, "차트명가_유튜브 댓글 유도.png"), "모션", "비율 조정", "원본 댓글유도 모션/비율 조정");
     dump(findClip(base, "차10_1-5.png"), "모션", "위치", "원본 차10_1-5 모션/위치");
 
-    var f = new File("C:/pprolab/m3_readback.txt");
+    var f = new File(LAB + "/m3_readback.txt");
     f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
     return "m3_readback ok";
 })();

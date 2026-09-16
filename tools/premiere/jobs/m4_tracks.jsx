@@ -1,6 +1,8 @@
 /* 복제 시퀀스의 각 비디오 트랙이 0~16초 구간에서 비어 있는지 본다. 아무것도 바꾸지 않는다. */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var P = "C:/pprolab/m4_place_src.prproj";
+    var P = LAB + "/m4_place_src.prproj";
     var TICKS = 254016000000, WIN_END = 16 * TICKS;
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
@@ -30,7 +32,7 @@
         say("V" + t, (hits.length ? hits.length + "개 :: " + hits.join(" | ") : "0~16초 비어 있음") +
             "   (트랙 전체 " + tr.clips.numItems + "개)");
     }
-    var f = new File("C:/pprolab/m4_tracks.txt");
+    var f = new File(LAB + "/m4_tracks.txt");
     f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
     return "m4_tracks ok";
 })();

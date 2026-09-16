@@ -25,7 +25,8 @@ function writeFile(p, t) {
 var here = String(File($.fileName).parent.fsName).split(String.fromCharCode(92)).join("/");
 // ExtendScript 에 JSON 이 없는 판이 있다 — eval 로 읽는다 (포토샵 build_thumb.jsx 와 같은 방식)
 var cfg = eval("(" + readFile(here + "/config.json") + ")");
-var lab = cfg.labDir;
+$.evalFile(new File(here + "/_labdir.jsx"));
+var lab = cfg.labDir ? cfg.labDir : labDirPath();   /* 없으면 스스로 찾는다 */
 
 var jobPath = readFile(lab + "/_job.txt").replace(/^\s+|\s+$/g, "");
 

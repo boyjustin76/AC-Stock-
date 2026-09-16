@@ -13,16 +13,18 @@
       * `saveAs` 는 대상 파일이 프리미어에 열려 있으면 **예외 없이 false 를 돌려준다.**
         반환값을 반드시 본다.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var SRC  = "C:/pprolab/m4_src.prproj";
-    var OUT  = "C:/pprolab/m4_out.prproj";
+    var SRC  = LAB + "/m4_src.prproj";
+    var OUT  = LAB + "/m4_out.prproj";
     var KEEP = "롱폼 고정 양식 복사";
 
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
     function probe(k, fn) { try { say(k, String(fn())); } catch (e) { say(k + "_ERR", e.toString()); } }
     function done(m) {
-        var f = new File("C:/pprolab/m4_cleanup.txt");
+        var f = new File(LAB + "/m4_cleanup.txt");
         f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
         return m;
     }
@@ -151,7 +153,7 @@
     probe("saveAs", function () { ok = app.project.saveAs(OUT); return ok; });
     if (!ok) {
         // 대상이 열려 있어 잠긴 경우가 있다. 다른 이름으로 한 번 더.
-        var ALT = "C:/pprolab/m4_out2.prproj";
+        var ALT = LAB + "/m4_out2.prproj";
         say("saveAs 실패", "대상이 잠긴 것으로 보인다. " + ALT + " 로 재시도");
         probe("saveAs(ALT)", function () { ok = app.project.saveAs(ALT); return ok; });
         if (ok) OUT = ALT;

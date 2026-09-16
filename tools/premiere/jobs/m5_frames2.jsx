@@ -2,16 +2,18 @@
     M5-c2. exportFramePNG 가 'Unknown error exception' 을 던진다. 원인을 좁힌다.
     한 시점(6초)에 대해 조합을 바꿔 가며 시도하고, 무엇이 먹는지 남긴다.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var SRC = "C:/pprolab/m5_intro.prproj";
-    var DIR = "C:/pprolab/frames";
+    var SRC = LAB + "/m5_intro.prproj";
+    var DIR = LAB + "/frames";
     var BS = String.fromCharCode(92);
     var CLONE = "롱폼 고정 양식 복사";
 
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
     function done(m) {
-        var f = new File("C:/pprolab/m5_frames2.txt");
+        var f = new File(LAB + "/m5_frames2.txt");
         f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
         return m;
     }

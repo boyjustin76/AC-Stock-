@@ -6,6 +6,8 @@
     프리셋 미디어는 D:\ 를 가리키는데 이 PC 는 G:\ 라 전부 오프라인이고,
     교체해 넣은 차트만 C:\cmgwork 라 살아 있어야 한다.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
     var CHART = "chartA.png";
     var out = [];
@@ -51,7 +53,7 @@
         say(CHART, "(프로젝트에 없다)");
     }
 
-    var f = new File("C:/pprolab/m2_check.txt");
+    var f = new File(LAB + "/m2_check.txt");
     f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n"));
     f.close();
     return "m2_check ok";

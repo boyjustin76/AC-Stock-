@@ -9,15 +9,17 @@
          29.97 프리셋을 복사해 VideoFrameRate 만 8467200000 으로 바꾼 파일을 만들어 두었다.
       3. 만들어진 시퀀스의 timebase / 프레임 크기가 정말 그 값인지 (반환값 말고 실측)
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
     var PRESET_KO = "C:/Users/user/Desktop/이정찬/Claude/AC-Stock-/tools/premiere/presets/차트명가_1080p_30fps.sqpreset";
-    var PRESET_ASCII = "C:/pprolab/cmg_1080p_30fps.sqpreset";
+    var PRESET_ASCII = LAB + "/cmg_1080p_30fps.sqpreset";
 
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
     function probe(k, fn) { try { say(k, String(fn())); } catch (e) { say(k + "_ERR", e.toString()); } }
     function done(m) {
-        var f = new File("C:/pprolab/m6_probe.txt");
+        var f = new File(LAB + "/m6_probe.txt");
         f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
         return m;
     }
@@ -35,7 +37,7 @@
     }
 
     /*  깨끗한 새 프로젝트에서 시험한다 — 프리셋 프로젝트를 건드리지 않는다  */
-    var NEWPROJ = "C:/pprolab/m6_scratch.prproj";
+    var NEWPROJ = LAB + "/m6_scratch.prproj";
     var old = new File(NEWPROJ); if (old.exists) old.remove();
     probe("newProject", function () { return app.newProject(NEWPROJ); });
     say("project.path", app.project ? app.project.path : "(없음)");

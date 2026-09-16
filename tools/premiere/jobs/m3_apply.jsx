@@ -10,9 +10,11 @@
       * getInterpolationTypeAtKey 는 없다 — 검증은 kfdump.py 로 파일을 읽어서 한다.
       * Time 객체에 .ticks 문자열을 넣는 경로는 오차가 없다 (8키 전부 의도한 틱에 안착).
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var SRC   = "C:/pprolab/m3_src.prproj";
-    var OUT   = "C:/pprolab/m3_out.prproj";
+    var SRC   = LAB + "/m3_src.prproj";
+    var OUT   = LAB + "/m3_out.prproj";
     var CLONE = "롱폼 고정 양식 복사";
     var BASE  = "롱폼 고정 양식";
     var F2997 = 8475667200;
@@ -21,7 +23,7 @@
     function say(k, v) { out.push(k + "\t" + v); }
     function probe(k, fn) { try { say(k, String(fn())); } catch (e) { say(k + "_ERR", e.toString()); } }
     function done(m) {
-        var f = new File("C:/pprolab/m3_apply.txt");
+        var f = new File(LAB + "/m3_apply.txt");
         f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
         return m;
     }

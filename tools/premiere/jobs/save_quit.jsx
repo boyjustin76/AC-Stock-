@@ -4,10 +4,12 @@
     안전장치
       · 한 번도 저장된 적 없는 프로젝트(경로 없음)가 있으면 **끄지 않는다** — 저장 위치를 물어보는 대화상자가 떠야 해서.
       · 저장이 하나라도 실패하면 끄지 않는다.
-      · app.quit() 뒤에는 BridgeTalk 응답이 안 돌아올 수 있다. 그래서 결과는 먼저 파일에 쓴다: C:/pprolab/save_quit.txt
+      · app.quit() 뒤에는 BridgeTalk 응답이 안 돌아올 수 있다. 그래서 결과는 먼저 파일에 쓴다: <실험실>/save_quit.txt
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var LOG = "C:/pprolab/save_quit.txt";
+    var LOG = LAB + "/save_quit.txt";
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
     function flush() {

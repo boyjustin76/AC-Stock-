@@ -12,9 +12,12 @@
     키프레임을 물려받지 못한다** — M2 의 clip.projectItem 대입(기존 클립의 소스만 교체)과
     성질이 다르다. 그 차이를 여기서 숫자로 남기는 것도 이 잡의 목적이다.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
+var CMG = cmgDirPath();   /* 썸네일 실험실 — 차트 PNG 등 */
 (function () {
-    var SRC = "C:/pprolab/m4_place_src.prproj";
-    var OUT = "C:/pprolab/m4_place.prproj";
+    var SRC = LAB + "/m4_place_src.prproj";
+    var OUT = LAB + "/m4_place.prproj";
     var CLONE = "롱폼 고정 양식 복사";
     /*  V1 은 프리셋에서 차트 스틸이 놓이던 트랙이지만, 이 구간에 프리셋 클립이 이미 있다.
         거기에 overwriteClip 하면 그 클립과 키프레임이 지워진다 (실측: V1 에 놓았더니
@@ -26,16 +29,16 @@
     var TICKS = 254016000000;
 
     var CUTS = [
-        { id: 'cut1', png: 'C:/cmgwork/cmg12/cut1.png', start: 863654400000, end: 1879718400000 },
-        { id: 'cut2', png: 'C:/cmgwork/cmg12/cut2.png', start: 1879718400000, end: 3496953600000 },
-        { id: 'cut3', png: 'C:/cmgwork/cmg12/cut3.png', start: 3496953600000, end: 3945715200000 }
+        { id: 'cut1', png: CMG + '/cmg12/cut1.png', start: 863654400000, end: 1879718400000 },
+        { id: 'cut2', png: CMG + '/cmg12/cut2.png', start: 1879718400000, end: 3496953600000 },
+        { id: 'cut3', png: CMG + '/cmg12/cut3.png', start: 3496953600000, end: 3945715200000 }
     ];
 
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
     function probe(k, fn) { try { say(k, String(fn())); } catch (e) { say(k + "_ERR", e.toString()); } }
     function done(m) {
-        var f = new File("C:/pprolab/m4_place.txt");
+        var f = new File(LAB + "/m4_place.txt");
         f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
         return m;
     }

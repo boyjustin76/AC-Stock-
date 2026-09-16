@@ -9,16 +9,18 @@
     안전장치: 지우기 전에 무엇을 지울지 전부 적는다. 남은 시퀀스가 쓰는 것과
     시퀀스 자신의 projectItem 은 절대 건드리지 않는다.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var SRC = "C:/pprolab/m4_purge_src.prproj";
-    var OUT = "C:/pprolab/m4_purged.prproj";
+    var SRC = LAB + "/m4_purge_src.prproj";
+    var OUT = LAB + "/m4_purged.prproj";
     var TRASH = "_지울것";
 
     var out = [];
     function say(k, v) { out.push(k + "\t" + v); }
     function probe(k, fn) { try { say(k, String(fn())); } catch (e) { say(k + "_ERR", e.toString()); } }
     function done(m) {
-        var f = new File("C:/pprolab/m4_purge.txt");
+        var f = new File(LAB + "/m4_purge.txt");
         f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
         return m;
     }

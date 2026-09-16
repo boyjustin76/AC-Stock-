@@ -7,8 +7,10 @@
       3) 쓰기 API(addKey/setValueAtKey/setInterpolationTypeAtKey…)가 있는지 typeof 로 찍는다
          — 열거에 안 잡히는 함수가 있다는 걸 M1 에서 배웠다
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var SRC   = "C:/pprolab/m3_src.prproj";
+    var SRC   = LAB + "/m3_src.prproj";
     var CLONE = "롱폼 고정 양식 복사";
     var TICKS = 254016000000;
 
@@ -127,7 +129,7 @@
         }
     }
 
-    var f = new File("C:/pprolab/m3_probe.txt");
+    var f = new File(LAB + "/m3_probe.txt");
     f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n"));
     f.close();
     return "m3_probe ok, " + out.length + " lines, 키프레임 파라미터 " + kfCount;

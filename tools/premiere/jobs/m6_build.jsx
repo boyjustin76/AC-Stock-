@@ -28,14 +28,16 @@
 
     ⚠ 매 줄마다 로그를 flush 한다. 모달이 뜨면 어디서 멈췄는지 남아야 한다.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
     var BS = String.fromCharCode(92);
-    var SRC = "C:/pprolab/m5_relink.prproj";      // 릴링크된 프리셋 프로젝트 — 옆에 나란히 만든다
-    var OUT = "C:/pprolab/m6_build.prproj";
-    var PRESET = ("C:/pprolab/cmg_1080p_30fps.sqpreset").split("/").join(BS);
+    var SRC = LAB + "/m5_relink.prproj";      // 릴링크된 프리셋 프로젝트 — 옆에 나란히 만든다
+    var OUT = LAB + "/m6_build.prproj";
+    var PRESET = (LAB + "/cmg_1080p_30fps.sqpreset").split("/").join(BS);
     var ROOT = "C:/Users/user/Desktop/이정찬/Claude/AC-Stock-/out/cmg12/layers/";
     var SEQNAME = "차명12_인트로_레이어";
-    var LOG = "C:/pprolab/m6_build.txt";
+    var LOG = LAB + "/m6_build.txt";
 
     var TICKS = 254016000000;
     var F2997 = 8475667200;

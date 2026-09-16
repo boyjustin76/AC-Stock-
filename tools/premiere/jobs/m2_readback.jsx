@@ -2,8 +2,10 @@
     M2 되읽기. 저장본의 **사본을 새로 열어** 교체가 파일에 박혔는지 확인한다 (§3-5).
     같은 세션의 메모리 상태가 아니라 디스크에서 다시 읽은 값이어야 한다.
 */
+$.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
+var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var P     = "C:/pprolab/m2_readback.prproj";
+    var P     = LAB + "/m2_readback.prproj";
     var CLONE = "롱폼 고정 양식 복사";
     var BASE  = "롱폼 고정 양식";
     var out = [];
@@ -46,7 +48,7 @@
     dumpV1(findSeq(CLONE), "복제");
     dumpV1(findSeq(BASE), "원본");
 
-    var f = new File("C:/pprolab/m2_readback.txt");
+    var f = new File(LAB + "/m2_readback.txt");
     f.encoding = "UTF-8"; f.open("w"); f.write(out.join("\n")); f.close();
     return "m2_readback ok";
 })();
