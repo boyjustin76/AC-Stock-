@@ -86,6 +86,7 @@ python tools/cutedit/srt_rules.py   check --long <자막.srt>
 python tools/cutedit/assemble_longform.py <캠폴더> <PD폴더> <대본.txt> --pd-src <PD에게 설명.mp4> \
         --motion <움직임.json> --name <이름> --out <결과폴더>      # 움직임 파일 없으면 만든다
 python tools/cutedit/make_xml.py    <결과폴더>/assembled.json <전체.xml>
+        # 원본이 딴 자리에 있으면: --source-root <원본폴더>  (컷리스트의 경로는 딴 PC 자리라서)
 
 # 규칙을 바꾸기 전에 — 정답 자료(S015·S016 수정본)에 대고 채점한다
 python tools/cutedit/grade/tune.py --current     # 컷 경계 50개 · 지금 평균 0.051초

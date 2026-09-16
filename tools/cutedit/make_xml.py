@@ -17,7 +17,11 @@
   in/out 은 원본 기준 초. V1 컷은 순서대로 자동으로 이어진다.
   V2 이상은 'at'(시퀀스 위 시작 초)이 있어야 한다. audio:false 면 영상만 올린다.
 
-    python3 tools/cutedit/make_xml.py cuts.json out.xml
+    python3 tools/cutedit/make_xml.py cuts.json out.xml [--source-root <원본폴더>]
+
+  컷리스트에 적힌 원본 경로는 **컷을 딴 그 PC 의 자리**다. 꾸러미를 다른 PC 에 풀었거나 원본을
+  옮겼으면 `--source-root` 로 원본이 든 폴더를 준다 — 파일 이름만 떼어 그 폴더에 붙인다.
+  (json 은 손대지 않는다. 컷 값은 원본 파일에 대한 것이라 그대로 맞는다.)
 """
 import html
 import io
@@ -44,7 +48,7 @@ def pathurl(p):
     return "file://localhost/" + quote(p.lstrip("/"), safe="/:")
 
 
-def build(spec):
+def build(spec, source_root=None):
     fps = float(spec.get("fps", 29.97))
     tb, ntsc = rate(fps)
     w = int(spec.get("width", 1080))
@@ -54,10 +58,16 @@ def build(spec):
     DF = "DF" if ntsc == "TRUE" else "NDF"
 
     # 원본 목록 — 한 개짜리 spec 도 여기로 모은다
-    srcs = dict(spec.get("sources") or {})
+    srcs = {k: dict(v) for k, v in (spec.get("sources") or {}).items()}   # 원본 spec 은 안 건드린다
     if "source" in spec:
         srcs.setdefault("_main", {"path": spec["source"],
                                   "dur": float(spec.get("src_dur", 0))})
+    if source_root:                      # 원본이 다른 자리에 있을 때 — 이름만 떼어 그 폴더에 붙인다
+        for k, v in srcs.items():
+            p = os.path.join(source_root, os.path.basename(v["path"].replace("\\", "/")))
+            if not os.path.exists(p):
+                raise SystemExit(f"원본을 못 찾았습니다: {p}")
+            v["path"] = p
     fid = {k: f"file-{i}" for i, k in enumerate(sorted(srcs), 1)}
     sfr = {k: frames(float(v.get("dur", 0)), fps) or 1 for k, v in srcs.items()}
     defined = set()
@@ -182,13 +192,19 @@ def build(spec):
 
 
 def main():
-    if len(sys.argv) < 3:
-        sys.exit("사용법: make_xml.py 컷리스트.json 결과.xml")
-    spec = json.load(io.open(sys.argv[1], encoding="utf-8"))
-    xml, vtracks = build(spec)
-    io.open(sys.argv[2], "w", encoding="utf-8", newline="\n").write(xml)
+    args = sys.argv[1:]
+    root = None
+    if "--source-root" in args:
+        k = args.index("--source-root")
+        root = args[k + 1]
+        del args[k:k + 2]
+    if len(args) < 2:
+        sys.exit("사용법: make_xml.py 컷리스트.json 결과.xml [--source-root <원본폴더>]")
+    spec = json.load(io.open(args[0], encoding="utf-8"))
+    xml, vtracks = build(spec, source_root=root)
+    io.open(args[1], "w", encoding="utf-8", newline="\n").write(xml)
     tb, _ = rate(float(spec.get("fps", 29.97)))
-    print(sys.argv[2])
+    print(args[1])
     for t in sorted(vtracks):
         cs = [c for c in spec["cuts"] if int(c.get("track", 1)) == t]
         total = sum(float(c["out"]) - float(c["in"]) for c in cs)

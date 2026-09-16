@@ -12,6 +12,10 @@
 | `full/` | 합본 — `assembled.json`(컷리스트) · `assembled.srt` · `assemble_report.json`(덩어리별 시연 고른 내역) |
 | `pd_motion5fps.json` | PD 영상 5fps 움직임 (포인터 찾기용). 다시 재면 28분짜리에 몇 분 걸린다 — 그래서 남긴다 |
 
+**경로 주의** — `cam/cuts.json`·`pdnar/cuts.json`·`full/assembled.json` 의 `source` 는 컷을 딴 그 PC 의
+자리다. 다른 PC 에서 시퀀스를 다시 만들 때는 `make_xml.py … --source-root <원본이 든 폴더>` 를 준다
+(json 은 손대지 않는다). 컷 값은 원본 파일 기준이라 그대로 맞는다.
+
 **없는 것** — 원본 .mp4, 16k .wav, 대조용 PNG. 용량 때문이고 원본은 촬영 폴더에 있다.
 `pdnar/cam_transcript.json` 도 없다 — `pd/cam_transcript.json` 과 같은 파일이니 복사해 쓰면 된다.
 
