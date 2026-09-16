@@ -74,71 +74,48 @@ def paper(w, h):
 
 # 로고에서 실측한 막대 다섯의 높이비 (brand/logo/차트명가_로고(투명).png, 2026-09-16)
 BARS = [0.38, 0.48, 0.77, 0.60, 1.00]
-MOTIF = 'bars'          # bars · eave · rings — --motif 로 고른다
 
 
-def _bars(d, x0, y0, x1, y1, color, alpha, flip, gap=0.30):
-    """안1 막대 계단 — 로고 막대 다섯. 로고처럼 **막대 사이에 틈**을 둬 표가 아니라 그래프로 읽히게."""
-    n = len(BARS)
-    slot = (x1 - x0) / float(n)
-    bw = slot * (1 - gap)
-    hs = BARS[::-1] if flip else BARS
-    for i, h in enumerate(hs):
-        bx = x0 + slot * i + (slot - bw) / 2
-        by = y1 - (y1 - y0) * h
-        d.rectangle((bx, by, bx + bw, y1), fill=color + (alpha,))
+PINK = (0xE8, 0x78, 0x88)      # 로고 주색 (brand/logo 에서 실측)
+LOGO_MARK = os.path.join(HERE, '..', '..', 'brand', 'logo', '차트명가_로고(투명).png')
+_MARK = {}
 
 
-def _eave(d, x0, x1, y, h, color, alpha, up):
-    """안2 처마 — 로고 지붕의 치켜올린 선. 면이 아니라 **띠**로 그린다.
-    가운데는 낮고 양끝이 올라가는 곡선(처마)을 두께 있는 밴드로."""
-    import math
-    n = 64
-    top, bot = [], []
-    for i in range(n + 1):
-        t = i / float(n)
-        # 0~1 을 지나며 양끝이 올라가는 곡선
-        k = (2 * t - 1) ** 2
-        yy = y - (h * k if up else -h * k)
-        x = x0 + (x1 - x0) * t
-        top.append((x, yy))
-        bot.append((x, yy + (h * 0.42 if up else -h * 0.42)))
-    d.polygon(top + bot[::-1], fill=color + (alpha,))
-
-
-def _ring(d, cx, cy, r, w, color, alpha):
-    """안3 원 — 로고의 테두리 원. 채우지 않고 **선**으로 두어 가볍게."""
-    d.ellipse((cx - r, cy - r, cx + r, cy + r), outline=color + (alpha,), width=w)
+def mark(size, alpha, color=PINK):
+    """로고 심볼을 주어진 크기·투명도로. 다시 그리지 않고 **원본 PNG 를 쓴다.**"""
+    key = (size, alpha, color)
+    if key not in _MARK:
+        im = Image.open(LOGO_MARK).convert('RGBA')
+        im = im.crop(im.getchannel('A').point(lambda v: 255 if v > 8 else 0).getbbox())
+        im = im.resize((size, size), Image.LANCZOS)
+        a = im.getchannel('A').point(lambda v: int(v * alpha / 255))
+        tinted = Image.new('RGBA', im.size, color + (255,))
+        tinted.putalpha(a)
+        _MARK[key] = tinted
+    return _MARK[key]
 
 
 def deco(canvas, spec):
-    """양끝 모서리 문양 — 차트명가 로고에서 뽑았다.
+    """양끝 모서리 문양 — **차트명가 로고 심볼 그 자체**를 크게 키워 모서리에서 잘리게 둔다.
 
-    트팩 원본의 기울어진 평행사변형은 **트팩 로고에서 나온 모양**이라 그대로 쓰지 않는다
-    (2026-09-16 이정찬 지시). 우리 로고의 요소로 바꾼다 — 막대 다섯 · 처마 · 원.
+    트팩 원본의 기울어진 평행사변형은 트팩 로고의 모양을 그대로 키운 것이다.
+    그러니 우리도 모양을 새로 지어내지 말고 우리 로고를 키워 쓴다 (2026-09-16 이정찬).
+      · 색은 로고 주색 핑크 #E87888
+      · 트팩처럼 불투명도를 낮춰 바탕보다 **살짝 어둡게**만 얹는다
+      · 크기가 다른 두 개를 겹친다 (원본의 겹침을 우리 것으로)
     """
     W, H = canvas.size
-    d = ImageDraw.Draw(canvas, 'RGBA')
     dl, dr = spec['deco_l'], spec['deco_r']
 
-    if MOTIF == 'bars':
-        # 옅은 한 겹을 뒤로 깔고 진한 막대를 앞에 — 원본의 겹침을 우리 모양으로
-        _bars(d, -int(dl * 0.10), int(H * 0.30), int(dl * 0.92), H, SILK, 70, False)
-        _bars(d, 0, int(H * 0.52), int(dl * 0.78), H, SILK, 235, False)
-        _bars(d, W - int(dr * 0.92), int(H * 0.30), W + int(dr * 0.10), H, SILK, 70, True)
-        _bars(d, W - int(dr * 0.78), int(H * 0.52), W, H, SILK, 235, True)
+    big = int(H * 2.70)        # 크게 물려 한 귀퉁이만 보이게 — 무슨 그림인지 알아볼 만큼만
+    sml = int(H * 1.45)
 
-    elif MOTIF == 'eave':
-        _eave(d, -int(dl * 0.15), int(dl * 1.02), int(H * 0.30), int(H * 0.42), SILK, 235, True)
-        _eave(d, -int(dl * 0.15), int(dl * 0.80), int(H * 0.16), int(H * 0.30), SILK, 90, True)
-        _eave(d, W - int(dr * 1.02), W + int(dr * 0.15), int(H * 0.70), int(H * 0.42), SILK, 235, False)
-        _eave(d, W - int(dr * 0.80), W + int(dr * 0.15), int(H * 0.84), int(H * 0.30), SILK, 90, False)
-
-    else:   # rings
-        _ring(d, int(dl * 0.10), int(H * 0.16), int(H * 0.62), max(8, H // 26), SILK, 235)
-        _ring(d, int(dl * 0.62), int(H * 0.52), int(H * 0.42), max(6, H // 34), SILK, 110)
-        _ring(d, W - int(dr * 0.10), int(H * 0.84), int(H * 0.62), max(8, H // 26), SILK, 235)
-        _ring(d, W - int(dr * 0.62), int(H * 0.48), int(H * 0.42), max(6, H // 34), SILK, 110)
+    # 왼쪽 위 — 큰 것은 모서리 밖으로 걸치고, 작은 것은 떨어뜨려 옅게
+    canvas.alpha_composite(mark(big, 76), (int(-big * 0.52), int(-big * 0.50)))
+    canvas.alpha_composite(mark(sml, 34), (int(dl * 0.52), int(-sml * 0.30)))
+    # 오른쪽 아래 — 점대칭
+    canvas.alpha_composite(mark(big, 76), (int(W - big * 0.48), int(H - big * 0.50)))
+    canvas.alpha_composite(mark(sml, 34), (int(W - dr * 0.52 - sml), int(H - sml * 0.70)))
 
 
 def runs_width(runs, f, gap):
@@ -354,11 +331,7 @@ SHORT = [('하이라이트_A_1', b_a1, True), ('하이라이트_A_2', s_a2, Fals
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--out', required=True)
-    ap.add_argument('--motif', default='bars', choices=('bars', 'eave', 'rings'),
-                    help='모서리 문양 — 차트명가 로고에서 뽑은 것 중 고른다')
     a = ap.parse_args()
-    global MOTIF
-    MOTIF = a.motif
     dl = os.path.join(a.out, '원본(방송 라이브 버전)_long')
     ds = os.path.join(a.out, '원본(하이라이트 버전)_short')
     os.makedirs(dl, exist_ok=True)
