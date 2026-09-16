@@ -38,6 +38,7 @@ ACCENT = V2.RED          # 강조 = 인주 적
 BODY = V2.INK            # 본문 = 먹
 YEL = V2.YEL_TXT         # 노랑 = 단청 황(한지 위 대비용)
 SILK = V2.JJOK           # 장식 = 쪽
+MARGIN = 150             # 본문과 CTA 현판 사이 최소 여백 (1920 환산 36px)
 LACQ = V2.LACQ
 GOLD = V2.GOLD
 PAPER = V2.HANJI2        # 현판 위 글자
@@ -125,15 +126,25 @@ def runs_width(runs, f, gap):
     return w
 
 
-def fit(runs, gap, avail, fs, floor=0.55):
-    """남은 폭에 들어갈 때까지 글자 크기를 줄인다. 원본처럼 한 줄에 다 넣어야 한다."""
-    s = fs
-    while s > fs * floor:
-        f = V2.gung(int(s))
-        if runs_width(runs, f, gap) <= avail:
-            return V2.gung(int(s)), int(s)
-        s -= 4
-    return V2.gung(int(fs * floor)), int(fs * floor)
+def fit(runs, gap, avail, fs, floor=0.34):
+    """남은 폭에 들어갈 때까지 줄인다 — 글자 크기를 먼저, 그래도 넘치면 낱말 사이 틈을 좁힌다.
+
+    2026-09-16: 바닥값이 높아(0.55) 긴 문구가 **줄어들다 말고 CTA 현판에 닿았다.**
+    B 가 실측으로 잡아 줬다(라이브_a_2 사이 3px). 바닥을 낮추고, 틈도 같이 줄인다.
+    """
+    g = gap
+    for _ in range(3):
+        s = fs
+        while s > fs * floor:
+            f = V2.gung(int(s))
+            if runs_width(runs, f, g) <= avail:
+                return f, int(s), g
+            s -= 4
+        g = int(g * 0.55)               # 틈을 좁혀 한 번 더 시도
+        if g < 10:
+            break
+    f = V2.gung(max(12, int(fs * floor)))
+    return f, max(12, int(fs * floor)), g
 
 
 def draw_runs(canvas, x, cy, runs, f, gap):
@@ -250,15 +261,15 @@ def build(kind, name, fn, with_deco=True):
 def b_a1(c, sp):
     runs = [(COPY['a1_accent'], ACCENT), (COPY['a1_body'], BODY)]
     avail = c.size[0] - sp['deco_r'] - sp['x0'] - 80
-    f, _ = fit(runs, sp['gap'], avail, sp['fs'])
-    draw_runs(c, sp['x0'], sp['cy'], runs, f, sp['gap'])
+    f, _, g = fit(runs, sp['gap'], avail, sp['fs'])
+    draw_runs(c, sp['x0'], sp['cy'], runs, f, g)
 
 
 def b_b1(c, sp):
     runs = [(COPY['b1_body'], BODY), (COPY['b1_accent'], ACCENT)]
     avail = c.size[0] - sp['deco_r'] - sp['x0'] - 80
-    f, _ = fit(runs, sp['gap'], avail, sp['fs'])
-    draw_runs(c, sp['x0'], sp['cy'], runs, f, sp['gap'])
+    f, _, g = fit(runs, sp['gap'], avail, sp['fs'])
+    draw_runs(c, sp['x0'], sp['cy'], runs, f, g)
 
 
 def b_a2(c, sp):
@@ -266,8 +277,8 @@ def b_a2(c, sp):
     end = keybox(c, 57, sp['box_y'], sp['box_y'] + sp['box_h'], COPY['a2_key'], sp['fs'])
     runs = [(COPY['a2_body'], BODY)]
     x = end + 90
-    f, _ = fit(runs, sp['gap'], sp['pill'][0] - x - 120, sp['fs'])
-    draw_runs(c, x, sp['cy'], runs, f, sp['gap'])
+    f, _, g = fit(runs, sp['gap'], sp['pill'][0] - x - MARGIN, sp['fs'])
+    draw_runs(c, x, sp['cy'], runs, f, g)
     cta(c, sp['pill'], int(sp['fs'] * 0.74))
 
 
@@ -279,8 +290,8 @@ def b_b2(c, sp):
     plaque(c, (end + 90, y0, end + 90 + int(gg * 0.60), y1), COPY['arrow'], int(sp['fs'] * 0.8))
     x = end + 90 + int(gg * 0.60) + 110
     runs = [(COPY['b2_body'], BODY), (COPY['b2_yel'], YEL)]
-    f, _ = fit(runs, sp['gap'], sp['pill'][0] - x - 120, sp['fs'])
-    draw_runs(c, x, sp['cy'], runs, f, sp['gap'])
+    f, _, g = fit(runs, sp['gap'], sp['pill'][0] - x - MARGIN, sp['fs'])
+    draw_runs(c, x, sp['cy'], runs, f, g)
     cta(c, sp['pill'], int(sp['fs'] * 0.74))
 
 
@@ -297,8 +308,8 @@ def s_a2(c, sp):
     c.alpha_composite(lg, (186, int(sp['cy'] - lg.height / 2)))
     x = 186 + lw + 170
     runs = [(COPY['sa2_accent'], ACCENT), (COPY['sa2_body'], BODY)]
-    f, _ = fit(runs, sp['gap'], sp['pill'][0] - x - 120, sp['fs'])
-    draw_runs(c, x, sp['cy'], runs, f, sp['gap'])
+    f, _, g = fit(runs, sp['gap'], sp['pill'][0] - x - MARGIN, sp['fs'])
+    draw_runs(c, x, sp['cy'], runs, f, g)
     cta(c, sp['pill'], int(sp['fs'] * 0.74))
 
 
@@ -314,8 +325,8 @@ def s_b2(c, sp):
     plaque(c, (x, y0, x + 380, y1), COPY['arrow'], int(sp['fs'] * 0.8))
     x += 380 + 120
     runs = [(COPY['sb2_body1'], BODY), (COPY['sb2_yel'], YEL), (COPY['sb2_body2'], BODY)]
-    f, _ = fit(runs, sp['gap'], sp['pill'][0] - x - 120, sp['fs'])
-    draw_runs(c, x, sp['cy'], runs, f, sp['gap'])
+    f, _, g = fit(runs, sp['gap'], sp['pill'][0] - x - MARGIN, sp['fs'])
+    draw_runs(c, x, sp['cy'], runs, f, g)
     cta(c, sp['pill'], int(sp['fs'] * 0.74))
 
 
