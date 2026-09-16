@@ -1,7 +1,7 @@
 /*  C5 — '차11-4 손익비' 모션(익절·손절 박스)을 신규안 v2 전통 문법으로 다시 짓는다.
 
-    입력:  C:/aelab/pack/trad_rr/footage/rr.jsx     (tools/style/trad_rr.py)
-    출력:  C:/aelab/pack/trad_rr/trad_rr.aep         (mogrt 는 c5x · 세트별 aep 는 c9)
+    입력:  <작업실>/pack/trad_rr/footage/rr.jsx     (tools/style/trad_rr.py)
+    출력:  <작업실>/pack/trad_rr/trad_rr.aep         (mogrt 는 c5x · 세트별 aep 는 c9)
 
     구성 — 사용자 요청(2026-09-14) "차트 배경은 빼도 돼. 소스별로 잘라서 쓸거야."
       · 소스 하나 = 컴포지션 하나 (1920×1080 투명 · 30fps · 6초). 요소는 v2 틀·차트와 같은 자리에 있고

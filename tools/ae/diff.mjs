@@ -9,9 +9,9 @@
  * 이 대조가 잡았다.
  *
  * 준비물
- *   AE 프레임   C:/aelab/ae/frames/<컷>/f<N>.png        (b3_frame 잡이 뽑는다)
- *   렌더러 프레임 C:/aelab/ae/ref/seq/<컷>/<컷>_<NNNNN>.png
- *                 node src/cli.mjs --config <씬> --scene <컷> --format png --out C:/aelab/ae/ref
+ *   AE 프레임   <작업실>/ae/frames/<컷>/f<N>.png        (b3_frame 잡이 뽑는다)
+ *   렌더러 프레임 <작업실>/ae/ref/seq/<컷>/<컷>_<NNNNN>.png
+ *                 node src/cli.mjs --config <씬> --scene <컷> --format png --out <작업실>/ae/ref
  *
  * AE 프레임은 바닥이 알파라 **흰 바탕에 얹어** 비교한다(렌더러 테마 배경이 #FFFFFF).
  */
@@ -20,7 +20,8 @@ import { existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import ffmpeg from 'ffmpeg-static';
 
-const LAB = 'C:/aelab/ae';
+import { lab } from './labdir.mjs';
+const LAB = lab('_기타', 'ae');
 const cut = process.argv[2];
 const frames = (process.argv[3] ?? '30,90,120,155').split(',').map(Number);
 if (!cut) { console.error('쓰기: node tools/ae/diff.mjs <컷id> [프레임,쉼표로]'); process.exit(1); }

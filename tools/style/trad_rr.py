@@ -2,9 +2,9 @@
 """
 신규안 v2 전통 — '차11-4 손익비' 모션(익절·손절 박스)을 전통 문법으로 다시 짓는 재료 (2026-09-14).
 
-  python tools/style/trad_rr.py --cam <신규안_v2_전통/gen/newch-trad.json> --chart out/newch-trad/stills/trad_t0.00s.png --out C:/aelab/pack/trad_rr
+  python tools/style/trad_rr.py --cam <신규안_v2_전통/gen/newch-trad.json> --chart out/newch-trad/stills/trad_t0.00s.png --out <작업실>/pack/trad_rr
 
-옛 파일(C:/aelab/mogrt/차11-4 손익비.mogrt, tools/ae/jobs/a3_build.jsx)의 요소·등장 순서를 옮기고 모양만 바꾼다.
+옛 파일(<작업실>/mogrt/차11-4 손익비.mogrt, tools/ae/jobs/a3_build.jsx)의 요소·등장 순서를 옮기고 모양만 바꾼다.
   매수 태그 → 매수 낙관 · 손익비 뱃지 → 손익비 현판 · 익절 버튼 → 익절 실행 낙관(청산 봉 위)
   놓친 구간 빗금 → 황 담채 + 먹 빗금 · '놓친 구간' 글자 → 궁서 먹글씨 · 손그림 밑줄 → 인주 붓 밑줄
   익절/손절 색박스 + 라벨, 진입 라인 → **버튼-선 세트** (2026-09-14 2차 요청)

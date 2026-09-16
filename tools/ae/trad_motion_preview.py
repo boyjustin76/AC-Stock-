@@ -2,7 +2,7 @@
 """
 C4 가 AE 에서 찍은 프레임으로 ① 움직임 미리보기 GIF ② 등장 끝난 프레임 대조를 만든다.
 
-  python tools/ae/trad_motion_preview.py [--cap C:/aelab/trad_motion_check] [--pack C:/aelab/pack/trad_motion]
+  python tools/ae/trad_motion_preview.py [--cap <작업실>/trad_motion_check] [--pack <작업실>/pack/trad_motion]
 
 AE 의 saveFrameToPng 는 **알파가 미리 곱해진 PNG** 다 (11-4 풀버전 때 잡은 함정).
 그래서 바탕에 얹을 때 C + 바탕·(1−a) 로 합친다 — 보통 알파 합성을 하면 반투명이 어두워진다.
@@ -18,6 +18,10 @@ from PIL import Image, ImageDraw
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', 'style'))
 import trad as T
+
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+import labdir   # 작업실 폴더를 박지 않고 찾는다
 
 W, H = 1920, 1080
 
@@ -43,8 +47,8 @@ def diff_pct(a, b, box):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--cap', default='C:/aelab/trad_motion_check')
-    ap.add_argument('--pack', default='C:/aelab/pack/trad_motion')
+    ap.add_argument('--cap', default=labdir.lab('검사기록', 'trad_motion_check'))
+    ap.add_argument('--pack', default=labdir.lab('pack', 'trad_motion'))
     a = ap.parse_args()
     np.random.seed(7)
     bg = T.hanji()

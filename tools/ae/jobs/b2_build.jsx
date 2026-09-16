@@ -7,7 +7,7 @@
         11컷 중 10컷이 카메라가 움직여서 스틸로는 안 된다.
       · 주석은 "차트 카메라" 널을 표현식으로 읽어 차트를 따라간다.
 
-    무엇을 지을지는 C:/aelab/ae/_build.txt 가 정한다 — "<슬러그> <컷id 또는 all>".
+    무엇을 지을지는 <작업실>/ae/_build.txt 가 정한다 — "<슬러그> <컷id 또는 all>".
     run.ps1 은 잡 이름만 넘기므로, 인자는 이 파일로 준다.
 */
 var HERE = String(File($.fileName).parent.fsName).split(String.fromCharCode(92)).join("/");

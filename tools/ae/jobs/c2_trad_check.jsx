@@ -1,6 +1,6 @@
 /*  C2 — trad.aep 을 다시 열어 판정한다 (b6 와 같은 셋) + 컴포지션마다 0프레임을 PNG 로 찍는다.
     찍은 PNG 는 tools/style/trad.py 합성본과 픽셀로 대조한다 — "AE 에서 잘 열린다" 를 눈이 아니라 수로.
-    출력: C:/aelab/trad_check/<comp>.png
+    출력: <작업실>/trad_check/<comp>.png
 */
 var HERE = String(File($.fileName).parent.fsName).split(String.fromCharCode(92)).join("/");
 $.evalFile(new File(HERE + "/_lib.jsx"));

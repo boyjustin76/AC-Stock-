@@ -2,7 +2,7 @@
 /**
  * 렌더러 → AE 좌표 내보내기.
  *
- *   node tools/ae/scene-export.mjs scenes/sl-11-4.scenes.js --out C:/aelab/ae
+ *   node tools/ae/scene-export.mjs scenes/sl-11-4.scenes.js --out <작업실>/ae
  *
  * 파일럿(anchors.mjs)은 컷② 의 reveal 63 한 시점만 쟀다. 카메라가 멈춰 있었으니까.
  * 실제 컷은 11개 중 10개가 움직이므로 **프레임마다** 좌표계를 내보낸다.
@@ -29,6 +29,7 @@ import { makeTheme } from '../../src/render/theme.js';
 import { clamp } from '../../src/render/anim.js';
 import { keyframe } from '../../src/render/engine.js';
 import { measureProject } from './text-metrics.mjs';
+import { lab } from './labdir.mjs';
 
 /**
  * 곡선 단순화 — 선형 보간으로 되살렸을 때 오차가 tol 을 넘지 않는 최소 점만 남긴다.
@@ -72,7 +73,7 @@ function checkFit(vals, kept) {
 
 const args = process.argv.slice(2);
 const file = args.find((a) => !a.startsWith('--')) ?? 'scenes/sl-11-4.scenes.js';
-const outDir = (args[args.indexOf('--out') + 1] && args.includes('--out')) ? args[args.indexOf('--out') + 1] : 'C:/aelab/ae';
+const outDir = (args[args.indexOf('--out') + 1] && args.includes('--out')) ? args[args.indexOf('--out') + 1] : lab('_기타', 'ae');
 
 const project = (await import(pathToFileURL(path.resolve(file)).href)).default;
 const fps = project.fps;

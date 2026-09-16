@@ -3,7 +3,7 @@
  * 렌더러가 **실제로 찍은** 글자의 치수를 재서 내보낸다.
  *
  *   node tools/ae/text-metrics.mjs scenes/sl-11-4.scenes.js cut3-conditions
- *   node tools/ae/text-metrics.mjs scenes/sl-11-4.scenes.js --all --out C:/aelab/ae
+ *   node tools/ae/text-metrics.mjs scenes/sl-11-4.scenes.js --all --out <작업실>/ae
  *
  * 왜 필요한가
  *   AE 이식에서 글자만 배지 기준 +3.5px 오른쪽 / +5px 아래로 어긋난다. 글자 폭은

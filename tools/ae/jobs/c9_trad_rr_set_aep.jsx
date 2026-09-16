@@ -2,7 +2,7 @@
     사용자 요청(2026-09-14): "위 셋은 .aep 로도 만들어줘" + 지지선·저항선도 같은 세트로.
 
     빌더는 c5_trad_rr.jsx 것을 그대로 빌린다(__RR_LIB_ONLY). 세트마다 새 프로젝트 → 컴포지션 1개 → 저장.
-    출력: C:/aelab/pack/trad_rr/aep/<컴포지션 이름>.aep   — footage 는 ../footage (팩과 같은 상대 구조라 폴더째 옮겨도 열린다)
+    출력: <작업실>/pack/trad_rr/aep/<컴포지션 이름>.aep   — footage 는 ../footage (팩과 같은 상대 구조라 폴더째 옮겨도 열린다)
     끝에 하나씩 다시 열어 푸티지 누락·컴포지션·템플릿 컨트롤 수를 적는다. mogrt 는 만들지 않는다(그건 trad_rr_export.ps1).
 */
 var HERE9 = String(File($.fileName).parent.fsName).split(String.fromCharCode(92)).join("/");

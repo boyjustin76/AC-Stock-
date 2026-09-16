@@ -19,7 +19,8 @@
 import { readFileSync, writeFileSync, existsSync, statSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 
-const LAB = 'C:/aelab';
+import { labDir } from './labdir.mjs';
+const LAB = labDir();
 const slug = process.argv[2];
 if (!slug) { console.error('쓰기: node tools/ae/pack.mjs <슬러그>'); process.exit(1); }
 

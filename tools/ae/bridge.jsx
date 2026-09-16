@@ -27,7 +27,26 @@ function writeFile(p, t) {
 var here = String(File($.fileName).parent.fsName).split(String.fromCharCode(92)).join("/");
 // ExtendScript 에 JSON 이 없는 판이 있다 — eval 로 읽는다
 var cfg = eval("(" + readFile(here + "/config.json") + ")");
-var lab = cfg.labDir;
+var lab = (function () {
+    /*  작업실 폴더를 찾는다. 2026-09-16 전에는 "C:/aelab" 을 박아 썼는데, 작업물을 한 폴더로
+        모으면서 작업실이 <통합 폴더>/02_AE작업실_aelab 으로 들어갔고 그 경로는 없앴다.
+        박지 않고 찾게 해두면 꾸러미를 통째로 어디에 풀어도 그대로 돌아간다.
+        순서: 환경변수 AELAB_DIR → 위로 올라가며 폴더 이름 찾기 → 옛 자리  */
+    var FOLDER = "02_AE작업실_aelab";
+    function fwd(p) { return String(p).split(String.fromCharCode(92)).join("/"); }
+    try {
+        var env = $.getenv("AELAB_DIR");
+        if (env && (new Folder(env)).exists) return fwd(env);
+    } catch (e) {}
+    var d = (new File($.fileName)).parent;
+    for (var i = 0; i < 8 && d; i++) {
+        var c = new Folder(d.fsName + "/" + FOLDER);
+        if (c.exists) return fwd(c.fsName);
+        d = d.parent;
+    }
+    return "C:/aelab";   /* 옛 자리 — 되돌렸을 때의 마지막 후보 */
+})();
+if (cfg.labDir) lab = cfg.labDir;   /* config 에 적어 두면 그게 우선 */
 
 /*  타깃 실측. getSpecifier 는 설치돼 있으면 "aftereffects-26.0" 같은 문자열을,
     없으면 null 을 준다. 여기서 null 이면 AE 미설치/미인식이지 잡의 잘못이 아니다.  */

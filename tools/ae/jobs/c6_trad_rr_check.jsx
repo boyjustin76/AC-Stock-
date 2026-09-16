@@ -3,7 +3,7 @@
       ④ 전체 f150(전부 등장 · 퇴장 전) 한 장 → 합성기 기준(_ref.png)과 픽셀 대조
       ⑤ 소스 컴포지션마다 f30(등장 끝) 한 장 → 떼어 써도 같은 자리·같은 모양인지
       ⑥ 전체 f0~f174 두 프레임마다 → 움직임 미리보기 GIF
-    출력: C:/aelab/trad_rr_check/  (main_150.png · src_<id>.png · anim_<fff>.png · _map.txt)
+    출력: <작업실>/trad_rr_check/  (main_150.png · src_<id>.png · anim_<fff>.png · _map.txt)
     ⚠ saveFrameToPng 는 비동기다 — 이 잡 뒤에 프로젝트를 닫는 잡을 바로 붙이지 않는다 (C4 실측).
 */
 var HERE = String(File($.fileName).parent.fsName).split(String.fromCharCode(92)).join("/");

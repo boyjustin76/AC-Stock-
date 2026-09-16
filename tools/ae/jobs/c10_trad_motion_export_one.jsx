@@ -1,7 +1,7 @@
 /*  C10 — trad_motion.aep 에서 템플릿 **하나만** 같은 이름으로 다시 내보낸다. **저장하지 않는다.**
     2026-09-15: 매도 낙관을 파랑(#1F60E0)으로 바꿔 footage/sources/s21_seal_sell.png 를 교체했다 →
     '낙관 매도.mogrt' 안에는 옛 쪽빛 PNG 가 들어 있어 이름 그대로 다시 내보낸다.
-    출력은 팩 밖(C:/aelab/trad_motion_mogrt_out) — 검사(zip 안 누락 자산 · 들어간 PNG 해시 · capsuleID)를 통과한 뒤에만 팩·납품으로 옮긴다.
+    출력은 팩 밖(<작업실>/trad_motion_mogrt_out) — 검사(zip 안 누락 자산 · 들어간 PNG 해시 · capsuleID)를 통과한 뒤에만 팩·납품으로 옮긴다.
     ⚠ 내보내기는 수정된(dirty) 프로젝트를 디스크에 저장한다 — 이 잡은 프로젝트를 바꾸지 않는다.
 */
 var HERE = String(File($.fileName).parent.fsName).split(String.fromCharCode(92)).join("/");

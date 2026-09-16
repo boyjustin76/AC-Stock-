@@ -1,11 +1,26 @@
 /*  A1 — 통신 스모크.  AE 안에서 돈다.
 
-    매뉴얼 A1 은 "버전 문자열을 C:/aelab/log/a1.txt 에 써라" 지만, 그 파일 쓰기 자체가
+    매뉴얼 A1 은 "버전 문자열을 <작업실>/log/a1.txt 에 써라" 지만, 그 파일 쓰기 자체가
     환경설정(스크립트 파일쓰기 허용)에 걸려 조용히 죽는 게 1순위 용의자다(§6).
     그래서 **측정값을 반환값에도 같이 실어 보낸다** — 파일이 안 생겨도 _result.txt 로는 온다.
     파일이 생기는지 여부 자체가 환경설정 판정이 된다.
 */
-var LOG = "C:/aelab/log/a1.txt";
+function LABDIR() {
+    /*  작업실 폴더를 찾는다 (2026-09-16 단일화 — 옛 "C:/aelab" 을 박지 않는다).
+        A1 은 공용 _lib.jsx 를 일부러 안 쓰는 부트스트랩 시험이라 여기 따로 둔다.  */
+    var FOLDER = "02_AE작업실_aelab";
+    function fwd(x) { return String(x).split(String.fromCharCode(92)).join("/"); }
+    try { var e = $.getenv("AELAB_DIR"); if (e && (new Folder(e)).exists) return fwd(e); } catch (x) {}
+    var f = (new File($.fileName)).parent;
+    for (var i = 0; i < 8 && f; i++) {
+        var c = new Folder(f.fsName + "/" + FOLDER);
+        if (c.exists) return fwd(c.fsName);
+        f = f.parent;
+    }
+    return "C:/aelab";   /* 옛 자리 — 되돌렸을 때의 마지막 후보 */
+}
+
+var LOG = LABDIR() + "/log/a1.txt";
 var out = [];
 function say(k, v) { out.push(k + "\t" + v); }
 function probe(k, fn) {
@@ -42,7 +57,7 @@ probe("endSuppressDialogs", function () {
 
 var wrote = "안 함";
 try {
-    var d = new Folder("C:/aelab/log");
+    var d = new Folder(LABDIR() + "/log");
     if (!d.exists) d.create();
     var f = new File(LOG);
     f.encoding = "UTF-8";

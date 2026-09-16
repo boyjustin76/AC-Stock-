@@ -6,7 +6,7 @@
       ③ 표현식이 깨진 게 있는가 (이름으로 서로를 가리키므로 조용히 끊길 수 있다)
 
     "AE 에서 잘 열린다" 는 눈으로 보는 게 아니라 이 셋으로 확인한다.
-    열 파일 경로는 C:/aelab/ae/_check.txt 에 적어 둔다.
+    열 파일 경로는 <작업실>/ae/_check.txt 에 적어 둔다.
 */
 var HERE = String(File($.fileName).parent.fsName).split(String.fromCharCode(92)).join("/");
 $.evalFile(new File(HERE + "/_lib.jsx"));

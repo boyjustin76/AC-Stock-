@@ -2,7 +2,7 @@
 """
 신규안 v2 전통 — 애니메이션이 계획돼 있던 소스만 골라 AE 모션 꾸러미의 재료를 만든다.
 
-  python tools/ae/trad_motion_pack.py [--src C:/aelab/pack/trad_ae/footage] [--dst C:/aelab/pack/trad_motion]
+  python tools/ae/trad_motion_pack.py [--src <작업실>/pack/trad_ae/footage] [--dst <작업실>/pack/trad_motion]
 
 입력은 tools/style/trad.py --split 이 쓴 manifest.json (레이어마다 'anim' 메타가 붙어 있다).
 계획된 모션은 셋뿐이다 (신규안_v2_전통/결과.md '남은 것'):
@@ -15,13 +15,17 @@
 """
 import argparse, io, json, os, shutil
 
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+import labdir   # 작업실 폴더를 박지 않고 찾는다
+
 SUB = {'전통_총집합': 'sources', '전통_틀': 'frame', '전통_로고': 'logo', '전통_아웃트로': 'outro'}
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--src', default='C:/aelab/pack/trad_ae/footage')
-    ap.add_argument('--dst', default='C:/aelab/pack/trad_motion')
+    ap.add_argument('--src', default=labdir.lab('pack', 'trad_ae', 'footage'))
+    ap.add_argument('--dst', default=labdir.lab('pack', 'trad_motion'))
     a = ap.parse_args()
     man = json.load(io.open(os.path.join(a.src, 'manifest.json'), encoding='utf-8'))
     foot = os.path.join(a.dst, 'footage')

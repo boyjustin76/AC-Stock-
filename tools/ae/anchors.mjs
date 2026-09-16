@@ -10,7 +10,7 @@
  * (visibleBars 32 · pricePad 0.14 · include 없음 · ma ema20 · layout 여백 0 · rightGap 6).
  * 그러므로 reveal 63 · zoom 1 로 makeScale 을 부르면 스틸 위 좌표가 그대로 나온다.
  *
- * 출력은 C:/aelab/anchors.json 에도 쓴다 — AE 잡이 이 파일을 읽어 좌표를 박는다.
+ * 출력은 <작업실>/anchors.json 에도 쓴다 — AE 잡이 이 파일을 읽어 좌표를 박는다.
  * 즉 좌표는 사람 눈이 아니라 렌더러가 정한다.
  */
 import { writeFileSync, mkdirSync } from 'node:fs';
@@ -18,6 +18,7 @@ import { makeCandles } from '../../src/market/candles.js';
 import { Chart } from '../../src/render/chart.js';
 import { makeTheme } from '../../src/render/theme.js';
 import base from '../../lab/ae/cut2-base.scenes.js';
+import { labDir, lab } from './labdir.mjs';
 
 const REVEAL = 63;
 const ZOOM = 1;
@@ -62,8 +63,8 @@ const out = {
 };
 
 console.log(JSON.stringify(out, null, 2));
-mkdirSync('C:/aelab', { recursive: true });
-writeFileSync('C:/aelab/anchors.json', JSON.stringify(out, null, 2), 'utf8');
+mkdirSync(labDir(), { recursive: true });
+writeFileSync(lab('anchors.json'), JSON.stringify(out, null, 2), 'utf8');
 
 /*  AE 잡이 바로 읽을 수 있게 .jsx 로도 낸다. 런타임에 파일을 읽지 않아도 되고
     (파일쓰기 권한과 무관하게 안전하다) ExtendScript 에 JSON 파서가 없는 판에서도 통한다.
@@ -73,4 +74,4 @@ const jsx =
   '    컷② reveal 63 · zoom 1 기준 실측 좌표. 1080x1080, 좌상단 원점.  */\n' +
   'var ANCHORS = ' + JSON.stringify(out, null, 2) + ';\n';
 writeFileSync(new URL('./jobs/_anchors.jsx', import.meta.url), jsx, 'utf8');
-console.error('\nC:/aelab/anchors.json 과 tools/ae/jobs/_anchors.jsx 에 썼다.');
+console.error('\n' + lab('anchors.json') + ' 과 tools/ae/jobs/_anchors.jsx 에 썼다.');

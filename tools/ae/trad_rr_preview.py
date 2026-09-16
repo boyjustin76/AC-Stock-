@@ -2,7 +2,7 @@
 """
 C6 가 AE 에서 찍은 프레임으로 ① 합성기 기준과 픽셀 대조 ② 움직임 미리보기(GIF · 연속 사진)를 만든다.
 
-  python tools/ae/trad_rr_preview.py --chart out/newch-trad/stills/trad_t0.00s.png [--cap C:/aelab/trad_rr_check] [--pack C:/aelab/pack/trad_rr]
+  python tools/ae/trad_rr_preview.py --chart out/newch-trad/stills/trad_t0.00s.png [--cap <작업실>/trad_rr_check] [--pack <작업실>/pack/trad_rr]
 
 AE 의 saveFrameToPng 는 알파가 미리 곱해진 PNG 다 → 바탕에 C + 바탕·(1−a) 로 얹는다 (trad_motion_preview 와 같다).
 대조 기준은 trad_rr.py 가 그린 _ref.png (글자까지 합성기). AE 는 글자를 AE 궁서로 새로 짜므로 글자 가장자리 차이는 남는다.
@@ -15,6 +15,10 @@ from PIL import Image, ImageChops, ImageDraw
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', 'style'))
 import trad as T
+
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+import labdir   # 작업실 폴더를 박지 않고 찾는다
 
 
 def load_premult(path, bg):
@@ -37,8 +41,8 @@ def diff(a, b, box):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--chart', required=True)
-    ap.add_argument('--cap', default='C:/aelab/trad_rr_check')
-    ap.add_argument('--pack', default='C:/aelab/pack/trad_rr')
+    ap.add_argument('--cap', default=labdir.lab('검사기록', 'trad_rr_check'))
+    ap.add_argument('--pack', default=labdir.lab('pack', 'trad_rr'))
     a = ap.parse_args()
     rr = json.load(io.open(os.path.join(a.pack, 'footage', 'rr.json'), encoding='utf-8'))
     ref = Image.open(os.path.join(a.pack, '_ref.png')).convert('RGBA')

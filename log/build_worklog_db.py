@@ -1136,6 +1136,9 @@ REQUESTS = [
     (85, '매도 버튼 색을 아예 파란색으로 — 매수:매도 = 빨강:파랑. mogrt 는 이름 그대로 유지해서 한번에 일괄 적용되게 (2026-09-15)',
      "색은 계산으로: 인주 적 #D42A26(oklch L0.565 C0.206 H27.8)과 채도를 같게 두고 색상 262°·밝기 0.53 → #1F60E0. color-theory MCP 확인 — 도장 글자(#FAF6EE) 대비 5.12:1(적 4.68) · 쪽 #2C3358 과 ΔE2000 23.2. 정확한 보색 #0091B3 은 청록이라 배제. trad.py 에 BLUE 상수·매도 낙관·팔레트 9칸(간격 100). 재생성 검증: 스틸은 전통_2·5 만 바뀌고 1·3·4 해시 동일 · 층 PNG 66장 중 s21_seal_sell 하나만 변경 → 모션 팩·납품 사본 4곳 교체. c10_trad_motion_export_one 으로 '낙관 매도.mogrt' 를 같은 이름으로 재내보내기(저장 안 함 · 팩 밖으로 낸 뒤 zip 안 PNG 해시·누락 0 확인하고 교체). 프리미어는 파일 교체만으로 기존 클립이 안 바뀐다 — Alt 끌어놓기로 프로젝트 전체 적용(어도비 도움말). 템플릿 ID 는 내보낼 때마다 새로 생김. 이날 비정상 종료 2회(15:17·16:47) 뒤 매번 무결성 확인부터 다시 시작.",
      '신규안_v2_전통 — 전통_2·전통_5 스틸 · s21_seal_sell.png(팩·납품 4곳) · 낙관 매도.mogrt(팩·납품) · 이전_매도쪽빛 보관 · 무드보드/결과/시간기록 갱신'),
+    (86, "로컬에 흩어진 것을 한 폴더로 단일화 + Portable, 최신만 zip. 중간: 'G드라이브 업로드는 내가 할거니까 로컬에만 둬' · '남은 부산물 전부 지워, 똑같은 파일이 여러 곳에 있지 않게' · C:/aelab 을 연결(junction)로만 둔 1차안은 '경로가 둘이면 그것도 흩뿌려짐' 이라고 반려 (2026-09-16)",
+     "차트명가NEW_통합/ 하나로 모음 — 01 납품 · 02 AE작업실 · 03 저장소(작업본+bundle) · 04 작업메모 · 05 도구와설정 · 06 실험실 · 99 이전판. 지우기 전에 파일마다 sha256 으로 꾸러미 안 존재를 확인(차트명가 NEW 397개 · aelab 3527개 · cmgwork · pprolab). **C:/aelab 을 완전히 없앰**: 경로를 박던 자리를 자기 위치에서 위로 올라가며 '02_AE작업실_aelab' 을 찾는 방식으로 교체 — labdir.py/.mjs/.ps1 신설(순서: AELAB_DIR → config.labDir → 위로 탐색 → 옛 자리), _lib.jsx·bridge.jsx·a1_smoke.jsx 는 ExtendScript 라 같은 해석기를 인라인. config.json labDir 을 빈 값(=자동)으로. 실측: a1 스모크 통과(새 작업실에 로그 씀) · c11_relink_check 로 팩 5개 112개 푸티지 '못 찾음 0' — .aep 에 옛 절대경로가 박혀 있어도 footage/ 가 .aep 옆에 함께 있어 AE 가 상대경로로 재연결한다(열면 dirty=true 가 되므로 저장하지 않고 닫는다). 버린 것은 ae/ref·diff·frames 검증 PNG 2906장뿐, 그 폴더의 스크립트·설정·로그·영상 소스 117개는 _기타 로 살림.",
+     '차트명가NEW_통합/ (00_먼저읽기.md · 도구/복원.ps1) · 차트명가NEW_통합_20260916.zip(로컬 보관, 업로드는 사용자가 직접) · 틀만_완성/읽어보기.txt 실측 정정'),
 ]
 # 주의: 66·67 은 B(썸네일 로컬), 68 은 총괄 — 같은 날 병합하며 시간순으로 재배번 (2026-09-03)
 
@@ -1586,6 +1589,10 @@ REPO_FILES = {
     'tools/ae/jobs/c8q_close_quit.jsx': ('도구', '열린 AE 프로젝트를 저장 없이 닫고 scheduleTask 로 AE 를 스스로 종료 (프리미어 다이내믹 링크가 남긴 AE 정리 · 강제 종료 대신)'),
     'tools/ae/jobs/c10_trad_motion_export_one.jsx': ('도구', 'trad_motion 템플릿 하나만 같은 이름으로 다시 내보내기 (저장 안 함 · 팩 밖으로 낸 뒤 검사하고 교체)'),
     'tools/style/trad_bands.py': ('도구', '박스권 세트·더블 볼린저밴드 시안 합성기 (요청 83 보류 — AE 소스화 전 단계)'),
+    'tools/ae/labdir.py': ('도구', 'AE 작업실 폴더를 박지 않고 찾는다 (파이썬) — AELAB_DIR → config.labDir → 위로 탐색 → 옛 자리'),
+    'tools/ae/labdir.mjs': ('도구', '같은 것의 Node 판 — pack.mjs·diff.mjs·anchors.mjs·scene-export.mjs 가 쓴다'),
+    'tools/ae/labdir.ps1': ('도구', '같은 것의 PowerShell 판 — run.ps1·trad_rr_export.ps1 이 점으로 불러 쓴다'),
+    'tools/ae/jobs/c11_relink_check.jsx': ('도구', '작업실을 옮긴 뒤 .aep 5개가 푸티지를 스스로 찾는지 실측 (저장 안 함)'),
     'tools/ae/trad_rr_mogrt_check.py': ('도구', 'mogrt zip 안 definition.json 누락 자산 검사 → 실패 이름을 _only.txt 로 (반환값 true 는 증거가 아니다)'),
     'tools/ae/trad_rr_export.ps1': ('도구', '내보내기 → 검사 → 누락분만 재내보내기(최대 3회) → 전부 통과 + aep 그대로일 때만 팩으로 (UTF-8 BOM)'),
     'tools/ae/jobs/c6_trad_rr_check.jsx': ('도구', 'trad_rr.aep 재열기 검사 + 전체 f150·소스 f30·움직임 캡처'),

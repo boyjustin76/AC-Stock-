@@ -2,7 +2,7 @@
       ① 푸티지 누락  ② 표현식 오류(시각을 여러 번 옮겨 가며)  ③ mogrt 파일 수
       ④ 컴포지션마다 f40(등장 끝난 뒤) 한 장 → 합성 스틸과 픽셀 대조용
       ⑤ 대표 셋(낙관 매수 · 붓 원 · 족자 자막 (본편))은 f0~f26 전부 → 움직임 미리보기 GIF 용
-    출력: C:/aelab/trad_motion_check/  (final_<n>.png · anim_<n>_<ff>.png · _map.txt)
+    출력: <작업실>/trad_motion_check/  (final_<n>.png · anim_<n>_<ff>.png · _map.txt)
 */
 var HERE = String(File($.fileName).parent.fsName).split(String.fromCharCode(92)).join("/");
 $.evalFile(new File(HERE + "/_lib.jsx"));

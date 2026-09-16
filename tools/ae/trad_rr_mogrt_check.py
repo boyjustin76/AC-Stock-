@@ -2,7 +2,7 @@
 """
 손익비 (전통) mogrt 13개를 zip 안 definition.json 으로 검사하고, 실패한 이름을 <out>/_only.txt 에 쓴다.
 
-  python tools/ae/trad_rr_mogrt_check.py [--out C:/aelab/trad_rr_mogrt_out]
+  python tools/ae/trad_rr_mogrt_check.py [--out <작업실>/trad_rr_mogrt_out]
 
 AE 의 exportAsMotionGraphicsTemplate 는 반환값이 true 여도 가끔 한 개씩 푸티지 누락이 적힌 mogrt 를 낸다
 (2026-09-14 실측: 손절 박스 누락 2 → 다음 실행엔 전체 누락 12, 다시 내보내면 0). 반환값 대신 이 검사로 판정한다.
@@ -10,10 +10,14 @@ c5x_trad_rr_export.jsx 가 _only.txt 에 적힌 이름만 다시 내보낸다. �
 """
 import argparse, glob, io, json, os, sys, zipfile
 
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+import labdir   # 작업실 폴더를 박지 않고 찾는다
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--out', default='C:/aelab/trad_rr_mogrt_out')
-    ap.add_argument('--rr', default='C:/aelab/pack/trad_rr/footage/rr.json')
+    ap.add_argument('--out', default=labdir.lab('trad_rr_mogrt_out'))
+    ap.add_argument('--rr', default=labdir.lab('pack', 'trad_rr', 'footage', 'rr.json'))
     a = ap.parse_args()
     rr = json.load(io.open(a.rr, encoding='utf-8'))
     WANT = [rr['name']] + [i['name'] for i in rr['items']]      # 전체 + 소스 (이름은 trad_rr.py 가 정한다)

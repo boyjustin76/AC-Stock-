@@ -2,7 +2,7 @@
 채널이 쓰는 도구 전부를 한 화면에 늘어놓는다.
 
     python tools/style/frame.py --chart out/newch/stills/sources_t0.00s.png \
-        --cam C:/aelab/ae/newch-style.json --out "<신규안 폴더>"
+        --cam <작업실>/ae/newch-style.json --out "<신규안 폴더>"
 
 렌더러는 캔들·이평·밴드·태그·손그림 원·문구만 그린다(브랜드 정확도). 나머지 도구 견본은
 여기서 같은 카메라(X0·BW·Y0·K)로 그린다 — px(봉) = X0 + 봉·BW, py(가격) = Y0 − 가격·K.

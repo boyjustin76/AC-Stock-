@@ -1,8 +1,8 @@
 /*  C1 — 신규안 v2 "병풍 위의 차트" 레이어 PNG 를 AE 컴포지션으로 모은다.
 
-    입력:  C:/aelab/pack/trad_ae/footage/manifest.jsx   (tools/style/trad.py --split 이 쓴 목록)
-           C:/aelab/pack/trad_ae/footage/<comp>/<NN_slug>.png
-    출력:  C:/aelab/pack/trad_ae/trad.aep   — footage/ 와 나란히 (포터블, pack.mjs 와 같은 구조)
+    입력:  <작업실>/pack/trad_ae/footage/manifest.jsx   (tools/style/trad.py --split 이 쓴 목록)
+           <작업실>/pack/trad_ae/footage/<comp>/<NN_slug>.png
+    출력:  <작업실>/pack/trad_ae/trad.aep   — footage/ 와 나란히 (포터블, pack.mjs 와 같은 구조)
 
     층 하나 = PNG 하나. 목록의 (x,y,w,h) 가 알파 상자라 AE 위치는 그 중심이다.
     차트 바닥은 흰 바탕 PNG 라 블렌딩 모드 Multiply — 합성기(trad.py)가 한지에 곱하기로 얹은 것과 같다.

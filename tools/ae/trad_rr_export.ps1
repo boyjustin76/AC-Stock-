@@ -12,10 +12,12 @@ $ErrorActionPreference = 'Continue'
 $env:PYTHONIOENCODING = "utf-8"
 $repo    = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))
 $checker = Join-Path $repo "tools\ae\trad_rr_mogrt_check.py"
-$outDir  = "C:\aelab\trad_rr_mogrt_out"
-$packMog = "C:\aelab\pack\trad_rr\mogrt"
-$aepPath = "C:\aelab\pack\trad_rr\trad_rr.aep"
-$jobLog  = "C:\aelab\log\c5x.txt"
+. (Join-Path $PSScriptRoot 'labdir.ps1')   # 작업실 폴더를 박지 않고 찾는다
+$lab     = Get-LabDir
+$outDir  = Join-Path $lab "trad_rr_mogrt_out"
+$packMog = Join-Path $lab "pack\trad_rr\mogrt"
+$aepPath = Join-Path $lab "pack\trad_rr\trad_rr.aep"
+$jobLog  = Join-Path $lab "log\c5x.txt"
 Set-Location $repo
 
 function Send-Export {

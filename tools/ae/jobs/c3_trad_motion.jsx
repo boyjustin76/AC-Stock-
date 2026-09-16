@@ -1,8 +1,8 @@
 /*  C3 — 신규안 v2 전통: 애니메이션이 계획돼 있던 소스를 소스마다 컴포지션 + .mogrt 로.
 
-    입력:  C:/aelab/pack/trad_motion/footage/motion.jsx   (tools/ae/trad_motion_pack.py)
-    출력:  C:/aelab/pack/trad_motion/trad_motion.aep      컴포지션 = 소스 하나
-           C:/aelab/pack/trad_motion/mogrt/<템플릿 이름>.mogrt
+    입력:  <작업실>/pack/trad_motion/footage/motion.jsx   (tools/ae/trad_motion_pack.py)
+    출력:  <작업실>/pack/trad_motion/trad_motion.aep      컴포지션 = 소스 하나
+           <작업실>/pack/trad_motion/mogrt/<템플릿 이름>.mogrt
 
     컴포지션은 전부 1920×1080 · 30fps · 5초. 요소는 **틀 스틸과 같은 자리**에 있다 —
     프리미어에 떨구면 틀과 맞는다. '조절' 널의 위치·크기를 Essential Graphics 로 연다.

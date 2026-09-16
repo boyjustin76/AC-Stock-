@@ -1,6 +1,6 @@
 /*  A3 — 바닥 스틸 + 주석 레이어 재현.  하이브리드 파일럿의 본체다.
 
-    바닥은 렌더된 스틸(C:/aelab/base.png = lab/ae/cut2-base-r63-무주석.png),
+    바닥은 렌더된 스틸(<작업실>/base.png = lab/ae/cut2-base-r63-무주석.png),
     그 위 주석 열 개를 AE 네이티브(셰이프·텍스트)로 다시 그린다.
 
     좌표는 _anchors.jsx — `node tools/ae/anchors.mjs` 가 렌더러의 makeScale 로 낸 실측값이다.
