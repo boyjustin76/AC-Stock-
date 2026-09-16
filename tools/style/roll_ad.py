@@ -34,11 +34,46 @@ import trad as V2                      # noqa: E402  한지·궁서·인주 질�
 import frames_clean as FC              # noqa: E402  한지 흰 톤(#F3EEE3)
 
 HANJI_W = FC.HANJI_WHITE
-ACCENT = V2.RED          # 강조 = 인주 적
-BODY = V2.INK            # 본문 = 먹
-YEL = V2.YEL_TXT         # 노랑 = 단청 황(한지 위 대비용)
 SILK = V2.JJOK           # 장식 = 쪽
 MARGIN = 150             # 본문과 CTA 현판 사이 최소 여백 (1920 환산 36px)
+
+# ---------------------------------------------------------------- 테마
+# hanji    — 전통 팔레트(무드보드.md). 라이브화면 본체가 한지일 때.
+# lacquer  — **옻칠 판을 띠 전체로.** 라이브화면에서 로고 뒤에 있던 그 판을
+#            롤링광고 배경으로 꽉 채우라는 지시(2026-09-16 이정찬). 편액 한 장이 띠가 되는 셈이다.
+#            띠 위아래에 금테를 둘러 판처럼 보이게 한다.
+#
+#            옻칠 #221E1B 바탕 대비 실측 (color-theory MCP)
+#              FAF6EE 15.35(AAA) · ED7F89 6.30 · B08D3C 5.29 · EF2767 4.06(큰 글자 통과)
+#            브랜드 팔레트(라이브화면/컬러팔레트.png) 역할을 지킨다 —
+#              EF2767 메인 타이틀 · ED7F89 서브 타이틀 · 334155 부가 설명
+#              0D9488 은 **반대되는 개념**(매수/매도) 전용이라 여기서는 쓰지 않는다.
+THEMES = {
+    'hanji': dict(bg=None, accent=V2.RED, body=V2.INK, sub=V2.YEL_TXT,
+                  box=V2.RED, face=V2.LACQ, edge=V2.GOLD, ptext=V2.HANJI2,
+                  edge_w=5, mark=(76, 34), band=None),
+    'lacquer': dict(bg=V2.LACQ,
+                    accent=(0xEF, 0x27, 0x67),      # 메인 타이틀
+                    body=V2.HANJI2,                 # 흰 궁서 — 편액 글자 그대로
+                    sub=V2.GOLD,                    # 노랑 자리는 금으로 (옻칠에 금박이 원래 짝)
+                    box=V2.GOLD,
+                    face=V2.HANJI2,                 # CTA 는 뒤집는다 — 옻칠 위 한지 판
+                    edge=V2.GOLD, ptext=V2.LACQ,
+                    edge_w=6, mark=(120, 58), band=V2.GOLD),
+}
+TH = THEMES['hanji']
+
+
+def ACCENT():
+    return TH['accent']
+
+
+def BODY():
+    return TH['body']
+
+
+def YEL():
+    return TH['sub']
 LACQ = V2.LACQ
 GOLD = V2.GOLD
 PAPER = V2.HANJI2        # 현판 위 글자
@@ -59,6 +94,8 @@ def paper(w, h):
 
     trad.hanji() 의 결 텍스처는 1920 폭으로 고정돼 있어 8000 을 한 번에 못 만든다.
     종이 결은 방향성이 없으니 1920 조각을 **좌우로 뒤집어 가며 이어 붙인다** — 이음매가 안 보인다."""
+    if TH['bg'] is not None:
+        return Image.new('RGBA', (w, h), TH['bg'] + (255,))
     tile = V2.hanji(1920, h, base=HANJI_W).convert('RGBA')
     if w <= 1920:
         return tile.crop((0, 0, w, h))
@@ -96,6 +133,17 @@ def mark(size, alpha, color=PINK):
     return _MARK[key]
 
 
+def band_frame(canvas):
+    """옻칠 판처럼 보이게 띠 위아래에 금테를 두른다."""
+    if not TH.get('band'):
+        return
+    W, H = canvas.size
+    d = ImageDraw.Draw(canvas, 'RGBA')
+    t = max(5, H // 42)
+    d.rectangle((0, 0, W, t), fill=TH['band'] + (255,))
+    d.rectangle((0, H - t - 1, W, H), fill=TH['band'] + (255,))
+
+
 def deco(canvas, spec):
     """양끝 모서리 문양 — **차트명가 로고 심볼 그 자체**를 크게 키워 모서리에서 잘리게 둔다.
 
@@ -112,11 +160,12 @@ def deco(canvas, spec):
     sml = int(H * 1.45)
 
     # 왼쪽 위 — 큰 것은 모서리 밖으로 걸치고, 작은 것은 떨어뜨려 옅게
-    canvas.alpha_composite(mark(big, 76), (int(-big * 0.52), int(-big * 0.50)))
-    canvas.alpha_composite(mark(sml, 34), (int(dl * 0.52), int(-sml * 0.30)))
+    ba, sa = TH['mark']
+    canvas.alpha_composite(mark(big, ba), (int(-big * 0.52), int(-big * 0.50)))
+    canvas.alpha_composite(mark(sml, sa), (int(dl * 0.52), int(-sml * 0.30)))
     # 오른쪽 아래 — 점대칭
-    canvas.alpha_composite(mark(big, 76), (int(W - big * 0.48), int(H - big * 0.50)))
-    canvas.alpha_composite(mark(sml, 34), (int(W - dr * 0.52 - sml), int(H - sml * 0.70)))
+    canvas.alpha_composite(mark(big, ba), (int(W - big * 0.48), int(H - big * 0.50)))
+    canvas.alpha_composite(mark(sml, sa), (int(W - dr * 0.52 - sml), int(H - sml * 0.70)))
 
 
 def runs_width(runs, f, gap):
@@ -159,17 +208,18 @@ def plaque(canvas, box, text, fs):
     """CTA — 원본 빨강 알약 자리에 현판(옻칠 + 금테 + 흰 궁서)."""
     x0, y0, x1, y1 = box
     d = ImageDraw.Draw(canvas, 'RGBA')
-    sh = Image.new('RGBA', canvas.size, (0, 0, 0, 0))
-    ImageDraw.Draw(sh).rectangle((x0 + 8, y0 + 12, x1 + 8, y1 + 12), fill=(0, 0, 0, 70))
-    canvas.alpha_composite(sh.filter(V2.ImageFilter.GaussianBlur(14)))
+    if TH['bg'] is None:
+        sh = Image.new('RGBA', canvas.size, (0, 0, 0, 0))
+        ImageDraw.Draw(sh).rectangle((x0 + 8, y0 + 12, x1 + 8, y1 + 12), fill=(0, 0, 0, 70))
+        canvas.alpha_composite(sh.filter(V2.ImageFilter.GaussianBlur(14)))
     d = ImageDraw.Draw(canvas, 'RGBA')
-    d.rectangle((x0, y0, x1, y1), fill=LACQ)
-    d.rectangle((x0 + 12, y0 + 12, x1 - 12, y1 - 12), outline=GOLD, width=5)
+    d.rectangle((x0, y0, x1, y1), fill=TH['face'])
+    d.rectangle((x0 + 12, y0 + 12, x1 - 12, y1 - 12), outline=TH['edge'], width=TH['edge_w'])
     inner = (x1 - x0) - 2 * (12 + 5) - 40
     s = fs
     while s > 10 and V2.tw(V2.gung(int(s)), text) > inner:
         s -= 2
-    V2.btext(canvas, ((x0 + x1) / 2, (y0 + y1) / 2 + 2), text, V2.gung(int(s)), PAPER,
+    V2.btext(canvas, ((x0 + x1) / 2, (y0 + y1) / 2 + 2), text, V2.gung(int(s)), TH['ptext'],
              anchor='mm', bold=1)
 
 
@@ -178,8 +228,8 @@ def keybox(canvas, x, y0, y1, text, fs, gap=48):
     f = V2.gung(fs)
     w = V2.tw(f, text) + gap * 2
     d = ImageDraw.Draw(canvas, 'RGBA')
-    d.rectangle((x, y0, x + w, y1), outline=ACCENT, width=9)
-    V2.btext(canvas, (x + w / 2, (y0 + y1) / 2 + 2), text, f, ACCENT, anchor='mm', bold=1)
+    d.rectangle((x, y0, x + w, y1), outline=TH['box'], width=9)
+    V2.btext(canvas, (x + w / 2, (y0 + y1) / 2 + 2), text, f, TH['box'], anchor='mm', bold=1)
     return x + w
 
 
@@ -237,12 +287,12 @@ def cta(canvas, box, fs):
     f = V2.gung(int(s))
     t = V2.tw(f, COPY['cta'])
     tri_s = s * 0.20
-    tri(canvas, cx - t / 2 - tri_s * 2.4, cy, tri_s, PAPER)
-    tri(canvas, cx + t / 2 + tri_s * 2.4, cy, tri_s, PAPER)
+    tri(canvas, cx - t / 2 - tri_s * 2.4, cy, tri_s, TH['ptext'])
+    tri(canvas, cx + t / 2 + tri_s * 2.4, cy, tri_s, TH['ptext'])
 
 
-def rule(canvas, x0, x1, y, color=ACCENT, w=7):
-    ImageDraw.Draw(canvas, 'RGBA').rectangle((x0, y, x1, y + w), fill=color)
+def rule(canvas, x0, x1, y, color=None, w=7):
+    ImageDraw.Draw(canvas, 'RGBA').rectangle((x0, y, x1, y + w), fill=color or TH['accent'])
 
 
 def build(kind, name, fn, with_deco=True):
@@ -253,20 +303,21 @@ def build(kind, name, fn, with_deco=True):
     c = paper(W, H)
     if with_deco:
         deco(c, sp)
+    band_frame(c)
     if fn:
         fn(c, sp)
     return name, c
 
 
 def b_a1(c, sp):
-    runs = [(COPY['a1_accent'], ACCENT), (COPY['a1_body'], BODY)]
+    runs = [(COPY['a1_accent'], ACCENT()), (COPY['a1_body'], BODY())]
     avail = c.size[0] - sp['deco_r'] - sp['x0'] - 80
     f, _, g = fit(runs, sp['gap'], avail, sp['fs'])
     draw_runs(c, sp['x0'], sp['cy'], runs, f, g)
 
 
 def b_b1(c, sp):
-    runs = [(COPY['b1_body'], BODY), (COPY['b1_accent'], ACCENT)]
+    runs = [(COPY['b1_body'], BODY()), (COPY['b1_accent'], ACCENT())]
     avail = c.size[0] - sp['deco_r'] - sp['x0'] - 80
     f, _, g = fit(runs, sp['gap'], avail, sp['fs'])
     draw_runs(c, sp['x0'], sp['cy'], runs, f, g)
@@ -275,7 +326,7 @@ def b_b1(c, sp):
 def b_a2(c, sp):
     f = V2.gung(sp['fs'])
     end = keybox(c, 57, sp['box_y'], sp['box_y'] + sp['box_h'], COPY['a2_key'], sp['fs'])
-    runs = [(COPY['a2_body'], BODY)]
+    runs = [(COPY['a2_body'], BODY())]
     x = end + 90
     f, _, g = fit(runs, sp['gap'], sp['pill'][0] - x - MARGIN, sp['fs'])
     draw_runs(c, x, sp['cy'], runs, f, g)
@@ -289,7 +340,7 @@ def b_b2(c, sp):
     gg = (x1 - x0)
     plaque(c, (end + 90, y0, end + 90 + int(gg * 0.60), y1), COPY['arrow'], int(sp['fs'] * 0.8))
     x = end + 90 + int(gg * 0.60) + 110
-    runs = [(COPY['b2_body'], BODY), (COPY['b2_yel'], YEL)]
+    runs = [(COPY['b2_body'], BODY()), (COPY['b2_yel'], YEL())]
     f, _, g = fit(runs, sp['gap'], sp['pill'][0] - x - MARGIN, sp['fs'])
     draw_runs(c, x, sp['cy'], runs, f, g)
     cta(c, sp['pill'], int(sp['fs'] * 0.74))
@@ -307,7 +358,7 @@ def s_a2(c, sp):
     lg = lg.resize((lw, int(lg.height * lw / lg.width)), Image.LANCZOS)
     c.alpha_composite(lg, (186, int(sp['cy'] - lg.height / 2)))
     x = 186 + lw + 170
-    runs = [(COPY['sa2_accent'], ACCENT), (COPY['sa2_body'], BODY)]
+    runs = [(COPY['sa2_accent'], ACCENT()), (COPY['sa2_body'], BODY())]
     f, _, g = fit(runs, sp['gap'], sp['pill'][0] - x - MARGIN, sp['fs'])
     draw_runs(c, x, sp['cy'], runs, f, g)
     cta(c, sp['pill'], int(sp['fs'] * 0.74))
@@ -317,14 +368,14 @@ def s_b2(c, sp):
     f = V2.gung(sp['fs'])
     key = COPY['sb2_key']
     kw = V2.tw(f, key)
-    V2.btext(c, (sp['x0'], sp['cy']), key, f, ACCENT, anchor='lm', bold=1)
+    V2.btext(c, (sp['x0'], sp['cy']), key, f, ACCENT(), anchor='lm', bold=1)
     rule(c, sp['x0'], sp['x0'] + kw, sp['cy'] - sp['fs'] * 0.72)
     rule(c, sp['x0'], sp['x0'] + kw, sp['cy'] + sp['fs'] * 0.60)
     x0, y0, x1, y1 = sp['pill']
     x = sp['x0'] + kw + 130
     plaque(c, (x, y0, x + 380, y1), COPY['arrow'], int(sp['fs'] * 0.8))
     x += 380 + 120
-    runs = [(COPY['sb2_body1'], BODY), (COPY['sb2_yel'], YEL), (COPY['sb2_body2'], BODY)]
+    runs = [(COPY['sb2_body1'], BODY()), (COPY['sb2_yel'], YEL()), (COPY['sb2_body2'], BODY())]
     f, _, g = fit(runs, sp['gap'], sp['pill'][0] - x - MARGIN, sp['fs'])
     draw_runs(c, x, sp['cy'], runs, f, g)
     cta(c, sp['pill'], int(sp['fs'] * 0.74))
@@ -342,7 +393,11 @@ SHORT = [('하이라이트_A_1', b_a1, True), ('하이라이트_A_2', s_a2, Fals
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--out', required=True)
+    ap.add_argument('--theme', default='hanji', choices=tuple(THEMES),
+                    help='hanji = 한지 바탕 · lacquer = 옻칠 판을 띠 전체로')
     a = ap.parse_args()
+    global TH
+    TH = THEMES[a.theme]
     dl = os.path.join(a.out, '원본(방송 라이브 버전)_long')
     ds = os.path.join(a.out, '원본(하이라이트 버전)_short')
     os.makedirs(dl, exist_ok=True)

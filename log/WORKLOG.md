@@ -1511,3 +1511,5 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 330 | `b7ae8872` | 세이브 save/2026-09-16-1641 — a3_frame2 판정 정정 - saveFrameToPng 은 표기법이 아니라 타이밍 문제였다(디스크에 v1~v4 전부 존재) | 4파일 +17/-2 |
 | 331 | `ef4e1a80` | 세이브 기록 save/2026-09-16-1641 | 5파일 +11/-3 |
 | 332 | `7cf4c5a4` | 함정 문서 — ⑯ 쓰기 직후 확인은 거짓 실패를 만든다 · 원칙 둘 | 1파일 +34/-6 |
+| 333 | `fd47fc54` | 라이브화면 — 사용자 직접수정 반영 · 브랜드 팔레트 도입 · 기록 정리 | 7파일 +290/-37 |
+| 334 | `8b94a067` | 생성물 갱신 (worklog.db · WORKLOG.md · worklog.html · README) | 4파일 +11/-3 |
