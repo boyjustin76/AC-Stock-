@@ -317,6 +317,7 @@ function capPanel(b) {
         ap.left = OX(b, 17);
         ap.top  = OY(b, 17 + (Z.광고.h - 20 - ap.height) / 2);
         ap.embed();
+        L("  롤링 광고: " + decodeURI(ad.name) + " (전통판)");
     } else {
         L("  !! 롤링 광고 배너가 없어 트팩 것을 씁니다: " + ad.fsName);
         cap(b, "롤링광고", 17, 17, 1886, Z.광고.h - 20, "fit");
