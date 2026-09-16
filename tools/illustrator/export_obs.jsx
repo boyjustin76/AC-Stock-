@@ -51,7 +51,12 @@ for (var a = 0; a < doc.artboards.length; a++) {
 
     var eo = new ExportOptionsPNG24();
     eo.artBoardClipping = true;
-    eo.transparency = true;                 // 틀은 가운데가 뚫려 있어야 한다
+    /* 틀은 가운데가 뚫려 있어야 한다. transparency 만으로는 부족하다 —
+       matte 가 켜져 있으면 투명부를 matteColor(기본 흰색)로 채워 버린다.
+       100% 미리보기는 투명하게 나오는데 417% 내보내기만 불투명 100% 로 나왔던 게 이것이다
+       (2026-09-16 실측: 미리보기 22.7% vs 내보내기 100%). */
+    eo.transparency = true;
+    eo.matte = false;
     eo.antiAliasing = true;
     eo.horizontalScale = SCALE;
     eo.verticalScale = SCALE;
