@@ -1498,3 +1498,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 321 | `9b526e40` | 세이브 기록 save/2026-09-16-1628 | 5파일 +11/-3 |
 | 322 | `f85a99c9` | 라이브화면 — OBS 용 8000x4500 내보내기 (export_obs.jsx) | 2파일 +77/-0 |
 | 323 | `c823ebe9` | OBS 내보내기 — matte 를 꺼야 투명이 산다 | 1파일 +6/-1 |
+| 324 | `11cc3427` | 세이브 save/2026-09-16-1633 — 롤링 광고 - 본문과 CTA 현판 사이 여백 확보(fit 바닥 0.34·틈 축소·여백 150) · 검사기 roll_ad_check 추가 | 5파일 +90/-22 |
