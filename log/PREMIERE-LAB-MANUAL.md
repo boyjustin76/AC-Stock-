@@ -74,10 +74,11 @@
    **토큰·비밀번호를 에이전트가 받지 마라. 자격증명은 사용자만 다룬다.**
 2. **작업 폴더와 프리셋 사본 만들기** —
    ```
-   mkdir C:\pprolab
-   Copy-Item "<저장소>\brand\premiere\차트명가_메인프리셋(24버전).prproj" C:\pprolab\src.prproj
+   $lab = "<통합 폴더>\06_실험실\pprolab"     # 실험실은 tools/premiere/labdir.ps1 가 찾는다 (옛 C:\pprolab 은 09-16 에 없앴다)
+   mkdir $lab
+   Copy-Item "<저장소>\brand\premiere\차트명가_메인프리셋(24버전).prproj" "$lab\src.prproj"
    ```
-   실험은 `C:\pprolab\src.prproj` 사본으로만 한다. **회사 드라이브의 원본을 열지 마라.**
+   실험은 `<실험실>\src.prproj` 사본으로만 한다. **회사 드라이브의 원본을 열지 마라.**
 3. **프리미어 실행 확인** — M1 첫 시도 때 프리미어가 대화상자를 띄우면 사람이 닫아야
    할 수 있다. 첫 실행은 사용자가 화면을 보는 상태에서 한다.
 4. **(M4 이후, MCP 로 갈 때만)** Claude Desktop 설치, 미서명 확장 허용 등 —

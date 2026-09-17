@@ -17,7 +17,8 @@ function LABDIR() {
         if (c.exists) return fwd(c.fsName);
         f = f.parent;
     }
-    return "C:/aelab";   /* 옛 자리 — 되돌렸을 때의 마지막 후보 */
+    /* 2026-09-17: 옛 자리 C:/aelab 은 09-16 에 없앴다 — 돌려주지 않고 멈춘다 */
+    throw new Error("AE 작업실 폴더 " + FOLDER + " 를 못 찾았다 — AELAB_DIR 을 준다");
 }
 
 var LOG = LABDIR() + "/log/a1.txt";

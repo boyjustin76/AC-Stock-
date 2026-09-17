@@ -154,7 +154,7 @@ def main():
         if not args.deleting:
             ok = False
     if delta != expect:
-        print(f"  ✗ 시퀀스 증감이 기대와 다르다")
+        print("  ✗ 시퀀스 증감이 기대와 다르다")
         ok = False
     print()
 

@@ -47,7 +47,7 @@ tools/ae/jobs/        a1_smoke.jsx …
 그대로 다시 부르는 편이 정확하다. `tools/ae/anchors.mjs` 가 한다:
 
 ```
-node tools/ae/anchors.mjs        →  C:/aelab/anchors.json
+node tools/ae/anchors.mjs        →  <작업실>/anchors.json   (작업실 = python tools/ae/labdir.py 가 찾는 02_AE작업실_aelab)
 ```
 
 `lab/ae/cut2-base.scenes.js` 의 chart 설정은 `scenes/sl-11-4.scenes.js` 컷②와 **동일하다**

@@ -9,13 +9,12 @@
   1) 환경변수 AELAB_DIR
   2) tools/ae/config.json 의 labDir (비어 있지 않으면. 상대경로면 config.json 기준)
   3) 이 파일에서 위로 올라가며 '02_AE작업실_aelab' 폴더를 찾는다
-  4) 옛 자리 C:/aelab (되돌린 경우)
+  못 찾으면 어디서 찾았는지 말하고 멈춘다 (2026-09-17 — 옛 자리 C:/aelab 은 09-16 에 없앴다)
 """
 import json
 import os
 
 FOLDER = "02_AE작업실_aelab"
-LEGACY = "C:/aelab"
 
 
 def _from_config():
@@ -47,11 +46,11 @@ def _by_walking_up():
 
 def lab_dir():
     """작업실 폴더를 슬래시(/) 경로로 돌려준다."""
-    for v in (os.environ.get("AELAB_DIR"), _from_config(), _by_walking_up(), LEGACY):
+    for v in (os.environ.get("AELAB_DIR"), _from_config(), _by_walking_up()):
         if v and os.path.isdir(v):
             return os.path.abspath(v).replace("\\", "/")
-    # 아직 없는 자리라도 만들 수 있게 마지막 후보를 준다
-    return (_by_walking_up() or LEGACY).replace("\\", "/")
+    raise FileNotFoundError(f"AE 작업실 폴더 {FOLDER!r} 를 못 찾았다 — 환경변수 AELAB_DIR 을 주거나 "
+                            f"tools/ae/config.json 의 labDir 에 적는다 (찾기 시작: {os.path.dirname(os.path.abspath(__file__))})")
 
 
 def lab(*parts):

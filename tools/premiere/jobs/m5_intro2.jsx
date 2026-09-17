@@ -31,7 +31,7 @@ var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-0
     var OUT = LAB + "/m5_intro2.prproj";
     /*  out/ 은 gitignore 라 프로젝트가 참조하면 다른 PC 에서 오프라인이 된다.
         납품 폴더(저장소에 커밋되는 자리)를 가리킨다.  */
-    var REND = "C:/Users/user/Desktop/이정찬/Claude/AC-Stock-/deliver/cutscene/차12_RSI+이평선 스캘핑/";
+    var REND = repoRootPath() + "/deliver/cutscene/차12_RSI+이평선 스캘핑/";
     var CLONE = "롱폼 고정 양식 복사";
 
     var TICKS = 254016000000;          // 1초

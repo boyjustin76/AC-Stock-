@@ -1767,7 +1767,7 @@ RUNBOOK = [
      "git checkout 0652cac        (구경만. 돌아올 때 git checkout claude/futures-youtube-video-edit-fhio4s)",
      "옆가지 local/thumb-ch11 이 같은 커밋을 가리킨다. 렌더 가속 전 코드라 렌더는 느리다"),
     (16, "윈도우에서 명령 줄 때", "PowerShell 5.1 에 bash 문법을 주면 안 된다",
-     "cd C:\\cmgwork\\repo 를 먼저 실행하고 다음 줄에 git 명령을 준다",
+     "cd \"<통합 폴더>\\03_저장소\\AC-Stock-\" 를 먼저 실행하고 다음 줄에 git 명령을 준다 (옛 C:\\cmgwork\\repo 는 2026-09-16 에 없앴다)",
      "PowerShell 5.1 에는 && 가 없다 — '토큰은 이 버전에서 올바른 문 구분 기호가 아닙니다' 로 죽는다. "
      "한 줄로 붙이려면 ; 를 쓰거나 A; if ($?) { B } 로 쓴다"),
     (17, "윗줄 일부만 빨강으로 빼기 (로컬 윈도우)", "config 의 emphasis 로 문자 단위 강조를 건다",

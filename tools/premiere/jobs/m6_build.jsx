@@ -35,7 +35,7 @@ var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-0
     var SRC = LAB + "/m5_relink.prproj";      // 릴링크된 프리셋 프로젝트 — 옆에 나란히 만든다
     var OUT = LAB + "/m6_build.prproj";
     var PRESET = (LAB + "/cmg_1080p_30fps.sqpreset").split("/").join(BS);
-    var ROOT = "C:/Users/user/Desktop/이정찬/Claude/AC-Stock-/out/cmg12/layers/";
+    var ROOT = repoRootPath() + "/out/cmg12/layers/";
     var SEQNAME = "차명12_인트로_레이어";
     var LOG = LAB + "/m6_build.txt";
 

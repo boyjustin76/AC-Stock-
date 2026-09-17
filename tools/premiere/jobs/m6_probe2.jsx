@@ -70,7 +70,7 @@ var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-0
     attempt("project.newSequence(이름만)", function () { return app.project.newSequence("E_dom_noargs"); });
 
     /*  클립에서 유도 — 클립이 하나 있어야 한다  */
-    var mp4 = "C:/Users/user/Desktop/이정찬/Claude/AC-Stock-/deliver/cutscene/차12_RSI+이평선 스캘핑/컷1_교과서공식.mp4";
+    var mp4 = repoRootPath() + "/deliver/cutscene/차12_RSI+이평선 스캘핑/컷1_교과서공식.mp4";
     if (new File(mp4).exists) {
         probe("importFiles", function () { return app.project.importFiles([mp4], 1, app.project.rootItem, 0); });
         var it = null;
