@@ -61,6 +61,7 @@ var COPY = {
     가이드:   { 광고:"롤링 광고", 시계:"시계", 차트:"차트 화면",
                 포지션:"종류/거래량 · 수익", 메모:"스티커 메모", 댓글:"댓글창" },
     고정댓글: "고정댓글 확인",
+    신청:     "영트모 무료 신청하기",          // 트팩 오프닝 알약 왼쪽 글자 (2026-09-17 이정찬 '넣어')
 
     /* 07 — 트팩 Artboard 13 */
     화면조정: "화면 조정 중",
@@ -68,11 +69,12 @@ var COPY = {
     /* 08 — 트팩 Artboard 12 copy 2. 서머타임 판이다 (2026-09-17 이정찬) */
     방송시간SM: "방송시간 : 월~금 22:00~24:00",
 
-    /* 09 — 트팩 원본의 아트보드 밖 레이아웃(왼쪽 정보칸). 글자는 원본 텍스트 그대로.
+    /* 09 — 트팩 원본의 아트보드 밖 레이아웃(왼쪽 정보칸). 글자는 원본 텍스트 그대로 — 다만 '트레이딩룸' 은
+       '차트명가' 로 바꿨다 (2026-09-17 이정찬).
        '볼리저밴드' 오타도 원본 그대로 둔다 — 문구는 팀장 지시가 오면 한꺼번에 고친다. */
     정보칸: {
-        입장제목: "트레이딩룸 입장방법",
-        입장줄:   [["0.1프로 트레이딩룸 입장은 ", "고정댓글"],
+        입장제목: "차트명가 입장방법",
+        입장줄:   [["0.1프로 차트명가 입장은 ", "고정댓글"],
                    ["메타트레이더 계좌개설 문의는 ", "고정댓글"]],
         칸: [
             { 제목: "진입 기준", 줄: ["- TF 추세지표 방향에 따라 매매", "- 볼린저밴드 중심선/상·하단선 진입", "- 주요 지지·저항선 진입"] },
@@ -82,19 +84,20 @@ var COPY = {
         ]
     },
 
-    /* 10 — 트팩 원본의 아트보드 밖 레이아웃(VIP 안내). 원본이 통짜 그림이라 글자는 그림에서 읽어 옮겼다. */
+    /* 10 — 트팩 원본의 아트보드 밖 레이아웃(VIP 안내). 원본이 통짜 그림이라 글자는 그림에서 읽어 옮겼다.
+       '트레이딩팩토리' 는 '차트명가' 로 바꿨다 (2026-09-17 이정찬). */
     VIP: {
         제목: "[VIP 멤버쉽 제공 서비스 무료체험 진행중]",
         왼줄: ["1. VIP전용 원데이 나스닥 분석.예측 LIVE 방송",
                "2. VIP전용 해외선물 실전트레이딩 강의 커리큘럼"],
         오른줄: ["3. VIP전용 자체개발 (보조지표) 3종 전략 제공",
                  "4. VIP전용 자체개발 보조지표 강의 커리큘럼",
-                 "5. VIP전용 트레이딩팩토리 소통 채널 입장"],
+                 "5. VIP전용 차트명가 소통 채널 입장"],
         시작: "25, 01, 10 start",
         금액: "20,000$",
         구독: "구 독 & 좋 아 요",
         경고: "※본 방송은 실전 트레이딩 교육방송이며, 투자를 권유하지 않습니다※",
-        하단: ["VIP 전용 트레이딩팩토리 소통 커뮤니티 채널 입장 → ", "고정댓글 확인!"]
+        하단: ["VIP 전용 차트명가 소통 커뮤니티 채널 입장 → ", "고정댓글 확인!"]
     }
 };
 
@@ -505,6 +508,10 @@ function openingArt(b) {
     /* 카드 4장은 트팩 그래픽을 그대로 쓴다 (문구도 트팩 것 그대로 — 2026-09-16 이정찬).
        '고정댓글 확인' 빨간 알약만 우리 현판으로 바꾼다 (2026-09-17 이정찬). 자리는 트팩 알약 그대로. */
     ctaPlaque(LY["틀"], 글, b, 1137, 714, 213, 40, COPY.고정댓글, 옻칠, 한지밝);
+    /* 알약 왼쪽 '영트모 무료 신청하기' — 트팩 비율 그대로: 글자 높이 ≈ 알약 높이 0.92,
+       알약과의 틈 ≈ 알약 높이 0.9, 세로 가운데 = 알약 가운데. 트팩은 흰 글자, 우리는 한지 위 먹. */
+    var pillH = 40;
+    text(글, b, 1137 - pillH * 0.9, 714 + pillH / 2, COPY.신청, pillH * 0.92, 먹, "right");
     cap(b, "카드4장",   661, 761, 770, 289, "fit");
 }
 
@@ -574,24 +581,46 @@ function drawFrame(b, opts) {
     /* 글자 상자 세로 가운데 = 161 + 36.5/2 = 179.25 ≈ 띠 가운데(179) */
     var 정보중 = 띠중;
 
-    var logo = new File(OUT + "/" + CFG.logoPng);
-    if (logo.exists) {
-        var lp = 글.placedItems.add();
-        lp.file = logo;
-        var lk = LOGO.w / lp.width;
-        lp.resize(lk * 100, lk * 100);
-        lp.left = OX(b, LOGO.x);
-        lp.top  = OY(b, LOGO.y);
-        lp.embed();
+    if (opts && opts.strip) {
+        /* 07 화면 조정 중 — 정보 띠 대신 로고를 가로로 이어 붙인 띠 (트팩 Artboard 13 의
+           'TRADING FACTORY' ×3 띠, 2026-09-17 이정찬). 트팩 비율 그대로:
+             로고 높이 ≈ 띠 높이 0.6 · 한 벌 간격 ≈ 띠 폭 0.36 (세 벌째가 오른쪽 끝에서 잘린다) · 불투명 25%.
+           띠 폭(차트 칸) 밖으로 넘치는 것은 잘라 둔다. */
+        var sx0 = L0, sw = Z.패널.x - L0, sh = Z.현판띠.h;
+        var g = 글.groupItems.add();
+        g.name = "로고 띠";
+        var lh = sh * 0.6, period = sw * 0.36;
+        for (var k = 0; k < 3; k++) {
+            var lpk = placeW(g, b, CFG.logoPng, sx0 + sh * 0.2 + period * k, 띠중 - lh / 2, 400, 25);
+            if (!lpk) break;
+            var kk = lh / lpk.height;
+            lpk.resize(kk * 100, kk * 100);
+            lpk.left = OX(b, sx0 + sh * 0.2 + period * k);
+            lpk.top  = OY(b, 띠중 - lpk.height / 2);
+        }
+        var cr = g.pathItems.rectangle(OY(b, Z.현판띠.y), OX(b, sx0), sw, sh);
+        cr.clipping = true; cr.filled = false; cr.stroked = false;
+        g.clipped = true;
     } else {
-        L("  !! 로고가 없습니다 — make_bg.py 를 먼저 돌리세요: " + logo.fsName);
-        text(글, b, LOGO.x, 띠중, COPY.채널, 34, 먹, "left");
-    }
+        var logo = new File(OUT + "/" + CFG.logoPng);
+        if (logo.exists) {
+            var lp = 글.placedItems.add();
+            lp.file = logo;
+            var lk = LOGO.w / lp.width;
+            lp.resize(lk * 100, lk * 100);
+            lp.left = OX(b, LOGO.x);
+            lp.top  = OY(b, LOGO.y);
+            lp.embed();
+        } else {
+            L("  !! 로고가 없습니다 — make_bg.py 를 먼저 돌리세요: " + logo.fsName);
+            text(글, b, LOGO.x, 띠중, COPY.채널, 34, 먹, "left");
+        }
 
-    /* 정보 둘 — 앞에 쪽빛 세로 가는 선을 세워 가른다 */
-    for (var q = 0; q < 정보.length; q++) {
-        seam(틀, b, 정보[q].seam, Z.현판띠.y + 16, T, Z.현판띠.h - 32);
-        text(글, b, 정보[q].x, 정보중, 정보[q].text, 정보크기, 부가설명, "left");
+        /* 정보 둘 — 앞에 쪽빛 세로 가는 선을 세워 가른다 */
+        for (var q = 0; q < 정보.length; q++) {
+            seam(틀, b, 정보[q].seam, Z.현판띠.y + 16, T, Z.현판띠.h - 32);
+            text(글, b, 정보[q].x, 정보중, 정보[q].text, 정보크기, 부가설명, "left");
+        }
     }
 
     /* 4) 포지션 헤더 — 트팩은 회색 그라디언트. 여기서는 쪽빛 바 + 흰 궁서 */
@@ -699,7 +728,7 @@ L("■ " + BOARDS[6]);
 (function () {
     var b = 6, 글 = LY["글자"];
     hanji(LY["바탕"], b);
-    drawFrame(b);
+    drawFrame(b, { strip: true });
     /* 차트 자리 가운데 (뚫린 자리 x17~1521 · y220~1063) */
     var cx = (17 + 1521) / 2, cy = (220 + 1063) / 2;
     var m = placeW(LY["틀"], b, CFG.logoMarkPng, cx - 330, cy - 330, 660, 12);
@@ -739,22 +768,99 @@ L("■ " + BOARDS[7]);
     text(글, b, 999, 띠중, COPY.입장문의, 36, 부가설명, "left");
 })();
 
+/* ── 비율로 앉히기 (2026-09-17 이정찬: "px 단위가 아니라 원본과 비교해 격자·비율 단위로") ──
+   트팩에서 잰 것은 **칸 안에서의 비율**이다 — 글자 잉크 높이 / 칸 높이, 글자 가운데 / 칸 높이.
+   궁서와 트팩 글꼴(프리텐다드)은 같은 pt 에서 크기가 달라서 pt 를 옮기면 안 맞는다.
+   그래서 글자를 윤곽으로 재서 **잉크 높이**를 비율에 맞추고, 같은 줄 묶음은 **한 크기**로 통일한다
+   (한 줄만 칸에 맞춰 줄이면 그 줄만 작아진다 — 1차 09 손절가 첫 줄). */
+
+/** 글자의 잉크 상자 [left, top, right, bottom] — 윤곽으로 바꿔 잰다 (rollad 와 같은 방법) */
+function inkBox(t) {
+    app.redraw();
+    var d = t.duplicate(), o = d.createOutline(), g = o.geometricBounds;
+    o.remove();
+    return g;
+}
+
+/**
+ * 한 묶음의 글자를 **같은 크기**로 만든다.
+ *   items: [{ ly, b, x, cy, s | parts, color, align }]  (x·cy 는 판 좌표, cy 는 잉크 가운데)
+ *   inkH : 목표 잉크 높이(가장 높은 줄 기준) · maxW : 각 줄이 넘지 말아야 할 폭
+ * 크기 = min(inkH 에 맞춘 크기, 모든 줄이 maxW 안에 드는 크기). 다 만든 뒤 잉크 상자로 자리를 맞춘다.
+ */
+function inkSet(items, inkH, maxW) {
+    var base = 100, made = [], hMax = 0, wMax = 0;
+    for (var i = 0; i < items.length; i++) {
+        var it = items[i], t;
+        if (it.parts) t = textRuns(it.ly, it.b, 0, 0, it.parts, base, "left");
+        else t = text(it.ly, it.b, 0, 0, it.s, base, it.color, "left");
+        var g = inkBox(t);
+        hMax = Math.max(hMax, g[1] - g[3]);
+        wMax = Math.max(wMax, g[2] - g[0]);
+        made.push(t);
+    }
+    var k = Math.min(inkH / hMax, maxW / wMax);
+    for (var j = 0; j < made.length; j++) {
+        var t2 = made[j], sp = items[j];
+        t2.textRange.characterAttributes.size = base * k;
+        var g2 = inkBox(t2);
+        var wantL = OX(sp.b, sp.x);
+        if (sp.align == "center") wantL = OX(sp.b, sp.x) - (g2[2] - g2[0]) / 2;
+        else if (sp.align == "right") wantL = OX(sp.b, sp.x) - (g2[2] - g2[0]);
+        t2.translate(wantL - g2[0], OY(sp.b, sp.cy) - (g2[1] + g2[3]) / 2);
+    }
+    return base * k;
+}
+
+/** 모서리 로고 무늬 — 롤링 광고 deco() 와 같은 규칙을 띠 하나에 (한지 테마 불투명 76/255 · 34/255).
+    큰 것은 모서리 밖으로 걸쳐 한 귀퉁이만, 작은 것은 떨어뜨려 옅게. 왼쪽 위 ↔ 오른쪽 아래 점대칭.
+    무늬 폭(dl)은 트팩 세트 A 위 띠 장식 폭 비율 398/1920 을 따른다. 띠 밖은 잘라 둔다. */
+function cornerMarks(b, x, y, w, h) {
+    var g = LY["틀"].groupItems.add();
+    g.name = "모서리 로고 무늬";
+    var big = h * 2.70, sml = h * 1.45, dl = w * 398 / 1920;
+    var spots = [
+        [-big * 0.52,            -big * 0.50,          big, 76],
+        [dl * 0.52,              -sml * 0.30,          sml, 34],
+        [w - big * 0.48,         h - big * 0.50,       big, 76],
+        [w - dl * 0.52 - sml,    h - sml * 0.70,       sml, 34]
+    ];
+    for (var i = 0; i < spots.length; i++) {
+        var sp = spots[i];
+        var m = placeW(g, b, CFG.logoMarkPng, x + sp[0], y + sp[1], sp[2], sp[3] / 255 * 100);
+        if (!m) break;
+        m.resize(100, sp[2] / m.height * 100);          // roll_ad mark() 처럼 정사각으로
+        m.left = OX(b, x + sp[0]);
+        m.top  = OY(b, y + sp[1]);
+    }
+    var r = g.pathItems.rectangle(OY(b, y), OX(b, x), w, h);
+    r.clipping = true; r.filled = false; r.stroked = false;
+    g.clipped = true;
+}
+
 /* ── [8] 09 메인 정보칸 — 트팩 원본의 아트보드 밖 레이아웃 ──────────────
-   트팩 실측: 위 띠 y0~121(가운데 로고) · 왼쪽 정보칸 x0~360 · 차트 x360~1522 y121~971 ·
+   트팩 실측(세트 A 원점 기준): 위 띠 y0~121 · 왼쪽 정보칸 x0~360 y121~1080 · 차트 x360~1522 y121~971 ·
    거래내역 y971~1080 · 오른쪽 패널 포지션 121~241 / 수익 241~548 / 시계 548~615 / 댓글 615~1080.
-   정보칸 안: 입장방법(y127 h138) · 방송시간(273 h64) · 작은 차트(346 h300, 캡쳐) ·
-   진입 기준(655) · 목표가(778) · 손절가(875) · 매매 원칙(974). 트팩은 칸 끝이 1074 인데
-   우리는 바깥 병풍 안쪽이 1063 이라 네 칸을 650~1063 에 맞춰 조금 줄였다.
-   색: 트팩 회·파·빨·회 → 쪽 · 대비강조 · 인주 · 쪽. 목표가와 손절가는 **반대되는 개념**이라
+   정보칸 안 항목은 트팩 좌표를 **칸 비율로** 옮긴다 — 트팩 칸 360×959 → 우리 칸 343×940.
+   색: 트팩 회·파·빨·회 → 쪽 · 대비강조 · 인주 · 쪽. 목표가와 손절가는 반대되는 개념이라
    팔레트의 대비강조(#0D9488)와 인주를 짝으로 쓴다. 본문은 먹. */
 L("");
 L("■ " + BOARDS[8]);
 (function () {
     var b = 8, 글 = LY["글자"], 틀 = LY["틀"], L0 = 17, R0 = 1903, B0 = 1063;
-    var TOP = 121, CX = 360, PX = 1522, CHB = 971, MINI = { y: 346, h: 300 };
+    var TOP = 121, CX = 360, PX = 1522, CHB = 971;
+    /* 트팩 정보칸 좌표 → 우리 좌표 */
+    var sx = (CX - L0) / 360, sy = (B0 - (TOP + 2)) / (1080 - 121);
+    function MX(x) { return L0 + x * sx; }
+    function MY(y) { return TOP + 2 + (y - 121) * sy; }
+    function MW(w) { return w * sx; }
+    function MH(h) { return h * sy; }
+    var MINI0 = MY(346), MINI1 = MY(646);
+
     hanjiIn(b, L0, L0, R0 - L0, TOP - L0, "한지 — 위 띠");
-    hanjiIn(b, L0, TOP + 2, CX - L0, MINI.y - TOP - 2, "한지 — 정보칸 위");
-    hanjiIn(b, L0, MINI.y + MINI.h, CX - L0, B0 - MINI.y - MINI.h, "한지 — 정보칸 아래");
+    hanjiIn(b, L0, TOP + 2, CX - L0, MINI0 - TOP - 2, "한지 — 정보칸 위");
+    hanjiIn(b, L0, MINI1, CX - L0, B0 - MINI1, "한지 — 정보칸 아래");
+    cornerMarks(b, L0, L0, R0 - L0, TOP - L0);
     frameSeams(b, [
         [L0, TOP, R0 - L0, 2],          // 위 띠 아래
         [CX, TOP, 2, B0 - TOP],         // 정보칸 | 차트
@@ -763,44 +869,61 @@ L("■ " + BOARDS[8]);
         [PX, 241, R0 - PX, 2],
         [PX, 548, R0 - PX, 2],
         [PX, 615, R0 - PX, 2],
-        [L0, MINI.y, CX - L0, 2],       // 작은 차트 위·아래
-        [L0, MINI.y + MINI.h, CX - L0, 2]
+        [L0, MINI0, CX - L0, 2],        // 작은 차트 위·아래
+        [L0, MINI1 - 2, CX - L0, 2]
     ]);
-    /* 위 띠 — 로고 가운데 */
+    /* 위 띠 — 로고 가운데. 트팩 로고 높이 ≈ 띠 높이 0.55 */
     var lg = placeW(글, b, CFG.logoPng, 960 - 150, 30, 300);
-    if (lg) lg.top = OY(b, (L0 + TOP) / 2 - lg.height / 2);
-
-    var X = 25, W = CX - X - 8, cx = X + W / 2, 본문 = 17;
-    /* 입장방법 — 옻칠 현판 제목 + 두 줄 */
-    box(틀, b, X, 131, W, 128, null, 쪽, 2);
-    hyeonpan(틀, 글, b, X, 131, W, 42, COPY.정보칸.입장제목, 24);
-    for (var i = 0; i < 2; i++)
-        textRuns(글, b, cx, 196 + i * 36, [[COPY.정보칸.입장줄[i][0], 먹], [COPY.정보칸.입장줄[i][1], 메인타이틀]], 본문 + 2, "center", W - 12);
-    /* 방송시간 */
-    box(틀, b, X, 271, W, 64, null, 쪽, 2);
-    text(글, b, cx, 303, COPY.방송시간, 24, 부가설명, "center", W - 16);
-
-    /* 네 칸 — 650~1063 (413) 을 트팩 높이 비율(126:99:101:100)로 나눈다 */
-    var 색 = [쪽, 대비강조, 인주, 쪽], 높이 = [126, 99, 101, 100], 합 = 426, 시작 = 652, 끝 = B0 - 6;
-    var y = 시작;
-    for (var c = 0; c < 4; c++) {
-        var h = Math.round((끝 - 시작) * 높이[c] / 합);
-        var 칸 = COPY.정보칸.칸[c];
-        box(틀, b, X, y, W, h - 4, null, 색[c], 2);
-        box(틀, b, X, y, W, 32, 색[c], null, 0).name = 칸.제목 + " 머리";
-        text(글, b, cx, y + 16, 칸.제목, 22, 흰, "center");
-        var 줄간 = (h - 4 - 32) / 칸.줄.length;
-        for (var j = 0; j < 칸.줄.length; j++)
-            text(글, b, X + 8, y + 32 + 줄간 * (j + 0.5), 칸.줄[j], 본문, 먹, "left", W - 14);
-        y += h;
+    if (lg) {
+        var lk = (TOP - L0) * 0.55 / lg.height;
+        lg.resize(lk * 100, lk * 100);
+        lg.left = OX(b, 960 - lg.width / 2);
+        lg.top  = OY(b, (L0 + TOP) / 2 - lg.height / 2);
     }
+
+    var X = MX(6), W = MW(350), cx = X + W / 2, pad = MW(8);
+    /* 입장방법 — 트팩 (6,126 350×138), 제목 띠 46 */
+    box(틀, b, X, MY(127), W, MH(138), null, 쪽, 2);
+    hyeonpan(틀, 글, b, X, MY(126), W, MH(46), COPY.정보칸.입장제목, 24);
+    inkSet([
+        { ly: 글, b: b, x: cx, cy: MY(201.5), parts: [[COPY.정보칸.입장줄[0][0], 먹], [COPY.정보칸.입장줄[0][1], 메인타이틀]], align: "center" },
+        { ly: 글, b: b, x: cx, cy: MY(238.5), parts: [[COPY.정보칸.입장줄[1][0], 먹], [COPY.정보칸.입장줄[1][1], 메인타이틀]], align: "center" }
+    ], MH(27) * 0.62, W - pad * 2);
+    /* 방송시간 — 트팩 (6,273 350×64) */
+    box(틀, b, X, MY(273), W, MH(64), null, 쪽, 2);
+    inkSet([{ ly: 글, b: b, x: cx, cy: MY(305), s: COPY.방송시간, color: 부가설명, align: "center" }],
+           MH(33) * 0.62, W - pad * 2);
+
+    /* 네 칸 — 트팩: 칸 위·높이 / 머리 34 / 본문 줄 가운데 */
+    var 칸자리 = [
+        { y: 655, h: 126, 줄: [708.5, 733.5, 758.5] },
+        { y: 778, h: 99,  줄: [832, 857] },
+        { y: 877, h: 99,  줄: [930, 955] },
+        { y: 975, h: 99,  줄: [1030, 1055] }
+    ];
+    var 색 = [쪽, 대비강조, 인주, 쪽];
+    var 머리 = [], 본문 = [];
+    for (var c = 0; c < 4; c++) {
+        var P = 칸자리[c], 칸 = COPY.정보칸.칸[c];
+        box(틀, b, X, MY(P.y), W, MH(P.h), null, 색[c], 2);
+        box(틀, b, X, MY(P.y), W, MH(34), 색[c], null, 0).name = 칸.제목 + " 머리";
+        머리.push({ ly: 글, b: b, x: cx, cy: MY(P.y + 17), s: 칸.제목, color: 흰, align: "center" });
+        for (var j = 0; j < 칸.줄.length; j++)
+            본문.push({ ly: 글, b: b, x: X + pad, cy: MY(P.줄[j]), s: 칸.줄[j], color: 먹, align: "left" });
+    }
+    /* 한 묶음 = 한 크기. 트팩 잉크 높이 비율: 머리 ≈ 머리 띠 34 의 0.62 · 본문 ≈ 줄 간격 25 의 0.62 */
+    inkSet(머리, MH(34) * 0.62, W - pad * 2);
+    inkSet(본문, MH(25) * 0.62, W - pad * 2);
 })();
 
 /* ── [9] 10 메인 VIP 안내 — 트팩 원본의 아트보드 밖 레이아웃(통짜 그림) ──────
    그림(2656x1449)을 1920 폭으로 줄여 잰 자리 × 세로 1080/1047:
    위 띠 y0~175 (왼쪽 안내 x0~1528 · 오른쪽 시작일 1528~1920) · 차트 두 개 + 거래내역 y175~975 ·
-   경고 문구 975~1005 · 아래 띠 1005~1080 (x0~1528) · 오른쪽 패널 포지션 175~583 / 시계 583~648 / 댓글 648~1080.
-   트팩은 검정 판 + 민트 테두리. 우리는 롤링 광고 옻칠판과 같은 옻칠 판 + 금테, 강조는 메인 타이틀색. */
+   경고 문구 975~1005 · 아래 띠 1005~1063 (x0~1528) · 오른쪽 패널 포지션 175~583 / 시계 583~648 / 댓글 648~1063.
+   트팩은 검정 판 + 민트 테두리. 우리는 롤링 광고 옻칠판과 같은 옻칠 판 + 금테, 강조는 메인 타이틀색.
+   글자 자리는 트팩 상자(158 높이) 안의 **비율**이다 — 그림을 밝기로 잘라 잰 행:
+     왼쪽: 제목 가운데 0.26·잉크 0.25 / 1·2줄 0.547·0.788, 3·4·5줄 0.316·0.551·0.785, 잉크 0.19 / 오른쪽 열 시작 0.517
+     오른쪽: start 0.171·0.177 / 금액 0.506·0.354 / 구독 0.82·0.171 */
 L("");
 L("■ " + BOARDS[9]);
 (function () {
@@ -814,24 +937,32 @@ L("■ " + BOARDS[9]);
         [PX, 648, R0 - PX, 2]
     ]);
     /* 위 왼쪽 — 안내 */
-    lacquer(틀, b, L0 + 4, L0 + 4, PX - L0 - 8, TOP - L0 - 8);
-    text(글, b, 45, 50, COPY.VIP.제목, 36, 메인타이틀, "left", 730);
-    for (var i = 0; i < 2; i++) text(글, b, 45, 96 + i * 42, COPY.VIP.왼줄[i], 28, 한지밝, "left", 730);
-    for (var j = 0; j < 3; j++) text(글, b, 800, 54 + j * 42, COPY.VIP.오른줄[j], 28, 한지밝, "left", 700);
+    var BX = L0 + 4, BY = L0 + 4, BW = PX - L0 - 8, BH = TOP - L0 - 8;
+    lacquer(틀, b, BX, BY, BW, BH);
+    var c1 = BX + BW * 0.013 + 12, c2 = BX + BW * 0.517, colW = BW * 0.49;
+    inkSet([{ ly: 글, b: b, x: c1, cy: BY + BH * 0.26, s: COPY.VIP.제목, color: 메인타이틀, align: "left" }],
+           BH * 0.25, colW - 12);
+    var 줄 = [];
+    for (var i = 0; i < 2; i++) 줄.push({ ly: 글, b: b, x: c1, cy: BY + BH * [0.547, 0.788][i], s: COPY.VIP.왼줄[i], color: 한지밝, align: "left" });
+    for (var j = 0; j < 3; j++) 줄.push({ ly: 글, b: b, x: c2, cy: BY + BH * [0.316, 0.551, 0.785][j], s: COPY.VIP.오른줄[j], color: 한지밝, align: "left" });
+    inkSet(줄, BH * 0.19, colW - 12);
+
     /* 위 오른쪽 — 시작일 */
-    lacquer(틀, b, PX + 6, L0 + 4, R0 - PX - 10, TOP - L0 - 8);
-    var rx = (PX + R0) / 2;
-    text(글, b, rx, 45, COPY.VIP.시작, 26, 한지밝, "center", 340);
-    var 금액 = text(글, b, rx, 98, COPY.VIP.금액, 64, 금테, "center", 340);
-    금액.textRange.characterAttributes.strokeColor = 금테;
-    금액.textRange.characterAttributes.strokeWeight = 1.5;
-    text(글, b, rx, 146, COPY.VIP.구독, 28, 한지밝, "center", 340);
+    var RX = PX + 6, RW = R0 - PX - 10, rx = RX + RW / 2;
+    lacquer(틀, b, RX, BY, RW, BH);
+    inkSet([{ ly: 글, b: b, x: rx, cy: BY + BH * 0.171, s: COPY.VIP.시작, color: 한지밝, align: "center" }], BH * 0.177, RW - 30);
+    inkSet([{ ly: 글, b: b, x: rx, cy: BY + BH * 0.506, s: COPY.VIP.금액, color: 금테, align: "center" }], BH * 0.354, RW - 30);
+    inkSet([{ ly: 글, b: b, x: rx, cy: BY + BH * 0.82, s: COPY.VIP.구독, color: 한지밝, align: "center" }], BH * 0.171, RW - 30);
+
     /* 경고 문구 — 한지 띠 위 인주 */
     hanjiIn(b, L0, WARN + 2, PX - L0, BOT - WARN - 2, "한지 — 경고 띠");
-    text(글, b, L0 + 14, (WARN + BOT) / 2 + 1, COPY.VIP.경고, 20, 인주, "left", PX - L0 - 28);
+    inkSet([{ ly: 글, b: b, x: L0 + 14, cy: (WARN + 2 + BOT) / 2, s: COPY.VIP.경고, color: 인주, align: "left" }],
+           (BOT - WARN - 2) * 0.55, PX - L0 - 28);
     /* 아래 띠 */
     lacquer(틀, b, L0 + 4, BOT + 2, PX - L0 - 8, B0 - BOT - 4);
-    textRuns(글, b, 45, (BOT + B0) / 2, [[COPY.VIP.하단[0], 한지밝], [COPY.VIP.하단[1], 메인타이틀]], 36, "left", PX - 90);
+    inkSet([{ ly: 글, b: b, x: L0 + 28, cy: (BOT + 2 + B0 - 2) / 2,
+              parts: [[COPY.VIP.하단[0], 한지밝], [COPY.VIP.하단[1], 메인타이틀]], align: "left" }],
+           (B0 - BOT - 4) * 0.60, PX - L0 - 60);
 })();
 
 /* ── 저장 ───────────────────────────────────────────────────── */
@@ -854,6 +985,7 @@ for (var e = 0; e < doc.artboards.length; e++) {
     var eo = new ExportOptionsPNG24();
     eo.artBoardClipping = true;
     eo.transparency = true;
+    eo.matte = false;                        // 없으면 투명부를 흰색으로 채운다 (EXTENDSCRIPT-TRAPS ⑮, 총괄 개선안 B-3)
     eo.horizontalScale = 100; eo.verticalScale = 100;
     doc.exportFile(new File(OUT + "/미리보기_" + BOARDS[e] + ".png"), ExportType.PNG24, eo);
 }
