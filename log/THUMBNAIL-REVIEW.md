@@ -1,5 +1,7 @@
 # 썸네일 코드 검토 (2026-08-27 · 검토자 Fable 5 Max)
 
+> **경로 주의 (2026-09-17 총괄):** 이 문서의 `C:\aelab` · `C:\cmgwork` · `C:\pprolab` · `C:\cmgwork\repo` 는 2026-09-16 에 없어진 **레거시 경로**다. 최신판은 `C:\Users\user\Desktop\이정찬\차트명가NEW_통합\` 아래 `02_AE작업실_aelab` · `06_실험실\cmgwork` · `06_실험실\pprolab` · `03_저장소\AC-Stock-` 이고, 도구는 `tools/*/labdir.*` 가 스스로 찾는다. 실행 명령은 그쪽 기준으로 읽는다. 문장은 당시 기록이라 고치지 않았다.
+
 1차 검토 20:08, 로컬 세션 대화록 반영 20:26 KST.
 대상: `tools/thumbnail_png.py` `tools/thumbnail.py` `tools/psdedit.py` `tools/psdwrite.py`
 `scenes/thumb-ch11.scenes.js` `brand/thumbnail/*` — 전부 읽고 참조 관계까지 추적했다.

@@ -1,0 +1,15 @@
+# 파이썬 도구 공통 설정 — ruff(린트·포맷) + pytest. 설치: pip install ruff pytest
+# 검사: python -m ruff check tools log tests   /   python -m pytest -q
+# 아직 '경고 0' 을 요구하지 않는다 — 새로 쓰는 코드와 고치는 줄부터 맞춘다 (2026-09-17 총괄).
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["tools/legacy", "lab", "deliver", "out", "node_modules"]
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "UP"]
+ignore = ["E501"]   # 줄 길이는 한글 문장 때문에 강제하지 않는다
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

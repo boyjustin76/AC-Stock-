@@ -1,0 +1,10 @@
+# 커밋 전에 ruff 만 돌린다. 켜는 법(각자 한 번): pip install pre-commit && pre-commit install
+# 안 켜도 저장소는 돌아간다 — 켜면 커밋 때 자동으로 잡아 줄 뿐이다.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.8
+    hooks:
+      - id: ruff-check
+        args: ["--select", "F,E9", "--fix"]   # 1단계: 진짜 버그(미정의 이름·안 쓰는 import·문법)만 막는다. 기존 코드 기준 0 이 목표
+      - id: ruff-format
+        files: ^(tests|log/save\.py|tools/radar\.py)   # 포맷 강제는 새 파일부터. 기존 도구는 손대지 않는다

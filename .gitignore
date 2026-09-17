@@ -11,3 +11,8 @@ tools/illustrator/_paths.json
 
 # rollad_layout.py 가 뽑는 중간 자료 (layout.json · 무늬 png · 비교 그림)
 tools/illustrator/_rollad/
+
+# Claude Code — 세션별 워크트리·개인 설정·훅 표식은 올리지 않는다
+.claude/worktrees/
+.claude/settings.local.json
+.claude/prlinks_find.ok

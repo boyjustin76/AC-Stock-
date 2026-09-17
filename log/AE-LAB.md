@@ -1,5 +1,7 @@
 # AE 실험 일지 — .aep / .mogrt 납품 가능성
 
+> **경로 주의 (2026-09-17 총괄):** 이 문서의 `C:\aelab` · `C:\cmgwork` · `C:\pprolab` · `C:\cmgwork\repo` 는 2026-09-16 에 없어진 **레거시 경로**다. 최신판은 `C:\Users\user\Desktop\이정찬\차트명가NEW_통합\` 아래 `02_AE작업실_aelab` · `06_실험실\cmgwork` · `06_실험실\pprolab` · `03_저장소\AC-Stock-` 이고, 도구는 `tools/*/labdir.*` 가 스스로 찾는다. 실행 명령은 그쪽 기준으로 읽는다. 문장은 당시 기록이라 고치지 않았다.
+
 > D 세션(로컬 PC)이 쓴다. 지시서는 `AELABMANUAL.md`(사용자 데스크톱), 근거는
 > `lab/ae/AEP-MOGRT-조사보고.txt`. 옆가지 `local/ae-lab` 에만 올린다.
 > 프리미어 실험 일지는 `log/PREMIERE-LAB.md`, 총괄 보고는 `log/PREMIERE-LAB-REPORT.md`.

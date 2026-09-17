@@ -1,5 +1,7 @@
 # 애프터이펙트 .aep/.mogrt 실험 매뉴얼 — D 세션용
 
+> **경로 주의 (2026-09-17 총괄):** 이 문서의 `C:\aelab` · `C:\cmgwork` · `C:\pprolab` · `C:\cmgwork\repo` 는 2026-09-16 에 없어진 **레거시 경로**다. 최신판은 `C:\Users\user\Desktop\이정찬\차트명가NEW_통합\` 아래 `02_AE작업실_aelab` · `06_실험실\cmgwork` · `06_실험실\pprolab` · `03_저장소\AC-Stock-` 이고, 도구는 `tools/*/labdir.*` 가 스스로 찾는다. 실행 명령은 그쪽 기준으로 읽는다. 문장은 당시 기록이라 고치지 않았다.
+
 > 작성: 클라우드 총괄 세션 (2026-08-29). 근거는 `lab/ae/AEP-MOGRT-조사보고.txt`(어도비
 > 공식 자료 조사)와 이 저장소의 실측 기록(`log/worklog.db` — 포토샵 COM 완파,
 > 프리미어 BridgeTalk M1~M6)이다. 추측으로 쓴 항목은 없다.

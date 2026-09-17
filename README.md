@@ -225,6 +225,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `lab/cutedit` | CAM 촬영본 전사 원본(cam_transcript.json) — 컷 재현·재검증용 |
 | `lab/finalscan` | 최종본 #1~#10 기계 실측 원자료 — 콘택트시트·프레임별 YDIF/장면점수 csv·freeze·단일 프레임·카피맵 후보 23장·prproj 드라이브 지도. FX-WHITELIST 의 원천 (2026-09-11 등재) |
 | `log/AE-LAB-MANUAL.md` | AE .aep/.mogrt 파일럿(sl-11-4 컷② 손익비) — D 세션용 마일스톤 A1~A6 + 사용자 단계. 보고는 log/AE-LAB.md, 잡은 tools/ae/jobs/, 옆가지 local/ae-lab |
+| `log/E-회신-260916.md` | E 가 총괄 문의서(09-16)에 답한 것 — srt_rules 회귀 확인·build_cuts 레거시·채점 일치·배너 모델 홀드아웃·L08 사고 두 번·DB 등재 조건 |
 | `log/PREMIERE-LAB-MANUAL.md` | 프리미어 직접 편집 실험(D 세션) 매뉴얼 — 경로·마일스톤·함정·병합 프로토콜 |
 | `log/PREMIERE-LAB-REPORT.md` | D 의 M2~M6 총괄 보고 — 판정표·매뉴얼 정정·등재 요청·판단 요청 4건 |
 | `log/RENDER-REVIEW.md` | 렌더 속도 리뷰 의뢰서 — 코드 지도·실측·열린 질문 |
@@ -235,6 +236,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `log/build_worklog_db.py` | 로그 DB 생성. 내용을 고칠 때 여기만 고친다 |
 | `log/build_worklog_page.py` | DB → HTML 페이지 |
 | `log/data` | 롱폼 대본 인덱스·숏폼 대본·세이브 슬롯 (JSON) |
+| `log/inbox` | 로컬 세션 → 총괄 원자료 함 (오류·비효율 로그 원문, 판단 요청, 스킬 목록, 총괄 개선안). 이름 YYYY-MM-DD_<세션>_<주제>.md. DB 로 옮긴 뒤에도 지우지 않는다 — DB 행이 여기를 '원문' 으로 가리킨다 (decision 24) |
 | `log/worklog.db` | 작업 로그 원본 (SQLite) |
 | `log/worklog.html` | 브라우저로 보는 작업 로그 |
 | `package.json` | 의존성과 npm 스크립트 |
@@ -277,9 +279,9 @@ git restore --source=<해시> -- .              # 되돌리기
 | `src/tools/probe-labels.mjs` | 렌더 없이 라벨 클리핑 전수 감사 — 등장~퇴장 0.25초 간격으로 앵커 y 를 계산해 잘림 구간을 표로 |
 | `src/tools/profile-render.mjs` | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
 | `tools` | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
-| `tools/cutedit` | 숏폼 컷편집 파이프라인 — transcribe(전사)·align_cut(대본 정렬)·build_cuts(컷·자막·내레이션 생성, 무음 스냅·침묵 압축) |
+| `tools/cutedit` | 컷편집 파이프라인(E 소유) — transcribe(전사)·align_take(테이크 정렬)·cut_and_srt(컷·자막, 실측 무음 경계)·make_xml(프리미어 XML)·prlinks(prproj 경로 검사)·srt_rules(14자 큐)·verify_text·grade/(채점대). build_cuts.py 는 2026-09-17 tools/legacy 로 |
 | `tools/illustrator` | 일러스트레이터 COM 자동화 — 라이브화면구성.ai 를 짓고 OBS 용 8000x4500 을 뽑는다. tools/photoshop 과 같은 구조로 경로를 안 박는다 |
-| `tools/legacy` | 1세대 썸네일 도구 격리(실행 금지) — psdwrite.py·thumbnail.py. 효과 손그림·폭 역산 |
+| `tools/legacy` | 1세대 도구 격리(실행 금지) — psdwrite.py·thumbnail.py(썸네일 효과 손그림·폭 역산, 2026-08-28)·build_cuts.py(컷편집 1세대, 2026-09-17) |
 | `tools/photoshop` | 포토샵 COM+ExtendScript 로 템플릿 .psd 를 직접 편집한다 — 썸네일은 이 경로가 최신 |
 | `tools/photoshop/build_thumb.jsx` | 회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg |
 | `tools/photoshop/config.json` | 템플릿·차트·출력 경로와 회차 문구 — 컨테이너의 thumbnail_png.py 도 같은 파일을 읽는다(스펙 단일화, decision 21) |

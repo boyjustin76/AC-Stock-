@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+# 레거시 (2026-09-17 격리 — 실행 금지). 2026-08-31 숏폼 sl-11-4·11-5 납품에 쓴 FCP7 XML 생성기.
+# 같은 일을 하는 것이 세 벌이었다 — 이 파일 · tools/cutedit/make_xml.py(E, 한글 경로 quote·29.97 처리 맞음) ·
+# src/render/split.mjs(렌더러 --split). 이 파일이 가장 낡다(pathurl 공백만 치환, --fps 정수만, has_audio 죽은 인자).
+# 컷편집 XML 은 make_xml.py 를, 렌더 클립 배치는 split.mjs 를 쓴다. 2026-09-17 코드 검토 ⑧.
 #!/usr/bin/env python3
 """프리미어가 가져올 수 있는 시퀀스 XML(FCP7 xmeml)을 만든다.
 

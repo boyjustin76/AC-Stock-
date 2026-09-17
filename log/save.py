@@ -25,22 +25,25 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SLOTS = ROOT / "log" / "data" / "checkpoints.json"
 KST = timezone(timedelta(hours=9))
 BRANCH = "claude/futures-youtube-video-edit-fhio4s"
+LOG_OUTPUTS = ["log/worklog.db", "log/WORKLOG.md", "log/worklog.html", "README.md",
+               "log/data/checkpoints.json"]      # rebuild() 가 만드는 것 — 범위와 무관하게 항상 커밋
 
 
-def git(*args: str, check: bool = True) -> str:
+def git(*args: str, check: bool = True, raw: bool = False) -> str:
     r = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
     if check and r.returncode:
         raise SystemExit(f"git {' '.join(args)} 실패\n{r.stderr.strip()}")
-    return r.stdout.strip()
+    return r.stdout if raw else r.stdout.strip()   # raw: 상태 줄의 앞 공백(" M")을 살린다
 
 
 def load_slots() -> list[dict]:
@@ -70,8 +73,49 @@ def rebuild() -> None:
         print("  " + r.stdout.strip().replace("\n", "\n  "))
 
 
-def cmd_save(summary: str, push: bool) -> None:
-    now = datetime.now(timezone.utc)
+def changed_files() -> list[str]:
+    """추적/미추적 가리지 않고 지금 작업트리에서 달라진 파일."""
+    out = git("status", "--porcelain=v1", "--untracked-files=all", "-z", check=False, raw=True)
+    rows = [r for r in out.split("\0") if r]
+    files = []
+    for r in rows:
+        path = r[3:]
+        if " -> " in path:                       # 이름 바꾼 것은 새 이름
+            path = path.split(" -> ", 1)[1]
+        files.append(path)
+    return files
+
+
+def stage(scope: list[str] | None) -> list[str]:
+    """범위 안만 스테이지한다. 돌려주는 것은 범위 밖에 남은 변경 목록."""
+    if not scope:
+        git("add", "-A")
+        return []
+    git("add", "-A", "--", *scope, *[p for p in LOG_OUTPUTS if (ROOT / p).exists()])
+    staged = set(git("diff", "--cached", "--name-only", check=False).splitlines())
+    return sorted(f for f in changed_files() if f not in staged)
+
+
+def resolve_scope(only: list[str] | None) -> list[str] | None:
+    if only:
+        return only
+    env = os.environ.get("AC_SAVE_SCOPE", "").split()
+    return env or None
+
+
+def cmd_status(scope: list[str] | None) -> None:
+    files = changed_files()
+    if not files:
+        print("  달라진 파일이 없습니다.")
+        return
+    print(f"\n  달라진 파일 {len(files)}개" + (f"  (범위: {' '.join(scope)})" if scope else "  (범위: 전체)"))
+    for line in git("status", "--short", "--untracked-files=all", check=False, raw=True).splitlines():
+        print("   " + line)
+    print()
+
+
+def cmd_save(summary: str, push: bool, scope: list[str] | None) -> None:
+    now = datetime.now(UTC)
     tag = slot_name(now)
 
     if git("tag", "-l", tag):
@@ -85,8 +129,17 @@ def cmd_save(summary: str, push: bool) -> None:
     rebuild()
 
     # 2) 작업 내용을 먼저 커밋한다. 이 커밋이 곧 슬롯이 가리키는 시점이다.
-    git("add", "-A")
-    if git("diff", "--cached", "--name-only"):
+    #    같은 작업트리를 나눠 쓰는 세션은 --only 로 자기 경로만 넣는다 (issue 24).
+    print("  커밋될 파일" + (f"  (범위: {' '.join(scope)})" if scope else "  (범위: 전체)"))
+    leftover = stage(scope)
+    staged = git("diff", "--cached", "--name-only")
+    for f in staged.splitlines():
+        print("    " + f)
+    if leftover:
+        print(f"  범위 밖이라 두고 가는 변경 {len(leftover)}개 (남의 작업일 수 있어 커밋하지 않는다)")
+        for f in leftover:
+            print("    - " + f)
+    if staged:
         git("commit", "-q", "-m", f"세이브 {tag} — {summary}")
     sha = git("rev-parse", "--short", "HEAD")
 
@@ -103,7 +156,7 @@ def cmd_save(summary: str, push: bool) -> None:
     })
     save_slots(rows)
     rebuild()                       # 슬롯 기록이 DB 에도 들어가게
-    git("add", "-A")
+    stage(scope)
     if git("diff", "--cached", "--name-only"):
         git("commit", "-q", "-m", f"세이브 기록 {tag}")
     git("tag", "-a", tag, sha, "-m", summary, check=False)
@@ -129,7 +182,7 @@ def cmd_list() -> None:
         sha = r.get("sha") or git("rev-list", "-n", "1", "--abbrev-commit", r["tag"], check=False) or "-"
         here = "  ← 지금" if sha and sha == git("rev-parse", "--short", "HEAD") else ""
         print(f"    {r['kst']} KST   {r['tag']:26} {sha:9} {r['summary']}{here}")
-    print(f"\n  되돌리기:  git restore --source=<해시> -- .   그 다음  python3 log/save.py \"되돌림\"")
+    print("\n  되돌리기:  git restore --source=<해시> -- .   그 다음  python3 log/save.py \"되돌림\"")
     print(f"  구경만:    git checkout <해시>   (돌아올 때 git checkout {BRANCH})\n")
 
 
@@ -150,7 +203,7 @@ def cmd_show(tag: str) -> None:
     print(f"\n  시각   {git('log', '-1', '--format=%ad', '--date=iso', tag)}")
     files = git("ls-tree", "-r", "--name-only", tag).splitlines()
     print(f"  파일   {len(files)}개")
-    print(f"\n  지금과 다른 파일:")
+    print("\n  지금과 다른 파일:")
     diff = git("diff", "--stat", tag, "HEAD", check=False)
     print("    " + (diff.replace("\n", "\n    ") if diff else "없음 (같은 상태)"))
     print()
@@ -181,16 +234,21 @@ def main() -> None:
     ap.add_argument("--show", metavar="태그", help="슬롯 내용")
     ap.add_argument("--load", metavar="태그", help="되돌리는 방법")
     ap.add_argument("--no-push", action="store_true", help="푸시하지 않는다")
+    ap.add_argument("--only", nargs="+", metavar="경로", help="이 경로(pathspec)만 커밋한다. 환경변수 AC_SAVE_SCOPE 로도 준다")
+    ap.add_argument("--status", action="store_true", help="지금 커밋될 파일 목록만 본다")
     a = ap.parse_args()
+    scope = resolve_scope(a.only)
 
-    if a.list:
+    if a.status:
+        cmd_status(scope)
+    elif a.list:
         cmd_list()
     elif a.show:
         cmd_show(a.show)
     elif a.load:
         cmd_load(a.load)
     elif a.summary:
-        cmd_save(a.summary, push=not a.no_push)
+        cmd_save(a.summary, push=not a.no_push, scope=scope)
     else:
         ap.print_help()
 

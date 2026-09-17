@@ -10,7 +10,6 @@ HTML 대시보드를 그대로 붙일 수 없다. 대신 깃허브가 실제로 
 from __future__ import annotations
 
 import sqlite3
-import subprocess
 from pathlib import Path
 from urllib.parse import quote
 

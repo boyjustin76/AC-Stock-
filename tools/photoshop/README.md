@@ -1,5 +1,7 @@
 # 포토샵으로 썸네일 만들기 (로컬 윈도우 전용)
 
+> **경로 주의 (2026-09-17 총괄):** 이 문서의 `C:\aelab` · `C:\cmgwork` · `C:\pprolab` · `C:\cmgwork\repo` 는 2026-09-16 에 없어진 **레거시 경로**다. 최신판은 `C:\Users\user\Desktop\이정찬\차트명가NEW_통합\` 아래 `02_AE작업실_aelab` · `06_실험실\cmgwork` · `06_실험실\pprolab` · `03_저장소\AC-Stock-` 이고, 도구는 `tools/*/labdir.*` 가 스스로 찾는다. 실행 명령은 그쪽 기준으로 읽는다. 문장은 당시 기록이라 고치지 않았다.
+
 **썸네일은 이 경로가 최신이다.** 포토샵이 있는 PC 에서 템플릿 `.psd` 를 직접 편집한다.
 
 컨테이너(리눅스)에는 포토샵이 없어 `tools/psdedit.py` · `tools/thumbnail_png.py` 로

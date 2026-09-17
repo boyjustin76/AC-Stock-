@@ -53,7 +53,13 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 const WINSEP = String.fromCharCode(92);   /* 역슬래시. 정규식 이스케이프를 피한다 */
 const pathurl = (p) => 'file://localhost/'
   + encodeURI(p.split(WINSEP).join('/').replace(/^[/]+/, ''));
-const rate = (fps) => `<rate><timebase>${fps}</timebase><ntsc>FALSE</ntsc></rate>`;
+/* xmeml 의 timebase 는 정수, 59.94·29.97 같은 NTSC 값은 반올림 + ntsc TRUE 로 적는다
+   (tools/cutedit/make_xml.py rate() 와 같은 규칙). 59.94005994 를 그대로 쓰면 프리미어가 못 읽는다 — 2026-09-17 검토 */
+const rate = (fps) => {
+  const tb = Math.round(fps);
+  const ntsc = Math.abs(fps - tb) > 0.001 ? 'TRUE' : 'FALSE';
+  return `<rate><timebase>${tb}</timebase><ntsc>${ntsc}</ntsc></rate>`;
+};
 
 /**
  * 트랙마다 클립 하나씩인 시퀀스 XML.

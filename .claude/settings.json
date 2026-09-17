@@ -1,0 +1,7 @@
+{
+  "_설명": "저장소에 커밋되는 Claude Code 프로젝트 설정 — 모든 세션(총괄·B·D·E)이 같이 받는다. 훅은 아직 안 건다(log/inbox 제안서 보고 로컬이 결정). 개인 것은 .claude/settings.local.json(gitignore).",
+  "env": {
+    "PYTHONUTF8": "1",
+    "PYTHONIOENCODING": "utf-8"
+  }
+}
