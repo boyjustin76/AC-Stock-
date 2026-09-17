@@ -761,5 +761,12 @@
   "utc": "2026-09-17 09:28",
   "sha": "d8ec535",
   "summary": "E 회신 병합(ff) — E-1~E-7·textnorm·test_cutedit 8, guard 표식 문구(E-5), issue 40, next_step 40 완료, make_xml.pathurl 리눅스 보정"
+ },
+ {
+  "tag": "save/2026-09-17-1840",
+  "kst": "2026-09-17 18:40",
+  "utc": "2026-09-17 09:40",
+  "sha": "e334854",
+  "summary": "세션 시작 폴더 확정 — worktree 이름 D_Video·B_Image·E_Script (runbook 24·25, decision 30 갱신, CLAUDE.md)"
  }
 ]
