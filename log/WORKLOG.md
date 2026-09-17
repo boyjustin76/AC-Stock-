@@ -1798,3 +1798,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 387 | `d8ec535a` | 세이브 save/2026-09-17-1828 — E 회신 병합(ff) — E-1~E-7·textnorm·test_cutedit 8, guard 표식 문구(E-5), issue 40, next_step 40 완료, make_xml.pathurl 리눅스 보정 | 6파일 +37/-17 |
 | 388 | `3ca646ed` | 세이브 기록 save/2026-09-17-1828 | 5파일 +11/-3 |
 | 389 | `e334854e` | 세이브 save/2026-09-17-1840 — 세션 시작 폴더 확정 — worktree 이름 D_Video·B_Image·E_Script (runbook 24·25, decision 30 갱신, CLAUDE.md) | 6파일 +45/-8 |
+| 390 | `ec5bcb3c` | 세이브 기록 save/2026-09-17-1840 | 5파일 +11/-3 |

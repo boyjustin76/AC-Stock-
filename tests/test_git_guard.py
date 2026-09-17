@@ -112,6 +112,8 @@ def test_hook_main_survives_cp949_console():
     import subprocess
     import sys
     env = {k: v for k, v in os.environ.items() if k not in ("PYTHONUTF8", "PYTHONIOENCODING")}
+    # 총괄 clone 은 git config ac.role=총괄 이라 본류 push 가 허용된다 — 시험은 역할 없음으로 고정 (git 의 환경 설정 덮어쓰기)
+    env.update({"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "ac.role", "GIT_CONFIG_VALUE_0": "local"})
     cmd = "git push origin claude/futures-youtube-video-edit-fhio4s  # 한글 경로 — 대시"
     payload = json.dumps({"tool_name": "Bash", "tool_input": {"command": cmd}, "cwd": "."}, ensure_ascii=False).encode("utf-8")
     r = subprocess.run([sys.executable, str(ROOT / ".claude" / "hooks" / "git_guard.py")],
