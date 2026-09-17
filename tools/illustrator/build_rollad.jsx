@@ -206,9 +206,12 @@ for (CUR = 0; CUR < LAY.boards.length; CUR++) {
 try { base.remove(); } catch (e) {}
 
 /* ── 저장 ───────────────────────────────────────────────────── */
-var outDir = new Folder(OUT + "/롤링광고/옻칠판");
+/* 2026-09-17 이정찬: 한지판을 지우고 옻칠판을 롤링광고/ 바로 아래로 올렸다. 이름도 롤링광고.ai.
+   ※ 이정찬이 이 파일을 손으로 고친 '롤링광고_사용자수정.ai' 가 지금의 원본이다 (jpg 도 거기서 뽑았다).
+     이 스크립트로 다시 지으면 roll_ad.py 기준판이 나온다 — 사용자수정본을 덮지 않도록 이름이 다르다. */
+var outDir = new Folder(OUT + "/롤링광고");
 if (!outDir.exists) outDir.create();
-var outFile = new File(outDir.fsName + "/옻칠판_롤링광고.ai");
+var outFile = new File(outDir.fsName + "/롤링광고.ai");
 var so = new IllustratorSaveOptions();
 /* CS6(ILLUSTRATOR17)로 내리면 글자가 '이전 버전 텍스트'가 되어, 열 때마다 "업데이트하면 문자 위치가
    바뀔 수 있다" 창이 뜬다 (2026-09-17 다시 열어 보다 걸림). 팀장이 고칠 파일이라 현재 형식으로 둔다. */
