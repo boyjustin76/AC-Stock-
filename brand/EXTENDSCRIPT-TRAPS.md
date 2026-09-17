@@ -106,6 +106,22 @@ doc.close(SaveOptions.DONOTSAVECHANGES);
 빌드를 열한 번 돌렸더니 탭이 열한 개였다(2026-09-16 사용자 발견).
 `saveAs` 로 디스크에 쓴 뒤 닫는다. 내용은 이미 파일에 있다.
 
+### ⑨-2 CS6 호환(`ILLUSTRATOR17`)으로 저장하면 사람이 열 때마다 창이 뜬다
+
+```javascript
+so.compatibility = Compatibility.ILLUSTRATOR17;   // ✗ 글자가 '이전 버전 텍스트'가 된다
+so.compatibility = Compatibility.ILLUSTRATOR24;   // ○ 현재 형식 (2026 판에서 고를 수 있는 최신값)
+```
+
+스크립트로 다시 열면 "이 파일에는 이전 버전 텍스트가 있습니다 — 업데이트하면 문자 위치가 바뀔 수 있다"
+**모달 창이 떠서 스크립트가 거기서 멈춘다.** 사람이 열어도 같은 창이 뜨고, 확인을 누르면 글자가 움직일 수 있다.
+팀장이 직접 고칠 파일이라 치명적이다 (2026-09-17 옻칠판 .ai 를 다시 열어 확인하다 걸림 — 라이브화면 .ai 도 같았다).
+
+곁가지 둘
+- 그 창이 떠 있는 동안 파일이 잡혀 있어서, 같은 파일에 다시 `saveAs` 하면 "읽기 전용이거나 사용 중" 으로 실패한다.
+- 확인용으로 열 때 `UserInteractionLevel.DONTDISPLAYALERTS` 를 켜면 창이 안 떠서 **문제가 가려진다**
+  (`legacyTextItems` 도 0 으로 나왔다). 사람이 겪을 창을 보려면 알림을 켠 채 열고 화면을 찍어 본다.
+
 ### ⑩ mogrt 내보내기가 dirty 프로젝트를 디스크에 저장해 버린다
 
 `exportAsMotionGraphicsTemplate()` 은 두 가지를 같이 저지른다.

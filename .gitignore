@@ -8,3 +8,6 @@ log/*.db-shm
 __pycache__/
 *.pyc
 tools/illustrator/_paths.json
+
+# rollad_layout.py 가 뽑는 중간 자료 (layout.json · 무늬 png · 비교 그림)
+tools/illustrator/_rollad/

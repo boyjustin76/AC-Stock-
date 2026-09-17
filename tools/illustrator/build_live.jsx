@@ -547,7 +547,9 @@ try { base.remove(); } catch (e) {}
 
 var outFile = new File(OUT + "/" + CFG.outAi);
 var so = new IllustratorSaveOptions();
-so.compatibility = Compatibility.ILLUSTRATOR17;
+/* CS6(ILLUSTRATOR17)로 내리면 글자가 '이전 버전 텍스트'가 되어 열 때마다 "업데이트하면 문자 위치가
+   바뀔 수 있다" 창이 뜬다 (2026-09-17 실측). 팀장이 열어 고칠 파일이라 현재 형식으로 둔다. */
+so.compatibility = Compatibility.ILLUSTRATOR24;
 so.pdfCompatible = true;
 so.embedICCProfile = true;
 doc.saveAs(outFile, so);
