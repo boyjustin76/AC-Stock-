@@ -349,17 +349,35 @@ def b_b2(c, sp):
 LOGO_WIDE = os.path.join(HERE, '..', '..', 'brand', 'logo', '차트명가_로고(최종+핑크).png')
 
 
+SA2_LOGO_W = 870
+
+
+def s_a2_text(sp):
+    """짧은 판 A_2 본문의 (x, runs, 글꼴, 틈). s_a1 이 글자 크기를 맞추려고 같이 쓴다."""
+    x = 186 + SA2_LOGO_W + 170
+    runs = [(COPY['sa2_accent'], ACCENT()), (COPY['sa2_body'], BODY())]
+    f, _, g = fit(runs, sp['gap'], sp['pill'][0] - x - MARGIN, sp['fs'])
+    return x, runs, f, g
+
+
+def s_b2_text(sp):
+    """짧은 판 B_2 본문의 (x, runs, 글꼴, 틈, 키 글자 폭). s_b1 도 같이 쓴다."""
+    kw = V2.tw(V2.gung(sp['fs']), COPY['sb2_key'])
+    x = sp['x0'] + kw + 130 + 380 + 120
+    runs = [(COPY['sb2_body1'], BODY()), (COPY['sb2_yel'], YEL()), (COPY['sb2_body2'], BODY())]
+    f, _, g = fit(runs, sp['gap'], sp['pill'][0] - x - MARGIN, sp['fs'])
+    return x, runs, f, g, kw
+
+
 def s_a2(c, sp):
     """짧은 판 A_2 — 왼쪽에 차트명가 로고를 **그대로** 얹는다 (다시 그리지 않는다).
     원본 트팩도 이 자리에 심볼+워드마크를 두었다(x186~1054 · 높이 약 330)."""
     lg = Image.open(LOGO_WIDE).convert('RGBA')
     lg = lg.crop(lg.getchannel('A').point(lambda v: 255 if v > 8 else 0).getbbox())
-    lw = 870
+    lw = SA2_LOGO_W
     lg = lg.resize((lw, int(lg.height * lw / lg.width)), Image.LANCZOS)
     c.alpha_composite(lg, (186, int(sp['cy'] - lg.height / 2)))
-    x = 186 + lw + 170
-    runs = [(COPY['sa2_accent'], ACCENT()), (COPY['sa2_body'], BODY())]
-    f, _, g = fit(runs, sp['gap'], sp['pill'][0] - x - MARGIN, sp['fs'])
+    x, runs, f, g = s_a2_text(sp)
     draw_runs(c, x, sp['cy'], runs, f, g)
     cta(c, sp['pill'], int(sp['fs'] * 0.74))
 
@@ -367,26 +385,46 @@ def s_a2(c, sp):
 def s_b2(c, sp):
     f = V2.gung(sp['fs'])
     key = COPY['sb2_key']
-    kw = V2.tw(f, key)
+    tx, runs, tf, tg, kw = s_b2_text(sp)
     V2.btext(c, (sp['x0'], sp['cy']), key, f, ACCENT(), anchor='lm', bold=1)
     rule(c, sp['x0'], sp['x0'] + kw, sp['cy'] - sp['fs'] * 0.72)
     rule(c, sp['x0'], sp['x0'] + kw, sp['cy'] + sp['fs'] * 0.60)
     x0, y0, x1, y1 = sp['pill']
     x = sp['x0'] + kw + 130
     plaque(c, (x, y0, x + 380, y1), COPY['arrow'], int(sp['fs'] * 0.8))
-    x += 380 + 120
-    runs = [(COPY['sb2_body1'], BODY()), (COPY['sb2_yel'], YEL()), (COPY['sb2_body2'], BODY())]
-    f, _, g = fit(runs, sp['gap'], sp['pill'][0] - x - MARGIN, sp['fs'])
-    draw_runs(c, x, sp['cy'], runs, f, g)
+    draw_runs(c, tx, sp['cy'], runs, tf, tg)
     cta(c, sp['pill'], int(sp['fs'] * 0.74))
+
+
+def centered(c, sp, runs, f, gap):
+    """글자 판을 가운데에 놓는다. 양옆 여백이 MARGIN 보다 좁아지면 멈춘다(넘치면 조용히 잘리므로)."""
+    w = runs_width(runs, f, gap)
+    x = (c.size[0] - w) // 2
+    assert x >= MARGIN, f'가운데 정렬 여백 부족: {x}px < {MARGIN}px (폭 {w})'
+    draw_runs(c, x, sp['cy'], runs, f, gap)
+
+
+def s_a1(c, sp):
+    """짧은 판 A_1 — 글자 크기를 A_2 본문에 맞춘다.
+    2026-09-17 이정찬: 하이라이트 A_1·B_1 글자가 너무 작다(214) → A_2(262)·B_2(238)에 맞춰라.
+    남은 폭에 맞춰 줄이던 방식이라 긴 문구가 작아졌다. 크기를 짝 판에서 받고 가운데에 놓는다.
+    양끝은 모서리 로고 무늬 위로 올라간다 — 무늬는 옅은 배경이라 가독성은 실측으로 확인."""
+    _, _, f, g = s_a2_text(sp)
+    centered(c, sp, [(COPY['a1_accent'], ACCENT()), (COPY['a1_body'], BODY())], f, g)
+
+
+def s_b1(c, sp):
+    """짧은 판 B_1 — 글자 크기를 B_2 본문에 맞춘다 (s_a1 과 같은 이유)."""
+    _, _, f, g, _ = s_b2_text(sp)
+    centered(c, sp, [(COPY['b1_body'], BODY()), (COPY['b1_accent'], ACCENT())], f, g)
 
 
 #            (파일 이름, 그리는 함수, 모서리 장식 여부)
 LONG = [('라이브_a_1', b_a1, True), ('라이브_a_2', b_a2, False),
         ('라이브_B_1', b_b1, True), ('라이브_B_2', b_b2, False),
         ('라이브_배경', None, True)]
-SHORT = [('하이라이트_A_1', b_a1, True), ('하이라이트_A_2', s_a2, False),
-         ('하이라이트_B_1', b_b1, True), ('하이라이트_B_2', s_b2, False),
+SHORT = [('하이라이트_A_1', s_a1, True), ('하이라이트_A_2', s_a2, False),
+         ('하이라이트_B_1', s_b1, True), ('하이라이트_B_2', s_b2, False),
          ('하이라이트_배경', None, True)]
 
 
