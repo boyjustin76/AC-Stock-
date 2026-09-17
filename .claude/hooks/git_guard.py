@@ -18,8 +18,7 @@ D 가 로컬(~/.claude/hooks/hookify_reason.py)에서 쓰던 규칙 3개를 저�
                        를 mv / Move-Item / Rename-Item / robocopy /MOV 로 옮기거나
                        rm -r / Remove-Item -Recurse / rmdir / DeleteDirectory 로 지울 때는 60분 안에 prlinks find 를
                        돌린 표식(<저장소>/.claude/prlinks_find.ok)이 있어야 통과. 표식은
-                       `python3 tools/cutedit/prlinks.py find …` 뒤에 `touch .claude/prlinks_find.ok` (E 가
-                       prlinks.py 에 넣어 주면 자동). 경로 한정은 오탐(`mv scratch/a.png b.png`)을 막기 위한 것 —
+                       `python3 tools/cutedit/prlinks.py find …` 가 끝날 때 스스로 남긴다(E, ea36a4a). 경로 한정은 오탐(`mv scratch/a.png b.png`)을 막기 위한 것 —
                        D 로컬 규칙과 같다. 이름을 더 보태려면 환경변수 AC_GUARD_PATHS="이름1 이름2".
                        git mv 와 저장소 안 이동은 대상이 아니다. 지우기도 막는 이유: 09-16 에 지운 C:\aelab 등도
                        누가 무는지 봐야 했다 (D 회신 §2-B ④).
@@ -114,8 +113,8 @@ def check(command: str, cwd: str = ".", *, now: float | None = None,
             mark_mtime = p.stat().st_mtime if p.exists() else 0.0
         if t - mark_mtime > MARK_TTL:
             return ("작업 폴더를 옮기거나 지우기 전에 누가 그 경로를 무는지 본다 — "
-                    "`python3 tools/cutedit/prlinks.py find \"<경로조각>\" \"<검색 루트>\"` 를 먼저 돌리고 "
-                    f"`touch {MARK}` (60분 유효). 2026-09-16 L08 소스 끊김 두 번(issue 20)의 재발 방지. 옮긴 뒤 `prlinks.py check`.")
+                    "`python3 tools/cutedit/prlinks.py find \"<경로조각>\" \"<검색 루트>\"` 를 먼저 돌린다 — "
+                    f"find 가 표식 {MARK} 를 남긴다(60분 유효). 2026-09-16 L08 소스 끊김 두 번(issue 20)의 재발 방지. 옮긴 뒤 `prlinks.py check`.")
     return None
 
 

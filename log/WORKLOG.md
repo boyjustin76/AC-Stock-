@@ -248,7 +248,7 @@ pyproject.toml 이 설정. ruff 기본 규칙 전체는 333건(09-17 기준)이�
 ```
 python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/illustrator log/inbox   ·   AC_SAVE_SCOPE="tools/photoshop tools/illustrator"
 ```
-로그 산출물(worklog.db·WORKLOG.md·worklog.html·README.md·checkpoints.json)은 항상 들어간다. 근본 해법은 세션마다 git worktree(인박스 개선안 §2-A)
+로그 산출물(worklog.db·WORKLOG.md·worklog.html·README.md·checkpoints.json)은 항상 들어간다. 근본 해법은 세션마다 git worktree(인박스 개선안 §2-A). 로컬은 save.py 대신 git add -- <내 경로> + commit 으로 올려도 된다(E 방식 — DB 재빌드는 총괄 병합 때 한다)
 
 **23. 옆가지 → 본류 병합 (총괄)** — worktree-* 를 본류에 합친다. 겹침을 먼저 재고, 합친 뒤 검사 셋을 돌린다
 ```
@@ -628,7 +628,7 @@ git fetch origin  →  겹침: comm -12 <(git diff --name-only $(git merge-base 
 | 라벨 클리핑은 스틸 몇 장이 아니라 probe-labels 로 전수 감사한다 | 뷰포트가 리빌·줌·스무딩으로 매 프레임 움직여서, 라벨이 '등장 시각엔 잘리고 나중에 들어오는' 문제는 스틸 표본으로는 계속 새 나간다 (차12 v2 에서 완전 화면 밖 라벨 4개가 납품까지 통과) | node src/tools/probe-labels.mjs --config scenes/xxx.scenes.js — 렌더 없이 등장~퇴장 0.25초 간격으로 가격/RSI 앵커 레이어의 y 를 전부 계산해 잘림 구간을 표로 낸다. 씬을 고치면 반드시 다시 돌린다. cmgNote 에는 세로 클램프 안전망도 있지만, 클램프에 기대지 말고 앵커를 옮기는 게 정답이다 |
 | 컷 경계에서 요소를 지우면 깜빡임이다 — 대체 전까지 유지한다 | 컷을 새로 시작할 때 앞 컷의 라벨·태그·원을 layers 에 안 넣으면 화면에서 뚝 사라졌다 다음 컷에서 다시 튀어나온다. 차12 인트로 컷2를 '프리셋 타이틀이 덮는다'는 가정으로 비웠다가 반려됨 — 실제 편집본에선 차트가 그대로 보였다 (2026-09-01 이정찬). 화면을 덮는 그래픽 가정은 실측 전엔 믿지 마라 | 컷을 나누는 기준은 '새 요소로 대체할 때'. 대체가 없는 구간은 아예 클립을 병합한다(2026-09-01 추가 반려 — 쪼개면 이월이 어긋날 때 깜빡임, 안 어긋나게 재등장시키면 반복·과밀). 교체는 같은 자리 크로스페이드, 퇴장은 카메라 이동으로만(clamp:false·toBar). 규칙 전문은 brand/EDIT-RULEBOOK.md ⑧~⑩·⑬ |
 | 호흡이 짧으면 깜빡임과 정신없음이 같이 온다 — 뒤 챕터의 컷 길이가 모범답안이다 | 차12 인트로가 컷 6개(중앙값 3.3초·요소 등장 초당 3.5개)로 쪼개져 '템포 빠르고 요소 많아 정신없다' 반려 (2026-09-01 이정찬). guide·fail 은 컷 9.7~29.6초(중앙값 ~17초)·초당 0.5개 — 같은 영상 안에서 6배 차이. 컷3→컷4~5 처럼 차이가 원 하나·문구 하나뿐인데 클립을 쪼개 요소 대부분을 반복한 게 원인. 내용에 도움 없는 줌인(줌인→줌아웃 왕복·카메라 되감기)도 같이 지적됨 | 대체가 일어나지 않는 한 클립을 쭉 끌고 간다 — 인트로+후킹 23.13초를 클립 1개로 병합(intro-hook). 새 씬을 짤 때 컷 길이·요소 밀도를 guide·fail 수준에 맞춘다. brand/EDIT-RULEBOOK.md ⑬ |
-| Bash 도구 heredoc — 역슬래시·유니코드 이스케이프가 깨진다 (D 세션 반복 08-28~09-17) | 'unexpected EOF while looking for matching' · 'grep: Trailing backslash' · 파일이 안 써지고 다음 명령이 '파일 없음'. replaceAll('\\','/') · 정규식 [/\\] · \uC774 가 UTF-8 바이트로 바뀜 · settings.json 의 C:\Users 가 \U 이스케이프로 해석 | String.fromCharCode(92) · chr(92) · Write 도구 · 경로는 슬래시(/). 원문 log/inbox/2026-09-17_D_오류·비효율.md B1 |
+| Bash 도구 heredoc — 역슬래시·유니코드 이스케이프가 깨진다 (D 반복 08-28~09-17 · B 09-17 · E 09-17 — 세 세션 다 밟았다) | 'unexpected EOF while looking for matching' · 'grep: Trailing backslash' · 파일이 안 써지고 다음 명령이 '파일 없음'. replaceAll('\\','/') · 정규식 [/\\] · \uC774 가 UTF-8 바이트로 바뀜 · settings.json 의 C:\Users 가 \U 이스케이프로 해석 | **역슬래시 든 코드는 Write/Edit 도구로만 쓴다** (E 처방 09-17 — f-string 의 \n 이 진짜 줄바꿈으로 박혀 SyntaxError, ruff E9 가 잡음). String.fromCharCode(92) · chr(92) · 경로는 슬래시(/). 원문 log/inbox/2026-09-17_D_오류·비효율.md B1 · 2026-09-17_B_오류·비효율.md C2 · 2026-09-17_E_개선안회신.md 오류 원자료 1 |
 | Windows 콘솔 cp949 — 파이썬 출력·파일 읽기가 한글·특수문자(—, ⚠)에서 죽는다 (반복) | UnicodeEncodeError: 'cp949' codec can't encode character. PowerShell Start-Job 결과도 ?묒뾽 로 깨짐 | PYTHONUTF8=1 (PEP 540 — 이 PC 의 python3 shim 에 넣음) · 파일은 encoding='utf-8' 명시 · PowerShell 은 grep 'OK' 로만 판정. 원문 log/inbox/2026-09-17_D_오류·비효율.md B2 · log/inbox/2026-09-17_B_오류·비효율.md C3 |
 | Bash → Windows 파이썬에 /c/Users/... 경로를 넘기면 한글이 깨진다 | FileNotFoundError '/c/Users/user/Desktop/������/...' | 파이썬 안에서는 C:/Users/... 형태. 원문 log/inbox/2026-09-17_D_오류·비효율.md B3 |
 | Node ESM 은 Windows 절대경로 import 를 못 받는다 | ERR_UNSUPPORTED_ESM_URL_SCHEME — Received protocol 'c:' | pathToFileURL() 또는 상대경로. 원문 log/inbox/2026-09-17_D_오류·비효율.md B4 |
@@ -643,6 +643,7 @@ git fetch origin  →  겹침: comm -12 <(git diff --name-only $(git merge-base 
 | 한지 텍스처 trad.hanji() 는 1920 폭 고정 | 8000px 배너를 한 번에 못 만든다 | 좌우 뒤집어 타일링. 원문 log/inbox/2026-09-17_D_오류·비효율.md B11 |
 | ExtendScript 함정 ①~㉒ 는 brand/EXTENDSCRIPT-TRAPS.md 가 원문 — DB 로 옮기지 않는다 | 코드 주석이 번호로 가리킨다(run.ps1 ⑥, build_rollad.jsx ⑮). 번호가 정리 안 됨(⑫ 두 번, ⑭→⑮ 건너뜀). 남의 실측을 요약해 옮기면 틀린다(⑦⑩⑪ 전례) | DB 는 '원문 ⑯' 처럼 번호만 가리킨다. 새 함정은 문서에 먼저 적고 DB 는 그 번호. 총괄 결정 2026-09-17 (decision 23). 원문 log/inbox/2026-09-17_B_EXTENDSCRIPT-TRAPS_이관판단.md |
 | ExtendScript $.evalFile 은 BOM 없는 UTF-8 한글을 정상으로 읽는다 — TRAPS ③ 은 File.read 얘기다 | 코드 검토 세션이 scene-export.mjs 의 한글 .jsx 를 TRAPS ③ 위반으로 지적했으나 D 실측(AE 26.5)에서 코드포인트 일치. _lib.jsx 도 BOM 없는 한글 파일로 35개 잡이 써 왔다 | evalFile 은 그대로. File.read() 로 읽을 때만 encoding='UTF-8' 을 먼저 준다(TRAPS ③). 남의 지적도 실측으로 되돌린다. 원문 log/inbox/2026-09-17_D_개선안회신.md §4 D-1 |
+| ffmpeg stderr 를 그대로 담은 파일(silences.txt)은 실행마다 메모리 주소가 바뀐다 | 줄 머리 `[silencedetect @ 000001650716bc00]` — 해시 회귀에서 '다름' 으로 뜬다. 도구 결과에는 영향 없음(read_silences 는 숫자만 읽는다) | 내용 비교는 주소를 빼고 한다. 원문 log/inbox/2026-09-17_E_개선안회신.md 오류 원자료 2 |
 
 ## 다음에 할 일
 
@@ -685,7 +686,7 @@ git fetch origin  →  겹침: comm -12 <(git diff --name-only $(git merge-base 
 37. **옛 경로 실행줄 정정 — D** — 본류 문서 8개에 총괄이 '경로 주의' 머리말을 달았다(09-17). 명령줄(cd C:\cmgwork\repo 등)을 최신 경로로 바꾸는 것과 tools/premiere/ 29개·tools/photoshop/config.json 의 잔여 경로 점검은 D (E 회신 §5-3)  _(대기: D)_
 38. **더원트레이더 규칙 DB 등재 — 보류** — 컷 0.65s/−30dB/IN −0.08·OUT +0.07(표본 2편 50경계 0.051s) · 자막 14자(롱폼 21자 관측, 8편) · 배너 2판 공식(8편 중 5편). E 가 표본 병기 조건으로 동의. 새 채널로 넘어가 우선순위 낮음  _(대기: 새 정답 자료가 생길 때)_
 39. **prlinks.py 전 파트 공용 규칙 — 인박스 제안서** — 폴더 옮기기 전 find, 옮긴 뒤 check. 검사 범위에서 목적지 폴더를 빼지 않는다. 사람이 옮기는 경우는 훅이 못 막는다 — 이정찬도 옮기기 전에 돌린다 (runbook 19)  _(대기: 로컬 채택)_
-40. **개선안 회신 — B·D 완료(09-17 17:00 병합), E 대기** — B 641f4da · D 3f32389 회신·코드 본류 병합(76fd1be·5ab0f8f). 총괄 답 log/inbox/2026-09-17_총괄_개선안회신답.md. E 는 §4 E-1~E-7 + prlinks 표식 3줄, 브랜치 worktree-script  _(대기: E 회신)_
+40. **개선안 회신 — B·D·E 전부 완료 (09-17 17:3x, 셋 다 본류 병합)** — B 641f4da · D 3f32389 · E e6c16b8. 채택 현황은 log/inbox/2026-09-17_총괄_개선안회신답.md 표 + E: 2-A(가지만 전환, 작업트리 두 벌은 단일화 방침으로 안 만듦)·E-1~E-7·ruff 5 적용, 회귀 45항목 동일, pytest 29. 남은 것은 next_step 41(세션 시작 폴더, 이정찬)뿐  _(대기: 완료)_
 41. **세션 시작 폴더 — 이정찬 결정** — 저장소 .claude/settings.json(env·훅·스킬)은 세션을 시작한 폴더에서만 읽힌다(공식 settings 문서, D 확인). 지금 B·D·E 는 …\이정찬\Claude 에서 시작해 아무것도 안 걸린다. 총괄 판단: 각 세션을 자기 worktree 폴더에서 띄운다(cd <worktree>; claude 또는 claude --worktree <이름>). 그러면 PYTHONUTF8·git_guard·radar 스킬이 자동으로 붙는다. 답이 오기 전엔 D 로컬 훅 유지  _(대기: 이정찬)_
 
 ## 대본과 컷 싱크
@@ -1232,6 +1233,12 @@ git fetch origin  →  겹침: comm -12 <(git diff --name-only $(git merge-base 
 - 조치: ref() 가 NEWCH_REF_DIR → 위로 올라가며 <통합>/01_납품_차트명가NEW/신규안_v2_전통/레퍼런스 를 찾고 못 찾으면 멈춘다. 프리미어 잡은 _labdir.jsx repoRootPath(). C:/aelab 폴백도 제거(없는 폴더를 돌려줘 늦게 터지던 것) (44efdf5)
 - 확인: roll_ad.py --theme lacquer 재생성 3장이 납품본과 바이트 동일. py·mjs·ps1 각각 실행 확인. 원문 log/inbox/2026-09-17_D_개선안회신.md §4 D-5
 
+### 40. silences.py 가 ffmpeg 실패를 삼켜 빈 무음 목록을 쓴다 — 코드 검토 E-1 이 실제 버그 (09-17)  `fixed`
+- 증상: 깨진 wav(텍스트 파일)로 돌리면 '무음 0구간 · 0구간' 을 찍고 빈 silences.txt 를 쓴다 → cut_and_srt 가 조용히 받아 컷 0개로 이어질 자리
+- 원인: subprocess.run 에 check 가 없었다 (ruff PLW1510)
+- 조치: check=True — CalledProcessError 로 그 자리에서 멈춘다. assemble_longform.duration 도 파일 없음·길이 줄 없음을 각각 한국어로 멈추게 (ffprobe 는 이 PC 에 없어 의존성 안 늘림) (ea36a4a)
+- 확인: 정상 녹음(L08 캠 앞 400초) 28·64구간 그대로. 회귀 45항목 해시 동일. 원문 log/inbox/2026-09-17_E_개선안회신.md §4 E-1·E-2
+
 ## 판단과 근거
 
 - **렌더 방식** — 실시간 재생이 아니라 프레임 번호를 받아 그린다
@@ -1772,3 +1779,7 @@ git fetch origin  →  겹침: comm -12 <(git diff --name-only $(git merge-base 
 | 380 | `76fd1be0` | 병합: worktree-ae (D 개선안 반영 — 경로·labdir 공용화·줄끝·guard 구멍 2개) | 26파일 +401/-221 |
 | 381 | `5ab0f8f0` | 병합: worktree-ps (B 개선안 반영 — 라이브화면 07~10·BOM·matte) | 7파일 +513/-35 |
 | 382 | `a8b46739` | 세이브 save/2026-09-17-1713 — B·D 회신 병합 — guard 경로한정·삭제·push 이름 강제(decision 31), 옆가지 worktree-*(30), issue 38·39, next_step 41 세션 시작 폴더(이정찬), 총괄 회신답 | 8파일 +163/-35 |
+| 383 | `78210a2f` | 세이브 기록 save/2026-09-17-1713 | 5파일 +11/-3 |
+| 384 | `ea36a4a2` | 컷편집 도구 — 총괄 개선안 E-1~E-6 · ruff F 5건 | 17파일 +179/-120 |
+| 385 | `a8728be8` | log/inbox — E 개선안 회신 (2-A worktree-script, E-1~E-7 적용, 회귀 45항목 같음) · SCRIPT-LAB 옛 경로 표시 | 2파일 +78/-2 |
+| 386 | `e6c16b83` | E 회신 §3 문구 정정 — 오류 둘 중 하나만 기존 기록에 있음 | 1파일 +1/-1 |

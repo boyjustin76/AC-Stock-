@@ -27,6 +27,7 @@ import html
 import io
 import json
 import os
+import re
 import sys
 from urllib.parse import quote
 
@@ -44,7 +45,11 @@ def frames(sec, fps):
 
 def pathurl(p):
     """프리미어가 내보내는 형태 그대로 — 퍼센트 인코딩한 file URL."""
-    p = os.path.abspath(p).replace("\\", "/")
+    # 드라이브 문자로 시작하는 윈도우 경로는 abspath 를 거치지 않는다 — 리눅스(총괄 컨테이너)에서 abspath 가
+    # 앞에 cwd 를 붙여 'file://localhost/home/…/C:/…' 이 됐다 (tests/test_cutedit.py 가 잡음, 2026-09-17 총괄)
+    if not re.match(r"^[A-Za-z]:[\\/]", p):
+        p = os.path.abspath(p)
+    p = p.replace("\\", "/")
     return "file://localhost/" + quote(p.lstrip("/"), safe="/:")
 
 
