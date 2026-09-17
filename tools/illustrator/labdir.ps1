@@ -6,13 +6,14 @@
         $lab = Get-LiveDir $cfg.labDir          # 참고자료(원본 .ai·프레임 png)가 있는 곳
         $out = Resolve-UnderLab $cfg.outDir $lab
 
-    찾는 순서: LIVEFRAME_DIR 환경변수 → config 값 → 위로 8단계 올라가며 이름 찾기
+    찾는 순서: LIVEFRAME_DIR 환경변수 → config 값 → 위로 11단계 올라가며 이름 찾기
 #>
 
 <#  자기 위치에서 위로 올라가며 이름(여러 개 중 먼저 걸리는 것)을 찾는다.
     이름에 '/' 가 들어가면 그 하위 경로까지 한 번에 본다.  #>
 function Find-UpFolder {
-    param([string]$Start, [string[]]$Names, [int]$Depth = 8)
+    <# 8 → 11: 세션마다 git worktree(.claude/worktrees/<이름>)를 쓰면 저장소가 3단계 깊어진다 (2026-09-17, 총괄 개선안 2-A) #>
+    param([string]$Start, [string[]]$Names, [int]$Depth = 11)
     $d = $Start
     for ($i = 0; $i -lt $Depth; $i++) {
         foreach ($n in $Names) {

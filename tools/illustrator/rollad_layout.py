@@ -166,7 +166,9 @@ def main():
     for kind, sub, table in groups:
         W, H = RA.SPEC[kind]['size']
         for name, fn, dk in table:
-            b, im = record(name, W, H, bg, lambda: RA.build(kind, name, fn, dk)[1])
+            # 기본 인자로 묶는다 — record() 가 바로 부르니 버그는 아니지만 ruff B023 경고를 없앤다 (총괄 개선안 D-6)
+            b, im = record(name, W, H, bg,
+                           lambda kind=kind, name=name, fn=fn, dk=dk: RA.build(kind, name, fn, dk)[1])
             ext = '.png' if '배경' in name else '.jpg'
             b['file'] = sub + '/' + name + ext
             boards.append(b)
