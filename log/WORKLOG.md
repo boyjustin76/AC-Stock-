@@ -256,6 +256,18 @@ git fetch origin  →  겹침: comm -12 <(git diff --name-only $(git merge-base 
 ```
 로컬은 본류에 push 하지 않는다(git_guard). 병합 뒤 로컬은 git fetch && git rebase origin/<본류> 또는 새 worktree. build_worklog_db.py 는 총괄이 번호로 부탁한 줄만 로컬이 만진다(runbook 16 처럼)
 
+**24. 세션 띄우기 — 자기 worktree 폴더에서 (이정찬 확정 2026-09-17)** — 저장소 .claude/(UTF-8 env·훅·radar 스킬)은 세션을 시작한 폴더에서만 읽힌다. /cd 로 옮겨도 안 걸린다
+```
+D:  cd "<통합>\03_저장소\worktrees\D_Video" ; claude      B:  cd "<통합>\03_저장소\worktrees\B_Image" ; claude      E:  cd "<E 저장소>\E_Script" ; claude      총괄(클라우드): 저장소 루트에서 시작됨 — 첫 명령 git config ac.role 총괄
+```
+폴더 이름 = 세션 글자 + 역할 (이정찬이 안 헷갈리게). 브랜치 이름도 같이 간다: worktree-D_Video · worktree-B_Image · worktree-E_Script. 괄호 대신 밑줄 — 괄호는 bash·PowerShell 둘 다 따옴표를 요구한다. 공식 근거: code.claude.com/docs/en/settings 'reads the shared .claude/settings.json from the session's primary working directory'
+
+**25. worktree 만들기·이름 바꾸기 (D·B) — 공용 clone 에서** — 세션당 작업트리 하나. 저장소 밖 03_저장소\worktrees\ 에 둔다 (공용 작업트리에 추적 안 된 폴더로 안 보이게 — D 판단)
+```
+cd "<통합>\03_저장소\AC-Stock-"  ;  git fetch origin  ;  git worktree add "..\worktrees\D_Video" -b worktree-D_Video origin/claude/futures-youtube-video-edit-fhio4s      옛것 정리(본류 병합 확인 뒤):  git worktree remove "..\worktrees\ae"  ;  git branch -D worktree-ae  ;  git push origin --delete worktree-ae
+```
+upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B 는 .claude/worktrees/ps 안에 뒀던 것을 같은 방식으로 밖으로 옮긴다. E 는 clone 하나를 혼자 쓰니 worktree 없이 폴더 이름만 E_Script 로 (git switch -c worktree-E_Script origin/<본류>). 옛 이름 세 개(ae·ps·script)는 09-17 본류에 다 들어갔으니 지워도 된다
+
 
 ### 파일 지도
 
@@ -687,7 +699,7 @@ git fetch origin  →  겹침: comm -12 <(git diff --name-only $(git merge-base 
 38. **더원트레이더 규칙 DB 등재 — 보류** — 컷 0.65s/−30dB/IN −0.08·OUT +0.07(표본 2편 50경계 0.051s) · 자막 14자(롱폼 21자 관측, 8편) · 배너 2판 공식(8편 중 5편). E 가 표본 병기 조건으로 동의. 새 채널로 넘어가 우선순위 낮음  _(대기: 새 정답 자료가 생길 때)_
 39. **prlinks.py 전 파트 공용 규칙 — 인박스 제안서** — 폴더 옮기기 전 find, 옮긴 뒤 check. 검사 범위에서 목적지 폴더를 빼지 않는다. 사람이 옮기는 경우는 훅이 못 막는다 — 이정찬도 옮기기 전에 돌린다 (runbook 19)  _(대기: 로컬 채택)_
 40. **개선안 회신 — B·D·E 전부 완료 (09-17 17:3x, 셋 다 본류 병합)** — B 641f4da · D 3f32389 · E e6c16b8. 채택 현황은 log/inbox/2026-09-17_총괄_개선안회신답.md 표 + E: 2-A(가지만 전환, 작업트리 두 벌은 단일화 방침으로 안 만듦)·E-1~E-7·ruff 5 적용, 회귀 45항목 동일, pytest 29. 남은 것은 next_step 41(세션 시작 폴더, 이정찬)뿐  _(대기: 완료)_
-41. **세션 시작 폴더 — 이정찬 결정** — 저장소 .claude/settings.json(env·훅·스킬)은 세션을 시작한 폴더에서만 읽힌다(공식 settings 문서, D 확인). 지금 B·D·E 는 …\이정찬\Claude 에서 시작해 아무것도 안 걸린다. 총괄 판단: 각 세션을 자기 worktree 폴더에서 띄운다(cd <worktree>; claude 또는 claude --worktree <이름>). 그러면 PYTHONUTF8·git_guard·radar 스킬이 자동으로 붙는다. 답이 오기 전엔 D 로컬 훅 유지  _(대기: 이정찬)_
+41. **세션 시작 폴더 — 확정 (09-17 18:40 이정찬): 자기 worktree 폴더에서 띄운다 · 이름 D_Video·B_Image·E_Script** — 저장소 .claude/settings.json(env·훅·스킬)은 세션을 시작한 폴더에서만 읽힌다(공식 settings 문서, D 확인). 지금 B·D·E 는 …\이정찬\Claude 에서 시작해 아무것도 안 걸린다. 총괄 판단: 각 세션을 자기 worktree 폴더에서 띄운다(cd <worktree>; claude 또는 claude --worktree <이름>). 그러면 PYTHONUTF8·git_guard·radar 스킬이 자동으로 붙는다. 답이 오기 전엔 D 로컬 훅 유지  _(대기: 이정찬)_
 
 ## 대본과 컷 싱크
 
@@ -1317,7 +1329,7 @@ git fetch origin  →  겹침: comm -12 <(git diff --name-only $(git merge-base 
 - **총괄의 피드백 대상 — 에이전트만이 아니라 이정찬도** — 총괄은 작업체계·지시 방식·시간표에서 이정찬 쪽 비효율도 근거를 달아 말한다. '주류'라고 말할 때는 출처(공식 문서·채택도)를 붙이고, 내 판단이면 판단이라고 표시한다
   - 이유: 이정찬 09-17: '피드백을 에이전트들에게만 하지 말고 나한테도 해. Mainstream 을 읽을 시간이 없어서 니 말이 곧 정론이다 하고 듣겠다.' 그래서 출처 표시가 의무다 — 내 말이 정론이 되면 틀렸을 때 비용이 그쪽으로 간다. 첫 회차: 개선안 §5 (U-1·U-2·U-4·U-6 은 이정찬 반박으로 정정)
   - 다시 볼 때: 피드백이 일을 늦추거나, 근거 없이 나갔다고 지적받을 때
-- **옆가지 이름 — local/* → worktree-*** — 새 커밋은 worktree-ps(B)·worktree-ae(D)·worktree-script(E). local/* 다섯 가지는 동결(지우지 않는다 — 검증됐던 마지막 지점의 이름표). 병합은 총괄이 본류로(runbook 23). upstream 은 두지 않는다 — push 는 항상 `git push origin worktree-<이름>`
+- **옆가지 이름 — local/* → worktree-*** — 새 커밋은 worktree-B_Image(B)·worktree-D_Video(D)·worktree-E_Script(E) — 09-17 저녁 이정찬이 폴더·브랜치 이름을 세션 글자+역할로 확정(runbook 24·25). 첫 판 이름 ps·ae·script 는 본류 병합 뒤 지운다. local/* 다섯 가지는 동결(지우지 않는다 — 검증됐던 마지막 지점의 이름표). 병합은 총괄이 본류로(runbook 23). upstream 은 두지 않는다 — push 는 항상 `git push origin worktree-<이름>`
   - 이유: 2-A 채택으로 B·D 가 09-17 16시 합의해 실제로 땄다. D 질문 3 에 대한 답. 원문 log/inbox/2026-09-17_D_개선안회신.md 질문 3
   - 다시 볼 때: 세션 시작 폴더(next_step 41)가 바뀌어 claude --worktree 가 브랜치를 스스로 만들 때
 - **git_guard 설계 — 경로 한정·삭제 포함·인자 없는 push 차단** — 이동·삭제 규칙은 작업 폴더 이름(이정찬·차트명가·aelab·cmgwork·pprolab·납품·더원)이 명령에 있을 때만. rm -r·Remove-Item -Recurse·rmdir·DeleteDirectory 도 같은 규칙. 브랜치 이름 없는 push(인자 없음·HEAD)는 브랜치 확인 없이 막고 이름을 쓰게 한다. git 규칙은 명령 머리의 git 만 본다(따옴표 안 grep 은 제외)
@@ -1784,3 +1796,4 @@ git fetch origin  →  겹침: comm -12 <(git diff --name-only $(git merge-base 
 | 385 | `a8728be8` | log/inbox — E 개선안 회신 (2-A worktree-script, E-1~E-7 적용, 회귀 45항목 같음) · SCRIPT-LAB 옛 경로 표시 | 2파일 +78/-2 |
 | 386 | `e6c16b83` | E 회신 §3 문구 정정 — 오류 둘 중 하나만 기존 기록에 있음 | 1파일 +1/-1 |
 | 387 | `d8ec535a` | 세이브 save/2026-09-17-1828 — E 회신 병합(ff) — E-1~E-7·textnorm·test_cutedit 8, guard 표식 문구(E-5), issue 40, next_step 40 완료, make_xml.pathurl 리눅스 보정 | 6파일 +37/-17 |
+| 388 | `3ca646ed` | 세이브 기록 save/2026-09-17-1828 | 5파일 +11/-3 |
