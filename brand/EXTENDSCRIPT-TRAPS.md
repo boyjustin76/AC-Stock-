@@ -122,6 +122,16 @@ so.compatibility = Compatibility.ILLUSTRATOR24;   // ○ 현재 형식 (2026 판
 - 확인용으로 열 때 `UserInteractionLevel.DONTDISPLAYALERTS` 를 켜면 창이 안 떠서 **문제가 가려진다**
   (`legacyTextItems` 도 0 으로 나왔다). 사람이 겪을 창을 보려면 알림을 켠 채 열고 화면을 찍어 본다.
 
+### ⑨-3 남의 원본을 열 때 끊긴 링크 창이 뜨면 스크립트가 멈춘다
+
+트팩 원본 .ai 에 `09012023_15.jpg` 링크가 끊겨 있어 "연결된 파일을 찾을 수 없습니다 — 바꾸기/무시" 창이 떴고,
+빌드가 그 창 앞에서 한없이 기다렸다 (2026-09-17 사용자가 화면에서 발견 — "빌드가 오래 걸린다"의 정체).
+
+**처방** — 읽기만 할 원본은 여는 동안만 `UserInteractionLevel.DONTDISPLAYALERTS` 로 연다. 링크를 고치려고 원본을
+저장하지 않는다. (반대로 ⑨-2 처럼 **사람이 겪을 창을 확인하려는** 열기에서는 알림을 켠다 — 목적에 따라 갈린다.)
+창이 떠서 멈췄는지는 COM 이 답을 안 줄 때 화면을 찍어 보면 바로 안다. 이 창은 UI Automation 에 안 잡혀서
+키 입력(한글 IME 가 켜져 있으면 씹힌다) 대신 좌표 클릭으로 닫았다.
+
 ### ⑩ mogrt 내보내기가 dirty 프로젝트를 디스크에 저장해 버린다
 
 `exportAsMotionGraphicsTemplate()` 은 두 가지를 같이 저지른다.

@@ -233,7 +233,13 @@ function openRef() {
     if (refDoc) return refDoc;
     var f = new File(LAB + "/" + CFG.refAi);
     if (!f.exists) { L("  !! 원본 .ai 가 없습니다: " + f.fsName); return null; }
-    refDoc = app.open(f);
+    /* 원본 안에 끊긴 링크(09012023_15.jpg)가 있어 "연결된 파일을 찾을 수 없습니다" 모달이 뜬다.
+       뜨면 스크립트가 거기서 멈춘다 (2026-09-17 사용자가 화면에서 발견 — 빌드가 오래 걸리던 원인).
+       원본은 저장하지 않으니 링크를 고치지 않고, 여는 동안만 알림을 끈다. 캡쳐는 임베드 항목이라 영향 없다. */
+    var ui = app.userInteractionLevel;
+    app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
+    try { refDoc = app.open(f); }
+    finally { app.userInteractionLevel = ui; }
     refABS = [];
     for (var i = 0; i < refDoc.artboards.length; i++) {
         var r = refDoc.artboards[i].artboardRect;
