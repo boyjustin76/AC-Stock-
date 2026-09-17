@@ -768,5 +768,12 @@
   "utc": "2026-09-17 09:40",
   "sha": "e334854",
   "summary": "세션 시작 폴더 확정 — worktree 이름 D_Video·B_Image·E_Script (runbook 24·25, decision 30 갱신, CLAUDE.md)"
+ },
+ {
+  "tag": "save/2026-09-17-1841",
+  "kst": "2026-09-17 18:41",
+  "utc": "2026-09-17 09:41",
+  "sha": "561e8a4",
+  "summary": "guard 시험 — 총괄 clone(ac.role) 에서도 도는 환경 고정"
  }
 ]

@@ -1799,3 +1799,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 388 | `3ca646ed` | 세이브 기록 save/2026-09-17-1828 | 5파일 +11/-3 |
 | 389 | `e334854e` | 세이브 save/2026-09-17-1840 — 세션 시작 폴더 확정 — worktree 이름 D_Video·B_Image·E_Script (runbook 24·25, decision 30 갱신, CLAUDE.md) | 6파일 +45/-8 |
 | 390 | `ec5bcb3c` | 세이브 기록 save/2026-09-17-1840 | 5파일 +11/-3 |
+| 391 | `561e8a48` | 세이브 save/2026-09-17-1841 — guard 시험 — 총괄 clone(ac.role) 에서도 도는 환경 고정 | 4파일 +4/-1 |
