@@ -15,6 +15,7 @@ function readConfig(here) {
     f.open("r");
     var t = f.read();
     f.close();
+    t = t.replace(/^\uFEFF/, "");   // BOM 이 붙어 와도 eval 이 안 깨지게 (총괄 개선안 B-1)
     return eval("(" + t + ")");    // ExtendScript 에는 JSON 이 없는 판이 있다
 }
 
@@ -30,6 +31,7 @@ function readPaths(here) {
     f.open("r");
     var t = f.read();
     f.close();
+    t = t.replace(/^\uFEFF/, "");   // BOM 이 붙어 와도 eval 이 안 깨지게 (총괄 개선안 B-1)
     return eval("(" + t + ")");
 }
 

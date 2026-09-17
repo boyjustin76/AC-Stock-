@@ -2,10 +2,8 @@
     일러스트레이터를 COM 으로 띄워 같은 폴더의 .jsx 를 실행한다.
     tools/photoshop/run.ps1 과 같은 구조다.
 
-        .	ools\illustrator
-un.ps1 dump_ai
-        .	ools\illustrator
-un.ps1 build_live
+        .\tools\illustrator\run.ps1 dump_ai
+        .\tools\illustrator\run.ps1 build_live
 
     경로는 박지 않는다 (labdir.ps1). jsx 는 PowerShell 함수를 못 부르니 환경변수로 넘긴다.
 
@@ -40,7 +38,9 @@ $paths = @{
     outDir       = $out
     repoDir      = $repo
 } | ConvertTo-Json
-Set-Content -Path (Join-Path $here '_paths.json') -Value $paths -Encoding UTF8
+# BOM 없이 쓴다 — PS 5.1 의 Set-Content -Encoding UTF8 은 BOM 을 붙이는데 jsx 는 eval 전에 떼지 않는다
+# (총괄 개선안 B-1, 2026-09-17). tools/ae/run.ps1 과 같은 방식.
+[System.IO.File]::WriteAllText((Join-Path $here '_paths.json'), $paths, (New-Object System.Text.UTF8Encoding($false)))
 Write-Host "  참고자료: $lab"
 Write-Host "  결과 자리: $out"
 Write-Host "  저장소: $repo"
