@@ -1551,3 +1551,4 @@ pip install faster-whisper imageio-ffmpeg  →  tools/cutedit/transcribe.py → 
 | 365 | `3ac2f881` | log/inbox — D 가 총괄에게 넘기는 오류·비효율 기록 (2026-09-17) | 1파일 +4221/-0 |
 | 366 | `ed6b9356` | log/inbox — 이 PC 의 Claude Code 스킬 전체 목록 (플러그인 · claude.ai · 기본) | 1파일 +96/-0 |
 | 367 | `8890a35b` | 병합: local/script-lab (E 대본·컷편집·더원트레이더) — 겹침 0 | 63파일 +52087/-19 |
+| 368 | `1fceff75` | 세이브 save/2026-09-17-1517 — 병합 — newch-style(ff)·script-lab(3-way) 본류 합류, 겹침 0 | 3파일 +135/-101 |
