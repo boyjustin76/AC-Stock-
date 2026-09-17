@@ -473,6 +473,7 @@ Old 가 분포를 끌어당긴다.
 
 `pip install faster-whisper` (1.2.1) + `imageio-ffmpeg` — **매뉴얼에 imageio-ffmpeg 가
 빠져 있다.** `build_cuts.py` 가 이걸 임포트해서 없으면 거기서 멈춘다.
+(2026-09-17: `build_cuts.py` 는 `tools/legacy/` 로 격리 — 지금 도구는 `tools/cutedit/cut_and_srt.py`.)
 
 파이프라인 3종의 클라우드 스크래치 경로(`/tmp/claude-0/...`)를 **`CUTEDIT_DIR`
 환경변수 또는 첫 인자**로 받게 바꿨다. 다음 세션이 또 고칠 필요 없다.
@@ -736,7 +737,7 @@ python tools/cutedit/prproj_titles.py 프로젝트.prproj            # 문구 �
 | `tools/cutedit/srt_rules.py` | 자막 큐 나누기·검사 | **버그 2건 수정** (§13) |
 | `tools/cutedit/transcribe.py` | STT (faster-whisper) | 경로를 `CUTEDIT_DIR` 로 |
 | `tools/cutedit/align_cut.py` | 녹음↔대본 정렬 | 경로를 `CUTEDIT_DIR` 로 |
-| `tools/cutedit/build_cuts.py` | 컷리스트·내레이션·srt | 경로 + `WORD_FIXES` 비움 |
+| `tools/cutedit/build_cuts.py` → 09-17 `tools/legacy/` | 컷리스트·내레이션·srt | 경로 + `WORD_FIXES` 비움 (지금은 `cut_and_srt.py`) |
 | **`tools/cutedit/chapters.py`** | 롱폼 자막 무음 텀 → 챕터 | **새로 만듦** (§14-1) |
 | **`tools/cutedit/prproj_titles.py`** | `.prproj` → 소제목·챕터 범퍼 | **새로 만듦** (§14-2) |
 
@@ -757,7 +758,7 @@ python tools/cutedit/prproj_titles.py 프로젝트.prproj
 ```
 
 **환경** — `pip install faster-whisper imageio-ffmpeg`.
-매뉴얼 §8 설치 목록에 `imageio-ffmpeg` 가 빠져 있다(`build_cuts.py` 가 임포트한다).
+매뉴얼 §8 설치 목록에 `imageio-ffmpeg` 가 빠져 있다(`silences.py`·`assemble_longform.py` 가 임포트한다. 당시엔 `build_cuts.py`, 09-17 `tools/legacy/` 로 격리).
 파이프라인 3종은 작업 폴더를 `CUTEDIT_DIR` 환경변수나 첫 인자로 받는다.
 
 ---
