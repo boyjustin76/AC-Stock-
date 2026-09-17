@@ -7,7 +7,7 @@
      좋은 자리다.
   3. **관형형과 의존명사를 가르지 마라.** '~하는 것까지'를 '~하는 | 것까지'로 끊는
      종류의 분리 금지 — 의존명사(것·수·때·만큼·뿐·데·지…)로 큐를 시작하지 않는다.
-  4. 텍스트는 대본 표기를 따른다 (STT 오인식 배제 — build_cuts.py 와 같은 원칙).
+  4. 텍스트는 대본 표기를 따른다 (STT 오인식 배제 — cut_and_srt.py 와 같은 원칙).
 
 **금지(검사에서 반려)와 선호(벌점)를 갈라 둔다.** 사람이 확정한 자막에도 보조용언·
 방위명사 앞에서 끊은 예가 있어서, 그걸 금지로 두면 납품본이 반려된다. 검사가 잡는
@@ -176,26 +176,43 @@ def split_cue(sentence, max_len=MAX_LEN, min_len=0):
 
 # ── 검사 ──────────────────────────────────────────────────────────────
 
-def parse_srt(path):
-    txt = open(path, encoding='utf-8-sig').read()
+_TC_LINE = re.compile(r'(\d+:\d\d:\d\d(?:[,.]\d+)?)\s*-->\s*(\d+:\d\d:\d\d(?:[,.]\d+)?)')
+
+
+def sec(tc):
+    """'01:02:03,004' → 3723.004. 밀리초 자리는 쉼표·마침표 둘 다 받고, 없어도 된다."""
+    h, m, s = tc.strip().split(':')
+    s, ms = (s.replace('.', ',').split(',') + ['0'])[:2]
+    return int(h) * 3600 + int(m) * 60 + int(s) + int(ms) / 1000
+
+
+def read_srt(path):
+    """.srt → [{'s': 시작초, 'e': 끝초, 't': 텍스트, 'tc': 타임코드 줄}, ...]
+
+    srt 를 읽는 곳은 전부 이것을 쓴다 (검사·챕터·채점대·더원 인덱스).
+    번호 줄은 있어도 없어도 되고, 텍스트 여러 줄은 한 칸 띄워 잇는다. 타임코드가 안 읽히는 덩어리는 건너뛴다.
+    """
+    txt = open(path, encoding='utf-8-sig', errors='replace').read().replace('\r\n', '\n')
     cues = []
     for block in re.split(r'\n\s*\n', txt.strip()):
-        lines = [l for l in block.splitlines() if l.strip()]
-        if len(lines) >= 3 and '-->' in lines[1]:
-            cues.append((lines[1], ' '.join(lines[2:]).strip()))
+        lines = [l for l in block.split('\n') if l.strip()]
+        i = next((k for k, l in enumerate(lines[:2]) if '-->' in l), None)
+        m = _TC_LINE.search(lines[i]) if i is not None else None
+        if not m:
+            continue
+        cues.append({'s': sec(m.group(1)), 'e': sec(m.group(2)),
+                     't': ' '.join(l.strip() for l in lines[i + 1:]).strip(), 'tc': lines[i]})
     return cues
+
+
+def parse_srt(path):
+    return [(c['tc'], c['t']) for c in read_srt(path)]
 
 
 # 시각 검사 — 끝이 시작보다 앞서거나, 앞 큐와 겹치거나, 너무 짧은 큐.
 # 기존 srt 18개(사람이 만든 숏폼·롱폼 포함) 실측: 끝≤시작·겹침·뒤로 가기 0건,
 # 0.3초 미만 큐는 약 1,400개 중 1개(차명12 롱폼 0.134초). 0.3초 미만은 사람이 한 번 보게 한다.
 MIN_CUE_SEC = 0.3
-
-
-def _sec(tc):
-    h, m, s = tc.strip().split(':')
-    s, ms = s.replace('.', ',').split(',')
-    return int(h) * 3600 + int(m) * 60 + int(s) + int(ms) / 1000
 
 
 def check(path, max_len=MAX_LEN):
@@ -208,7 +225,7 @@ def check(path, max_len=MAX_LEN):
         first = text.split()[0] if text.split() else ''
         if _bad_break(first):
             badstart.append((k, text))
-        s, e = (_sec(x) for x in tc.split('-->'))
+        s, e = (sec(x) for x in tc.split('-->'))
         if e <= s:
             timing.append((k, f'끝이 시작보다 앞섬 {tc.strip()}'))
         elif e - s < MIN_CUE_SEC:

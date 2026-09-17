@@ -41,7 +41,7 @@ def levels(ff, wav):
          "-af", f"astats=metadata=1:reset={max(1, int(WIN * 50))},"
                 f"ametadata=print:key=lavfi.astats.Overall.RMS_level:file=-",
          "-f", "null", "-"],
-        capture_output=True, text=True, errors="replace")
+        capture_output=True, text=True, errors="replace", check=True)
     out = []
     for m in re.finditer(r"RMS_level=(-?[\d.]+|-inf)", p.stdout):
         v = m.group(1)
@@ -60,7 +60,7 @@ def detect(ff, wav, db, dur, path):
     p = subprocess.run(
         [ff, "-hide_banner", "-nostats", "-i", wav,
          "-af", f"silencedetect=noise={db:.1f}dB:d={dur}", "-f", "null", "-"],
-        capture_output=True, text=True, errors="replace")
+        capture_output=True, text=True, errors="replace", check=True)
     lines = [l for l in (p.stderr or "").splitlines()
              if "silence_start" in l or "silence_end" in l]
     io.open(path, "w", encoding="utf-8", newline="\n").write("\n".join(lines) + "\n")

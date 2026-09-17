@@ -16,6 +16,9 @@ import os
 import re
 import sys
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "cutedit"))
+from textnorm import norm  # noqa: E402
+
 MODEL = "nlpai-lab/KURE-v1"
 _M = None
 
@@ -33,10 +36,6 @@ def emb(texts):
     v = model().encode(list(texts), normalize_embeddings=True,
                        show_progress_bar=False, batch_size=16)
     return np.asarray(v, dtype="float32")
-
-
-def norm(t):
-    return re.sub(r"[^0-9가-힣a-zA-Z]", "", t)
 
 
 def load(p):

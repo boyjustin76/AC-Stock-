@@ -44,7 +44,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from align_take import FIRM, read_script                                  # noqa: E402
+from align_take import FIRM                                               # noqa: E402
 from cut_and_srt import LEAD, fix_terms, fmt, norm, spoken_text, words_between  # noqa: E402
 from srt_rules import LONG_MAX_LEN, LONG_MIN_LEN, split_cue               # noqa: E402
 
@@ -56,10 +56,17 @@ SEG_MIN, SEG_DENS = 2.0, 0.5
 
 
 def duration(src):
+    # ffprobe 가 있으면 그게 정석이지만 imageio-ffmpeg 에는 ffmpeg 만 들어 있다.
+    # 'ffmpeg -i' 는 출력이 없어 늘 실패 코드로 끝나므로 check 대신 결과 줄로 판정한다.
+    if not os.path.isfile(src):
+        raise SystemExit(f"영상이 없습니다: {src}")
     import imageio_ffmpeg
     p = subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), "-hide_banner", "-i", src],
                        capture_output=True, text=True, errors="replace")
     m = re.search(r"Duration:\s*(\d+):(\d+):([\d.]+)", p.stderr or "")
+    if not m:
+        tail = (p.stderr or "").strip().splitlines()[-1:] or ["(출력 없음)"]
+        raise SystemExit(f"영상 길이를 못 읽었습니다: {src} — ffmpeg: {tail[0]}")
     return int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3))
 
 
@@ -180,7 +187,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("cam")
     ap.add_argument("pd")
-    ap.add_argument("script")
+    ap.add_argument("script")        # 지금은 안 읽는다 — 문장은 두 폴더의 aligned.json 에 이미 있다
     ap.add_argument("--pd-src", required=True)
     ap.add_argument("--motion", required=True)
     ap.add_argument("--name", required=True)
@@ -188,7 +195,6 @@ def main():
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
 
-    lines = read_script(a.script)
     cam_rows, cam_tr, cam_spec, cam_vf = load_side(a.cam)
     pd_rows, pd_tr, pd_spec, pd_vf = load_side(a.pd)
     fps = float(cam_spec.get("fps", 29.97))

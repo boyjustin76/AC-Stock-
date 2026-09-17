@@ -15,33 +15,14 @@
 이미 나간 것이고, 이 도구는 자르기만 한다.
 """
 import argparse
-import io
 import re
-import sys
 
-TC = re.compile(r"(\d\d):(\d\d):(\d\d)[,.](\d\d\d)\s*-->\s*(\d\d):(\d\d):(\d\d)[,.](\d\d\d)")
-
-
-def _sec(h, m, s, ms):
-    return int(h) * 3600 + int(m) * 60 + int(s) + int(ms) / 1000
+from srt_rules import read_srt
 
 
 def parse(path):
     """[(시작초, 끝초, 텍스트), ...]"""
-    txt = io.open(path, encoding="utf-8-sig", errors="replace").read()
-    out = []
-    for block in re.split(r"\n\s*\n", txt.strip()):
-        lines = [l for l in block.splitlines() if l.strip()]
-        tc = next((l for l in lines if "-->" in l), None)
-        if not tc:
-            continue
-        m = TC.search(tc)
-        if not m:
-            continue
-        g = m.groups()
-        body = " ".join(l.strip() for l in lines[lines.index(tc) + 1:])
-        out.append((_sec(*g[:4]), _sec(*g[4:]), body.strip()))
-    return out
+    return [(c["s"], c["e"], c["t"]) for c in read_srt(path)]
 
 
 def gaps(cues):

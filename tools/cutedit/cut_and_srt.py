@@ -41,6 +41,7 @@ from difflib import SequenceMatcher
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from srt_rules import LONG_MAX_LEN, LONG_MIN_LEN, MAX_LEN, split_cue
+from textnorm import norm  # noqa: E402
 
 CUT_SIL = 0.65      # 이 이상 무음이면 잘라낸다 (0.56 은 남겼고 0.76 은 잘랐다)
 IN_HANDLE = 0.08    # 말 시작 앞에 남기는 여유
@@ -57,10 +58,6 @@ LEAD = 0.15
 # 채널 이름은 자막에서 늘 붙여 쓴다 (나간 편들 자막 전수: '더원트레이더였습니다',
 # '더원트레이더와 함께하는'). 대본만 '더원 트레이더' 로 띄어 쓴다.
 TERMS = {"더원 트레이더": "더원트레이더"}
-
-
-def norm(t):
-    return re.sub(r"[^0-9가-힣a-zA-Z]", "", t)
 
 
 def read_silences(path):

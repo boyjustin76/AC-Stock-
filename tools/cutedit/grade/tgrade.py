@@ -8,7 +8,6 @@
 import io
 import json
 import os
-import re
 import statistics as st
 import sys
 import xml.etree.ElementTree as ET
@@ -17,29 +16,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import paths                                                           # noqa: E402
 sys.path.insert(0, paths.CUTEDIT)
 from cut_and_srt import norm, words_between   # noqa: E402
+from srt_rules import read_srt                # noqa: E402
 
 FPS = 30000 / 1001
 REF = {tag: (paths.truth_xml(tag), paths.truth_srt(tag), paths.work(tag))
        for tag in paths.EPISODE}
 
 
-def sec(t):
-    h, m, r = t.split(":")
-    s, ms = r.split(",")
-    return int(h) * 3600 + int(m) * 60 + int(s) + int(ms) / 1000
-
-
 def cues(p):
-    s = io.open(p, encoding="utf-8-sig", errors="replace").read().replace("\r\n", "\n")
-    out = []
-    for blk in re.split(r"\n\s*\n", s.strip()):
-        L = [x for x in blk.split("\n") if x.strip()]
-        i = 1 if L and re.match(r"^\d+$", L[0]) else 0
-        if i >= len(L) or "-->" not in L[i]:
-            continue
-        m = re.search(r"([\d:,]+) --> ([\d:,]+)", L[i])
-        out.append((sec(m.group(1)), sec(m.group(2)), " ".join(L[i + 1:]).strip()))
-    return out
+    return [(c["s"], c["e"], c["t"]) for c in read_srt(p)]
 
 
 def human_cuts(p):

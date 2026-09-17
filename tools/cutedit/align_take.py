@@ -26,6 +26,8 @@ import re
 import sys
 from difflib import SequenceMatcher
 
+from textnorm import norm
+
 SKIP_HEAD = ()                       # 통째로 낭독 안 하는 덩어리 (지금은 없음)
 SKIP_MARK = ("읽지 않음", "읽지않음", "차트 설명", "차트설명")
 # 머리글 두 가지를 다 받는다 —
@@ -35,10 +37,6 @@ HEAD = re.compile(r"^\[([^\]]+)\]\s*$|^([①②③④⑤⑥⑦⑧⑨])\s*(.*)$")
 TITLE = re.compile(r"^제목\s*[::]\s*(.+)$")
 # 낭독분이 아닌 줄 — 레퍼런스·굵은 글씨·주소
 DROP = re.compile(r"^\s*(레퍼런스|참고)\s*[::]|^\s*\*\*|https?://")
-
-
-def norm(t):
-    return re.sub(r"[^0-9가-힣a-zA-Z]", "", t)
 
 
 def sim(a, b):

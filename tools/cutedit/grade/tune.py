@@ -146,7 +146,7 @@ BASE = dict(CUT_SIL=0.65, WEAK_P=0.30, HEAD=0.05, TAIL=0.07,
 DATA = {"S015": load(S15, X15), "S016": load(S16, X16)}
 
 if __name__ == "__main__":
-    import itertools, sys
+    import sys
     if "--bias" in sys.argv:
         print("편향   평균     최대    (지금 로직 + IN 을 이만큼 앞으로)")
         for bias in (-0.04, -0.02, 0.0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12):

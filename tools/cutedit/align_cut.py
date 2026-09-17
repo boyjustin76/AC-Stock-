@@ -9,6 +9,8 @@
 import json, os, re, sys
 from difflib import SequenceMatcher
 
+from textnorm import norm
+
 # 작업 폴더. 차11-4·5 때는 클라우드 스크래치가 박혀 있었다 —
 # 환경변수나 첫 인자로 받는다. 회차마다 폴더 하나를 잡고 거기에 다 넣는다.
 #   set CUTEDIT_DIR=...\ch11-6   또는   python tools/cutedit/xxx.py <폴더>
@@ -16,9 +18,6 @@ S = os.environ.get("CUTEDIT_DIR") or (sys.argv[1] if len(sys.argv) > 1 else "")
 if not S or not os.path.isdir(S):
     sys.exit("작업 폴더를 정하세요 — 환경변수 CUTEDIT_DIR 또는 첫 인자로 폴더 경로."
              f" (지금: {S or '없음'})")
-
-def norm(t):
-    return re.sub(r"[^0-9가-힣a-zA-Z]", "", t)
 
 def sim(a, b):
     a, b = norm(a), norm(b)
@@ -111,13 +110,12 @@ def pick(ep_sents, t_lo, t_hi, thr=0.52):
 
 # 편 경계: 각 편 첫 문장(훅)의 마지막 등장 위치로 창을 나눈다
 def hook_pos(sent, lo=0.0):
-    best_t, best_r = None, 0
+    best_t = None
     for c in cands:
         if c["s"] < lo:
             continue
-        r = sim(sent, c["text"])
-        if r > 0.6 and (best_t is None or c["s"] > best_t):
-            best_t, best_r = c["s"], r
+        if sim(sent, c["text"]) > 0.6 and (best_t is None or c["s"] > best_t):
+            best_t = c["s"]
     return best_t
 
 h1 = 0.0

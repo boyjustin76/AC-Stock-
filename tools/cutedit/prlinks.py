@@ -123,6 +123,11 @@ def cmd_find(needle, root, include_autosave):
             print(f"{n:5}건  {proj}")
     print(f"\n'{needle}' 을(를) 무는 프로젝트 {hits}개"
           + ("" if include_autosave else "  (자동저장본은 뺐다 — --all 로 포함)"))
+    # 폴더 이동·삭제를 막는 훅(.claude/hooks/git_guard.py)이 '방금 find 를 돌렸다'를 이 표식으로 본다 (60분)
+    mark = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                        ".claude", "prlinks_find.ok")
+    os.makedirs(os.path.dirname(mark), exist_ok=True)
+    open(mark, "w").close()
     return 0 if hits == 0 else 1
 
 

@@ -24,16 +24,13 @@ import json
 import os
 import re
 import subprocess
-import sys
 from difflib import SequenceMatcher
+
+from textnorm import norm
 
 PAD = 0.35          # 구간 앞뒤로 이만큼 더 들려준다 (끝 낱말이 잘리지 않게)
 SAME = 0.995        # 정규화해서 이 이상 같으면 '대본대로 읽은 것'
 SWAP_MAX = 3        # 이 길이까지의 '같은 길이 치환' 은 오인식으로 본다
-
-
-def norm(t):
-    return re.sub(r"[^0-9가-힣a-zA-Z]", "", t)
 
 
 def heard_of(tr, a, b):

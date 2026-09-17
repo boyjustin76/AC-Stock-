@@ -27,6 +27,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
                                 "cutedit"))
 from prproj_titles import layers, read_proj          # noqa: E402
 from srt_index import parse as parse_srt             # noqa: E402
+from textnorm import norm                            # noqa: E402
 
 # 최종본 mp4 에서 눈으로 읽은 배너 (prproj 와 대조용 · 자막/프로젝트 없는 편 포함)
 BANNER_SEEN = {
@@ -47,10 +48,6 @@ BANNER_SEEN = {
 # 배너가 아니라 채널 고정 광고판 — 쌍에서 뺀다
 AD = ("시장은 흔들려도", "VIP 회원", "셀퍼럴", "트레이딩룸", "기준있는 매매의 시작",
       "시크릿 지표")
-
-
-def norm(t):
-    return re.sub(r"[^0-9가-힣a-zA-Z]", "", t)
 
 
 def ep_of(name):

@@ -8,33 +8,20 @@
 import io
 import json
 import os
-import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import paths                                                           # noqa: E402
 sys.path.insert(0, paths.CUTEDIT)
+from srt_rules import read_srt                                         # noqa: E402
+from textnorm import norm                                              # noqa: E402
 
 REF = {tag: (paths.truth_srt(tag), os.path.join(paths.work(tag), "aligned.json"))
        for tag in paths.EPISODE}
 
 
-def norm(t):
-    return re.sub(r"[^0-9가-힣a-zA-Z]", "", t)
-
-
 def cues(p):
-    s = io.open(p, encoding="utf-8-sig", errors="replace").read().replace("\r\n", "\n")
-    out = []
-    for blk in re.split(r"\n\s*\n", s.strip()):
-        L = [x for x in blk.split("\n") if x.strip()]
-        if not L:
-            continue
-        i = 1 if re.match(r"^\d+$", L[0]) else 0
-        if i >= len(L) or "-->" not in L[i]:
-            continue
-        out.append(" ".join(L[i + 1:]).strip())
-    return out
+    return [c["t"] for c in read_srt(p)]
 
 
 def sentences(cs, align):

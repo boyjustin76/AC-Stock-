@@ -21,7 +21,11 @@ import io
 import json
 import os
 import re
+import sys
 from collections import Counter
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "cutedit"))
+from srt_rules import read_srt  # noqa: E402
 
 GAP = 0.45          # 이보다 벌어지면 다른 말 덩어리
 TAIL_GAP = 20.0     # 본편이 끝나고 이만큼 비면 뒤는 딴 구간(라이브·설명)으로 본다
@@ -41,25 +45,7 @@ TOPIC = ("이동평균선 이평선 20일 60일 120일 단기 중기 장기 기�
 
 
 def parse(path):
-    s = io.open(path, encoding="utf-8-sig", errors="replace").read().replace("\r\n", "\n")
-    out = []
-    for blk in re.split(r"\n\s*\n", s.strip()):
-        L = [x for x in blk.split("\n") if x.strip()]
-        if not L:
-            continue
-        i = 1 if re.match(r"^\d+$", L[0]) else 0
-        if i >= len(L) or "-->" not in L[i]:
-            continue
-        m = re.search(r"([\d:,]+)\s*-->\s*([\d:,]+)", L[i])
-        out.append({"s": sec(m.group(1)), "e": sec(m.group(2)),
-                    "t": " ".join(L[i + 1:]).strip()})
-    return out
-
-
-def sec(t):
-    h, m, r = t.split(":")
-    s, ms = (r.split(",") + ["0"])[:2]
-    return int(h) * 3600 + int(m) * 60 + int(s) + int(ms) / 1000
+    return [{"s": c["s"], "e": c["e"], "t": c["t"]} for c in read_srt(path)]
 
 
 def tc(x):
