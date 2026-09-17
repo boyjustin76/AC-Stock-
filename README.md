@@ -186,12 +186,12 @@ git restore --source=<해시> -- .              # 되돌리기
 
 | 시각 (KST) | 슬롯 | 커밋 | 어디까지 |
 |---|---|---|---|
+| 2026-09-17 15:37 | `save/2026-09-17-1537` | `bf76be2` | 자가발전 1차 — 인박스 등재·save.py 범위·레거시 격리·UTF-8 설정·ruff/pytest·git_guard(미연결)·radar·개선안 인박스 |
 | 2026-09-17 15:17 | `save/2026-09-17-1517` | `1fceff7` | 병합 — newch-style(ff)·script-lab(3-way) 본류 합류, 겹침 0 |
 | 2026-09-17 11:22 | `save/2026-09-17-1122` | `7486d32` | 하이라이트 A_1·B_1 글자 크기를 짝 판(A_2 262 · B_2 238)에 맞춤 — 가운데 정렬, 한지·옻칠 각 2장만 바뀜(나머지 9장 해시 불변) |
 | 2026-09-16 17:57 | `save/2026-09-16-1757` | `ad605f3` | 롤링 광고 옻칠판 추가 - 옻칠 편액을 띠 전체로(금테·흰 궁서·CTA 뒤집기) · 브랜드 팔레트 역할 반영, 대비 실측 · 한지판 11장 해시 불변 |
 | 2026-09-16 16:41 | `save/2026-09-16-1641` | `b7ae887` | a3_frame2 판정 정정 - saveFrameToPng 은 표기법이 아니라 타이밍 문제였다(디스크에 v1~v4 전부 존재) |
 | 2026-09-16 16:38 | `save/2026-09-16-1638` | `3bb297a` | 롤링 광고 검사 - 16:28 판을 git 에서 되살려 대조, 라이브_a_2 는 실제로 붙어 있었음을 확인(B 보고가 맞음) · 기록 정정 |
-| 2026-09-16 16:33 | `save/2026-09-16-1633` | `11cc342` | 롤링 광고 - 본문과 CTA 현판 사이 여백 확보(fit 바닥 0.34·틈 축소·여백 150) · 검사기 roll_ad_check 추가 |
 
 ---
 
@@ -199,6 +199,10 @@ git restore --source=<해시> -- .              # 되돌리기
 
 | 경로 | 역할 |
 |---|---|
+| `.claude/hooks/git_guard.py` | PreToolUse 훅 — 본류 push·전체 스테이징(add -A/commit -a)·prlinks 없는 이동을 막고 이유를 돌려준다. D 의 로컬 훅 3규칙 이식. 미연결 — 켜는 법은 파일 머리. 시험 tests/test_git_guard.py |
+| `.claude/settings.json` | 저장소에 커밋되는 Claude Code 프로젝트 설정 — 모든 세션이 받는다. 지금은 env(PYTHONUTF8=1·PYTHONIOENCODING)만. 훅 연결은 로컬 판단(인박스 개선안 §2-B) |
+| `.claude/skills/radar/SKILL.md` | 오류 레이더 스킬 — 같은 오류 두 번째·10분 넘게 막히면 tools/radar.py 로 우리 기록→Stack Overflow→GitHub 를 먼저 본다 |
+| `.pre-commit-config.yaml` | 커밋 전 ruff — 1단계는 F·E9(미정의 이름·안 쓰는 import·문법)만 막는다. 켜는 건 각자: pip install pre-commit && pre-commit install |
 | `README.md` | 렌더러 사용법 · 포맷 선택 기준 · 씬 설정 레퍼런스 |
 | `brand/EDIT-RULEBOOK.md` | 연출 룰북 — 피드백에서 확정된 규칙 12개 (반려 사례·코드 대응 포함). 피드백 라운드마다 여기에 쌓는다 |
 | `brand/EXTENDSCRIPT-TRAPS.md` | 포토샵·일러스트레이터·AE·프리미어가 같은 ExtendScript 를 쓰면서 서로 밟은 함정 모음. 증상 → 원인 → 처방. 새로 밟으면 여기 적는다 |
@@ -240,6 +244,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `log/worklog.db` | 작업 로그 원본 (SQLite) |
 | `log/worklog.html` | 브라우저로 보는 작업 로그 |
 | `package.json` | 의존성과 npm 스크립트 |
+| `pyproject.toml` | ruff(E·F·B·UP, E501 제외)+pytest 설정. 경고 0 을 요구하지 않는다 — 새 코드와 고치는 줄부터 |
 | `scenes/cmg-20ma-runner.scenes.js` | 차트명가 20일선 4컷. 새 대본은 이 파일을 본떠 만든다 |
 | `scenes/cmg12-bridge.scenes.js` | 차12 말 구간 설명 카드 2클립 — bridge-intro(워시 리스트, 프레임 860)·bridge-scalp(종이 배경+버튼 반복, 프레임 2939). 스타일은 차명#4 실측 카피, 룰북 §E |
 | `scenes/cmg12-buy.scenes.js` | 차12 매수 관점 5컷 — seed161, 55선 재돌파 bar52, 1:2·분할·러너 |
@@ -278,6 +283,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `src/tools/install-fonts.mjs` | 폰트를 시스템에 등록 |
 | `src/tools/probe-labels.mjs` | 렌더 없이 라벨 클리핑 전수 감사 — 등장~퇴장 0.25초 간격으로 앵커 y 를 계산해 잘림 구간을 표로 |
 | `src/tools/profile-render.mjs` | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
+| `tests` | pytest 단위 시험 — test_git_guard(훅 규칙 11)·test_radar(서명·우리 기록·응답 파싱 5). python3 -m pytest |
 | `tools` | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
 | `tools/cutedit` | 컷편집 파이프라인(E 소유) — transcribe(전사)·align_take(테이크 정렬)·cut_and_srt(컷·자막, 실측 무음 경계)·make_xml(프리미어 XML)·prlinks(prproj 경로 검사)·srt_rules(14자 큐)·verify_text·grade/(채점대). build_cuts.py 는 2026-09-17 tools/legacy 로 |
 | `tools/illustrator` | 일러스트레이터 COM 자동화 — 라이브화면구성.ai 를 짓고 OBS 용 8000x4500 을 뽑는다. tools/photoshop 과 같은 구조로 경로를 안 박는다 |

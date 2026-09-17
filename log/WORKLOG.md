@@ -255,6 +255,7 @@ python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/i
 
 | 경로 | 역할 | 설명 |
 |---|---|---|
+| `tests` | 검증 | pytest 단위 시험 — test_git_guard(훅 규칙 11)·test_radar(서명·우리 기록·응답 파싱 5). python3 -m pytest |
 | `lab/cutedit` | 기록 | CAM 촬영본 전사 원본(cam_transcript.json) — 컷 재현·재검증용 |
 | `lab/finalscan` | 기록 | 최종본 #1~#10 기계 실측 원자료 — 콘택트시트·프레임별 YDIF/장면점수 csv·freeze·단일 프레임·카피맵 후보 23장·prproj 드라이브 지도. FX-WHITELIST 의 원천 (2026-09-11 등재) |
 | `log/E-회신-260916.md` | 기록 | E 가 총괄 문의서(09-16)에 답한 것 — srt_rules 회귀 확인·build_cuts 레거시·채점 일치·배너 모델 홀드아웃·L08 사고 두 번·DB 등재 조건 |
@@ -383,6 +384,7 @@ python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/i
 | `src/tools/verify-still.mjs` | 기타 |  |
 | `data/synth/newch-trad.json` | 데이터 | seed 11 합성 시장 앞에 워밍업 60봉 — 이평선이 첫 화면 봉부터 그려지게 (tools/style/trad-bars.mjs) |
 | `log/worklog.db` | 데이터 | 작업 로그 원본 (SQLite) |
+| `.claude/hooks/git_guard.py` | 도구 | PreToolUse 훅 — 본류 push·전체 스테이징(add -A/commit -a)·prlinks 없는 이동을 막고 이유를 돌려준다. D 의 로컬 훅 3규칙 이식. 미연결 — 켜는 법은 파일 머리. 시험 tests/test_git_guard.py |
 | `src/tools/exp-capture.mjs` | 도구 | 캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다 |
 | `src/tools/find-events.mjs` | 도구 | MA 교차·배열 + RSI 레벨 교차·70+ 유지 구간 실측 (find-cross 확장판) |
 | `src/tools/probe-labels.mjs` | 도구 | 렌더 없이 라벨 클리핑 전수 감사 — 등장~퇴장 0.25초 간격으로 앵커 y 를 계산해 잘림 구간을 표로 |
@@ -419,7 +421,10 @@ python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/i
 | `deliver/shortform` | 산출물 | 납품한 숏폼 자막·컷리스트 (영상·음성은 드라이브/전달분에만) |
 | `deliver/thumbnail` | 산출물 | 채택된 썸네일. out/ 은 .gitignore 라 여기에 따로 둔다 |
 | `scripts/shortform` | 산출물 | 숏폼 대본 초안. 규칙대로 쓴 것 |
+| `.claude/settings.json` | 설정 | 저장소에 커밋되는 Claude Code 프로젝트 설정 — 모든 세션이 받는다. 지금은 env(PYTHONUTF8=1·PYTHONIOENCODING)만. 훅 연결은 로컬 판단(인박스 개선안 §2-B) |
+| `.pre-commit-config.yaml` | 설정 | 커밋 전 ruff — 1단계는 F·E9(미정의 이름·안 쓰는 import·문법)만 막는다. 켜는 건 각자: pip install pre-commit && pre-commit install |
 | `package.json` | 설정 | 의존성과 npm 스크립트 |
+| `pyproject.toml` | 설정 | ruff(E·F·B·UP, E501 제외)+pytest 설정. 경고 0 을 요구하지 않는다 — 새 코드와 고치는 줄부터 |
 | `tools/photoshop/config.json` | 설정 | 템플릿·차트·출력 경로와 회차 문구 — 컨테이너의 thumbnail_png.py 도 같은 파일을 읽는다(스펙 단일화, decision 21) |
 | `lab/ae/cut2-base-r63-무주석.png` | 소재 | 컷② 무주석 바닥 스틸 (reveal 63, 캔들+20일선만) — AE 파일럿 A3 의 바닥. 재현 씬은 lab/ae/cut2-base.scenes.js |
 | `log/build_worklog_db.py` | 스크립트 | 로그 DB 생성. 내용을 고칠 때 여기만 고친다 |
@@ -460,6 +465,7 @@ python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/i
 | `brand/thumbnail/종이배경.png` | 에셋 | 템플릿 종이 텍스처 원본 픽셀 |
 | `brand/thumbnail/틀.png` | 에셋 | 템플릿 '틀' 도형 원본 픽셀 (안쪽 투명) |
 | `log/data` | 자료 | 롱폼 대본 인덱스·숏폼 대본·세이브 슬롯 (JSON) |
+| `.claude/skills/radar/SKILL.md` | 지침 | 오류 레이더 스킬 — 같은 오류 두 번째·10분 넘게 막히면 tools/radar.py 로 우리 기록→Stack Overflow→GitHub 를 먼저 본다 |
 | `src/cli.mjs` | 코어 | 렌더 CLI. --all --scene --format --stills --reel |
 | `src/market/candles.js` | 코어 | 시드 고정 캔들 생성기. 추세/박스권/돌파/눌림/급등락 |
 | `src/render/anim.js` | 코어 | 이징·타임라인·cue. in 을 생략하면 처음부터 떠 있는 것으로 본다 |
@@ -1724,3 +1730,4 @@ python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/i
 | 367 | `8890a35b` | 병합: local/script-lab (E 대본·컷편집·더원트레이더) — 겹침 0 | 63파일 +52087/-19 |
 | 368 | `1fceff75` | 세이브 save/2026-09-17-1517 — 병합 — newch-style(ff)·script-lab(3-way) 본류 합류, 겹침 0 | 3파일 +135/-101 |
 | 369 | `6b558610` | 세이브 기록 save/2026-09-17-1517 | 5파일 +11/-3 |
+| 370 | `bf76be29` | 세이브 save/2026-09-17-1537 — 자가발전 1차 — 인박스 등재·save.py 범위·레거시 격리·UTF-8 설정·ruff/pytest·git_guard(미연결)·radar·개선안 인박스 | 28파일 +1095/-41 |

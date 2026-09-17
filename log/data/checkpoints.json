@@ -733,5 +733,12 @@
   "utc": "2026-09-17 06:17",
   "sha": "1fceff7",
   "summary": "병합 — newch-style(ff)·script-lab(3-way) 본류 합류, 겹침 0"
+ },
+ {
+  "tag": "save/2026-09-17-1537",
+  "kst": "2026-09-17 15:37",
+  "utc": "2026-09-17 06:37",
+  "sha": "bf76be2",
+  "summary": "자가발전 1차 — 인박스 등재·save.py 범위·레거시 격리·UTF-8 설정·ruff/pytest·git_guard(미연결)·radar·개선안 인박스"
  }
 ]
