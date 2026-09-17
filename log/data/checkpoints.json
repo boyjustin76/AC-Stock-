@@ -754,5 +754,12 @@
   "utc": "2026-09-17 08:13",
   "sha": "a8b4673",
   "summary": "B·D 회신 병합 — guard 경로한정·삭제·push 이름 강제(decision 31), 옆가지 worktree-*(30), issue 38·39, next_step 41 세션 시작 폴더(이정찬), 총괄 회신답"
+ },
+ {
+  "tag": "save/2026-09-17-1828",
+  "kst": "2026-09-17 18:28",
+  "utc": "2026-09-17 09:28",
+  "sha": "d8ec535",
+  "summary": "E 회신 병합(ff) — E-1~E-7·textnorm·test_cutedit 8, guard 표식 문구(E-5), issue 40, next_step 40 완료, make_xml.pathurl 리눅스 보정"
  }
 ]

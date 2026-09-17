@@ -1783,3 +1783,4 @@ git fetch origin  →  겹침: comm -12 <(git diff --name-only $(git merge-base 
 | 384 | `ea36a4a2` | 컷편집 도구 — 총괄 개선안 E-1~E-6 · ruff F 5건 | 17파일 +179/-120 |
 | 385 | `a8728be8` | log/inbox — E 개선안 회신 (2-A worktree-script, E-1~E-7 적용, 회귀 45항목 같음) · SCRIPT-LAB 옛 경로 표시 | 2파일 +78/-2 |
 | 386 | `e6c16b83` | E 회신 §3 문구 정정 — 오류 둘 중 하나만 기존 기록에 있음 | 1파일 +1/-1 |
+| 387 | `d8ec535a` | 세이브 save/2026-09-17-1828 — E 회신 병합(ff) — E-1~E-7·textnorm·test_cutedit 8, guard 표식 문구(E-5), issue 40, next_step 40 완료, make_xml.pathurl 리눅스 보정 | 6파일 +37/-17 |
