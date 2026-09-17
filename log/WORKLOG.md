@@ -204,7 +204,7 @@ git checkout 0652cac        (구경만. 돌아올 때 git checkout claude/future
 
 **16. 윈도우에서 명령 줄 때** — PowerShell 5.1 에 bash 문법을 주면 안 된다
 ```
-cd C:\cmgwork\repo 를 먼저 실행하고 다음 줄에 git 명령을 준다
+cd "<통합 폴더>\03_저장소\AC-Stock-" 를 먼저 실행하고 다음 줄에 git 명령을 준다 (옛 C:\cmgwork\repo 는 2026-09-16 에 없앴다)
 ```
 PowerShell 5.1 에는 && 가 없다 — '토큰은 이 버전에서 올바른 문 구분 기호가 아닙니다' 로 죽는다. 한 줄로 붙이려면 ; 를 쓰거나 A; if ($?) { B } 로 쓴다
 
@@ -249,6 +249,12 @@ pyproject.toml 이 설정. ruff 기본 규칙 전체는 333건(09-17 기준)이�
 python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/illustrator log/inbox   ·   AC_SAVE_SCOPE="tools/photoshop tools/illustrator"
 ```
 로그 산출물(worklog.db·WORKLOG.md·worklog.html·README.md·checkpoints.json)은 항상 들어간다. 근본 해법은 세션마다 git worktree(인박스 개선안 §2-A)
+
+**23. 옆가지 → 본류 병합 (총괄)** — worktree-* 를 본류에 합친다. 겹침을 먼저 재고, 합친 뒤 검사 셋을 돌린다
+```
+git fetch origin  →  겹침: comm -12 <(git diff --name-only $(git merge-base HEAD origin/worktree-ae) origin/worktree-ae | sort) <(같은 식으로 worktree-ps)  →  git merge --no-edit origin/worktree-ae  →  python3 log/build_worklog_db.py --md && python3 -m pytest && python3 -m ruff check tools log tests --select F,E9  →  python3 log/save.py "병합 …"
+```
+로컬은 본류에 push 하지 않는다(git_guard). 병합 뒤 로컬은 git fetch && git rebase origin/<본류> 또는 새 worktree. build_worklog_db.py 는 총괄이 번호로 부탁한 줄만 로컬이 만진다(runbook 16 처럼)
 
 
 ### 파일 지도
@@ -636,6 +642,7 @@ python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/i
 | build_live.jsx 는 한 번에 752초 — 24MB 트팩 원본을 매번 연다 | exit 0 · 752초. 그중 몇 분은 끊긴 링크 창 대기. '응답 없음' 표시가 멈춤과 구분 안 됨 | 멈춤 판정은 CPU 20초 증분(+4s 면 작업 중 / +1s·메모리 고정이면 멈춤). 원문 log/inbox/2026-09-17_B_오류·비효율.md E1 |
 | 한지 텍스처 trad.hanji() 는 1920 폭 고정 | 8000px 배너를 한 번에 못 만든다 | 좌우 뒤집어 타일링. 원문 log/inbox/2026-09-17_D_오류·비효율.md B11 |
 | ExtendScript 함정 ①~㉒ 는 brand/EXTENDSCRIPT-TRAPS.md 가 원문 — DB 로 옮기지 않는다 | 코드 주석이 번호로 가리킨다(run.ps1 ⑥, build_rollad.jsx ⑮). 번호가 정리 안 됨(⑫ 두 번, ⑭→⑮ 건너뜀). 남의 실측을 요약해 옮기면 틀린다(⑦⑩⑪ 전례) | DB 는 '원문 ⑯' 처럼 번호만 가리킨다. 새 함정은 문서에 먼저 적고 DB 는 그 번호. 총괄 결정 2026-09-17 (decision 23). 원문 log/inbox/2026-09-17_B_EXTENDSCRIPT-TRAPS_이관판단.md |
+| ExtendScript $.evalFile 은 BOM 없는 UTF-8 한글을 정상으로 읽는다 — TRAPS ③ 은 File.read 얘기다 | 코드 검토 세션이 scene-export.mjs 의 한글 .jsx 를 TRAPS ③ 위반으로 지적했으나 D 실측(AE 26.5)에서 코드포인트 일치. _lib.jsx 도 BOM 없는 한글 파일로 35개 잡이 써 왔다 | evalFile 은 그대로. File.read() 로 읽을 때만 encoding='UTF-8' 을 먼저 준다(TRAPS ③). 남의 지적도 실측으로 되돌린다. 원문 log/inbox/2026-09-17_D_개선안회신.md §4 D-1 |
 
 ## 다음에 할 일
 
@@ -678,7 +685,8 @@ python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/i
 37. **옛 경로 실행줄 정정 — D** — 본류 문서 8개에 총괄이 '경로 주의' 머리말을 달았다(09-17). 명령줄(cd C:\cmgwork\repo 등)을 최신 경로로 바꾸는 것과 tools/premiere/ 29개·tools/photoshop/config.json 의 잔여 경로 점검은 D (E 회신 §5-3)  _(대기: D)_
 38. **더원트레이더 규칙 DB 등재 — 보류** — 컷 0.65s/−30dB/IN −0.08·OUT +0.07(표본 2편 50경계 0.051s) · 자막 14자(롱폼 21자 관측, 8편) · 배너 2판 공식(8편 중 5편). E 가 표본 병기 조건으로 동의. 새 채널로 넘어가 우선순위 낮음  _(대기: 새 정답 자료가 생길 때)_
 39. **prlinks.py 전 파트 공용 규칙 — 인박스 제안서** — 폴더 옮기기 전 find, 옮긴 뒤 check. 검사 범위에서 목적지 폴더를 빼지 않는다. 사람이 옮기는 경우는 훅이 못 막는다 — 이정찬도 옮기기 전에 돌린다 (runbook 19)  _(대기: 로컬 채택)_
-40. **개선안 회신 — B·D·E** — log/inbox/2026-09-17_총괄_작업체계·도구품질_개선안.md 의 §2·§4 항목별 채택/보류/반려. 채택한 것은 각자 적용하고 커밋 해시. 워크트리(§2-A)를 채택하면 B·D 브랜치를 나눈다 — 총괄은 그 뒤 worktree-* 병합 규칙을 runbook 에 적는다  _(대기: B·D·E 회신)_
+40. **개선안 회신 — B·D 완료(09-17 17:00 병합), E 대기** — B 641f4da · D 3f32389 회신·코드 본류 병합(76fd1be·5ab0f8f). 총괄 답 log/inbox/2026-09-17_총괄_개선안회신답.md. E 는 §4 E-1~E-7 + prlinks 표식 3줄, 브랜치 worktree-script  _(대기: E 회신)_
+41. **세션 시작 폴더 — 이정찬 결정** — 저장소 .claude/settings.json(env·훅·스킬)은 세션을 시작한 폴더에서만 읽힌다(공식 settings 문서, D 확인). 지금 B·D·E 는 …\이정찬\Claude 에서 시작해 아무것도 안 걸린다. 총괄 판단: 각 세션을 자기 worktree 폴더에서 띄운다(cd <worktree>; claude 또는 claude --worktree <이름>). 그러면 PYTHONUTF8·git_guard·radar 스킬이 자동으로 붙는다. 답이 오기 전엔 D 로컬 훅 유지  _(대기: 이정찬)_
 
 ## 대본과 컷 싱크
 
@@ -1174,7 +1182,7 @@ python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/i
 - 증상: '연결된 파일 09012023_15.jpg 를 찾을 수 없습니다' 창. 이정찬이 화면에서 발견
 - 원인: 원본(260114_라이브화면구성(2026v).ai)은 저장 금지라 링크를 못 고친다
 - 조치: build_live.jsx openRef() — app.userInteractionLevel = DONTDISPLAYALERTS 로 열고 finally 로 복원 (커밋 3516487)
-- 확인: 다음 빌드로 아직 재검증 안 함 (B 09-17). 원문 log/inbox/2026-09-17_B_오류·비효율.md A3
+- 확인: 검증됨 — 09-17 16:10·16:48 두 빌드에서 원본 .ai 끊긴 링크 창 없이 끝까지 돌았다 (B 회신 1-2). 원문 log/inbox/2026-09-17_B_오류·비효율.md A3
 
 ### 32. PowerShell 실행 정책 차단을 못 보고 mv 가 미리보기 6장을 옮김 (09-17)  `fixed`
 - 증상: powershell -File run.ps1 이 UnauthorizedAccess 로 안 돌았는데 bash 루프가 mv 로 본판 미리보기 6장을 비교 폴더로 옮김
@@ -1211,6 +1219,18 @@ python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/i
 - 원인: 확인 없이 전해진 전제
 - 조치: 이정찬 결정으로 public 유지(decision 25). 커밋 기록 키 패턴 0건. 인박스 부록의 키 모양은 [가림] 처리
 - 확인: 원문 log/inbox/2026-09-17_D_오류·비효율.md C11 · log/inbox/2026-09-17_B_오류·비효율.md G1
+
+### 38. worktree 로 옮기자 labdir 가 참고자료 폴더를 못 찾음 — 위로 8단계 한계 (09-17)  `fixed`
+- 증상: worktree-ps 첫 빌드: '라이브화면 참고자료 폴더를 못 찾았습니다. LIVEFRAME_DIR 환경변수나 config.json 의 labDir 을 주세요.'
+- 원인: 일러스트레이터 labdir.ps1 이 위로 8단계만 걷는데 .claude/worktrees/ps 는 3단계 더 깊다
+- 조치: 11단계로 (84367a5). 포토샵·AE·프리미어의 labdir 는 8단계지만 찾는 폴더가 통합 폴더 안이라 7단계에서 걸려 영향 없음 (B 경로 계산, D 에게 알림)
+- 확인: worktree-ps 재빌드 통과. 원문 log/inbox/2026-09-17_B_개선안회신.md §2-A
+
+### 39. trad.py 가 09-16 에 없앤 폴더를 박고 있었다 — 코드 검토 D-5 가 실제 버그 (09-17)  `fixed`
+- 증상: tools/style/trad.py:19 REF = '…\차트명가 NEW\신규안_v2_전통\레퍼런스' — 통합 때 지운 자리
+- 원인: 통합 때 해시 비교·prlinks 는 봤지만 파이썬 소스 안에 박힌 경로는 못 봤다. 프리미어 잡 4개(m5_intro2·m6_build·m6_probe·m6_probe2)도 옛 저장소 자리를 박고 있었다
+- 조치: ref() 가 NEWCH_REF_DIR → 위로 올라가며 <통합>/01_납품_차트명가NEW/신규안_v2_전통/레퍼런스 를 찾고 못 찾으면 멈춘다. 프리미어 잡은 _labdir.jsx repoRootPath(). C:/aelab 폴백도 제거(없는 폴더를 돌려줘 늦게 터지던 것) (44efdf5)
+- 확인: roll_ad.py --theme lacquer 재생성 3장이 납품본과 바이트 동일. py·mjs·ps1 각각 실행 확인. 원문 log/inbox/2026-09-17_D_개선안회신.md §4 D-5
 
 ## 판단과 근거
 
@@ -1290,6 +1310,12 @@ python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/i
 - **총괄의 피드백 대상 — 에이전트만이 아니라 이정찬도** — 총괄은 작업체계·지시 방식·시간표에서 이정찬 쪽 비효율도 근거를 달아 말한다. '주류'라고 말할 때는 출처(공식 문서·채택도)를 붙이고, 내 판단이면 판단이라고 표시한다
   - 이유: 이정찬 09-17: '피드백을 에이전트들에게만 하지 말고 나한테도 해. Mainstream 을 읽을 시간이 없어서 니 말이 곧 정론이다 하고 듣겠다.' 그래서 출처 표시가 의무다 — 내 말이 정론이 되면 틀렸을 때 비용이 그쪽으로 간다. 첫 회차: 개선안 §5 (U-1·U-2·U-4·U-6 은 이정찬 반박으로 정정)
   - 다시 볼 때: 피드백이 일을 늦추거나, 근거 없이 나갔다고 지적받을 때
+- **옆가지 이름 — local/* → worktree-*** — 새 커밋은 worktree-ps(B)·worktree-ae(D)·worktree-script(E). local/* 다섯 가지는 동결(지우지 않는다 — 검증됐던 마지막 지점의 이름표). 병합은 총괄이 본류로(runbook 23). upstream 은 두지 않는다 — push 는 항상 `git push origin worktree-<이름>`
+  - 이유: 2-A 채택으로 B·D 가 09-17 16시 합의해 실제로 땄다. D 질문 3 에 대한 답. 원문 log/inbox/2026-09-17_D_개선안회신.md 질문 3
+  - 다시 볼 때: 세션 시작 폴더(next_step 41)가 바뀌어 claude --worktree 가 브랜치를 스스로 만들 때
+- **git_guard 설계 — 경로 한정·삭제 포함·인자 없는 push 차단** — 이동·삭제 규칙은 작업 폴더 이름(이정찬·차트명가·aelab·cmgwork·pprolab·납품·더원)이 명령에 있을 때만. rm -r·Remove-Item -Recurse·rmdir·DeleteDirectory 도 같은 규칙. 브랜치 이름 없는 push(인자 없음·HEAD)는 브랜치 확인 없이 막고 이름을 쓰게 한다. git 규칙은 명령 머리의 git 만 본다(따옴표 안 grep 은 제외)
+  - 이유: D 실측 6경우 — 경로를 안 가리면 오탐이 잦아 표식을 습관적으로 만들게 되고, 09-16 에 지운 폴더도 누가 무는지 봐야 했다. 인자 없는 push 는 세션 cwd 가 저장소 밖이면 현재 브랜치를 못 읽는 설계 한계 → 단순한 쪽. 원문 log/inbox/2026-09-17_D_개선안회신.md §2-B ③④
+  - 다시 볼 때: 오탐·미탐이 인박스로 보고될 때
 
 ## 브랜드 스펙 (실측)
 
@@ -1735,4 +1761,13 @@ python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/i
 | 369 | `6b558610` | 세이브 기록 save/2026-09-17-1517 | 5파일 +11/-3 |
 | 370 | `bf76be29` | 세이브 save/2026-09-17-1537 — 자가발전 1차 — 인박스 등재·save.py 범위·레거시 격리·UTF-8 설정·ruff/pytest·git_guard(미연결)·radar·개선안 인박스 | 28파일 +1095/-41 |
 | 371 | `1f9b08ba` | 세이브 기록 save/2026-09-17-1537 | 5파일 +24/-4 |
-| 372 | `8f5f9bba` | 세이브 save/2026-09-17-1656 — 개선안 §5 정정(이정찬 반박 반영) · decision 29 총괄→이정찬 피드백 규칙 | 6파일 +15/-6 |
+| 372 | `44efdf57` | D 개선안 반영 — 끊긴 경로·복붙 작업실 찾기·줄끝·ruff·git_guard 구멍 2개 | 25파일 +295/-221 |
+| 373 | `3f323896` | log/inbox — D 개선안 회신 (2026-09-17) | 1파일 +106/-0 |
+| 374 | `cf9a98e3` | 라이브화면 — 07~10 판 추가 · 고정댓글 현판 · 정보 글자 36pt | 2파일 +298/-10 |
+| 375 | `84367a57` | 라이브화면 07·09·10 이정찬 검토 반영 — 비율 배치 · 로고 띠 · 모서리 무늬 · 차트명가 문구 | 2파일 +207/-74 |
+| 376 | `8f5f9bba` | 세이브 save/2026-09-17-1656 — 개선안 §5 정정(이정찬 반박 반영) · decision 29 총괄→이정찬 피드백 규칙 | 6파일 +15/-6 |
+| 377 | `2b0c9b73` | 세이브 기록 save/2026-09-17-1656 | 5파일 +11/-3 |
+| 378 | `a75d1396` | 일러스트레이터 도구 — 총괄 개선안 B-1·B-2·D-6 | 3파일 +10/-6 |
+| 379 | `641f4dae` | log/inbox — B 개선안 회신 (2-A 채택·worktree-ps, B-1·B-2·B-3 적용, B-4 D 파일, D-6 반려·경고 정리) | 1파일 +53/-0 |
+| 380 | `76fd1be0` | 병합: worktree-ae (D 개선안 반영 — 경로·labdir 공용화·줄끝·guard 구멍 2개) | 26파일 +401/-221 |
+| 381 | `5ab0f8f0` | 병합: worktree-ps (B 개선안 반영 — 라이브화면 07~10·BOM·matte) | 7파일 +513/-35 |

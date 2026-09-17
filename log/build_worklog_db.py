@@ -1425,13 +1425,15 @@ ISSUES = [
     (28, "AE a3_frame2 판정이 틀렸음 — 쓰기 직후 확인의 거짓 음성 (08월 판정, 09-16 정정)", "8월 '표기 ⑥ 만 작동' 결론. 09-16 디스크에 v1~v4 전부 52,792 바이트로 다 작동", "쓰기 직후 확인해 아직 안 써진 것을 실패로 봄 (brand/EXTENDSCRIPT-TRAPS.md ⑯)", "a3_frame2.jsx 머리 주석 정정. 완료 판정은 반환값이 아니라 <작업실>/log/<잡>.txt 의 판정 줄", "원문 log/inbox/2026-09-17_D_오류·비효율.md C1", "fixed"),
     (29, "일러스트레이터 CS6 호환 저장 → 열 때마다 '이전 버전 텍스트' 창 → COM 300초 타임아웃 (09-17)", "so.compatibility = ILLUSTRATOR17 로 저장한 .ai 를 다시 열면 모달 창. PowerShell 출력은 '열린 문서: 0' 뿐", "CS6(17) 호환 저장이 텍스트를 구판 형식으로 낮춘다. 이 PC 의 Compatibility 열거값은 17·24 두 개뿐(기본 24)", "build_rollad.jsx · build_live.jsx 둘 다 Compatibility.ILLUSTRATOR24 (커밋 6e4b3f9)", "알림 켠 채 열고 40초 뒤 화면 캡처 — 창 없음. 미리보기 6장 재빌드 픽셀 평균차 0.0. 원문 log/inbox/2026-09-17_B_오류·비효율.md A1", "fixed"),
     (30, "모달 창이 뒤에 남은 채 같은 파일 saveAs → 저장 실패 ID -54 (09-17)", "재빌드가 600초 타임아웃을 넘겨 백그라운드로. '파일이 읽기 전용이거나 다른 응용 프로그램에서 사용 중'", "앞선 확인용 열기(issue 29)의 창이 파일을 잡고 있었다", "창 닫기 → 남은 미저장 문서 Close(2) → 재빌드", "재빌드 완료. 원문 log/inbox/2026-09-17_B_오류·비효율.md A2", "fixed"),
-    (31, "트팩 원본 .ai 의 끊긴 링크 창에 build_live 가 멈춤 (09-17)", "'연결된 파일 09012023_15.jpg 를 찾을 수 없습니다' 창. 이정찬이 화면에서 발견", "원본(260114_라이브화면구성(2026v).ai)은 저장 금지라 링크를 못 고친다", "build_live.jsx openRef() — app.userInteractionLevel = DONTDISPLAYALERTS 로 열고 finally 로 복원 (커밋 3516487)", "다음 빌드로 아직 재검증 안 함 (B 09-17). 원문 log/inbox/2026-09-17_B_오류·비효율.md A3", "fixed"),
+    (31, "트팩 원본 .ai 의 끊긴 링크 창에 build_live 가 멈춤 (09-17)", "'연결된 파일 09012023_15.jpg 를 찾을 수 없습니다' 창. 이정찬이 화면에서 발견", "원본(260114_라이브화면구성(2026v).ai)은 저장 금지라 링크를 못 고친다", "build_live.jsx openRef() — app.userInteractionLevel = DONTDISPLAYALERTS 로 열고 finally 로 복원 (커밋 3516487)", "검증됨 — 09-17 16:10·16:48 두 빌드에서 원본 .ai 끊긴 링크 창 없이 끝까지 돌았다 (B 회신 1-2). 원문 log/inbox/2026-09-17_B_오류·비효율.md A3", "fixed"),
     (32, "PowerShell 실행 정책 차단을 못 보고 mv 가 미리보기 6장을 옮김 (09-17)", "powershell -File run.ps1 이 UnauthorizedAccess 로 안 돌았는데 bash 루프가 mv 로 본판 미리보기 6장을 비교 폴더로 옮김", "성공 여부를 안 보는 mv. 실행 정책은 -ExecutionPolicy Bypass 없이 -File 불가", "-ExecutionPolicy Bypass + 결과에 'OK 아트보드 6' 있을 때만 mv. 백업에서 복구", "cmp 로 6장 일치. 원문 log/inbox/2026-09-17_B_오류·비효율.md C1", "fixed"),
     (33, "bash while-read 가 끝 줄바꿈 없는 마지막 줄을 빠뜨려 jpg 1장 누락 (09-17)", "'덮어씀' 7줄, ls 에서 하이라이트_B_2.jpg 만 옛 시각", "jsx 가 map.txt 를 out.join('\\n') 으로 써 끝 줄바꿈이 없었다. read 는 마지막 미완 줄에서 실패를 돌려준다", "수동 복사. 이후 jsx 는 join('\\n') + '\\n'", "8장 cmp 일치. 원문 log/inbox/2026-09-17_B_오류·비효율.md C2", "fixed"),
     (34, "PIL 로 그린 밑줄이 일러스트레이터에서 1px 어긋남 (09-17)", "roll_ad.py rule() 이 y0=151.64 같은 소수 좌표 — PIL 은 151~158행, AI 사각형은 소수 그대로라 위아래 행이 반만 칠해짐", "PIL rectangle 은 끝 좌표 포함·정수 래스터, AI 는 벡터 소수 좌표", "build_rollad.jsx addRect 에서 Math.floor. 좌표 규칙: 폭 = x1−x0+1 · outline 은 안쪽으로 자란다(선 가운데 정렬이면 w/2 들여) · bold=1 = MaxFilter(3) = 같은 색 선 2pt", "하이라이트_B_2 평균차 0.28→0.23, '그 밖' 4468→408px. 남는 차이(▼ 안티앨리어싱 340~408px, 획 가장자리 1px)는 허용. 원문 log/inbox/2026-09-17_B_오류·비효율.md D1~D3", "fixed"),
     (35, "GitHub MCP 인증 실패 — 자리표시자 그대로 실행, 토큰 원문이 대화기록에 남음 (09-17)", "'Authorization header is badly formatted'. 환경변수 값 길이 2('토큰' 두 글자). 값을 넣고 재시작해도 같은 오류", "1차: 안내 명령의 자리표시자를 그대로 실행. 2차: 터미널이 값 넣기 전부터 열려 있어 옛 환경 상속. 그 과정에서 토큰 원문이 B 대화기록에 남았다(저장소 public)", "터미널 새로 열어 해결(get_me → boyjustin76). D 는 대화기록을 bundle 에서 뺐다. 토큰 재발급은 이정찬 몫 — 아직 (next_step 36)", "커밋 기록 전체 키 패턴 검사 0건(log/inbox/2026-09-17_D_오류·비효율.md C11). 원문 log/inbox/2026-09-17_B_오류·비효율.md F1", "open"),
     (36, "hookify 플러그인이 Windows 에서 조용히 안 돎 (09-17)", "훅이 python3 을 부르는데 이 PC 의 python3 은 MS 스토어 가짜. 규칙 파일·stdin 을 cp949 로 읽어 한글 경로에서 예외 → 예외 나면 허용. 차단 사유가 systemMessage 에만 들어가 Claude 는 'denied' 만 봄. PowerShell 도구 훅은 확장자 없는 sh shim 을 못 찾음", "플러그인이 Linux/mac 전제(python3 이름·utf-8 콘솔·sh)", "python3 shim(sh + python3.cmd, PYTHONUTF8=1) · ~/.claude/hooks/hookify_reason.py 로 permissionDecisionReason 채움 · 규칙 정규식을 실행 형태로 좁힘(오탐 4건) · 플러그인 끔. 규칙 3개: block-push-mainline / block-commit-without-status / block-move-without-prlinks", "차단 확인 [E-126]. 공식 hooks 로 옮길지는 log/inbox 제안서(작업체계). 원문 log/inbox/2026-09-17_D_오류·비효율.md B7·B8", "worked-around"),
     (37, "저장소가 private 이라는 인수인계 전제가 틀림 (09-17)", "B 인수인계 요약에 private. GitHub API 는 private:false", "확인 없이 전해진 전제", "이정찬 결정으로 public 유지(decision 25). 커밋 기록 키 패턴 0건. 인박스 부록의 키 모양은 [가림] 처리", "원문 log/inbox/2026-09-17_D_오류·비효율.md C11 · log/inbox/2026-09-17_B_오류·비효율.md G1", "fixed"),
+    (38, "worktree 로 옮기자 labdir 가 참고자료 폴더를 못 찾음 — 위로 8단계 한계 (09-17)", "worktree-ps 첫 빌드: '라이브화면 참고자료 폴더를 못 찾았습니다. LIVEFRAME_DIR 환경변수나 config.json 의 labDir 을 주세요.'", "일러스트레이터 labdir.ps1 이 위로 8단계만 걷는데 .claude/worktrees/ps 는 3단계 더 깊다", "11단계로 (84367a5). 포토샵·AE·프리미어의 labdir 는 8단계지만 찾는 폴더가 통합 폴더 안이라 7단계에서 걸려 영향 없음 (B 경로 계산, D 에게 알림)", "worktree-ps 재빌드 통과. 원문 log/inbox/2026-09-17_B_개선안회신.md §2-A", "fixed"),
+    (39, "trad.py 가 09-16 에 없앤 폴더를 박고 있었다 — 코드 검토 D-5 가 실제 버그 (09-17)", "tools/style/trad.py:19 REF = '…\\차트명가 NEW\\신규안_v2_전통\\레퍼런스' — 통합 때 지운 자리", "통합 때 해시 비교·prlinks 는 봤지만 파이썬 소스 안에 박힌 경로는 못 봤다. 프리미어 잡 4개(m5_intro2·m6_build·m6_probe·m6_probe2)도 옛 저장소 자리를 박고 있었다", "ref() 가 NEWCH_REF_DIR → 위로 올라가며 <통합>/01_납품_차트명가NEW/신규안_v2_전통/레퍼런스 를 찾고 못 찾으면 멈춘다. 프리미어 잡은 _labdir.jsx repoRootPath(). C:/aelab 폴백도 제거(없는 폴더를 돌려줘 늦게 터지던 것) (44efdf5)", "roll_ad.py --theme lacquer 재생성 3장이 납품본과 바이트 동일. py·mjs·ps1 각각 실행 확인. 원문 log/inbox/2026-09-17_D_개선안회신.md §4 D-5", "fixed"),
 ]
 
 DECISIONS = [
@@ -1527,6 +1529,8 @@ DECISIONS = [
     (27, "tools/cutedit/build_cuts.py 격리", "tools/legacy/build_cuts.py 로 옮기고 머리에 레거시 표기. 도구는 cut_and_srt.py", "이름이 cut_and_srt.py 안의 build_cuts() 와 같아 헷갈렸고 09-01 이후 안 썼다. E 제안(log/E-회신-260916.md §1-2), 총괄 실행 09-17", "숏폼 컷편집을 다시 할 때 cut_and_srt.py 가 못 하는 게 있으면"),
     (28, "총괄의 관여 범위 — 일상 작업은 상태만", "회차별 진행(반려·재작·경로 정정)은 로컬이 한다. 총괄은 저장소·병합·기록·작업체계·도구 품질을 맡고 일상 항목은 해결/미해결만 안다", "이정찬 09-17: '넌 Fable 이기 때문에 그런 곳에 쓰기 아까워'. 미해결 목록은 issue.status='open' 과 next_step 의 담당자(blocked_by)로 본다", "로컬이 막혀 총괄 판단이 필요할 때"),
     (29, "총괄의 피드백 대상 — 에이전트만이 아니라 이정찬도", "총괄은 작업체계·지시 방식·시간표에서 이정찬 쪽 비효율도 근거를 달아 말한다. '주류'라고 말할 때는 출처(공식 문서·채택도)를 붙이고, 내 판단이면 판단이라고 표시한다", "이정찬 09-17: '피드백을 에이전트들에게만 하지 말고 나한테도 해. Mainstream 을 읽을 시간이 없어서 니 말이 곧 정론이다 하고 듣겠다.' 그래서 출처 표시가 의무다 — 내 말이 정론이 되면 틀렸을 때 비용이 그쪽으로 간다. 첫 회차: 개선안 §5 (U-1·U-2·U-4·U-6 은 이정찬 반박으로 정정)", "피드백이 일을 늦추거나, 근거 없이 나갔다고 지적받을 때"),
+    (30, "옆가지 이름 — local/* → worktree-*", "새 커밋은 worktree-ps(B)·worktree-ae(D)·worktree-script(E). local/* 다섯 가지는 동결(지우지 않는다 — 검증됐던 마지막 지점의 이름표). 병합은 총괄이 본류로(runbook 23). upstream 은 두지 않는다 — push 는 항상 `git push origin worktree-<이름>`", "2-A 채택으로 B·D 가 09-17 16시 합의해 실제로 땄다. D 질문 3 에 대한 답. 원문 log/inbox/2026-09-17_D_개선안회신.md 질문 3", "세션 시작 폴더(next_step 41)가 바뀌어 claude --worktree 가 브랜치를 스스로 만들 때"),
+    (31, "git_guard 설계 — 경로 한정·삭제 포함·인자 없는 push 차단", "이동·삭제 규칙은 작업 폴더 이름(이정찬·차트명가·aelab·cmgwork·pprolab·납품·더원)이 명령에 있을 때만. rm -r·Remove-Item -Recurse·rmdir·DeleteDirectory 도 같은 규칙. 브랜치 이름 없는 push(인자 없음·HEAD)는 브랜치 확인 없이 막고 이름을 쓰게 한다. git 규칙은 명령 머리의 git 만 본다(따옴표 안 grep 은 제외)", "D 실측 6경우 — 경로를 안 가리면 오탐이 잦아 표식을 습관적으로 만들게 되고, 09-16 에 지운 폴더도 누가 무는지 봐야 했다. 인자 없는 push 는 세션 cwd 가 저장소 밖이면 현재 브랜치를 못 읽는 설계 한계 → 단순한 쪽. 원문 log/inbox/2026-09-17_D_개선안회신.md §2-B ③④", "오탐·미탐이 인박스로 보고될 때"),
 ]
 
 
@@ -1685,6 +1689,11 @@ REPO_FILES = {
     ".pre-commit-config.yaml": ("설정", "커밋 전 ruff — 1단계는 F·E9(미정의 이름·안 쓰는 import·문법)만 막는다. 켜는 건 각자: pip install pre-commit && pre-commit install"),
     "tools/legacy/premiere_xml.py": ("도구", "레거시(2026-09-17 격리) — 08-31 숏폼 FCP7 XML 생성기. XML 은 tools/cutedit/make_xml.py(컷편집)·src/render/split.mjs(렌더 배치)"),
     "log/inbox/2026-09-17_총괄_작업체계·도구품질_개선안.md": ("기록", "총괄 → B·D·E 개선안 — 이미 적용(§1)·워크트리·훅 이관·레이더·소유자별 코드 품질·User 역할 피드백. 주류 근거 §6. 회신은 항목별 채택/보류/반려"),
+    "log/inbox/2026-09-17_B_개선안회신.md": ("기록", "B 회신 — 2-A worktree-ps 채택, B-1·2·3 적용(a75d139·84367a5), D-6 반려, labdir 11단계, 라이브화면 6→10 아트보드·잉크 비율 배치"),
+    "log/inbox/2026-09-17_D_개선안회신.md": ("기록", "D 회신 — worktree-ae 채택, git_guard 실측 6경우·구멍 2개 수정, D-1 반려(evalFile 실측), D-5 실제 버그, 세션 시작 폴더 문제 제기, 총괄 질문 3"),
+    "log/inbox/2026-09-17_총괄_개선안회신답.md": ("기록", "총괄 답 — 세션 시작 폴더는 이정찬 결정(next_step 41), guard 경로 한정·삭제 포함·인자 없는 push 차단(decision 31), 옆가지 worktree-*(decision 30), 채택 현황표"),
+    "tools/ae/_labdir.jsx": ("도구", "AE 작업실 찾기 공용 aeLabDir(start, cfgLabDir) — bridge.jsx(포토샵 쪽)·jobs/_lib.jsx(AE 잡 35개)가 부른다. 복붙 10벌 중 AE 쪽 통일 (D, 44efdf5)"),
+    "tools/legacy/roll_ad_check.py": ("도구", "레거시(2026-09-17 격리) — 지운 한지판 전용 롤링광고 검사기 (D)"),
 }
 
 RUNBOOK = [
@@ -1787,6 +1796,7 @@ RUNBOOK = [
     (20, "오류 레이더 — 벽에 두 번째 부딪히면", "혼자 우회법을 짜기 전에 이미 나온 답을 찾는다 (우리 기록 → Stack Overflow → GitHub)", "python3 tools/radar.py \"<오류 붙여넣기>\"   ·   --file err.txt --repo owner/name --save   ·   --no-web (오프라인)", "스킬 .claude/skills/radar. 총괄 컨테이너는 GitHub 검색 API 가 막혀 MCP search_issues 로. 답은 우리 환경(cp949·ES3·COM)에 맞는지 확인 후 적용"),
     (21, "파이썬 검사 — 커밋 전", "진짜 버그(미정의 이름·안 쓰는 import·문법)와 단위 시험을 돌린다", "python3 -m ruff check tools log tests --select F,E9   ·   python3 -m pytest   ·   (한 번) pip install ruff pytest pre-commit && pre-commit install", "pyproject.toml 이 설정. ruff 기본 규칙 전체는 333건(09-17 기준)이라 강제하지 않는다 — 고치는 줄부터"),
     (22, "세이브 범위 — 같은 작업트리를 나눠 쓸 때", "내 경로만 커밋하고 남의 작업은 두고 간다", "python3 log/save.py --status   ·   python3 log/save.py \"한 줄\" --only tools/illustrator log/inbox   ·   AC_SAVE_SCOPE=\"tools/photoshop tools/illustrator\"", "로그 산출물(worklog.db·WORKLOG.md·worklog.html·README.md·checkpoints.json)은 항상 들어간다. 근본 해법은 세션마다 git worktree(인박스 개선안 §2-A)"),
+    (23, "옆가지 → 본류 병합 (총괄)", "worktree-* 를 본류에 합친다. 겹침을 먼저 재고, 합친 뒤 검사 셋을 돌린다", "git fetch origin  →  겹침: comm -12 <(git diff --name-only $(git merge-base HEAD origin/worktree-ae) origin/worktree-ae | sort) <(같은 식으로 worktree-ps)  →  git merge --no-edit origin/worktree-ae  →  python3 log/build_worklog_db.py --md && python3 -m pytest && python3 -m ruff check tools log tests --select F,E9  →  python3 log/save.py \"병합 …\"", "로컬은 본류에 push 하지 않는다(git_guard). 병합 뒤 로컬은 git fetch && git rebase origin/<본류> 또는 새 worktree. build_worklog_db.py 는 총괄이 번호로 부탁한 줄만 로컬이 만진다(runbook 16 처럼)"),
 ]
 
 ENV_TOOLS = [
@@ -2088,6 +2098,7 @@ CONSTRAINTS = [
     ("build_live.jsx 는 한 번에 752초 — 24MB 트팩 원본을 매번 연다", "exit 0 · 752초. 그중 몇 분은 끊긴 링크 창 대기. '응답 없음' 표시가 멈춤과 구분 안 됨", "멈춤 판정은 CPU 20초 증분(+4s 면 작업 중 / +1s·메모리 고정이면 멈춤). 원문 log/inbox/2026-09-17_B_오류·비효율.md E1"),
     ("한지 텍스처 trad.hanji() 는 1920 폭 고정", "8000px 배너를 한 번에 못 만든다", "좌우 뒤집어 타일링. 원문 log/inbox/2026-09-17_D_오류·비효율.md B11"),
     ("ExtendScript 함정 ①~㉒ 는 brand/EXTENDSCRIPT-TRAPS.md 가 원문 — DB 로 옮기지 않는다", "코드 주석이 번호로 가리킨다(run.ps1 ⑥, build_rollad.jsx ⑮). 번호가 정리 안 됨(⑫ 두 번, ⑭→⑮ 건너뜀). 남의 실측을 요약해 옮기면 틀린다(⑦⑩⑪ 전례)", "DB 는 '원문 ⑯' 처럼 번호만 가리킨다. 새 함정은 문서에 먼저 적고 DB 는 그 번호. 총괄 결정 2026-09-17 (decision 23). 원문 log/inbox/2026-09-17_B_EXTENDSCRIPT-TRAPS_이관판단.md"),
+    ("ExtendScript $.evalFile 은 BOM 없는 UTF-8 한글을 정상으로 읽는다 — TRAPS ③ 은 File.read 얘기다", "코드 검토 세션이 scene-export.mjs 의 한글 .jsx 를 TRAPS ③ 위반으로 지적했으나 D 실측(AE 26.5)에서 코드포인트 일치. _lib.jsx 도 BOM 없는 한글 파일로 35개 잡이 써 왔다", "evalFile 은 그대로. File.read() 로 읽을 때만 encoding='UTF-8' 을 먼저 준다(TRAPS ③). 남의 지적도 실측으로 되돌린다. 원문 log/inbox/2026-09-17_D_개선안회신.md §4 D-1"),
 ]
 
 NEXT_STEPS = [
@@ -2234,7 +2245,8 @@ NEXT_STEPS = [
     (37, "옛 경로 실행줄 정정 — D", "본류 문서 8개에 총괄이 '경로 주의' 머리말을 달았다(09-17). 명령줄(cd C:\\cmgwork\\repo 등)을 최신 경로로 바꾸는 것과 tools/premiere/ 29개·tools/photoshop/config.json 의 잔여 경로 점검은 D (E 회신 §5-3)", "D"),
     (38, "더원트레이더 규칙 DB 등재 — 보류", "컷 0.65s/−30dB/IN −0.08·OUT +0.07(표본 2편 50경계 0.051s) · 자막 14자(롱폼 21자 관측, 8편) · 배너 2판 공식(8편 중 5편). E 가 표본 병기 조건으로 동의. 새 채널로 넘어가 우선순위 낮음", "새 정답 자료가 생길 때"),
     (39, "prlinks.py 전 파트 공용 규칙 — 인박스 제안서", "폴더 옮기기 전 find, 옮긴 뒤 check. 검사 범위에서 목적지 폴더를 빼지 않는다. 사람이 옮기는 경우는 훅이 못 막는다 — 이정찬도 옮기기 전에 돌린다 (runbook 19)", "로컬 채택"),
-    (40, "개선안 회신 — B·D·E", "log/inbox/2026-09-17_총괄_작업체계·도구품질_개선안.md 의 §2·§4 항목별 채택/보류/반려. 채택한 것은 각자 적용하고 커밋 해시. 워크트리(§2-A)를 채택하면 B·D 브랜치를 나눈다 — 총괄은 그 뒤 worktree-* 병합 규칙을 runbook 에 적는다", "B·D·E 회신"),
+    (40, "개선안 회신 — B·D 완료(09-17 17:00 병합), E 대기", "B 641f4da · D 3f32389 회신·코드 본류 병합(76fd1be·5ab0f8f). 총괄 답 log/inbox/2026-09-17_총괄_개선안회신답.md. E 는 §4 E-1~E-7 + prlinks 표식 3줄, 브랜치 worktree-script", "E 회신"),
+    (41, "세션 시작 폴더 — 이정찬 결정", "저장소 .claude/settings.json(env·훅·스킬)은 세션을 시작한 폴더에서만 읽힌다(공식 settings 문서, D 확인). 지금 B·D·E 는 …\\이정찬\\Claude 에서 시작해 아무것도 안 걸린다. 총괄 판단: 각 세션을 자기 worktree 폴더에서 띄운다(cd <worktree>; claude 또는 claude --worktree <이름>). 그러면 PYTHONUTF8·git_guard·radar 스킬이 자동으로 붙는다. 답이 오기 전엔 D 로컬 훅 유지", "이정찬"),
 ]
 
 

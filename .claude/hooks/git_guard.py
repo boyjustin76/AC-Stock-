@@ -8,14 +8,21 @@ D 가 로컬(~/.claude/hooks/hookify_reason.py)에서 쓰던 규칙 3개를 저�
 
 규칙
   1. mainline-push     본류(claude/futures-…, main, master)로 push 금지.
+                       **브랜치 이름 없는 push(`git push`, `git push origin HEAD`)도 금지** — 어디로 가는지
+                       명령에서 안 보이면 막고 이름을 쓰게 한다 (D 제안 09-17, 단순한 쪽).
                        총괄 clone 만 예외: `git config ac.role 총괄` 이 있으면 통과.
   2. whole-tree-stage  `git add -A` · `git add .` · `git commit -a` 금지 — 같은 작업트리를 나눠 쓰면
                        남의 파일이 딸려 간다(issue 24). `python3 log/save.py "…" --only <경로>` 를 쓴다.
                        (D 의 '커밋 전 git status' 규칙을 상태 없이 검사할 수 있는 형태로 바꿨다.)
-  3. move-without-prlinks  mv / Move-Item / Rename-Item / robocopy /MOV 는 60분 안에 prlinks find 를
+  3. move-without-prlinks  **작업 폴더 이름이 든 경로**(PATH_HINTS: 이정찬·차트명가·aelab·cmgwork·pprolab·납품·더원)
+                       를 mv / Move-Item / Rename-Item / robocopy /MOV 로 옮기거나
+                       rm -r / Remove-Item -Recurse / rmdir / DeleteDirectory 로 지울 때는 60분 안에 prlinks find 를
                        돌린 표식(<저장소>/.claude/prlinks_find.ok)이 있어야 통과. 표식은
                        `python3 tools/cutedit/prlinks.py find …` 뒤에 `touch .claude/prlinks_find.ok` (E 가
-                       prlinks.py 에 넣어 주면 자동). git mv 와 저장소 안 이동은 대상이 아니다.
+                       prlinks.py 에 넣어 주면 자동). 경로 한정은 오탐(`mv scratch/a.png b.png`)을 막기 위한 것 —
+                       D 로컬 규칙과 같다. 이름을 더 보태려면 환경변수 AC_GUARD_PATHS="이름1 이름2".
+                       git mv 와 저장소 안 이동은 대상이 아니다. 지우기도 막는 이유: 09-16 에 지운 C:\aelab 등도
+                       누가 무는지 봐야 했다 (D 회신 §2-B ④).
 
 입력은 stdin JSON (tool_name · tool_input.command · cwd). 막을 때는 permissionDecision deny 와
 이유를 같이 돌려준다 — 이유가 없으면 Claude 는 'denied' 만 보고 헤맨다 (issue 36).
@@ -34,13 +41,16 @@ import time
 from pathlib import Path
 
 MAINLINE = ("claude/futures-youtube-video-edit-fhio4s", "main", "master")
-GIT = r"\bgit(?:\s+-[cC]\s+\S+|\s+-C\s+\S+|\s+--git-dir=\S+|\s+--work-tree=\S+)*\s+"
-RE_PUSH = re.compile(GIT + r"push\b(?P<rest>[^\n;&|]*)")
-RE_STAGE_ALL = re.compile(GIT + r"add\b[^\n;&|]*?(?:\s-A\b|\s--all\b|\s\.(?:\s|$))")
-RE_COMMIT_ALL = re.compile(GIT + r"commit\b[^\n;&|]*?\s(?:-a\b|--all\b|-am\b)")
+# 명령 머리(줄 시작 · ; & | ( 뒤)의 git 만 본다 — 따옴표 안 'git push' 를 grep 하는 명령은 대상이 아니다
+GIT = r"(?:^|[;&|(]\s*)git(?:\s+-[cC]\s+\S+|\s+-C\s+\S+|\s+--git-dir=\S+|\s+--work-tree=\S+)*\s+"
+RE_PUSH = re.compile(GIT + r"push\b(?P<rest>[^\n;&|]*)", re.M)
+RE_STAGE_ALL = re.compile(GIT + r"add\b[^\n;&|]*?(?:\s-A\b|\s--all\b|\s\.(?:\s|$))", re.M)
+RE_COMMIT_ALL = re.compile(GIT + r"commit\b[^\n;&|]*?\s(?:-a\b|--all\b|-am\b)", re.M)
 # 줄 머리(^, MULTILINE)도 명령 시작으로 본다 — PowerShell 여러 줄 스크립트의 셋째 줄 Move-Item 을 놓쳤다 (D 시험 09-17)
 RE_MOVE = re.compile(r"(?:^|[;&|]\s*)(?:mv|Move-Item|Rename-Item|mv\.exe)\s|robocopy\b[^\n]*\s/MOV\b", re.I | re.M)
-RE_GIT_MV = re.compile(GIT + r"mv\b")
+RE_DELETE = re.compile(r"(?:^|[;&|]\s*)(?:rm\s+-[a-zA-Z]*r|rmdir\b|Remove-Item\b[^\n;&|]*-Recurse|rd\s+/s)|DeleteDirectory\s*\(", re.I | re.M)
+PATH_HINTS = ("이정찬", "차트명가", "aelab", "cmgwork", "pprolab", "납품", "더원")   # 작업 폴더 이름 — 이게 든 경로만 본다
+RE_GIT_MV = re.compile(GIT + r"mv\b", re.M)
 MARK = ".claude/prlinks_find.ok"
 MARK_TTL = 60 * 60
 
@@ -84,24 +94,26 @@ def check(command: str, cwd: str = ".", *, now: float | None = None,
             rest = m.group("rest")
             target = next((b for b in MAINLINE if re.search(re.escape(b) + r"(?:\s|$|:)", rest)), None)
             no_branch_arg = not re.search(r"\s[^\s-][^\s]*\s+[^\s-]", rest)
-            if target is None and (no_branch_arg or re.search(r"\bHEAD\b", rest)):   # 인자 없음·HEAD → 현재 브랜치
-                cur = _branch(cwd) if branch is None else branch
-                target = cur if cur in MAINLINE else None
             if target:
-                return (f"본류 '{target}' 로의 push 는 총괄만 한다. 옆가지(local/…)로 올리고 총괄에게 병합을 요청한다. "
+                return (f"본류 '{target}' 로의 push 는 총괄만 한다. 옆가지(worktree-…)로 올리고 총괄에게 병합을 요청한다. "
                         f"(총괄 clone 은 `git config ac.role 총괄`)")
+            if no_branch_arg or re.search(r"\bHEAD\b", rest):
+                return ("어디로 가는지 명령에 안 보이는 push 는 막는다 — 브랜치 이름을 적는다: "
+                        "`git push origin worktree-<이름>`. (인자 없는 push 는 upstream 이 본류면 본류로 간다)")
 
     if RE_STAGE_ALL.search(cmd) or RE_COMMIT_ALL.search(cmd):
         return ("작업트리 전체 스테이징(git add -A / add . / commit -a)은 남의 파일을 휩쓴다(issue 24). "
                 "`python3 log/save.py \"한 줄\" --only <내 경로…>` 또는 `git add -- <경로>` 로 범위를 정한다.")
 
-    if RE_MOVE.search(cmd) and not RE_GIT_MV.search(cmd):
+    hints = PATH_HINTS + tuple(os.environ.get("AC_GUARD_PATHS", "").split())
+    touches_work = any(h.lower() in cmd.lower() for h in hints)
+    if touches_work and (RE_MOVE.search(cmd) or RE_DELETE.search(cmd)) and not RE_GIT_MV.search(cmd):
         t = time.time() if now is None else now
         if mark_mtime is None:
             p = Path(_repo_root(cwd)) / MARK
             mark_mtime = p.stat().st_mtime if p.exists() else 0.0
         if t - mark_mtime > MARK_TTL:
-            return ("폴더·파일을 옮기기 전에 누가 그 경로를 무는지 본다 — "
+            return ("작업 폴더를 옮기거나 지우기 전에 누가 그 경로를 무는지 본다 — "
                     "`python3 tools/cutedit/prlinks.py find \"<경로조각>\" \"<검색 루트>\"` 를 먼저 돌리고 "
                     f"`touch {MARK}` (60분 유효). 2026-09-16 L08 소스 끊김 두 번(issue 20)의 재발 방지. 옮긴 뒤 `prlinks.py check`.")
     return None
