@@ -12,7 +12,7 @@
 $.evalFile(new File(String(new File($.fileName).parent.parent.fsName).split(String.fromCharCode(92)).join("/") + "/_labdir.jsx"));
 var LAB = labDirPath();   /* 실험실 폴더를 박지 않고 찾는다 (2026-09-16 단일화) */
 (function () {
-    var PRESET_KO = "C:/Users/user/Desktop/이정찬/Claude/AC-Stock-/tools/premiere/presets/차트명가_1080p_30fps.sqpreset";
+    var PRESET_KO = repoRootPath() + "/tools/premiere/presets/차트명가_1080p_30fps.sqpreset";
     var PRESET_ASCII = LAB + "/cmg_1080p_30fps.sqpreset";
 
     var out = [];

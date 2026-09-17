@@ -64,3 +64,15 @@ function cmgDirPath() {
     return _fwd(_findDir(_here(), ["06_실험실/cmgwork", "cmgwork"],
                          "CMGWORK_DIR", "C:/cmgwork", null).fsName);
 }
+
+/** 저장소 뿌리 경로 (슬래시 문자열) — 위로 올라가며 package.json 과 tools/premiere 가 같이 있는 폴더.
+ *  2026-09-17: 잡 4개(m5_intro2 · m6_build · m6_probe · m6_probe2)가 옛 저장소 자리
+ *  C:/Users/user/Desktop/이정찬/Claude/AC-Stock- 를 박고 있었다. 09-16 에 저장소가 옮겨져 전부 끊긴 상태였다. */
+function repoRootPath() {
+    var d = _here();
+    for (var i = 0; i < 8 && d; i++) {
+        if (new File(d.fsName + "/package.json").exists && new Folder(d.fsName + "/tools/premiere").exists) return _fwd(d.fsName);
+        d = d.parent;
+    }
+    throw new Error("저장소 뿌리를 못 찾았다 (시작: " + _fwd(_here().fsName) + ")");
+}

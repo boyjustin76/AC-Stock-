@@ -31,7 +31,7 @@
 로그인 한 번만 뜬다:
 
 ```
-cd C:\cmgwork\repo && git push -u origin HEAD:local/thumb-ch11
+cd "<통합 폴더>\03_저장소\AC-Stock-"; git push -u origin HEAD:local/thumb-ch11   # 옛 C:\cmgwork\repo 는 09-16 에 없앴다. PowerShell 5.1 에는 && 가 없다
 ```
 
 그 다음 클라우드 세션에 "올렸다"고 알려 주면, 양쪽 사정을 다 아는 쪽에서 병합한다.

@@ -10,13 +10,43 @@
 
 이미지 생성 AI 는 쓰지 않는다 (무료 등급 품질 불가). 실물 사진 크롭(창호) + 폰트(궁서·나눔붓) + 노이즈 침식(인주 질감).
 """
-import argparse, io, json, math, os, random, sys
+import argparse, io, json, math, os, random
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageChops
 
 W, H = 1920, 1080
 HERE = os.path.dirname(os.path.abspath(__file__))
-REF = r'C:\Users\user\Desktop\이정찬\차트명가 NEW\신규안_v2_전통\레퍼런스'
+REF_PARTS = ('01_납품_차트명가NEW', '신규안_v2_전통', '레퍼런스')
+
+
+def _find_ref():
+    """전통판 레퍼런스 사진 폴더를 **찾는다** — 경로를 박지 않는다 (tools/ae/labdir.py 와 같은 규칙).
+
+    2026-09-17: 여기 박혀 있던 `C:\\Users\\...\\차트명가 NEW\\신규안_v2_전통\\레퍼런스` 는 09-16 통합 때
+    없어진 폴더였다 — 창호 띠·아웃트로 문양이 조용히 깨질 자리 (총괄 개선안 D-5).
+    순서: 환경변수 NEWCH_REF_DIR → 이 파일에서 위로 올라가며 <통합 폴더>/01_납품_차트명가NEW/신규안_v2_전통/레퍼런스
+    """
+    env = os.environ.get('NEWCH_REF_DIR')
+    if env and os.path.isdir(env):
+        return env
+    d = HERE
+    for _ in range(8):
+        c = os.path.join(d, *REF_PARTS)
+        if os.path.isdir(c):
+            return c
+        d = os.path.dirname(d)
+    return None
+
+
+def ref(name):
+    """레퍼런스 사진 한 장의 경로. 폴더를 못 찾으면 **어디를 찾았는지** 말하고 멈춘다."""
+    base = _find_ref()
+    if base is None:
+        raise FileNotFoundError('레퍼런스 폴더를 못 찾았다 — 환경변수 NEWCH_REF_DIR 을 주거나 '
+                                '<통합 폴더>/' + '/'.join(REF_PARTS) + ' 를 둔다 (시작: ' + HERE + ')')
+    return os.path.join(base, name)
+
+
 LOGO = os.path.join(HERE, '..', '..', 'brand', 'logo', '차트명가_로고(투명).png')
 
 # 팔레트 (무드보드.md · 판독/색실측.md)
@@ -210,7 +240,7 @@ def vtext(d, x, y, text, font, fill=INK, gap=4):
 # ---------- 틀 ----------
 def changho_strip(width, height):
     """창호 실물 띠 — 레퍼런스 12(창호 사진) 워터마크 없는 영역을 크롭해 가로로 늘린다 (상단 '창')"""
-    im = Image.open(os.path.join(REF, '12_창호지.jpg')).convert('RGB')
+    im = Image.open(ref('12_창호지.jpg')).convert('RGB')
     crop = im.crop((30, 40, 990, 40 + int(960 * height / width)))
     a = np.array(crop).astype(np.float32)
     lum = a.mean(axis=2)
@@ -469,7 +499,7 @@ def build_outro(a, split=None):
 
     def pattern(c):
         # 전통문양(레퍼런스 21 수복문) 을 아주 옅게 깔기
-        pat = Image.open(os.path.join(REF, '21_전통패턴_플랫.jpg')).convert('L').resize((740, 740))
+        pat = Image.open(ref('21_전통패턴_플랫.jpg')).convert('L').resize((740, 740))
         tile = Image.new('L', (W, H), 255)
         for y in range(0, H, 740):
             for x in range(0, W, 740):

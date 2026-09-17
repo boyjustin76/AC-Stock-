@@ -38,7 +38,8 @@ GIT = r"\bgit(?:\s+-[cC]\s+\S+|\s+-C\s+\S+|\s+--git-dir=\S+|\s+--work-tree=\S+)*
 RE_PUSH = re.compile(GIT + r"push\b(?P<rest>[^\n;&|]*)")
 RE_STAGE_ALL = re.compile(GIT + r"add\b[^\n;&|]*?(?:\s-A\b|\s--all\b|\s\.(?:\s|$))")
 RE_COMMIT_ALL = re.compile(GIT + r"commit\b[^\n;&|]*?\s(?:-a\b|--all\b|-am\b)")
-RE_MOVE = re.compile(r"(?:^|[;&|]\s*)(?:mv|Move-Item|Rename-Item|mv\.exe)\s|robocopy\b[^\n]*\s/MOV\b", re.I)
+# 줄 머리(^, MULTILINE)도 명령 시작으로 본다 — PowerShell 여러 줄 스크립트의 셋째 줄 Move-Item 을 놓쳤다 (D 시험 09-17)
+RE_MOVE = re.compile(r"(?:^|[;&|]\s*)(?:mv|Move-Item|Rename-Item|mv\.exe)\s|robocopy\b[^\n]*\s/MOV\b", re.I | re.M)
 RE_GIT_MV = re.compile(GIT + r"mv\b")
 MARK = ".claude/prlinks_find.ok"
 MARK_TTL = 60 * 60
@@ -108,7 +109,8 @@ def check(command: str, cwd: str = ".", *, now: float | None = None,
 
 def main() -> int:
     try:
-        data = json.load(sys.stdin)
+        # 바이트로 받아 UTF-8 로 푼다 — 콘솔 코드페이지(cp949)로 읽으면 한글 명령에서 깨질 수 있다 (D B7)
+        data = json.loads(sys.stdin.buffer.read().decode("utf-8"))
     except Exception:
         return 0
     tool = data.get("tool_name", "")
@@ -122,7 +124,9 @@ def main() -> int:
     out = {"hookSpecificOutput": {"hookEventName": "PreToolUse",
                                   "permissionDecision": "deny",
                                   "permissionDecisionReason": reason}}
-    sys.stdout.write(json.dumps(out, ensure_ascii=False))
+    # ASCII(\uXXXX)로 쓴다 — PYTHONUTF8 가 없는 환경에서 한글·대시를 cp949 로 쓰다 죽으면 훅이 실패하고
+    # 명령이 **그대로 통과**한다 (D 시험 09-17: 한글 경로 mv 차단이 UnicodeEncodeError 로 풀렸다).
+    sys.stdout.write(json.dumps(out, ensure_ascii=True))
     return 0
 
 

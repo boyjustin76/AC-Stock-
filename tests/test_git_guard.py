@@ -76,3 +76,25 @@ def test_git_mv_and_non_move_allowed():
 def test_push_head_uses_current_branch():
     assert chk("git push origin HEAD", branch="claude/futures-youtube-video-edit-fhio4s")
     assert chk("git push origin HEAD", branch="local/ae-lab") is None
+
+
+# D 시험 (2026-09-17) — 실제 입력 모양에서 놓친 것
+def test_move_on_later_line_of_multiline_script_blocked():
+    script = '$src = "C:/a"\n$dst = "C:/b"\nMove-Item -LiteralPath $src -Destination $dst'
+    assert chk(script, mark_mtime=STALE)
+
+
+def test_hook_main_survives_cp949_console():
+    """PYTHONUTF8 없이 돌려도 한글 명령을 막고 이유를 ASCII JSON 으로 낸다 — 죽으면 명령이 통과한다."""
+    import json
+    import os
+    import subprocess
+    import sys
+    env = {k: v for k, v in os.environ.items() if k not in ("PYTHONUTF8", "PYTHONIOENCODING")}
+    cmd = "git push origin claude/futures-youtube-video-edit-fhio4s  # 한글 경로 — 대시"
+    payload = json.dumps({"tool_name": "Bash", "tool_input": {"command": cmd}, "cwd": "."}, ensure_ascii=False).encode("utf-8")
+    r = subprocess.run([sys.executable, str(ROOT / ".claude" / "hooks" / "git_guard.py")],
+                       input=payload, capture_output=True, env=env, timeout=30)
+    assert r.returncode == 0, r.stderr
+    out = json.loads(r.stdout.decode("ascii"))
+    assert out["hookSpecificOutput"]["permissionDecision"] == "deny"
