@@ -1771,3 +1771,4 @@ git fetch origin  →  겹침: comm -12 <(git diff --name-only $(git merge-base 
 | 379 | `641f4dae` | log/inbox — B 개선안 회신 (2-A 채택·worktree-ps, B-1·B-2·B-3 적용, B-4 D 파일, D-6 반려·경고 정리) | 1파일 +53/-0 |
 | 380 | `76fd1be0` | 병합: worktree-ae (D 개선안 반영 — 경로·labdir 공용화·줄끝·guard 구멍 2개) | 26파일 +401/-221 |
 | 381 | `5ab0f8f0` | 병합: worktree-ps (B 개선안 반영 — 라이브화면 07~10·BOM·matte) | 7파일 +513/-35 |
+| 382 | `a8b46739` | 세이브 save/2026-09-17-1713 — B·D 회신 병합 — guard 경로한정·삭제·push 이름 강제(decision 31), 옆가지 worktree-*(30), issue 38·39, next_step 41 세션 시작 폴더(이정찬), 총괄 회신답 | 8파일 +163/-35 |
