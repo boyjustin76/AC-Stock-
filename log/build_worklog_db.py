@@ -2897,21 +2897,23 @@ def load_scripts():
 
 
 def git_commits():
+    """커밋마다 git show 를 띄우던 것을 git log 한 번으로 (2026-09-18 검토 ②).
+    455커밋에서 rebuild 6.2초 중 대부분이 여기였다 — 세이브 한 번에 두 번 돈다."""
     try:
         out = subprocess.run(
-            ["git", "log", "--reverse", "--pretty=format:%H%x1f%aI%x1f%s"],
+            ["git", "log", "--reverse", "--shortstat", "--diff-merges=first-parent", "--pretty=format:%x1e%H%x1f%aI%x1f%s"],
             cwd=ROOT, capture_output=True, text=True, encoding="utf-8", check=True).stdout
-    except Exception:
+    except Exception as e:
+        print(f"  경고: git log 실패 — commit_log 가 빈다 ({e})", file=sys.stderr)
         return []
+    import re
     rows = []
-    for i, line in enumerate(out.splitlines(), 1):
-        sha, authored, subject = line.split("\x1f")
-        stat = subprocess.run(
-            ["git", "show", "--shortstat", "--pretty=format:", sha],
-            cwd=ROOT, capture_output=True, text=True, encoding="utf-8").stdout.strip()
+    for i, block in enumerate([b for b in out.split("\x1e") if b.strip()], 1):
+        head, _, stat = block.partition("\n")
+        sha, authored, subject = head.split("\x1f")
+        stat = stat.strip()
         files = ins = dele = None
         if stat:
-            import re
             m = re.search(r"(\d+) files? changed", stat)
             files = int(m.group(1)) if m else None
             m = re.search(r"(\d+) insertions?", stat)
