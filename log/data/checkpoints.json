@@ -782,5 +782,12 @@
   "utc": "2026-09-18 01:15",
   "sha": "988ad6d",
   "summary": "D 훅 저장소 연결 — CLAUDE_PROJECT_DIR 펼침·exec form args 실측, git_guard 세션 차단 확인"
+ },
+ {
+  "tag": "save/2026-09-18-1017",
+  "kst": "2026-09-18 10:17",
+  "utc": "2026-09-18 01:17",
+  "sha": "e397310",
+  "summary": "save.py 본류 대상 푸시 건 보고 추가"
  }
 ]

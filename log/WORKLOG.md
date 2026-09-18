@@ -1803,3 +1803,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 392 | `f883ea30` | 세이브 기록 save/2026-09-17-1841 | 5파일 +11/-3 |
 | 393 | `988ad6d5` | 세이브 save/2026-09-18-1015 — D 훅 저장소 연결 — CLAUDE_PROJECT_DIR 펼침·exec form args 실측, git_guard 세션 차단 확인 | 5파일 +83/-19 |
 | 394 | `1330ba02` | 세이브 기록 save/2026-09-18-1015 | 5파일 +11/-3 |
+| 395 | `e397310c` | 세이브 save/2026-09-18-1017 — save.py 본류 대상 푸시 건 보고 추가 | 4파일 +24/-1 |
