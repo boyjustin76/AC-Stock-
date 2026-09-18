@@ -34,7 +34,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SLOTS = ROOT / "log" / "data" / "checkpoints.json"
 KST = timezone(timedelta(hours=9))
-BRANCH = "claude/futures-youtube-video-edit-fhio4s"
+BRANCH = "claude/futures-youtube-video-edit-fhio4s"      # 본류 — 총괄만 민다
+MAINLINE = (BRANCH, "main", "master")
 LOG_OUTPUTS = ["log/worklog.db", "log/WORKLOG.md", "log/worklog.html", "README.md",
                "log/data/checkpoints.json"]      # rebuild() 가 만드는 것 — 범위와 무관하게 항상 커밋
 
@@ -71,6 +72,34 @@ def rebuild() -> None:
         if r.returncode:
             raise SystemExit(f"{script} 실패\n{r.stdout}\n{r.stderr}")
         print("  " + r.stdout.strip().replace("\n", "\n  "))
+
+
+def current_branch() -> str:
+    return git("rev-parse", "--abbrev-ref", "HEAD", check=False)
+
+
+def role() -> str:
+    """총괄 clone 은 `git config ac.role 총괄`. 그 밖은 빈 문자열."""
+    return git("config", "--get", "ac.role", check=False)
+
+
+def push_target(branch: str, who: str) -> str | None:
+    """어디로 밀지. None 이면 밀지 않는다 (이유는 push_reason).
+    2026-09-18 D 실측 — 본류 이름을 박아 두고 있어서 worktree 세션의 세이브가 본류로 향했다(issue 41).
+    지금은 **현재 브랜치**로 민다. 본류는 총괄(ac.role=총괄)만."""
+    if not branch or branch == "HEAD":
+        return None
+    if branch in MAINLINE and who != "총괄":
+        return None
+    return branch
+
+
+def push_reason(branch: str, who: str) -> str:
+    if not branch or branch == "HEAD":
+        return "브랜치가 아니라(detached) 밀지 않았습니다"
+    if branch in MAINLINE and who != "총괄":
+        return f"본류 '{branch}' 는 총괄만 밉니다 — 옆가지(worktree-<이름>)에서 세이브하거나 총괄에게 병합을 요청하세요"
+    return ""
 
 
 def changed_files() -> list[str]:
@@ -162,14 +191,18 @@ def cmd_save(summary: str, push: bool, scope: list[str] | None) -> None:
     git("tag", "-a", tag, sha, "-m", summary, check=False)
     print(f"\n  커밋 {sha} · 태그 {tag}")
 
-    if push:
-        print("  푸시 중")
-        git("push", "-u", "origin", BRANCH)
+    branch = current_branch()
+    target = push_target(branch, role())
+    if push and target:
+        print(f"  푸시 중 → origin/{target}")
+        git("push", "origin", target)          # upstream 은 두지 않는다 (인자 없는 push 가 본류로 가는 것을 막는다)
         print("  올렸습니다. 컨테이너가 사라져도 남습니다.")
         print("  (태그는 이 저장소에서 푸시가 막혀 있어 로컬에만 있습니다."
               " 복구는 log/data/checkpoints.json 의 해시로 합니다.)")
+    elif push:
+        print(f"  밀지 않았습니다: {push_reason(branch, role())}")
     else:
-        print(f"  아직 로컬에만 있습니다:  git push -u origin {BRANCH}")
+        print(f"  아직 로컬에만 있습니다:  git push origin {branch}")
 
 
 def cmd_list() -> None:
@@ -223,7 +256,7 @@ def cmd_load(tag: str) -> None:
 
   구경만 하고 싶다면
        git checkout {tag}
-       git checkout {BRANCH}      # 돌아오기
+       git checkout {current_branch()}      # 돌아오기
 """)
 
 

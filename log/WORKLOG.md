@@ -248,7 +248,7 @@ pyproject.toml 이 설정. ruff 기본 규칙 전체는 333건(09-17 기준)이�
 ```
 python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/illustrator log/inbox   ·   AC_SAVE_SCOPE="tools/photoshop tools/illustrator"
 ```
-로그 산출물(worklog.db·WORKLOG.md·worklog.html·README.md·checkpoints.json)은 항상 들어간다. 근본 해법은 세션마다 git worktree(인박스 개선안 §2-A). 로컬은 save.py 대신 git add -- <내 경로> + commit 으로 올려도 된다(E 방식 — DB 재빌드는 총괄 병합 때 한다)
+로그 산출물(worklog.db·WORKLOG.md·worklog.html·README.md·checkpoints.json)은 항상 들어간다. 푸시는 현재 브랜치로 간다(09-18, issue 41) — 옆가지에서 세이브하면 그 가지로. 본류는 ac.role=총괄 만. 로컬은 save.py 대신 git add -- <내 경로> + commit 으로 올려도 된다(E 방식 — DB 재빌드는 총괄 병합 때 한다)
 
 **23. 옆가지 → 본류 병합 (총괄)** — worktree-* 를 본류에 합친다. 겹침을 먼저 재고, 합친 뒤 검사 셋을 돌린다
 ```
@@ -656,6 +656,8 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | ExtendScript 함정 ①~㉒ 는 brand/EXTENDSCRIPT-TRAPS.md 가 원문 — DB 로 옮기지 않는다 | 코드 주석이 번호로 가리킨다(run.ps1 ⑥, build_rollad.jsx ⑮). 번호가 정리 안 됨(⑫ 두 번, ⑭→⑮ 건너뜀). 남의 실측을 요약해 옮기면 틀린다(⑦⑩⑪ 전례) | DB 는 '원문 ⑯' 처럼 번호만 가리킨다. 새 함정은 문서에 먼저 적고 DB 는 그 번호. 총괄 결정 2026-09-17 (decision 23). 원문 log/inbox/2026-09-17_B_EXTENDSCRIPT-TRAPS_이관판단.md |
 | ExtendScript $.evalFile 은 BOM 없는 UTF-8 한글을 정상으로 읽는다 — TRAPS ③ 은 File.read 얘기다 | 코드 검토 세션이 scene-export.mjs 의 한글 .jsx 를 TRAPS ③ 위반으로 지적했으나 D 실측(AE 26.5)에서 코드포인트 일치. _lib.jsx 도 BOM 없는 한글 파일로 35개 잡이 써 왔다 | evalFile 은 그대로. File.read() 로 읽을 때만 encoding='UTF-8' 을 먼저 준다(TRAPS ③). 남의 지적도 실측으로 되돌린다. 원문 log/inbox/2026-09-17_D_개선안회신.md §4 D-1 |
 | ffmpeg stderr 를 그대로 담은 파일(silences.txt)은 실행마다 메모리 주소가 바뀐다 | 줄 머리 `[silencedetect @ 000001650716bc00]` — 해시 회귀에서 '다름' 으로 뜬다. 도구 결과에는 영향 없음(read_silences 는 숫자만 읽는다) | 내용 비교는 주소를 빼고 한다. 원문 log/inbox/2026-09-17_E_개선안회신.md 오류 원자료 2 |
+| git_guard 는 명령 텍스트만 본다 — 문서를 heredoc 으로 쓰면 본문의 'git push …' 줄에 걸린다 | D 보고서(본류 이름+push 낱말 포함)를 heredoc 으로 덧붙이는 명령이 차단됐다. 옛 로컬 훅도 같았다. 규칙을 느슨하게 하면 진짜를 놓친다 | 문서는 셸 heredoc 이 아니라 Write/Edit 도구로 쓴다(역슬래시 문제와 같은 처방). 조각을 파일 도구로 만들고 cat 으로 잇는다. 원문 log/inbox/2026-09-18_D_훅연결_실측.md §6 |
+| make_xml.pathurl — 드라이브 문자 경로는 abspath 를 안 거치니 정규화도 안 된다 | C:/Users/../Users/user/x.mp4 같은 경로가 그대로 URL 에 박힌다. cuts.json 의 source 는 전부 정규화된 절대경로라 지금은 영향 없음 | 상대·리눅스 경로는 전처럼 abspath. 필요해지면 os.path.normpath 만 추가. E 윈도우 회귀 4개 바이트 동일. 원문 log/inbox/2026-09-18_E_세션시작폴더_적용.md |
 
 ## 다음에 할 일
 
@@ -699,7 +701,8 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 38. **더원트레이더 규칙 DB 등재 — 보류** — 컷 0.65s/−30dB/IN −0.08·OUT +0.07(표본 2편 50경계 0.051s) · 자막 14자(롱폼 21자 관측, 8편) · 배너 2판 공식(8편 중 5편). E 가 표본 병기 조건으로 동의. 새 채널로 넘어가 우선순위 낮음  _(대기: 새 정답 자료가 생길 때)_
 39. **prlinks.py 전 파트 공용 규칙 — 인박스 제안서** — 폴더 옮기기 전 find, 옮긴 뒤 check. 검사 범위에서 목적지 폴더를 빼지 않는다. 사람이 옮기는 경우는 훅이 못 막는다 — 이정찬도 옮기기 전에 돌린다 (runbook 19)  _(대기: 로컬 채택)_
 40. **개선안 회신 — B·D·E 전부 완료 (09-17 17:3x, 셋 다 본류 병합)** — B 641f4da · D 3f32389 · E e6c16b8. 채택 현황은 log/inbox/2026-09-17_총괄_개선안회신답.md 표 + E: 2-A(가지만 전환, 작업트리 두 벌은 단일화 방침으로 안 만듦)·E-1~E-7·ruff 5 적용, 회귀 45항목 동일, pytest 29. 남은 것은 next_step 41(세션 시작 폴더, 이정찬)뿐  _(대기: 완료)_
-41. **세션 시작 폴더 — 확정 (09-17 18:40 이정찬): 자기 worktree 폴더에서 띄운다 · 이름 D_Video·B_Image·E_Script** — 저장소 .claude/settings.json(env·훅·스킬)은 세션을 시작한 폴더에서만 읽힌다(공식 settings 문서, D 확인). 지금 B·D·E 는 …\이정찬\Claude 에서 시작해 아무것도 안 걸린다. 총괄 판단: 각 세션을 자기 worktree 폴더에서 띄운다(cd <worktree>; claude 또는 claude --worktree <이름>). 그러면 PYTHONUTF8·git_guard·radar 스킬이 자동으로 붙는다. 답이 오기 전엔 D 로컬 훅 유지  _(대기: 이정찬)_
+41. **세션 시작 폴더 — 완료 (09-18 오전): B·D·E 셋 다 새 폴더·새 가지, D 훅 연결·실측 통과, B PYTHONUTF8=1 확인, E 는 다음 세션에서 확인** — 저장소 .claude/settings.json(env·훅·스킬)은 세션을 시작한 폴더에서만 읽힌다(공식 settings 문서, D 확인). 지금 B·D·E 는 …\이정찬\Claude 에서 시작해 아무것도 안 걸린다. 총괄 판단: 각 세션을 자기 worktree 폴더에서 띄운다(cd <worktree>; claude 또는 claude --worktree <이름>). 그러면 PYTHONUTF8·git_guard·radar 스킬이 자동으로 붙는다. 답이 오기 전엔 D 로컬 훅 유지  _(대기: 이정찬)_
+42. **더원 배너 나머지 문서 둘 — E 가 올린다** — tools/theone/상단배너_공식.md 는 올라왔다(519625b). 같은 폴더에 로컬만 있는 상단배너_로직.md(7.2KB)·상단배너_임베딩분석.md(8.3KB) — 임베딩 채점기 수치(쌍 개수·유사도 분포·홀드아웃)가 거기 있다. 이정찬이 '대본~인덱스~임베딩~로직' 자료를 찾고 있어 둘 다 tools/theone/ 으로  _(대기: E)_
 
 ## 대본과 컷 싱크
 
@@ -1251,6 +1254,12 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 - 조치: check=True — CalledProcessError 로 그 자리에서 멈춘다. assemble_longform.duration 도 파일 없음·길이 줄 없음을 각각 한국어로 멈추게 (ffprobe 는 이 PC 에 없어 의존성 안 늘림) (ea36a4a)
 - 확인: 정상 녹음(L08 캠 앞 400초) 28·64구간 그대로. 회귀 45항목 해시 동일. 원문 log/inbox/2026-09-17_E_개선안회신.md §4 E-1·E-2
 
+### 41. save.py 가 본류 이름을 박아 두고 있어 worktree 세션의 세이브가 본류로 향함 (09-18, D 발견)  `fixed`
+- 증상: worktree-D_Video 에서 save.py 를 돌리자 커밋은 제 가지에 됐는데 마지막에 'git push -u origin <본류> 실패 ! [rejected] (non-fast-forward)'. 막힌 건 훅이 아니라 원격이 앞서 있던 우연
+- 원인: save.py:167 git push -u origin BRANCH — worktree 로 나누기 전엔 맞던 코드. git_guard 는 python 안에서 도는 git 을 못 본다(훅은 Bash 명령줄만) → 세이브 스크립트가 가드 밖
+- 조치: 푸시는 현재 브랜치(rev-parse --abbrev-ref HEAD)로. 본류(MAINLINE)는 git config ac.role=총괄 인 clone 만 민다. upstream 도 두지 않는다. tests/test_save.py 3 (2026-09-18 총괄)
+- 확인: pytest 통과. 실제 옆가지 세이브 확인은 D·B·E 다음 세이브에서. 원문 log/inbox/2026-09-18_D_훅연결_실측.md §5
+
 ## 판단과 근거
 
 - **렌더 방식** — 실시간 재생이 아니라 프레임 번호를 받아 그린다
@@ -1375,22 +1384,22 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 
 | 파일 | 포맷 | 프레임 | 크기 | 비고 |
 |---|---|---|---|---|
-| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | - | 29.97 기준 125f |
-| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | - | 29.97 기준 117f |
-| `out/cmg/cut3-fear.mp4` | mp4 | 152 | - | 29.97 기준 76f |
-| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | - | 29.97 기준 160f |
-| `out/cmg/_reel.mp4` | mp4 | 956 | - | 4컷 이어붙임, 29.97 기준 478f |
-| `out/01-open.mp4` | mp4 | 420 | - |  |
-| `out/02-structure.mp4` | mp4 | 450 | - |  |
-| `out/03-breakdown.mp4` | mp4 | 420 | - |  |
-| `out/04-entry.mp4` | mp4 | 420 | - |  |
-| `out/05-tpsl.mp4` | mp4 | 450 | - |  |
-| `out/06-result.mp4` | mp4 | 540 | - |  |
-| `out/_reel.mp4` | mp4 | 2700 | - | 다크 6컷 릴 45초 |
-| `out/ov-chart.mov` | qtrle | 300 | - | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
-| `out/ov-chart.webm` | vp9a | 300 | - | 전송용 압축본 |
-| `out/ov-tpsl.mov` | qtrle | 300 | - |  |
-| `out/ov-pnl.mov` | qtrle | 300 | - |  |
+| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | 0.8 MB | 29.97 기준 125f |
+| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | 1.0 MB | 29.97 기준 117f |
+| `out/cmg/cut3-fear.mp4` | mp4 | 152 | 1.1 MB | 29.97 기준 76f |
+| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | 3.4 MB | 29.97 기준 160f |
+| `out/cmg/_reel.mp4` | mp4 | 956 | 6.4 MB | 4컷 이어붙임, 29.97 기준 478f |
+| `out/01-open.mp4` | mp4 | 420 | 4.4 MB |  |
+| `out/02-structure.mp4` | mp4 | 450 | 4.3 MB |  |
+| `out/03-breakdown.mp4` | mp4 | 420 | 4.9 MB |  |
+| `out/04-entry.mp4` | mp4 | 420 | 3.7 MB |  |
+| `out/05-tpsl.mp4` | mp4 | 450 | 3.6 MB |  |
+| `out/06-result.mp4` | mp4 | 540 | 4.8 MB |  |
+| `out/_reel.mp4` | mp4 | 2700 | 25.6 MB | 다크 6컷 릴 45초 |
+| `out/ov-chart.mov` | qtrle | 300 | 38.5 MB | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
+| `out/ov-chart.webm` | vp9a | 300 | 3.2 MB | 전송용 압축본 |
+| `out/ov-tpsl.mov` | qtrle | 300 | 17.1 MB |  |
+| `out/ov-pnl.mov` | qtrle | 300 | 17.0 MB |  |
 
 ## 받아 온 자료
 
@@ -1801,6 +1810,13 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 390 | `ec5bcb3c` | 세이브 기록 save/2026-09-17-1840 | 5파일 +11/-3 |
 | 391 | `561e8a48` | 세이브 save/2026-09-17-1841 — guard 시험 — 총괄 clone(ac.role) 에서도 도는 환경 고정 | 4파일 +4/-1 |
 | 392 | `f883ea30` | 세이브 기록 save/2026-09-17-1841 | 5파일 +11/-3 |
-| 393 | `988ad6d5` | 세이브 save/2026-09-18-1015 — D 훅 저장소 연결 — CLAUDE_PROJECT_DIR 펼침·exec form args 실측, git_guard 세션 차단 확인 | 5파일 +83/-19 |
-| 394 | `1330ba02` | 세이브 기록 save/2026-09-18-1015 | 5파일 +11/-3 |
-| 395 | `e397310c` | 세이브 save/2026-09-18-1017 — save.py 본류 대상 푸시 건 보고 추가 | 4파일 +24/-1 |
+| 393 | `519625bc` | 더원 상단배너 공식(2판) 문서를 저장소로 — 증거표 포함 | 2파일 +119/-2 |
+| 394 | `6d915804` | log/inbox — B 세션 폴더·worktree 이전 완료 (worktree-B_Image, labdir 실측) | 1파일 +32/-0 |
+| 395 | `988ad6d5` | 세이브 save/2026-09-18-1015 — D 훅 저장소 연결 — CLAUDE_PROJECT_DIR 펼침·exec form args 실측, git_guard 세션 차단 확인 | 5파일 +83/-19 |
+| 396 | `1330ba02` | 세이브 기록 save/2026-09-18-1015 | 5파일 +11/-3 |
+| 397 | `98478961` | log/inbox — 세션 시작 폴더 실측 통과 (PYTHONUTF8=1) · 옛 가지 정리 완료 | 1파일 +2/-2 |
+| 398 | `6bc572b4` | log/inbox — 세션 시작 폴더 확정 적용 (E_Script · worktree-E_Script) · pathurl 윈도우 회귀 확인 | 1파일 +37/-0 |
+| 399 | `e397310c` | 세이브 save/2026-09-18-1017 — save.py 본류 대상 푸시 건 보고 추가 | 4파일 +24/-1 |
+| 400 | `7c2141fe` | 세이브 기록 save/2026-09-18-1017 | 5파일 +11/-3 |
+| 401 | `074fe08f` | 병합: worktree-B_Image (2026-09-18 세션 폴더 이전·훅 연결·배너 공식) | 1파일 +32/-0 |
+| 402 | `ac61c7d2` | 병합: worktree-D_Video (2026-09-18 세션 폴더 이전·훅 연결·배너 공식) | 7파일 +125/-22 |
