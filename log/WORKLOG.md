@@ -233,7 +233,7 @@ pip install faster-whisper  →  tools/cutedit/transcribe.py → align_take.py �
 ```
 python3 tools/cutedit/prlinks.py find "<경로조각>" "<검색 루트>"   →  옮긴다  →  python3 tools/cutedit/prlinks.py check "<회차 폴더>"
 ```
-검사 범위에서 목적지 폴더를 빼지 않는다. 자동저장본까지 보려면 --all. 2026-09-16 L08 사고 두 번(issue 20)의 재발 방지
+검사 범위에서 목적지 폴더를 빼지 않는다. 자동저장본까지 보려면 --all. 옮긴 뒤 **옛 자리는 최소 일주일 지우지 않는다**(킴 지적 09-18 — 늦게 발견되는 참조가 있다). 2026-09-16 L08 사고 두 번(issue 20)의 재발 방지
 
 **20. 오류 레이더 — 벽에 두 번째 부딪히면** — 혼자 우회법을 짜기 전에 이미 나온 답을 찾는다 (우리 기록 → Stack Overflow → GitHub)
 ```
@@ -1369,6 +1369,9 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 - **완료 보고 양식 — '확인한 것 / 안 본 것' 두 줄 필수** — 인박스·회신·세이브 한 줄에 붙인다. 둘째 줄이 비면 보고로 안 친다. 양식 log/inbox/_완료보고_양식.md
   - 이유: 사고 41건을 원인별로 가르면 셋 — 흩뿌려짐(20·23·25·26·39, 처방 있음: 통합 폴더·labdir·prlinks·guard) · 환경 함정(constraint_note 61, 처방 있음: radar) · **검증 범위 오류(10·13·19·21·25·27·28·37 — 일부를 보고 전체를 판단, 처방 없었음)**. 훅으로 못 막는 종류라 글로 강제한다. 주류 유사물: GitHub PR 템플릿 'Testing done / Not tested'. 진단은 이정찬이 딥시크에 물어 가져온 것(09-18), 총괄이 DB 로 확인
   - 다시 볼 때: 양식이 형식만 남고 '안 본 것: 없음' 이 늘어날 때
+- **반복 사고는 문서가 아니라 장치로 막는다 — 킴 지적 넷 중 셋을 장치로 (2026-09-18)** — ① save.py 기본값 '전체' 폐지 — 총괄 clone 외에는 --only/AC_SAVE_SCOPE 없이 안 돈다 ② git_guard 규칙 4: 역슬래시 든 heredoc 차단(따옴표 없는 <<EOF 는 어디서나, <<'EOF' 는 Windows 에서) → Write/Edit ③ tests/test_no_path_literals.py 래칫 — 코드에 새 절대경로 리터럴이 생기면 시험 실패, 남은 것(pairs.py 2)은 BASELINE 에 적고 고치면 줄인다 ④ 옛 자리는 옮긴 뒤 일주일 안 지운다(runbook 19)
+  - 이유: 킴(이정찬이 물어 옴): '같은 실수가 두 번 나오면 환경 문제, 환경 문제는 장치로'. heredoc 은 세 세션이 다 밟고도 처방이 '습관' 이었다(constraint_note 38). 경로 리터럴은 폴더 통합 때 셋 터졌다(issue 20·23·39). 주류 유사물: 안전한 기본값 · pre-commit 훅 · 아키텍처 래칫 테스트
+  - 다시 볼 때: guard 4 가 오탐(정당한 heredoc)을 자주 내면 — 그땐 Write 도구가 답이지 규칙 완화가 아니다
 
 ## 브랜드 스펙 (실측)
 
@@ -1903,3 +1906,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 458 | `b4b6ba74` | 세이브 save/2026-09-18-2027 — 완료 보고 양식 — 확인한 것/안 본 것 (decision 33), CLAUDE.md·AGENTS.md | 7파일 +33/-3 |
 | 459 | `bde0c1d6` | 세이브 기록 save/2026-09-18-2027 | 5파일 +11/-3 |
 | 460 | `88ebd8ff` | 세이브 save/2026-09-18-2041 — 공용 실행기 제안(next_step 46) — 모달·완료 판정·외부 앱 상태를 run.ps1 한 곳에 | 5파일 +34/-2 |
+| 461 | `cef88e9b` | 세이브 기록 save/2026-09-18-2041 | 5파일 +11/-3 |

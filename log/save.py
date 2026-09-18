@@ -147,6 +147,12 @@ def cmd_save(summary: str, push: bool, scope: list[str] | None) -> None:
     now = datetime.now(UTC)
     tag = slot_name(now)
 
+    # 기본값이 '전체' 인 것이 사고의 씨앗이었다(issue 24, 킴 지적 2026-09-18). 총괄 clone(혼자 쓴다)만 전체를
+    # 허용하고, 그 밖은 --only 나 AC_SAVE_SCOPE 가 있어야 돈다.
+    if not scope and role() != "총괄":
+        raise SystemExit("  범위가 없습니다. --only <내 경로…> 또는 AC_SAVE_SCOPE 를 주세요.\n"
+                         "  (전체 커밋은 총괄 clone 만 — git config ac.role 총괄)")
+
     if git("tag", "-l", tag):
         raise SystemExit(f"슬롯 {tag} 가 이미 있습니다. 1분 뒤에 다시 하거나 이름을 바꾸세요.")
 

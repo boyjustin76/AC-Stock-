@@ -1535,6 +1535,7 @@ DECISIONS = [
     (31, "git_guard 설계 — 경로 한정·삭제 포함·인자 없는 push 차단", "이동·삭제 규칙은 작업 폴더 이름(이정찬·차트명가·aelab·cmgwork·pprolab·납품·더원)이 명령에 있을 때만. rm -r·Remove-Item -Recurse·rmdir·DeleteDirectory 도 같은 규칙. 브랜치 이름 없는 push(인자 없음·HEAD)는 브랜치 확인 없이 막고 이름을 쓰게 한다. git 규칙은 명령 머리의 git 만 본다(따옴표 안 grep 은 제외)", "D 실측 6경우 — 경로를 안 가리면 오탐이 잦아 표식을 습관적으로 만들게 되고, 09-16 에 지운 폴더도 누가 무는지 봐야 했다. 인자 없는 push 는 세션 cwd 가 저장소 밖이면 현재 브랜치를 못 읽는 설계 한계 → 단순한 쪽. 원문 log/inbox/2026-09-17_D_개선안회신.md §2-B ③④", "오탐·미탐이 인박스로 보고될 때"),
     (32, "API 키·토큰 두는 자리 — 저장소 밖 C:/Users/user/.secrets/ac_keys.env", "YOUTUBE_API_KEY · HF_TOKEN 등은 이정찬이 발급해 이 파일에. 저장소(public)에도, G드라이브로 가는 꾸러미 zip 에도 넣지 않는다. 코드는 파일을 읽어 dict 로 쓴다", "저장소가 public(decision 25)이고 토큰 노출 전례(issue 35)가 있다. 에이전트는 키 값을 받지 않는다는 기존 규칙과 같은 선. 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §1", "키가 세 개를 넘거나 다른 PC 가 생길 때(credential manager 검토)"),
     (33, "완료 보고 양식 — '확인한 것 / 안 본 것' 두 줄 필수", "인박스·회신·세이브 한 줄에 붙인다. 둘째 줄이 비면 보고로 안 친다. 양식 log/inbox/_완료보고_양식.md", "사고 41건을 원인별로 가르면 셋 — 흩뿌려짐(20·23·25·26·39, 처방 있음: 통합 폴더·labdir·prlinks·guard) · 환경 함정(constraint_note 61, 처방 있음: radar) · **검증 범위 오류(10·13·19·21·25·27·28·37 — 일부를 보고 전체를 판단, 처방 없었음)**. 훅으로 못 막는 종류라 글로 강제한다. 주류 유사물: GitHub PR 템플릿 'Testing done / Not tested'. 진단은 이정찬이 딥시크에 물어 가져온 것(09-18), 총괄이 DB 로 확인", "양식이 형식만 남고 '안 본 것: 없음' 이 늘어날 때"),
+    (34, "반복 사고는 문서가 아니라 장치로 막는다 — 킴 지적 넷 중 셋을 장치로 (2026-09-18)", "① save.py 기본값 '전체' 폐지 — 총괄 clone 외에는 --only/AC_SAVE_SCOPE 없이 안 돈다 ② git_guard 규칙 4: 역슬래시 든 heredoc 차단(따옴표 없는 <<EOF 는 어디서나, <<'EOF' 는 Windows 에서) → Write/Edit ③ tests/test_no_path_literals.py 래칫 — 코드에 새 절대경로 리터럴이 생기면 시험 실패, 남은 것(pairs.py 2)은 BASELINE 에 적고 고치면 줄인다 ④ 옛 자리는 옮긴 뒤 일주일 안 지운다(runbook 19)", "킴(이정찬이 물어 옴): '같은 실수가 두 번 나오면 환경 문제, 환경 문제는 장치로'. heredoc 은 세 세션이 다 밟고도 처방이 '습관' 이었다(constraint_note 38). 경로 리터럴은 폴더 통합 때 셋 터졌다(issue 20·23·39). 주류 유사물: 안전한 기본값 · pre-commit 훅 · 아키텍처 래칫 테스트", "guard 4 가 오탐(정당한 heredoc)을 자주 내면 — 그땐 Write 도구가 답이지 규칙 완화가 아니다"),
 ]
 
 
@@ -1728,6 +1729,8 @@ REPO_FILES = {
     "log/inbox/2026-09-18_D_대본에서_차트장면_뽑기.md": ("기록", "D — 대본에서 차트장면 뽑기 보고: 팀장 차10 기준 5가지와 실측 함정 5가지"),
     "log/inbox/_완료보고_양식.md": ("지침", "완료 보고 두 줄 — 확인한 것 / 안 본 것 (decision 33). 검증 범위 오류 여덟 건의 처방"),
     "log/inbox/2026-09-18_총괄_공용실행기_제안.md": ("기록", "총괄 → B·D — 어도비 공용 실행기(pre-flight·watchdog·판정 줄) 제안, next_step 46"),
+    "tests/test_no_path_literals.py": ("검증", "절대경로 리터럴 래칫 — 코드(tools·src·scenes·log/*.py)에 C:/ 나 /c/Users 문자열이 새로 박히면 실패. BASELINE 은 줄이기만 (decision 34)"),
+    "log/inbox/2026-09-22_월요일_전달묶음.md": ("기록", "이정찬이 월요일에 B·D·E 에게 전할 것 한 장 — 토큰 재발급(5분, 첫째)·완료 보고 두 줄·guard 4·save.py 기본값·경로 래칫·파트별 할 일"),
 }
 
 RUNBOOK = [
@@ -1826,7 +1829,7 @@ RUNBOOK = [
      "스크립트 안 S(작업 폴더)와 대본 경로를 세션에 맞게 바꾼다. 원리: STT(단어 시각) → 대본 문장 정렬 "
      "(역방향 사슬 = 같은 문장 여러 테이크면 마지막 채택) → silencedetect 로 단어 경계 보정 → 스팬 병합·클램프. "
      "정렬 로그의 미매칭·저유사도 행은 반드시 눈으로 확인. 문구를 바꿔 읽은 문장은 오버라이드로 잇는다"),
-    (19, "프리미어 프로젝트 경로 검사 — 폴더 옮기기 전·후", "옮기기 전 누가 그 경로를 무는지, 옮긴 뒤 끊긴 클립이 있는지 프리미어 없이 본다", "python3 tools/cutedit/prlinks.py find \"<경로조각>\" \"<검색 루트>\"   →  옮긴다  →  python3 tools/cutedit/prlinks.py check \"<회차 폴더>\"", "검사 범위에서 목적지 폴더를 빼지 않는다. 자동저장본까지 보려면 --all. 2026-09-16 L08 사고 두 번(issue 20)의 재발 방지"),
+    (19, "프리미어 프로젝트 경로 검사 — 폴더 옮기기 전·후", "옮기기 전 누가 그 경로를 무는지, 옮긴 뒤 끊긴 클립이 있는지 프리미어 없이 본다", "python3 tools/cutedit/prlinks.py find \"<경로조각>\" \"<검색 루트>\"   →  옮긴다  →  python3 tools/cutedit/prlinks.py check \"<회차 폴더>\"", "검사 범위에서 목적지 폴더를 빼지 않는다. 자동저장본까지 보려면 --all. 옮긴 뒤 **옛 자리는 최소 일주일 지우지 않는다**(킴 지적 09-18 — 늦게 발견되는 참조가 있다). 2026-09-16 L08 사고 두 번(issue 20)의 재발 방지"),
     (20, "오류 레이더 — 벽에 두 번째 부딪히면", "혼자 우회법을 짜기 전에 이미 나온 답을 찾는다 (우리 기록 → Stack Overflow → GitHub)", "python3 tools/radar.py \"<오류 붙여넣기>\"   ·   --file err.txt --repo owner/name --save   ·   --no-web (오프라인)", "스킬 .claude/skills/radar. 총괄 컨테이너는 GitHub 검색 API 가 막혀 MCP search_issues 로. 답은 우리 환경(cp949·ES3·COM)에 맞는지 확인 후 적용"),
     (21, "파이썬 검사 — 커밋 전", "진짜 버그(미정의 이름·안 쓰는 import·문법)와 단위 시험을 돌린다", "python3 -m ruff check tools log tests --select F,E9   ·   python3 -m pytest   ·   (한 번) pip install ruff pytest pre-commit && pre-commit install", "pyproject.toml 이 설정. ruff 기본 규칙 전체는 333건(09-17 기준)이라 강제하지 않는다 — 고치는 줄부터"),
     (22, "세이브 범위 — 같은 작업트리를 나눠 쓸 때", "내 경로만 커밋하고 남의 작업은 두고 간다", "python3 log/save.py --status   ·   python3 log/save.py \"한 줄\" --only tools/illustrator log/inbox   ·   AC_SAVE_SCOPE=\"tools/photoshop tools/illustrator\"", "로그 산출물(worklog.db·WORKLOG.md·worklog.html·README.md·checkpoints.json)은 항상 들어간다. 푸시는 현재 브랜치로 간다(09-18, issue 41) — 옆가지에서 세이브하면 그 가지로. 본류는 ac.role=총괄 만. 로컬은 save.py 대신 git add -- <내 경로> + commit 으로 올려도 된다(E 방식 — DB 재빌드는 총괄 병합 때 한다)"),

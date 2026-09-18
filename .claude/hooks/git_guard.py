@@ -7,6 +7,8 @@ D 가 로컬(~/.claude/hooks/hookify_reason.py)에서 쓰던 규칙 3개를 저�
 .claude/settings.json 의 "hooks" 에 넣는다 (Windows 는 python 이름이 다르니 exec form).
 
 규칙
+  4. heredoc-backslash  본문에 역슬래시가 든 heredoc — 따옴표 없는 <<EOF 는 어디서나, <<'EOF' 는 Windows 에서 막는다.
+                       Write/Edit 도구로 파일을 쓰고 명령은 그 파일을 부른다 (constraint_note 38).
   1. mainline-push     본류(claude/futures-…, main, master)로 push 금지.
                        **브랜치 이름 없는 push(`git push`, `git push origin HEAD`)도 금지** — 어디로 가는지
                        명령에서 안 보이면 막고 이름을 쓰게 한다 (D 제안 09-17, 단순한 쪽).
@@ -50,6 +52,9 @@ RE_MOVE = re.compile(r"(?:^|[;&|]\s*)(?:mv|Move-Item|Rename-Item|mv\.exe)\s|robo
 RE_DELETE = re.compile(r"(?:^|[;&|]\s*)(?:rm\s+-[a-zA-Z]*r|rmdir\b|Remove-Item\b[^\n;&|]*-Recurse|rd\s+/s)|DeleteDirectory\s*\(", re.I | re.M)
 PATH_HINTS = ("이정찬", "차트명가", "aelab", "cmgwork", "pprolab", "납품", "더원")   # 작업 폴더 이름 — 이게 든 경로만 본다
 RE_GIT_MV = re.compile(GIT + r"mv\b", re.M)
+# 4. heredoc 에 역슬래시가 들어가면 깨진다(constraint_note 38 — 세 세션이 다 밟았다). 따옴표 없는 <<EOF 는
+#    bash 가 \\ 를 \ 로 줄이고, Windows 의 Bash 도구는 <<'EOF' 도 못 믿는다(E 실측). 막고 Write/Edit 로 보낸다.
+RE_HEREDOC = re.compile(r"<<-?\s*(?P<q>['\"]?)(?P<d>[A-Za-z_][A-Za-z0-9_]*)(?P=q)[^\n]*\n(?P<body>.*?)\n\s*(?P=d)\s*(?:\n|$)", re.S)
 MARK = ".claude/prlinks_find.ok"
 MARK_TTL = 60 * 60
 
@@ -103,6 +108,13 @@ def check(command: str, cwd: str = ".", *, now: float | None = None,
     if RE_STAGE_ALL.search(cmd) or RE_COMMIT_ALL.search(cmd):
         return ("작업트리 전체 스테이징(git add -A / add . / commit -a)은 남의 파일을 휩쓴다(issue 24). "
                 "`python3 log/save.py \"한 줄\" --only <내 경로…>` 또는 `git add -- <경로>` 로 범위를 정한다.")
+
+    for m in RE_HEREDOC.finditer(cmd):
+        body = m.group("body")
+        if "\\" in body and (not m.group("q") or os.name == "nt"):
+            why = "따옴표 없는 <<EOF 는 bash 가 역슬래시를 줄인다" if not m.group("q") else "Windows 의 Bash 도구는 <<'EOF' 도 역슬래시를 못 지킨다(E 실측 09-18)"
+            return (f"heredoc 본문에 역슬래시가 있다 — {why}. 파일은 Write/Edit 도구로 쓰고, 명령은 파일을 부른다 "
+                    "(constraint_note 38: D·B·E 세 세션이 같은 자리에서 깨졌다).")
 
     hints = PATH_HINTS + tuple(os.environ.get("AC_GUARD_PATHS", "").split())
     touches_work = any(h.lower() in cmd.lower() for h in hints)
