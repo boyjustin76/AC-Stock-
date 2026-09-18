@@ -237,12 +237,23 @@ def long_title(ep: int) -> str:
     return f"차{ep:02d}"
 
 
+def safe_tail(s: str) -> str:
+    """이름 끝의 공백·마침표를 뗀다.
+
+    윈도우는 **경로 마지막 조각**의 끝 공백·마침표를 조용히 떼고 만든다. 폴더가 그러면
+    `os.path.isdir` 은 True 로 나오는데(끝을 떼고 보기 때문) 그 안의 파일을 열 때
+    FileNotFoundError 로 터진다. 파일이면 디스크에 적힌 이름이 우리가 준 문자열과 달라져
+    이름 왕복 검사가 어긋난다. (B·E 실측 2026-09-18)
+    """
+    return s.rstrip(" .")
+
+
 def folder_name(ep: int, no: int, title: str, date: str, wip: bool = True) -> str:
-    return f"{WIP if wip else ''}{date}_[SL_차{ep:02d}_#{no}]{title}"
+    return safe_tail(f"{WIP if wip else ''}{date}_[SL_차{ep:02d}_#{no}]{title}")
 
 
 def file_name(ep: int, no: int, title: str, wip: bool = True) -> str:
-    return f"{WIP if wip else ''}[SL]{title}[{long_title(ep)}#{no}].txt"
+    return f"{WIP if wip else ''}[SL]{safe_tail(title)}[{long_title(ep)}#{no}].txt"
 
 
 def check_point(a, raw):
