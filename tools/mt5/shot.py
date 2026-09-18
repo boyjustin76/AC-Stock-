@@ -26,7 +26,7 @@ FILES = os.path.join(MQL5, 'Files')
 
 
 def shot(out, width=1920, height=1080, symbol=None, period=None,
-         template=None, end_time='', scale=-1, wait=20.0):
+         template=None, end_time='', scale=-1, inds='', wait=30.0):
     """차트를 PNG 로 받는다.
 
     symbol 을 안 주면 **지금 열려 있는 차트**를 쓴다 — 사람이 맞춰 둔 모습과 자리 그대로다.
@@ -57,7 +57,8 @@ def shot(out, width=1920, height=1080, symbol=None, period=None,
         m.call('chart_add_indicator', {
             'chart_id': chart_id, 'indicator_name': 'CMG_Shot', 'custom_indicator_path': IND,
             'indicator_parameters': f'ShotFile={name},ShotW={width},ShotH={height},'
-                                   f'ShotEndTime={end_time},ShotScale={scale},SelfRemove=true'})
+                                   f'ShotEndTime={end_time},ShotScale={scale},'
+                                   f'ShotInds={inds},SelfRemove=true'})
         t0 = time.time()
         while time.time() - t0 < wait:
             if os.path.exists(made) and os.path.getsize(made) > 0:
