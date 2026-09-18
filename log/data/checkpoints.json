@@ -908,5 +908,12 @@
   "utc": "2026-09-18 10:28",
   "sha": "c2a0f60",
   "summary": "build_worklog_db git_commits — 커밋마다 git show 455회 → git log 한 번 (재빌드 6.2→3.2초, commit_log 동일)"
+ },
+ {
+  "tag": "save/2026-09-18-2027",
+  "kst": "2026-09-18 20:27",
+  "utc": "2026-09-18 11:27",
+  "sha": "b4b6ba7",
+  "summary": "완료 보고 양식 — 확인한 것/안 본 것 (decision 33), CLAUDE.md·AGENTS.md"
  }
 ]
