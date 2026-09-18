@@ -492,6 +492,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `brand/thumbnail/틀.png` | 에셋 | 템플릿 '틀' 도형 원본 픽셀 (안쪽 투명) |
 | `log/data` | 자료 | 롱폼 대본 인덱스·숏폼 대본·세이브 슬롯 (JSON) |
 | `.claude/skills/radar/SKILL.md` | 지침 | 오류 레이더 스킬 — 같은 오류 두 번째·10분 넘게 막히면 tools/radar.py 로 우리 기록→Stack Overflow→GitHub 를 먼저 본다 |
+| `AGENTS.md` | 지침 | Claude Code 바깥 에이전트(Codex 등)용 — 훅이 대신 막아 주던 규칙(본류 push·이름 없는 push·add -A·작업폴더 이동/삭제·DB 원본·키 자리)을 글로. CLAUDE.md 가 본문이고 이 파일은 차이점만 (2026-09-18) |
 | `src/cli.mjs` | 코어 | 렌더 CLI. --all --scene --format --stills --reel |
 | `src/market/candles.js` | 코어 | 시드 고정 캔들 생성기. 추세/박스권/돌파/눌림/급등락 |
 | `src/render/anim.js` | 코어 | 이징·타임라인·cue. in 을 생략하면 처음부터 떠 있는 것으로 본다 |
@@ -1891,3 +1892,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 451 | `2e831ee1` | 병합: worktree-B_Image (09-18 저녁 — 경로 끝 가드 3벌·MT5 촬영·HyperFrames 실측·차12/13 대본·라이브화면 매뉴얼·아스트라 인수인계) | 3파일 +232/-30 |
 | 452 | `cad148ea` | 병합: worktree-E_Script (09-18 저녁 — 경로 끝 가드 3벌·MT5 촬영·HyperFrames 실측·차12/13 대본·라이브화면 매뉴얼·아스트라 인수인계) | 8파일 +889/-2 |
 | 453 | `7f2e3bd9` | 병합: worktree-D_Video (09-18 저녁 — 경로 끝 가드 3벌·MT5 촬영·HyperFrames 실측·차12/13 대본·라이브화면 매뉴얼·아스트라 인수인계) | 30파일 +2346/-0 |
+| 454 | `5d73d40a` | 세이브 save/2026-09-18-1750 — 09-18 저녁 병합 — 경로 끝 가드 3벌(56 정정)·MT5 촬영·HyperFrames·차12/13 초안·라이브화면 매뉴얼·아스트라 인수인계, AGENTS.md 신설, constraint 60·61, external_tool 11~13, next_step 45 | 8파일 +151/-20 |
