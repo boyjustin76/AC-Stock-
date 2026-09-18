@@ -1017,7 +1017,15 @@ L("■ " + BOARDS[9]);
 /* ── 저장 ───────────────────────────────────────────────────── */
 try { base.remove(); } catch (e) {}
 
-var outFile = new File(OUT + "/" + CFG.outAi);
+/** 경로 한 조각 끝의 공백·마침표를 뗀다.
+    윈도우는 경로 **마지막 조각**에서만 이것을 조용히 떼어낸다 — 그래서 그 이름으로 만든
+    폴더는 공백 없이 생기고, 나중에 그 폴더를 부모로 쓰는 경로는 공백을 달고 가서 못 찾는다.
+    파일은 터지지는 않지만 디스크에 적히는 이름이 우리가 준 문자열과 달라진다.
+    B·E 가 따로 실측했다 — log/inbox/2026-09-18_B·E_경로끝공백_constraint후보.md
+    (이정찬 승인 2026-09-18. 총괄이 constraint_note 번호를 주면 여기에 적는다) */
+function safeName(s) { return String(s).replace(/[ .]+$/, ""); }
+
+var outFile = new File(OUT + "/" + safeName(CFG.outAi));
 var so = new IllustratorSaveOptions();
 /* CS6(ILLUSTRATOR17)로 내리면 글자가 '이전 버전 텍스트'가 되어 열 때마다 "업데이트하면 문자 위치가
    바뀔 수 있다" 창이 뜬다 (2026-09-17 실측). 팀장이 열어 고칠 파일이라 현재 형식으로 둔다. */
@@ -1036,7 +1044,7 @@ for (var e = 0; e < doc.artboards.length; e++) {
     eo.transparency = true;
     eo.matte = false;                        // 없으면 투명부를 흰색으로 채운다 (EXTENDSCRIPT-TRAPS ⑮, 총괄 개선안 B-3)
     eo.horizontalScale = 100; eo.verticalScale = 100;
-    doc.exportFile(new File(OUT + "/미리보기_" + BOARDS[e] + ".png"), ExportType.PNG24, eo);
+    doc.exportFile(new File(OUT + "/" + safeName("미리보기_" + BOARDS[e]) + ".png"), ExportType.PNG24, eo);
 }
 L("미리보기 png " + doc.artboards.length + "장");
 
