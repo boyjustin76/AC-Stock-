@@ -1,0 +1,306 @@
+[
+ {
+  "file": "차10_1-3.png",
+  "size": [
+   1920,
+   1032
+  ],
+  "panes": [
+   [
+    74,
+    975
+   ]
+  ],
+  "pane_heights": [
+   901
+  ],
+  "title_bar": false,
+  "pitch": 16.0,
+  "bars_span": 109,
+  "has_teal": false,
+  "has_red": true
+ },
+ {
+  "file": "차10_1-4.png",
+  "size": [
+   1920,
+   1032
+  ],
+  "panes": [
+   [
+    74,
+    975
+   ]
+  ],
+  "pane_heights": [
+   901
+  ],
+  "title_bar": false,
+  "pitch": 16.0,
+  "bars_span": 116,
+  "has_teal": false,
+  "has_red": true
+ },
+ {
+  "file": "차10_1-5.png",
+  "size": [
+   1920,
+   1032
+  ],
+  "panes": [
+   [
+    74,
+    988
+   ]
+  ],
+  "pane_heights": [
+   914
+  ],
+  "title_bar": false,
+  "pitch": 16.0,
+  "bars_span": 117,
+  "has_teal": false,
+  "has_red": true
+ },
+ {
+  "file": "차10_2-1(1).png",
+  "size": [
+   1920,
+   1032
+  ],
+  "panes": [
+   [
+    74,
+    975
+   ]
+  ],
+  "pane_heights": [
+   901
+  ],
+  "title_bar": false,
+  "pitch": 16.0,
+  "bars_span": 103,
+  "has_teal": false,
+  "has_red": true
+ },
+ {
+  "file": "차10_2-1(2).png",
+  "size": [
+   1920,
+   1032
+  ],
+  "panes": [
+   [
+    74,
+    975
+   ]
+  ],
+  "pane_heights": [
+   901
+  ],
+  "title_bar": false,
+  "pitch": 16.0,
+  "bars_span": 103,
+  "has_teal": false,
+  "has_red": true
+ },
+ {
+  "file": "차10_2-2.png",
+  "size": [
+   1920,
+   1032
+  ],
+  "panes": [
+   [
+    74,
+    973
+   ]
+  ],
+  "pane_heights": [
+   899
+  ],
+  "title_bar": false,
+  "pitch": 16.0,
+  "bars_span": 113,
+  "has_teal": false,
+  "has_red": true
+ },
+ {
+  "file": "차10_2-3.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "panes": [
+   [
+    73,
+    1079
+   ]
+  ],
+  "pane_heights": [
+   1006
+  ],
+  "title_bar": true,
+  "pitch": null,
+  "bars_span": null,
+  "has_teal": false,
+  "has_red": true
+ },
+ {
+  "file": "차10_3-0.png",
+  "size": [
+   1920,
+   1032
+  ],
+  "panes": [
+   [
+    74,
+    988
+   ]
+  ],
+  "pane_heights": [
+   914
+  ],
+  "title_bar": false,
+  "pitch": 16.0,
+  "bars_span": 114,
+  "has_teal": false,
+  "has_red": true
+ },
+ {
+  "file": "차10_3-3.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "panes": [
+   [
+    0,
+    1079
+   ]
+  ],
+  "pane_heights": [
+   1079
+  ],
+  "title_bar": false,
+  "pitch": null,
+  "bars_span": null,
+  "has_teal": false,
+  "has_red": true
+ },
+ {
+  "file": "차10_3-4.png",
+  "size": [
+   1920,
+   1032
+  ],
+  "panes": [
+   [
+    74,
+    975
+   ]
+  ],
+  "pane_heights": [
+   901
+  ],
+  "title_bar": false,
+  "pitch": 16.0,
+  "bars_span": 113,
+  "has_teal": false,
+  "has_red": true
+ },
+ {
+  "file": "차10_4-1(2).png",
+  "size": [
+   1920,
+   1032
+  ],
+  "panes": [
+   [
+    74,
+    988
+   ]
+  ],
+  "pane_heights": [
+   914
+  ],
+  "title_bar": false,
+  "pitch": 16.0,
+  "bars_span": 116,
+  "has_teal": false,
+  "has_red": true
+ },
+ {
+  "file": "차10_4-1.png",
+  "size": [
+   1920,
+   1032
+  ],
+  "panes": [
+   [
+    56,
+    747
+   ],
+   [
+    752,
+    955
+   ]
+  ],
+  "pane_heights": [
+   691,
+   203
+  ],
+  "title_bar": false,
+  "pitch": 10.0,
+  "bars_span": 187,
+  "has_teal": false,
+  "has_red": false
+ },
+ {
+  "file": "차10_4-2.png",
+  "size": [
+   1920,
+   1032
+  ],
+  "panes": [
+   [
+    56,
+    747
+   ],
+   [
+    752,
+    955
+   ]
+  ],
+  "pane_heights": [
+   691,
+   203
+  ],
+  "title_bar": false,
+  "pitch": 10.0,
+  "bars_span": 187,
+  "has_teal": false,
+  "has_red": false
+ },
+ {
+  "file": "차10_3-2.jpg",
+  "size": [
+   1920,
+   1032
+  ],
+  "panes": [
+   [
+    76,
+    988
+   ]
+  ],
+  "pane_heights": [
+   912
+  ],
+  "title_bar": false,
+  "pitch": null,
+  "bars_span": null,
+  "has_teal": false,
+  "has_red": true
+ }
+]
