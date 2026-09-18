@@ -186,12 +186,12 @@ git restore --source=<해시> -- .              # 되돌리기
 
 | 시각 (KST) | 슬롯 | 커밋 | 어디까지 |
 |---|---|---|---|
+| 2026-09-18 14:55 | `save/2026-09-18-1455` | `bff748f` | HyperFrames·Remotion 실측 — 59.94 유리수 fps·ProRes4444 알파·PNG 시퀀스 확인, 색 정확도 차이 기록 |
 | 2026-09-18 14:40 | `save/2026-09-18-1440` | `2a7eddd` | 경로 끝 공백·마침표 — tools/style 6개의 사람이 치는 --out 을 만들 때 떼어 낸다 (B·E 실측 + D 재현) |
 | 2026-09-18 10:17 | `save/2026-09-18-1017` | `e397310` | save.py 본류 대상 푸시 건 보고 추가 |
 | 2026-09-18 10:15 | `save/2026-09-18-1015` | `988ad6d` | D 훅 저장소 연결 — CLAUDE_PROJECT_DIR 펼침·exec form args 실측, git_guard 세션 차단 확인 |
 | 2026-09-17 18:41 | `save/2026-09-17-1841` | `561e8a4` | guard 시험 — 총괄 clone(ac.role) 에서도 도는 환경 고정 |
 | 2026-09-17 18:40 | `save/2026-09-17-1840` | `e334854` | 세션 시작 폴더 확정 — worktree 이름 D_Video·B_Image·E_Script (runbook 24·25, decision 30 갱신, CLAUDE.md) |
-| 2026-09-17 18:28 | `save/2026-09-17-1828` | `d8ec535` | E 회신 병합(ff) — E-1~E-7·textnorm·test_cutedit 8, guard 표식 문구(E-5), issue 40, next_step 40 완료, make_xml.pathurl 리눅스 보정 |
 
 ---
 

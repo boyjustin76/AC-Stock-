@@ -1807,3 +1807,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 396 | `7c2141fe` | 세이브 기록 save/2026-09-18-1017 | 5파일 +11/-3 |
 | 397 | `2a7edddb` | 세이브 save/2026-09-18-1440 — 경로 끝 공백·마침표 — tools/style 6개의 사람이 치는 --out 을 만들 때 떼어 낸다 (B·E 실측 + D 재현) | 9파일 +26/-1 |
 | 398 | `3295be9e` | 세이브 기록 save/2026-09-18-1440 | 5파일 +11/-3 |
+| 399 | `bff748fc` | 세이브 save/2026-09-18-1455 — HyperFrames·Remotion 실측 — 59.94 유리수 fps·ProRes4444 알파·PNG 시퀀스 확인, 색 정확도 차이 기록 | 4파일 +67/-1 |

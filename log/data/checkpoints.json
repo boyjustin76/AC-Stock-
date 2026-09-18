@@ -796,5 +796,12 @@
   "utc": "2026-09-18 05:40",
   "sha": "2a7eddd",
   "summary": "경로 끝 공백·마침표 — tools/style 6개의 사람이 치는 --out 을 만들 때 떼어 낸다 (B·E 실측 + D 재현)"
+ },
+ {
+  "tag": "save/2026-09-18-1455",
+  "kst": "2026-09-18 14:55",
+  "utc": "2026-09-18 05:55",
+  "sha": "bff748f",
+  "summary": "HyperFrames·Remotion 실측 — 59.94 유리수 fps·ProRes4444 알파·PNG 시퀀스 확인, 색 정확도 차이 기록"
  }
 ]
