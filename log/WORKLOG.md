@@ -1801,3 +1801,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 390 | `ec5bcb3c` | 세이브 기록 save/2026-09-17-1840 | 5파일 +11/-3 |
 | 391 | `561e8a48` | 세이브 save/2026-09-17-1841 — guard 시험 — 총괄 clone(ac.role) 에서도 도는 환경 고정 | 4파일 +4/-1 |
 | 392 | `f883ea30` | 세이브 기록 save/2026-09-17-1841 | 5파일 +11/-3 |
+| 393 | `988ad6d5` | 세이브 save/2026-09-18-1015 — D 훅 저장소 연결 — CLAUDE_PROJECT_DIR 펼침·exec form args 실측, git_guard 세션 차단 확인 | 5파일 +83/-19 |
