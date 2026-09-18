@@ -1365,6 +1365,9 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 - **API 키·토큰 두는 자리 — 저장소 밖 C:/Users/user/.secrets/ac_keys.env** — YOUTUBE_API_KEY · HF_TOKEN 등은 이정찬이 발급해 이 파일에. 저장소(public)에도, G드라이브로 가는 꾸러미 zip 에도 넣지 않는다. 코드는 파일을 읽어 dict 로 쓴다
   - 이유: 저장소가 public(decision 25)이고 토큰 노출 전례(issue 35)가 있다. 에이전트는 키 값을 받지 않는다는 기존 규칙과 같은 선. 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §1
   - 다시 볼 때: 키가 세 개를 넘거나 다른 PC 가 생길 때(credential manager 검토)
+- **완료 보고 양식 — '확인한 것 / 안 본 것' 두 줄 필수** — 인박스·회신·세이브 한 줄에 붙인다. 둘째 줄이 비면 보고로 안 친다. 양식 log/inbox/_완료보고_양식.md
+  - 이유: 사고 41건을 원인별로 가르면 셋 — 흩뿌려짐(20·23·25·26·39, 처방 있음: 통합 폴더·labdir·prlinks·guard) · 환경 함정(constraint_note 61, 처방 있음: radar) · **검증 범위 오류(10·13·19·21·25·27·28·37 — 일부를 보고 전체를 판단, 처방 없었음)**. 훅으로 못 막는 종류라 글로 강제한다. 주류 유사물: GitHub PR 템플릿 'Testing done / Not tested'. 진단은 이정찬이 딥시크에 물어 가져온 것(09-18), 총괄이 DB 로 확인
+  - 다시 볼 때: 양식이 형식만 남고 '안 본 것: 없음' 이 늘어날 때
 
 ## 브랜드 스펙 (실측)
 
@@ -1895,3 +1898,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 454 | `5d73d40a` | 세이브 save/2026-09-18-1750 — 09-18 저녁 병합 — 경로 끝 가드 3벌(56 정정)·MT5 촬영·HyperFrames·차12/13 초안·라이브화면 매뉴얼·아스트라 인수인계, AGENTS.md 신설, constraint 60·61, external_tool 11~13, next_step 45 | 8파일 +151/-20 |
 | 455 | `450e95eb` | 세이브 기록 save/2026-09-18-1750 | 5파일 +14/-4 |
 | 456 | `c2a0f609` | 세이브 save/2026-09-18-1928 — build_worklog_db git_commits — 커밋마다 git show 455회 → git log 한 번 (재빌드 6.2→3.2초, commit_log 동일) | 4파일 +12/-9 |
+| 457 | `a0b996df` | 세이브 기록 save/2026-09-18-1928 | 5파일 +11/-3 |

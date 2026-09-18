@@ -30,7 +30,11 @@ Claude Code 는 `.claude/settings.json` 의 훅(`.claude/hooks/git_guard.py`)이
 2. 자기 파트 인수인계: D 영상 `log/inbox/2026-09-18_D_아스트라_인수인계.md` (이 PC 경로 지도·남은 일·함정 11) · E 대본 `tools/theone/README.md` · `log/SCRIPT-AGENT-MANUAL.md` · B 이미지 `tools/photoshop/README.md` · `log/LIVE-SCREEN-MANUAL.md`
 3. 벽에 부딪히면 `SELECT * FROM constraint_note;` — 이미 넘은 벽 60개 남짓.
 
-## 4. 검사
+## 4. 완료 보고
+
+한 일을 보고할 때 `확인한 것: …` / `안 본 것: …` 두 줄을 붙인다 (`log/inbox/_완료보고_양식.md`). 둘째 줄이 비면 보고가 아니다.
+
+## 5. 검사
 
 ```bash
 python -m pytest              # 단위 시험

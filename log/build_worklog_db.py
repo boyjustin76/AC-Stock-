@@ -1534,6 +1534,7 @@ DECISIONS = [
     (30, "옆가지 이름 — local/* → worktree-*", "새 커밋은 worktree-B_Image(B)·worktree-D_Video(D)·worktree-E_Script(E) — 09-17 저녁 이정찬이 폴더·브랜치 이름을 세션 글자+역할로 확정(runbook 24·25). 첫 판 이름 ps·ae·script 는 본류 병합 뒤 지운다. local/* 다섯 가지는 동결(지우지 않는다 — 검증됐던 마지막 지점의 이름표). 병합은 총괄이 본류로(runbook 23). upstream 은 두지 않는다 — push 는 항상 `git push origin worktree-<이름>`", "2-A 채택으로 B·D 가 09-17 16시 합의해 실제로 땄다. D 질문 3 에 대한 답. 원문 log/inbox/2026-09-17_D_개선안회신.md 질문 3", "세션 시작 폴더(next_step 41)가 바뀌어 claude --worktree 가 브랜치를 스스로 만들 때"),
     (31, "git_guard 설계 — 경로 한정·삭제 포함·인자 없는 push 차단", "이동·삭제 규칙은 작업 폴더 이름(이정찬·차트명가·aelab·cmgwork·pprolab·납품·더원)이 명령에 있을 때만. rm -r·Remove-Item -Recurse·rmdir·DeleteDirectory 도 같은 규칙. 브랜치 이름 없는 push(인자 없음·HEAD)는 브랜치 확인 없이 막고 이름을 쓰게 한다. git 규칙은 명령 머리의 git 만 본다(따옴표 안 grep 은 제외)", "D 실측 6경우 — 경로를 안 가리면 오탐이 잦아 표식을 습관적으로 만들게 되고, 09-16 에 지운 폴더도 누가 무는지 봐야 했다. 인자 없는 push 는 세션 cwd 가 저장소 밖이면 현재 브랜치를 못 읽는 설계 한계 → 단순한 쪽. 원문 log/inbox/2026-09-17_D_개선안회신.md §2-B ③④", "오탐·미탐이 인박스로 보고될 때"),
     (32, "API 키·토큰 두는 자리 — 저장소 밖 C:/Users/user/.secrets/ac_keys.env", "YOUTUBE_API_KEY · HF_TOKEN 등은 이정찬이 발급해 이 파일에. 저장소(public)에도, G드라이브로 가는 꾸러미 zip 에도 넣지 않는다. 코드는 파일을 읽어 dict 로 쓴다", "저장소가 public(decision 25)이고 토큰 노출 전례(issue 35)가 있다. 에이전트는 키 값을 받지 않는다는 기존 규칙과 같은 선. 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §1", "키가 세 개를 넘거나 다른 PC 가 생길 때(credential manager 검토)"),
+    (33, "완료 보고 양식 — '확인한 것 / 안 본 것' 두 줄 필수", "인박스·회신·세이브 한 줄에 붙인다. 둘째 줄이 비면 보고로 안 친다. 양식 log/inbox/_완료보고_양식.md", "사고 41건을 원인별로 가르면 셋 — 흩뿌려짐(20·23·25·26·39, 처방 있음: 통합 폴더·labdir·prlinks·guard) · 환경 함정(constraint_note 61, 처방 있음: radar) · **검증 범위 오류(10·13·19·21·25·27·28·37 — 일부를 보고 전체를 판단, 처방 없었음)**. 훅으로 못 막는 종류라 글로 강제한다. 주류 유사물: GitHub PR 템플릿 'Testing done / Not tested'. 진단은 이정찬이 딥시크에 물어 가져온 것(09-18), 총괄이 DB 로 확인", "양식이 형식만 남고 '안 본 것: 없음' 이 늘어날 때"),
 ]
 
 
@@ -1725,6 +1726,7 @@ REPO_FILES = {
     "log/inbox/2026-09-18_D_외부도구_HyperFrames·Remotion_실측.md": ("기록", "D — HyperFrames·Remotion 실측: 59.94 유리수 fps·ProRes4444 알파·PNG 시퀀스 확인, 색 정확도 차이"),
     "log/inbox/2026-09-18_D_AB시험_우리렌더러_대_HyperFrames.md": ("기록", "D — A/B 시험: ov-pnl 컷을 우리 렌더러와 HyperFrames 로 각각 300장, 속도 6.9초 vs 31.0초·줄수·픽셀 대조"),
     "log/inbox/2026-09-18_D_대본에서_차트장면_뽑기.md": ("기록", "D — 대본에서 차트장면 뽑기 보고: 팀장 차10 기준 5가지와 실측 함정 5가지"),
+    "log/inbox/_완료보고_양식.md": ("지침", "완료 보고 두 줄 — 확인한 것 / 안 본 것 (decision 33). 검증 범위 오류 여덟 건의 처방"),
 }
 
 RUNBOOK = [
