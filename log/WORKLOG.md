@@ -721,6 +721,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 43. **MCP 자가점검 스크립트 저장소로 — 완료 (E, 6bb8b0e → tools/mcp_probe.py)** — E 가 scratchpad/mcp_probe.py(initialize → tools/list → tools/call)를 만들어 뒀다. 별 수 믿지 말고 띄워 보는 도구라 전 파트 공용 — tools/mcp_probe.py 로 올려 달라 (radar 와 같은 자리)  _(대기: E)_
 44. **경로 끝 공백·마침표 가드 — 완료 (B aed48bd · E 6bb8b0e · D 2a7eddd, 이정찬 승인)** — constraint_note 56. 주석에 번호를 적는다. B 의 일러스트레이터 saveAs 는 실측 뒤 반영(미실측 추정)  _(대기: B·E)_
 45. **대본→차트장면 파이프라인 남은 것 — D (또는 아스트라)** — ① 12장 일괄 촬영(비트마다 심볼·주기 바꿔 도는 부분) ② 콘티 이미지·AE 컴포지션 생성(tools/ae 잡 틀) ③ 규칙을 차10 한 편에서 뽑았다 — 다른 회차로 검증 ④ 찍은 그림을 회사 드라이브 소스 폴더에 넣을지는 이정찬 판단(지금은 안 쓴다). 인수인계 원문 log/inbox/2026-09-18_D_아스트라_인수인계.md  _(대기: D·이정찬(④))_
+46. **어도비 공용 실행기 — 시작 전 상태 검사·시간 제한 taskkill·판정 줄 완료 (B·D)** — run.ps1 네 벌을 tools/_com/run.ps1 하나로 합치면서 ① 앱·문서·프리미어 켜짐 검사 ② 타임아웃→taskkill→실패 기록 ③ 반환값 아닌 판정 줄로 성공 ④ 실패 시 캡처+로그 30줄. 계기: GPT 가 WORKLOG 를 읽고 '진짜 위험은 모달·완료 판정·외부 앱 상태' — DB 로 확인(issue 28~31, TRAPS ⑦⑯). 제안서 log/inbox/2026-09-18_총괄_공용실행기_제안.md  _(대기: B·D (급한 회차 없을 때 하루))_
 
 ## 대본과 컷 싱크
 
@@ -1900,3 +1901,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 456 | `c2a0f609` | 세이브 save/2026-09-18-1928 — build_worklog_db git_commits — 커밋마다 git show 455회 → git log 한 번 (재빌드 6.2→3.2초, commit_log 동일) | 4파일 +12/-9 |
 | 457 | `a0b996df` | 세이브 기록 save/2026-09-18-1928 | 5파일 +11/-3 |
 | 458 | `b4b6ba74` | 세이브 save/2026-09-18-2027 — 완료 보고 양식 — 확인한 것/안 본 것 (decision 33), CLAUDE.md·AGENTS.md | 7파일 +33/-3 |
+| 459 | `bde0c1d6` | 세이브 기록 save/2026-09-18-2027 | 5파일 +11/-3 |
