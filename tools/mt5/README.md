@@ -54,3 +54,27 @@ y = a * price + b
 ## 안 건드리는 것
 
 `trade_*` 도구 7종(주문·청산·손절수정)은 **부르지 않는다.** 읽기만 한다.
+
+## 더 깨끗한 길 — MT5 가 직접 그린 PNG (`shot.py`)
+
+창 캡처는 화면에 보이는 픽셀 그대로라 확대하면 뭉갠다. MQL5 `ChartScreenShot()` 은
+**요청한 크기로 차트를 다시 그린다.** 3840×2160 을 달라고 하면 그 해상도로 새로 그려 준다.
+
+MT5 에는 **SVG·HTML 같은 벡터 내보내기가 없다.** 차트는 GDI 로 그린 래스터고, 웹 터미널도 canvas 다.
+그래서 '안 깨지는' 방법은 벡터가 아니라 **큰 크기로 다시 그리게 하는 것**이다.
+
+```bash
+# 한 번만 — 지표를 컴파일한다
+"C:\Program Files\HedgeHood MT5 Terminal\metaeditor64.exe" \
+  /compile:"...\MQL5\Indicators\CMG_Shot.mq5" /log
+
+# 그 뒤로는
+python tools/mt5/shot.py out/chart4k.png 3840 2160
+```
+
+`shot.py` 는 **새 차트를 열고 템플릿을 입혀** 사람 차트와 같은 모습으로 만든 뒤 지표를 붙인다.
+지표는 PNG 를 쓰고 스스로 빠지며, 끝나면 새 차트를 닫는다 — **사람이 쓰던 차트는 안 건드린다.**
+
+**걸리는 것 하나**: 터미널은 쓸 수 있는 지표 목록을 캐시해 둔다. 새로 컴파일한 `CMG_Shot` 이
+목록에 없으면 `chart_add_indicator` 가 `specified indicator not found in base` 를 낸다.
+→ MT5 **탐색기(Navigator) 우클릭 > 새로고침** 한 번(또는 터미널 재시작)이면 잡힌다. 그 뒤론 자동이다.
