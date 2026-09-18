@@ -41,6 +41,9 @@
 | Node.js (로컬 PC) | 24.19.0 | `C:/Program Files/nodejs` | winget install OpenJS.NodeJS.LTS | 설치 후 PATH 갱신이 필요하다 |
 | Python (로컬 PC) | 3.11.9 | `-` | winget install Python.Python.3.11 | log/save.py · build_worklog_db.py 실행용. PYTHONUTF8=1 필요 |
 | Chromium (로컬 PC) | 151 headless shell | `%LOCALAPPDATA%/ms-playwright` | npx playwright install chromium | npm install 만으로는 브라우저가 안 받아진다 |
+| yt-dlp (로컬 PC) | 2026.08.19 | `pip` | pip install -U yt-dlp | 월 1회 갱신 — 유튜브가 추출 경로를 자주 바꾼다. --js-runtimes node |
+| kiwipiepy (로컬 PC) | - | `pip` | pip install kiwipiepy | 형태소·문장 분리. 용어 add_user_word |
+| KURE-v1 (로컬 PC) | nlpai-lab/KURE-v1 · 1024차원 | `huggingface 캐시(첫 회 2.2GB)` | pip install sentence-transformers (torch cpu) · tiktoken sentencepiece protobuf | 한국어 유사도. v2 는 3.7배 느려 안 쓴다. tools/theone/banner_model.py 가 쓴다 |
 
 ### 명령어
 
@@ -658,6 +661,10 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | ffmpeg stderr 를 그대로 담은 파일(silences.txt)은 실행마다 메모리 주소가 바뀐다 | 줄 머리 `[silencedetect @ 000001650716bc00]` — 해시 회귀에서 '다름' 으로 뜬다. 도구 결과에는 영향 없음(read_silences 는 숫자만 읽는다) | 내용 비교는 주소를 빼고 한다. 원문 log/inbox/2026-09-17_E_개선안회신.md 오류 원자료 2 |
 | git_guard 는 명령 텍스트만 본다 — 문서를 heredoc 으로 쓰면 본문의 'git push …' 줄에 걸린다 | D 보고서(본류 이름+push 낱말 포함)를 heredoc 으로 덧붙이는 명령이 차단됐다. 옛 로컬 훅도 같았다. 규칙을 느슨하게 하면 진짜를 놓친다 | 문서는 셸 heredoc 이 아니라 Write/Edit 도구로 쓴다(역슬래시 문제와 같은 처방). 조각을 파일 도구로 만들고 cat 으로 잇는다. 원문 log/inbox/2026-09-18_D_훅연결_실측.md §6 |
 | make_xml.pathurl — 드라이브 문자 경로는 abspath 를 안 거치니 정규화도 안 된다 | C:/Users/../Users/user/x.mp4 같은 경로가 그대로 URL 에 박힌다. cuts.json 의 source 는 전부 정규화된 절대경로라 지금은 영향 없음 | 상대·리눅스 경로는 전처럼 abspath. 필요해지면 os.path.normpath 만 추가. E 윈도우 회귀 4개 바이트 동일. 원문 log/inbox/2026-09-18_E_세션시작폴더_적용.md |
+| 윈도우는 경로의 마지막 조각에서만 끝 공백·마침표를 떼어낸다 — 폴더는 만들 때 조용히 넘어가고 부모로 쓸 때 터진다 (B·E 각자 실측 09-18) | os.makedirs('끝공백 ') → 디스크엔 '끝공백'. isdir('끝공백 ') 는 True(거짓 안심)인데 open(join('끝공백 ','a.txt'))·listdir 은 FileNotFoundError. PowerShell New-Item 도 같다. 파일은 만들어지되 디스크 이름이 달라져(b.txt ) 문자열 대조(check_name 왕복)가 어긋난다. 사례: E yt-dlp 채널 폴더(실제), shortform.py 제목 끝 마침표(잠재, 150개 중 0), 일러스트레이터 saveAs(추정, 미실측) | 경로 조각을 만들 때 뗀다 — 파이썬 part.strip(' .') · ExtendScript name.replace(/[ .]+$/, ''). 사람이 지은 이름(제목·채널·회차)을 받는 자리마다. 읽을 때 고치면 늦다. 반영: E shortform.py · B 일러스트레이터 저장 경로(next_step 44). 원문 log/inbox/2026-09-18_B·E_경로끝공백_constraint후보.md |
+| yt-dlp 함정 넷 (E 실측 09-18, 2026.08.19) | ① --print 는 --simulate 를 함축 → 자막·썸네일 안 받아진다 ② --convert-subs 는 ffmpeg 를 부른다(이 PC 에 없음) ③ --js-runtimes node 없으면 JS 런타임 경고 ④ 자막 트랙 ko-orig 와 ko 가 따로 있는 영상이 있다 | ① --no-simulate 를 같이 ② --sub-format srt 로 유튜브가 주는 SRT 를 그대로(json3 130KB → srt 18KB) ③ --js-runtimes node ④ ko-orig 먼저, 없으면 ko. 월 1회 pip install -U. 남의 영상 다운로드는 약관 위반 — 참고용과 재배포는 다르고, 로그인 쿠키는 안 쓴다. 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §2 |
+| YouTube Data API 한도·제약 (E 09-18) | videos·channels·commentThreads·playlistItems 는 1유닛/하루 10,000. search.list 만 하루 100콜 별도. 남의 채널 자막은 못 받는다(403 이 정상). 남의 채널 데이터는 30일 넘게 원본 보관 금지 | 검색은 yt-dlp ytsearchN: 으로 대신. API 는 좋아요 수처럼 yt-dlp 가 못 주는 것만. 키는 C:/Users/user/.secrets/ac_keys.env (decision 32). 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §3 |
+| 한국어 도구는 과교정한다 — 자동 파이프라인에 넣지 않는다 (E 실측 09-18) | 맞춤법 MCP(@winterjung/mcp-korean-spell)는 네이버 검사기 비공식 사용이고 우리 용어도 고친다(메인밴드→메인 밴드). Kiwi space() 도 과교정(매매 법·21 기간). j5ng/et5-typos-corrector 는 '하락 구조'를 '상승 구조'로 바꿔 놓는다. KURE-v2 는 리더보드 1위지만 11편 인코딩 v1 68초 · v2 250초 | 맞춤법은 사람이 볼 때만, 고유 용어는 예외 목록. Kiwi 는 고칠 자리 찾는 용도로만(add_user_word 로 용어 등록). 뜻이 바뀌는 교정기는 안 쓴다. 임베딩은 KURE-v1. tiktoken 오류면 pip install tiktoken sentencepiece protobuf. 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §4 |
 
 ## 다음에 할 일
 
@@ -703,6 +710,8 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 40. **개선안 회신 — B·D·E 전부 완료 (09-17 17:3x, 셋 다 본류 병합)** — B 641f4da · D 3f32389 · E e6c16b8. 채택 현황은 log/inbox/2026-09-17_총괄_개선안회신답.md 표 + E: 2-A(가지만 전환, 작업트리 두 벌은 단일화 방침으로 안 만듦)·E-1~E-7·ruff 5 적용, 회귀 45항목 동일, pytest 29. 남은 것은 next_step 41(세션 시작 폴더, 이정찬)뿐  _(대기: 완료)_
 41. **세션 시작 폴더 — 완료 (09-18 오전): B·D·E 셋 다 새 폴더·새 가지, D 훅 연결·실측 통과, B PYTHONUTF8=1 확인, E 는 다음 세션에서 확인** — 저장소 .claude/settings.json(env·훅·스킬)은 세션을 시작한 폴더에서만 읽힌다(공식 settings 문서, D 확인). 지금 B·D·E 는 …\이정찬\Claude 에서 시작해 아무것도 안 걸린다. 총괄 판단: 각 세션을 자기 worktree 폴더에서 띄운다(cd <worktree>; claude 또는 claude --worktree <이름>). 그러면 PYTHONUTF8·git_guard·radar 스킬이 자동으로 붙는다. 답이 오기 전엔 D 로컬 훅 유지  _(대기: 이정찬)_
 42. **더원 배너 나머지 문서 둘 — 완료 (09-18, 이정찬이 파일을 건네 총괄이 등재)** — tools/theone/상단배너_공식.md 는 올라왔다(519625b). 같은 폴더에 로컬만 있는 상단배너_로직.md(7.2KB)·상단배너_임베딩분석.md(8.3KB) — 임베딩 채점기 수치(쌍 개수·유사도 분포·홀드아웃)가 거기 있다. 이정찬이 '대본~인덱스~임베딩~로직' 자료를 찾고 있어 둘 다 tools/theone/ 으로  _(대기: E)_
+43. **MCP 자가점검 스크립트 저장소로 — E** — E 가 scratchpad/mcp_probe.py(initialize → tools/list → tools/call)를 만들어 뒀다. 별 수 믿지 말고 띄워 보는 도구라 전 파트 공용 — tools/mcp_probe.py 로 올려 달라 (radar 와 같은 자리)  _(대기: E)_
+44. **경로 끝 공백·마침표 strip 코드 반영 — E shortform.py · B 일러스트레이터 저장 경로** — constraint_note 56. 주석에 번호를 적는다. B 의 일러스트레이터 saveAs 는 실측 뒤 반영(미실측 추정)  _(대기: B·E)_
 
 ## 대본과 컷 싱크
 
@@ -1344,6 +1353,9 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 - **git_guard 설계 — 경로 한정·삭제 포함·인자 없는 push 차단** — 이동·삭제 규칙은 작업 폴더 이름(이정찬·차트명가·aelab·cmgwork·pprolab·납품·더원)이 명령에 있을 때만. rm -r·Remove-Item -Recurse·rmdir·DeleteDirectory 도 같은 규칙. 브랜치 이름 없는 push(인자 없음·HEAD)는 브랜치 확인 없이 막고 이름을 쓰게 한다. git 규칙은 명령 머리의 git 만 본다(따옴표 안 grep 은 제외)
   - 이유: D 실측 6경우 — 경로를 안 가리면 오탐이 잦아 표식을 습관적으로 만들게 되고, 09-16 에 지운 폴더도 누가 무는지 봐야 했다. 인자 없는 push 는 세션 cwd 가 저장소 밖이면 현재 브랜치를 못 읽는 설계 한계 → 단순한 쪽. 원문 log/inbox/2026-09-17_D_개선안회신.md §2-B ③④
   - 다시 볼 때: 오탐·미탐이 인박스로 보고될 때
+- **API 키·토큰 두는 자리 — 저장소 밖 C:/Users/user/.secrets/ac_keys.env** — YOUTUBE_API_KEY · HF_TOKEN 등은 이정찬이 발급해 이 파일에. 저장소(public)에도, G드라이브로 가는 꾸러미 zip 에도 넣지 않는다. 코드는 파일을 읽어 dict 로 쓴다
+  - 이유: 저장소가 public(decision 25)이고 토큰 노출 전례(issue 35)가 있다. 에이전트는 키 값을 받지 않는다는 기존 규칙과 같은 선. 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §1
+  - 다시 볼 때: 키가 세 개를 넘거나 다른 PC 가 생길 때(credential manager 검토)
 
 ## 브랜드 스펙 (실측)
 
@@ -1822,4 +1834,12 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 402 | `ac61c7d2` | 병합: worktree-D_Video (2026-09-18 세션 폴더 이전·훅 연결·배너 공식) | 7파일 +125/-22 |
 | 403 | `9de059cd` | 세이브 save/2026-09-18-1043 — 09-18 회신 셋 병합 — 훅 연결(D)·세션 폴더 완료·배너 공식 저장소, save.py 현재 브랜치 푸시(issue 41), next_step 41 완료·42 신설 | 7파일 +140/-36 |
 | 404 | `5db81847` | 세이브 기록 save/2026-09-18-1043 | 5파일 +11/-3 |
-| 405 | `93053303` | 세이브 save/2026-09-18-1436 — 더원 배너 문서 둘 등재(로직·임베딩분석) — tools/theone 한 벌 완성, next_step 42 완료 | 7파일 +318/-6 |
+| 405 | `95042d47` | 라이브화면 — 오른쪽 맨 아래를 캠 자리로 비운다 (더원트레이더 틀 비율) | 1파일 +50/-8 |
+| 406 | `dd8ff560` | 라이브화면 — 캠 자리를 _실제 방송 갈무리 기준으로 키운다 | 1파일 +20/-13 |
+| 407 | `5ac6ce2e` | log/inbox — D·B 에게 도구 공유 (yt-dlp·YouTube API·한국어 NLP·MCP 자가점검·함정) | 1파일 +80/-0 |
+| 408 | `357cdce3` | log/inbox — constraint 후보: 윈도우 경로 끝 공백·마침표 (B·E 공동) | 1파일 +53/-0 |
+| 409 | `36001d30` | log/inbox — 경로 끝 공백: 파일 쪽을 E 지적대로 고침 | 1파일 +12/-4 |
+| 410 | `93053303` | 세이브 save/2026-09-18-1436 — 더원 배너 문서 둘 등재(로직·임베딩분석) — tools/theone 한 벌 완성, next_step 42 완료 | 7파일 +318/-6 |
+| 411 | `3ee2a980` | 세이브 기록 save/2026-09-18-1436 | 5파일 +11/-3 |
+| 412 | `8f0adc71` | 병합: worktree-B_Image (09-18 오후 — 경로 끝 공백 constraint 후보·도구 공유·라이브화면 캠 자리) | 2파일 +118/-8 |
+| 413 | `661fd356` | 병합: worktree-E_Script (09-18 오후 — 경로 끝 공백 constraint 후보·도구 공유·라이브화면 캠 자리) | 1파일 +80/-0 |
