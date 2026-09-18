@@ -803,5 +803,12 @@
   "utc": "2026-09-18 05:36",
   "sha": "9305330",
   "summary": "더원 배너 문서 둘 등재(로직·임베딩분석) — tools/theone 한 벌 완성, next_step 42 완료"
+ },
+ {
+  "tag": "save/2026-09-18-1438",
+  "kst": "2026-09-18 14:38",
+  "utc": "2026-09-18 05:38",
+  "sha": "a975da8",
+  "summary": "B·E 인박스 등재 — constraint 56~59(경로 끝 공백·yt-dlp·YouTube API·한국어 도구), decision 32 키 자리, external_tool 4~10, env_tool 13~15, next_step 43·44"
  }
 ]

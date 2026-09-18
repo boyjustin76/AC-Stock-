@@ -186,12 +186,12 @@ git restore --source=<해시> -- .              # 되돌리기
 
 | 시각 (KST) | 슬롯 | 커밋 | 어디까지 |
 |---|---|---|---|
+| 2026-09-18 14:38 | `save/2026-09-18-1438` | `a975da8` | B·E 인박스 등재 — constraint 56~59(경로 끝 공백·yt-dlp·YouTube API·한국어 도구), decision 32 키 자리, external_tool 4~10, env_tool 13~15, next_step 43·44 |
 | 2026-09-18 14:36 | `save/2026-09-18-1436` | `9305330` | 더원 배너 문서 둘 등재(로직·임베딩분석) — tools/theone 한 벌 완성, next_step 42 완료 |
 | 2026-09-18 10:43 | `save/2026-09-18-1043` | `9de059c` | 09-18 회신 셋 병합 — 훅 연결(D)·세션 폴더 완료·배너 공식 저장소, save.py 현재 브랜치 푸시(issue 41), next_step 41 완료·42 신설 |
 | 2026-09-18 10:17 | `save/2026-09-18-1017` | `e397310` | save.py 본류 대상 푸시 건 보고 추가 |
 | 2026-09-18 10:15 | `save/2026-09-18-1015` | `988ad6d` | D 훅 저장소 연결 — CLAUDE_PROJECT_DIR 펼침·exec form args 실측, git_guard 세션 차단 확인 |
 | 2026-09-17 18:41 | `save/2026-09-17-1841` | `561e8a4` | guard 시험 — 총괄 clone(ac.role) 에서도 도는 환경 고정 |
-| 2026-09-17 18:40 | `save/2026-09-17-1840` | `e334854` | 세션 시작 폴더 확정 — worktree 이름 D_Video·B_Image·E_Script (runbook 24·25, decision 30 갱신, CLAUDE.md) |
 
 ---
 

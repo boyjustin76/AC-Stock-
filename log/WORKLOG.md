@@ -1843,3 +1843,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 411 | `3ee2a980` | 세이브 기록 save/2026-09-18-1436 | 5파일 +11/-3 |
 | 412 | `8f0adc71` | 병합: worktree-B_Image (09-18 오후 — 경로 끝 공백 constraint 후보·도구 공유·라이브화면 캠 자리) | 2파일 +118/-8 |
 | 413 | `661fd356` | 병합: worktree-E_Script (09-18 오후 — 경로 끝 공백 constraint 후보·도구 공유·라이브화면 캠 자리) | 1파일 +80/-0 |
+| 414 | `a975da83` | 세이브 save/2026-09-18-1438 — B·E 인박스 등재 — constraint 56~59(경로 끝 공백·yt-dlp·YouTube API·한국어 도구), decision 32 키 자리, external_tool 4~10, env_tool 13~15, next_step 43·44 | 5파일 +70/-7 |
