@@ -1710,6 +1710,21 @@ REPO_FILES = {
     "log/inbox/2026-09-18_B·E_경로끝공백_constraint후보.md": ("기록", "B·E 공동 — 윈도우 경로 끝 공백·마침표 실측표(파이썬·PowerShell, 두 사람이 따로 재현), 사례 셋, 처방 strip(' .'). constraint_note 56"),
     "log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md": ("기록", "E → D·B 도구 공유 — 키 자리(.secrets), yt-dlp 명령 7종·함정 4, YouTube API 한도, 한국어 도구 3종·함정, MCP 자가점검, 안 쓰기로 한 것. constraint_note 57~59 · external_tool 4~10 · env_tool 13~15"),
     "log/inbox/2026-09-18_총괄_등재번호.md": ("기록", "총괄 → B·E — 09-18 오후 등재 번호(constraint_note 56~59 · decision 32 · external_tool 4~10 · env_tool 13~15 · next_step 43·44)"),
+    "AGENTS.md": ("지침", "Claude Code 바깥 에이전트(Codex 등)용 — 훅이 대신 막아 주던 규칙(본류 push·이름 없는 push·add -A·작업폴더 이동/삭제·DB 원본·키 자리)을 글로. CLAUDE.md 가 본문이고 이 파일은 차이점만 (2026-09-18)"),
+    "tools/mt5": ("도구", "MT5 촬영 파이프라인(D) — mcp.py(MCP 클라이언트)·scenes.py(대본 docx → 비트 → 사건 → 실제 봉 구간 선정, 팀장 차10 기준 5)·capture_scene.py(ChartNavigate 후 창 캡처)·capture.py·shot.py+CMG_Shot.mq5(자체 렌더 캡처 지표)·calibrate.py(봉 격자·가격축 보정 RMS 1.93px). README 있음"),
+    "tools/hf": ("도구", "HyperFrames HTML 합성 3벌(D) — ab_pnl(A/B 판)·mt5_frame(MT5 틀 합성)·mt5_calib(좌표 계산 합성)·hyperframes.json. 우리 렌더러에 없는 모양용"),
+    "log/data/ref_cha10": ("기록", "팀장 차10 참고자료(D) — script10.txt 대본 본문·기준측정.json 그림 실측·콘티_차트장면.json 엔진이 고른 콘티·읽어보기.md. scenes.py 규칙의 근거"),
+    "tools/mcp_probe.py": ("도구", "MCP 자가점검(E) — initialize → tools/list → tools/call 까지 그 자리에서 띄워 본다. 별 수 믿지 말고 띄워 보고 판단(external_tool 10 전례)"),
+    "tools/grade_draft.py": ("도구", "대본 초안 채점기(E) — 낭독분만 골라 분량·문장 길이·금지어(부정문·낱말 속 오탐 제외)·근거·수치·반말을 잰다. 차12·차13 초안이 통과"),
+    "tests/test_shortform_names.py": ("검증", "shortform 이름 왕복 시험 4 — safe_tail 로 끝 공백·마침표 뗀 뒤 folder_name↔check_name 왕복 (E)"),
+    "log/LIVE-SCREEN-MANUAL.md": ("문서", "라이브화면·롤링광고 매뉴얼(B 세션용, 09-18) — 실제로 겪어 확인한 것만, 값은 build_live.jsx 가 최신"),
+    "log/차12_더블볼린저_초안.md": ("기록", "차12 더블 볼린저밴드 촬영용 대본 초안(E) — 레퍼런스 사슬대로 재구성, 기간값 20, 규격 채점 통과. 일상 작업(총괄은 상태만)"),
+    "log/차13_테스타칼만ATR_초안.md": ("기록", "차13 테스타 칼만 이평선+ATR 촬영용 대본 초안(E) — 새 사슬(일정표→레퍼런스 자막→Pool→완성) 적용. 뼈대는 차13_테스타칼만ATR_뼈대.md"),
+    "log/inbox/2026-09-18_D_아스트라_인수인계.md": ("기록", "D → 아스트라 인수인계 — 이 PC 경로 지도(저장소·키·MT5·HyperFrames·시험 결과물)·하던 일과 남은 일 4·실측 함정 11(MT5 7·렌더 3·윈도우 1)·팀장 기준 5. 세션은 worktree 폴더에서"),
+    "log/inbox/2026-09-18_D_MT5_MCP연동_시험.md": ("기록", "D — MT5 MCP 연동 시험: 도구 50종 확인, 창 캡처로 차트 배경, 틀·배지·로고 얹어 3초 렌더"),
+    "log/inbox/2026-09-18_D_외부도구_HyperFrames·Remotion_실측.md": ("기록", "D — HyperFrames·Remotion 실측: 59.94 유리수 fps·ProRes4444 알파·PNG 시퀀스 확인, 색 정확도 차이"),
+    "log/inbox/2026-09-18_D_AB시험_우리렌더러_대_HyperFrames.md": ("기록", "D — A/B 시험: ov-pnl 컷을 우리 렌더러와 HyperFrames 로 각각 300장, 속도 6.9초 vs 31.0초·줄수·픽셀 대조"),
+    "log/inbox/2026-09-18_D_대본에서_차트장면_뽑기.md": ("기록", "D — 대본에서 차트장면 뽑기 보고: 팀장 차10 기준 5가지와 실측 함정 5가지"),
 }
 
 RUNBOOK = [
@@ -2123,10 +2138,12 @@ CONSTRAINTS = [
     ("ffmpeg stderr 를 그대로 담은 파일(silences.txt)은 실행마다 메모리 주소가 바뀐다", "줄 머리 `[silencedetect @ 000001650716bc00]` — 해시 회귀에서 '다름' 으로 뜬다. 도구 결과에는 영향 없음(read_silences 는 숫자만 읽는다)", "내용 비교는 주소를 빼고 한다. 원문 log/inbox/2026-09-17_E_개선안회신.md 오류 원자료 2"),
     ("git_guard 는 명령 텍스트만 본다 — 문서를 heredoc 으로 쓰면 본문의 'git push …' 줄에 걸린다", "D 보고서(본류 이름+push 낱말 포함)를 heredoc 으로 덧붙이는 명령이 차단됐다. 옛 로컬 훅도 같았다. 규칙을 느슨하게 하면 진짜를 놓친다", "문서는 셸 heredoc 이 아니라 Write/Edit 도구로 쓴다(역슬래시 문제와 같은 처방). 조각을 파일 도구로 만들고 cat 으로 잇는다. 원문 log/inbox/2026-09-18_D_훅연결_실측.md §6"),
     ("make_xml.pathurl — 드라이브 문자 경로는 abspath 를 안 거치니 정규화도 안 된다", "C:/Users/../Users/user/x.mp4 같은 경로가 그대로 URL 에 박힌다. cuts.json 의 source 는 전부 정규화된 절대경로라 지금은 영향 없음", "상대·리눅스 경로는 전처럼 abspath. 필요해지면 os.path.normpath 만 추가. E 윈도우 회귀 4개 바이트 동일. 원문 log/inbox/2026-09-18_E_세션시작폴더_적용.md"),
-    ("윈도우는 경로의 마지막 조각에서만 끝 공백·마침표를 떼어낸다 — 폴더는 만들 때 조용히 넘어가고 부모로 쓸 때 터진다 (B·E 각자 실측 09-18)", "os.makedirs('끝공백 ') → 디스크엔 '끝공백'. isdir('끝공백 ') 는 True(거짓 안심)인데 open(join('끝공백 ','a.txt'))·listdir 은 FileNotFoundError. PowerShell New-Item 도 같다. 파일은 만들어지되 디스크 이름이 달라져(b.txt ) 문자열 대조(check_name 왕복)가 어긋난다. 사례: E yt-dlp 채널 폴더(실제), shortform.py 제목 끝 마침표(잠재, 150개 중 0), 일러스트레이터 saveAs(추정, 미실측)", "경로 조각을 만들 때 뗀다 — 파이썬 part.strip(' .') · ExtendScript name.replace(/[ .]+$/, ''). 사람이 지은 이름(제목·채널·회차)을 받는 자리마다. 읽을 때 고치면 늦다. 반영: E shortform.py · B 일러스트레이터 저장 경로(next_step 44). 원문 log/inbox/2026-09-18_B·E_경로끝공백_constraint후보.md"),
+    ("윈도우는 경로 조각 끝의 공백·마침표를 조용히 떼어낸다 — 공백은 나중에 터지고, 마침표는 이름만 달라진다 (B 정리 → E 재현 → D 가 마침표를 갈라냄 → B 재확인, 세 사람 실측 09-18)", "폴더 '끝공백 ' → 디스크 '끝공백', 그 경로로 쓰기·listdir 은 FileNotFoundError(공백은 만들 때만 떨어지고 풀 때는 안 떨어진다). 폴더 '끝점.' → 디스크 '끝점', 쓰기·읽기 다 성공 — 이름이 달라진 걸 아무도 모른다(마침표는 풀 때도 떨어진다). 파일은 둘 다 이름만 달라진다. isdir('끝공백 ') 는 True 라 검사로 안 걸린다. 조용한 쪽(마침표)이 더 골치다 — 납품·회차 폴더 이름이 지시서와 달라져도 소리가 안 난다. 사례: E yt-dlp 채널 폴더(실제)", "경로 조각을 만들 때 뗀다 — 파이썬 rstrip(' .') · ExtendScript name.replace(/[ .]+$/, ''). 반영 완료(이정찬 승인 09-18): E shortform.py safe_tail(6bb8b0e, 왕복 시험 tests/test_shortform_names.py) · B 일러스트레이터 safeName(aed48bd) · D tools/style 6개 --out rstrip(2a7eddd). 원문 log/inbox/2026-09-18_B·E_경로끝공백_constraint후보.md"),
     ("yt-dlp 함정 넷 (E 실측 09-18, 2026.08.19)", "① --print 는 --simulate 를 함축 → 자막·썸네일 안 받아진다 ② --convert-subs 는 ffmpeg 를 부른다(이 PC 에 없음) ③ --js-runtimes node 없으면 JS 런타임 경고 ④ 자막 트랙 ko-orig 와 ko 가 따로 있는 영상이 있다", "① --no-simulate 를 같이 ② --sub-format srt 로 유튜브가 주는 SRT 를 그대로(json3 130KB → srt 18KB) ③ --js-runtimes node ④ ko-orig 먼저, 없으면 ko. 월 1회 pip install -U. 남의 영상 다운로드는 약관 위반 — 참고용과 재배포는 다르고, 로그인 쿠키는 안 쓴다. 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §2"),
     ("YouTube Data API 한도·제약 (E 09-18)", "videos·channels·commentThreads·playlistItems 는 1유닛/하루 10,000. search.list 만 하루 100콜 별도. 남의 채널 자막은 못 받는다(403 이 정상). 남의 채널 데이터는 30일 넘게 원본 보관 금지", "검색은 yt-dlp ytsearchN: 으로 대신. API 는 좋아요 수처럼 yt-dlp 가 못 주는 것만. 키는 C:/Users/user/.secrets/ac_keys.env (decision 32). 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §3"),
     ("한국어 도구는 과교정한다 — 자동 파이프라인에 넣지 않는다 (E 실측 09-18)", "맞춤법 MCP(@winterjung/mcp-korean-spell)는 네이버 검사기 비공식 사용이고 우리 용어도 고친다(메인밴드→메인 밴드). Kiwi space() 도 과교정(매매 법·21 기간). j5ng/et5-typos-corrector 는 '하락 구조'를 '상승 구조'로 바꿔 놓는다. KURE-v2 는 리더보드 1위지만 11편 인코딩 v1 68초 · v2 250초", "맞춤법은 사람이 볼 때만, 고유 용어는 예외 목록. Kiwi 는 고칠 자리 찾는 용도로만(add_user_word 로 용어 등록). 뜻이 바뀌는 교정기는 안 쓴다. 임베딩은 KURE-v1. tiktoken 오류면 pip install tiktoken sentencepiece protobuf. 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §4"),
+    ("MT5 MCP — 인증·세션·캡처 함정 7 (D 실측 09-18)", "① 인증은 Authorization: Bearer <키> 뿐, initialize 의 Mcp-Session-Id 를 계속 싣고 notifications/initialized 는 id 없이 ② ChartScreenShot 은 스크롤 자리를 무시하고 늘 최신 구간 — 크기를 키우면 봉이 더 들어올 뿐 ③ ChartNavigate 는 자동스크롤 끄고 CopyRates 로 그 날짜 이력을 먼저 ④ chart_apply_template 은 지표를 통째로 갈아 끼움(3초 쉬고 붙인다) ⑤ 지표 목록은 터미널 시작 때 한 번 — 새 지표는 재시작 ⑥ PrintWindow 는 자식 핸들을 줘도 본 창 — 차트 판은 그림에서 찾는다 ⑦ trade_* 7종은 부르지 않는다", "과거 장면은 ChartNavigate 로 옮긴 뒤 창을 PrintWindow 로 찍는다(tools/mt5/capture_scene.py). 키는 .secrets/ac_keys.env MT5_MCP_KEY. 원문 log/inbox/2026-09-18_D_아스트라_인수인계.md §3 · log/inbox/2026-09-18_D_MT5_MCP연동_시험.md"),
+    ("렌더 색·속도 — ProRes 4444 는 YUV 라 1 어긋난다, 차트 컷씬은 우리 렌더러가 4.5배 빠르다 (D A/B 실측 09-18)", "#0D9488 이 ProRes4444 에서 (12,148,135). ov-pnl 같은 컷: 우리 렌더러 6.9초 vs HyperFrames 31.0초(300장). 이 PC PATH 에 ffmpeg 없음", "색을 보증해야 하면 PNG 시퀀스. HyperFrames 는 우리 레이어에 없는 모양을 새로 만들 때만. ffmpeg 는 06_실험실/hf_smoke/node_modules 것을 PATH 앞에. 원문 log/inbox/2026-09-18_D_AB시험_우리렌더러_대_HyperFrames.md · log/inbox/2026-09-18_D_외부도구_HyperFrames·Remotion_실측.md"),
 ]
 
 NEXT_STEPS = [
@@ -2276,8 +2293,9 @@ NEXT_STEPS = [
     (40, "개선안 회신 — B·D·E 전부 완료 (09-17 17:3x, 셋 다 본류 병합)", "B 641f4da · D 3f32389 · E e6c16b8. 채택 현황은 log/inbox/2026-09-17_총괄_개선안회신답.md 표 + E: 2-A(가지만 전환, 작업트리 두 벌은 단일화 방침으로 안 만듦)·E-1~E-7·ruff 5 적용, 회귀 45항목 동일, pytest 29. 남은 것은 next_step 41(세션 시작 폴더, 이정찬)뿐", "완료"),
     (41, "세션 시작 폴더 — 완료 (09-18 오전): B·D·E 셋 다 새 폴더·새 가지, D 훅 연결·실측 통과, B PYTHONUTF8=1 확인, E 는 다음 세션에서 확인", "저장소 .claude/settings.json(env·훅·스킬)은 세션을 시작한 폴더에서만 읽힌다(공식 settings 문서, D 확인). 지금 B·D·E 는 …\\이정찬\\Claude 에서 시작해 아무것도 안 걸린다. 총괄 판단: 각 세션을 자기 worktree 폴더에서 띄운다(cd <worktree>; claude 또는 claude --worktree <이름>). 그러면 PYTHONUTF8·git_guard·radar 스킬이 자동으로 붙는다. 답이 오기 전엔 D 로컬 훅 유지", "이정찬"),
     (42, "더원 배너 나머지 문서 둘 — 완료 (09-18, 이정찬이 파일을 건네 총괄이 등재)", "tools/theone/상단배너_공식.md 는 올라왔다(519625b). 같은 폴더에 로컬만 있는 상단배너_로직.md(7.2KB)·상단배너_임베딩분석.md(8.3KB) — 임베딩 채점기 수치(쌍 개수·유사도 분포·홀드아웃)가 거기 있다. 이정찬이 '대본~인덱스~임베딩~로직' 자료를 찾고 있어 둘 다 tools/theone/ 으로", "E"),
-    (43, "MCP 자가점검 스크립트 저장소로 — E", "E 가 scratchpad/mcp_probe.py(initialize → tools/list → tools/call)를 만들어 뒀다. 별 수 믿지 말고 띄워 보는 도구라 전 파트 공용 — tools/mcp_probe.py 로 올려 달라 (radar 와 같은 자리)", "E"),
-    (44, "경로 끝 공백·마침표 strip 코드 반영 — E shortform.py · B 일러스트레이터 저장 경로", "constraint_note 56. 주석에 번호를 적는다. B 의 일러스트레이터 saveAs 는 실측 뒤 반영(미실측 추정)", "B·E"),
+    (43, "MCP 자가점검 스크립트 저장소로 — 완료 (E, 6bb8b0e → tools/mcp_probe.py)", "E 가 scratchpad/mcp_probe.py(initialize → tools/list → tools/call)를 만들어 뒀다. 별 수 믿지 말고 띄워 보는 도구라 전 파트 공용 — tools/mcp_probe.py 로 올려 달라 (radar 와 같은 자리)", "E"),
+    (44, "경로 끝 공백·마침표 가드 — 완료 (B aed48bd · E 6bb8b0e · D 2a7eddd, 이정찬 승인)", "constraint_note 56. 주석에 번호를 적는다. B 의 일러스트레이터 saveAs 는 실측 뒤 반영(미실측 추정)", "B·E"),
+    (45, "대본→차트장면 파이프라인 남은 것 — D (또는 아스트라)", "① 12장 일괄 촬영(비트마다 심볼·주기 바꿔 도는 부분) ② 콘티 이미지·AE 컴포지션 생성(tools/ae 잡 틀) ③ 규칙을 차10 한 편에서 뽑았다 — 다른 회차로 검증 ④ 찍은 그림을 회사 드라이브 소스 폴더에 넣을지는 이정찬 판단(지금은 안 쓴다). 인수인계 원문 log/inbox/2026-09-18_D_아스트라_인수인계.md", "D·이정찬(④)"),
 ]
 
 
@@ -2376,6 +2394,9 @@ EXTERNAL_TOOLS = [
     (8, "j5ng/et5-typos-corrector", "huggingface", "로컬 맞춤법 모델", "-", "rejected", "'하락 구조'를 '상승 구조'로 바꿨다 — 뜻이 바뀌는 교정기 (E 실측)"),
     (9, "Social Blade · playboard 스크래핑 / 유료 자막 API(Supadata 등) / bareun.ai", "-", "채널 통계·자막·맞춤법 대안", "-", "rejected", "약관 자동 수집 금지 / 클라우드 IP 차단 문제인데 우리는 집 인터넷 / 상업적 사용 유료·무료 5만 어절. 원문 E 도구공유 §7"),
     (10, "kimtaeyoon83/mcp-server-youtube-transcript", "github (★595)", "유튜브 자막 MCP", "-", "rejected", "npm 배포가 2024-11 에서 멈춰 빈 문자열을 돌려준다. 별 수 말고 띄워 보고 판단(E, mcp_probe)"),
+    (11, "MT5 MCP (HedgeHood MT5 Terminal)", "로컬 MCP · 도구 50종", "대본 비트에 맞는 실제 차트 장면을 MT5 에서 찍는다 — 지표 자동 부착·제거, ChartNavigate 로 과거 구간", "MT5 설치 + MT5_MCP_KEY(.secrets) + CMG_Shot.mq5 지표 컴파일(재시작 한 번)", "adopt", "D 09-18 실측. 창 캡처 1920×1032 → calibrate.py 로 봉 격자·가격축 자동 보정 RMS 1.93px. 함정은 constraint_note 60. 사람 차트는 안 건드린다(새 차트+템플릿)"),
+    (12, "HyperFrames", "github.com/hyperframes (로컬 clone 06_실험실/외부참고)", "HTML 로 합성 — MT5 틀 합성·좌표 계산 합성·A/B 판 (tools/hf/)", "Node · Chrome(.cache/hyperframes) · 59.94 유리수 fps 확인", "local-only", "우리 레이어에 없는 모양을 새로 만들 때만. 차트 컷씬은 우리 렌더러가 4.5배 빠르다(constraint_note 61). ProRes4444 알파·PNG 시퀀스 확인"),
+    (13, "Remotion", "github.com/remotion-dev/remotion (로컬 clone)", "같은 목적 비교 대상", "-", "pending", "D 09-18 실측 — 59.94 fps·알파 확인. HyperFrames 와 같이 보류. 원문 D 외부도구 실측"),
 ]
 
 PRPROJ_FACTS = [

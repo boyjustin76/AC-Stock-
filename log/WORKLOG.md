@@ -281,6 +281,8 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `lab/finalscan` | 기록 | 최종본 #1~#10 기계 실측 원자료 — 콘택트시트·프레임별 YDIF/장면점수 csv·freeze·단일 프레임·카피맵 후보 23장·prproj 드라이브 지도. FX-WHITELIST 의 원천 (2026-09-11 등재) |
 | `log/E-회신-260916.md` | 기록 | E 가 총괄 문의서(09-16)에 답한 것 — srt_rules 회귀 확인·build_cuts 레거시·채점 일치·배너 모델 홀드아웃·L08 사고 두 번·DB 등재 조건 |
 | `log/inbox` | 기록 | 로컬 세션 → 총괄 원자료 함 (오류·비효율 로그 원문, 판단 요청, 스킬 목록, 총괄 개선안). 이름 YYYY-MM-DD_<세션>_<주제>.md. DB 로 옮긴 뒤에도 지우지 않는다 — DB 행이 여기를 '원문' 으로 가리킨다 (decision 24) |
+| `log/차12_더블볼린저_초안.md` | 기록 | 차12 더블 볼린저밴드 촬영용 대본 초안(E) — 레퍼런스 사슬대로 재구성, 기간값 20, 규격 채점 통과. 일상 작업(총괄은 상태만) |
+| `log/차13_테스타칼만ATR_초안.md` | 기록 | 차13 테스타 칼만 이평선+ATR 촬영용 대본 초안(E) — 새 사슬(일정표→레퍼런스 자막→Pool→완성) 적용. 뼈대는 차13_테스타칼만ATR_뼈대.md |
 | `.gitignore` | 기타 |  |
 | `CLAUDE.md` | 기타 |  |
 | `brand/FX-WHITELIST.md` | 기타 |  |
@@ -380,6 +382,8 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `log/REDTEAM-BRIEF.md` | 기타 |  |
 | `log/build_readme.py` | 기타 |  |
 | `log/save.py` | 기타 |  |
+| `log/차12_더블볼린저_뼈대.md` | 기타 |  |
+| `log/차13_테스타칼만ATR_뼈대.md` | 기타 |  |
 | `package-lock.json` | 기타 |  |
 | `scenes/cmg12-cross.scenes.js` | 기타 |  |
 | `scenes/cmg12-layer-candle.scenes.js` | 기타 |  |
@@ -431,6 +435,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `brand/SHORTFORM-FX-POOL.md` | 문서 | 숏폼 1:1 박스 효과 pool 실측 22종 + 팀장 규칙 4개 (최종본 6편 전수 조사) |
 | `brand/STYLE.md` | 문서 | 차트명가 브랜드 스펙. 색·레이아웃·폰트·스크립트 6단 구조 |
 | `lab/ae/AEP-MOGRT-조사보고.txt` | 문서 | .aep/.mogrt 납품 가능성 조사 — 공식 자료 vs 우리 실측, 결론: 파일 직접 쓰기 배제, ExtendScript 로 AE 가 굽게 한다 (next_step 27) |
+| `log/LIVE-SCREEN-MANUAL.md` | 문서 | 라이브화면·롤링광고 매뉴얼(B 세션용, 09-18) — 실제로 겪어 확인한 것만, 값은 build_live.jsx 가 최신 |
 | `log/PREMIERE-LAB-MANUAL.md` | 문서 | 프리미어 직접 편집 실험(D 세션) 매뉴얼 — 경로·마일스톤·함정·병합 프로토콜 |
 | `log/PREMIERE-LAB-REPORT.md` | 문서 | D 의 M2~M6 총괄 보고 — 판정표·매뉴얼 정정·등재 요청·판단 요청 4건 |
 | `log/RENDER-REVIEW.md` | 문서 | 렌더 속도 리뷰 의뢰서 — 코드 지도·실측·열린 질문 |
@@ -661,10 +666,12 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | ffmpeg stderr 를 그대로 담은 파일(silences.txt)은 실행마다 메모리 주소가 바뀐다 | 줄 머리 `[silencedetect @ 000001650716bc00]` — 해시 회귀에서 '다름' 으로 뜬다. 도구 결과에는 영향 없음(read_silences 는 숫자만 읽는다) | 내용 비교는 주소를 빼고 한다. 원문 log/inbox/2026-09-17_E_개선안회신.md 오류 원자료 2 |
 | git_guard 는 명령 텍스트만 본다 — 문서를 heredoc 으로 쓰면 본문의 'git push …' 줄에 걸린다 | D 보고서(본류 이름+push 낱말 포함)를 heredoc 으로 덧붙이는 명령이 차단됐다. 옛 로컬 훅도 같았다. 규칙을 느슨하게 하면 진짜를 놓친다 | 문서는 셸 heredoc 이 아니라 Write/Edit 도구로 쓴다(역슬래시 문제와 같은 처방). 조각을 파일 도구로 만들고 cat 으로 잇는다. 원문 log/inbox/2026-09-18_D_훅연결_실측.md §6 |
 | make_xml.pathurl — 드라이브 문자 경로는 abspath 를 안 거치니 정규화도 안 된다 | C:/Users/../Users/user/x.mp4 같은 경로가 그대로 URL 에 박힌다. cuts.json 의 source 는 전부 정규화된 절대경로라 지금은 영향 없음 | 상대·리눅스 경로는 전처럼 abspath. 필요해지면 os.path.normpath 만 추가. E 윈도우 회귀 4개 바이트 동일. 원문 log/inbox/2026-09-18_E_세션시작폴더_적용.md |
-| 윈도우는 경로의 마지막 조각에서만 끝 공백·마침표를 떼어낸다 — 폴더는 만들 때 조용히 넘어가고 부모로 쓸 때 터진다 (B·E 각자 실측 09-18) | os.makedirs('끝공백 ') → 디스크엔 '끝공백'. isdir('끝공백 ') 는 True(거짓 안심)인데 open(join('끝공백 ','a.txt'))·listdir 은 FileNotFoundError. PowerShell New-Item 도 같다. 파일은 만들어지되 디스크 이름이 달라져(b.txt ) 문자열 대조(check_name 왕복)가 어긋난다. 사례: E yt-dlp 채널 폴더(실제), shortform.py 제목 끝 마침표(잠재, 150개 중 0), 일러스트레이터 saveAs(추정, 미실측) | 경로 조각을 만들 때 뗀다 — 파이썬 part.strip(' .') · ExtendScript name.replace(/[ .]+$/, ''). 사람이 지은 이름(제목·채널·회차)을 받는 자리마다. 읽을 때 고치면 늦다. 반영: E shortform.py · B 일러스트레이터 저장 경로(next_step 44). 원문 log/inbox/2026-09-18_B·E_경로끝공백_constraint후보.md |
+| 윈도우는 경로 조각 끝의 공백·마침표를 조용히 떼어낸다 — 공백은 나중에 터지고, 마침표는 이름만 달라진다 (B 정리 → E 재현 → D 가 마침표를 갈라냄 → B 재확인, 세 사람 실측 09-18) | 폴더 '끝공백 ' → 디스크 '끝공백', 그 경로로 쓰기·listdir 은 FileNotFoundError(공백은 만들 때만 떨어지고 풀 때는 안 떨어진다). 폴더 '끝점.' → 디스크 '끝점', 쓰기·읽기 다 성공 — 이름이 달라진 걸 아무도 모른다(마침표는 풀 때도 떨어진다). 파일은 둘 다 이름만 달라진다. isdir('끝공백 ') 는 True 라 검사로 안 걸린다. 조용한 쪽(마침표)이 더 골치다 — 납품·회차 폴더 이름이 지시서와 달라져도 소리가 안 난다. 사례: E yt-dlp 채널 폴더(실제) | 경로 조각을 만들 때 뗀다 — 파이썬 rstrip(' .') · ExtendScript name.replace(/[ .]+$/, ''). 반영 완료(이정찬 승인 09-18): E shortform.py safe_tail(6bb8b0e, 왕복 시험 tests/test_shortform_names.py) · B 일러스트레이터 safeName(aed48bd) · D tools/style 6개 --out rstrip(2a7eddd). 원문 log/inbox/2026-09-18_B·E_경로끝공백_constraint후보.md |
 | yt-dlp 함정 넷 (E 실측 09-18, 2026.08.19) | ① --print 는 --simulate 를 함축 → 자막·썸네일 안 받아진다 ② --convert-subs 는 ffmpeg 를 부른다(이 PC 에 없음) ③ --js-runtimes node 없으면 JS 런타임 경고 ④ 자막 트랙 ko-orig 와 ko 가 따로 있는 영상이 있다 | ① --no-simulate 를 같이 ② --sub-format srt 로 유튜브가 주는 SRT 를 그대로(json3 130KB → srt 18KB) ③ --js-runtimes node ④ ko-orig 먼저, 없으면 ko. 월 1회 pip install -U. 남의 영상 다운로드는 약관 위반 — 참고용과 재배포는 다르고, 로그인 쿠키는 안 쓴다. 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §2 |
 | YouTube Data API 한도·제약 (E 09-18) | videos·channels·commentThreads·playlistItems 는 1유닛/하루 10,000. search.list 만 하루 100콜 별도. 남의 채널 자막은 못 받는다(403 이 정상). 남의 채널 데이터는 30일 넘게 원본 보관 금지 | 검색은 yt-dlp ytsearchN: 으로 대신. API 는 좋아요 수처럼 yt-dlp 가 못 주는 것만. 키는 C:/Users/user/.secrets/ac_keys.env (decision 32). 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §3 |
 | 한국어 도구는 과교정한다 — 자동 파이프라인에 넣지 않는다 (E 실측 09-18) | 맞춤법 MCP(@winterjung/mcp-korean-spell)는 네이버 검사기 비공식 사용이고 우리 용어도 고친다(메인밴드→메인 밴드). Kiwi space() 도 과교정(매매 법·21 기간). j5ng/et5-typos-corrector 는 '하락 구조'를 '상승 구조'로 바꿔 놓는다. KURE-v2 는 리더보드 1위지만 11편 인코딩 v1 68초 · v2 250초 | 맞춤법은 사람이 볼 때만, 고유 용어는 예외 목록. Kiwi 는 고칠 자리 찾는 용도로만(add_user_word 로 용어 등록). 뜻이 바뀌는 교정기는 안 쓴다. 임베딩은 KURE-v1. tiktoken 오류면 pip install tiktoken sentencepiece protobuf. 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §4 |
+| MT5 MCP — 인증·세션·캡처 함정 7 (D 실측 09-18) | ① 인증은 Authorization: Bearer <키> 뿐, initialize 의 Mcp-Session-Id 를 계속 싣고 notifications/initialized 는 id 없이 ② ChartScreenShot 은 스크롤 자리를 무시하고 늘 최신 구간 — 크기를 키우면 봉이 더 들어올 뿐 ③ ChartNavigate 는 자동스크롤 끄고 CopyRates 로 그 날짜 이력을 먼저 ④ chart_apply_template 은 지표를 통째로 갈아 끼움(3초 쉬고 붙인다) ⑤ 지표 목록은 터미널 시작 때 한 번 — 새 지표는 재시작 ⑥ PrintWindow 는 자식 핸들을 줘도 본 창 — 차트 판은 그림에서 찾는다 ⑦ trade_* 7종은 부르지 않는다 | 과거 장면은 ChartNavigate 로 옮긴 뒤 창을 PrintWindow 로 찍는다(tools/mt5/capture_scene.py). 키는 .secrets/ac_keys.env MT5_MCP_KEY. 원문 log/inbox/2026-09-18_D_아스트라_인수인계.md §3 · log/inbox/2026-09-18_D_MT5_MCP연동_시험.md |
+| 렌더 색·속도 — ProRes 4444 는 YUV 라 1 어긋난다, 차트 컷씬은 우리 렌더러가 4.5배 빠르다 (D A/B 실측 09-18) | #0D9488 이 ProRes4444 에서 (12,148,135). ov-pnl 같은 컷: 우리 렌더러 6.9초 vs HyperFrames 31.0초(300장). 이 PC PATH 에 ffmpeg 없음 | 색을 보증해야 하면 PNG 시퀀스. HyperFrames 는 우리 레이어에 없는 모양을 새로 만들 때만. ffmpeg 는 06_실험실/hf_smoke/node_modules 것을 PATH 앞에. 원문 log/inbox/2026-09-18_D_AB시험_우리렌더러_대_HyperFrames.md · log/inbox/2026-09-18_D_외부도구_HyperFrames·Remotion_실측.md |
 
 ## 다음에 할 일
 
@@ -710,8 +717,9 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 40. **개선안 회신 — B·D·E 전부 완료 (09-17 17:3x, 셋 다 본류 병합)** — B 641f4da · D 3f32389 · E e6c16b8. 채택 현황은 log/inbox/2026-09-17_총괄_개선안회신답.md 표 + E: 2-A(가지만 전환, 작업트리 두 벌은 단일화 방침으로 안 만듦)·E-1~E-7·ruff 5 적용, 회귀 45항목 동일, pytest 29. 남은 것은 next_step 41(세션 시작 폴더, 이정찬)뿐  _(대기: 완료)_
 41. **세션 시작 폴더 — 완료 (09-18 오전): B·D·E 셋 다 새 폴더·새 가지, D 훅 연결·실측 통과, B PYTHONUTF8=1 확인, E 는 다음 세션에서 확인** — 저장소 .claude/settings.json(env·훅·스킬)은 세션을 시작한 폴더에서만 읽힌다(공식 settings 문서, D 확인). 지금 B·D·E 는 …\이정찬\Claude 에서 시작해 아무것도 안 걸린다. 총괄 판단: 각 세션을 자기 worktree 폴더에서 띄운다(cd <worktree>; claude 또는 claude --worktree <이름>). 그러면 PYTHONUTF8·git_guard·radar 스킬이 자동으로 붙는다. 답이 오기 전엔 D 로컬 훅 유지  _(대기: 이정찬)_
 42. **더원 배너 나머지 문서 둘 — 완료 (09-18, 이정찬이 파일을 건네 총괄이 등재)** — tools/theone/상단배너_공식.md 는 올라왔다(519625b). 같은 폴더에 로컬만 있는 상단배너_로직.md(7.2KB)·상단배너_임베딩분석.md(8.3KB) — 임베딩 채점기 수치(쌍 개수·유사도 분포·홀드아웃)가 거기 있다. 이정찬이 '대본~인덱스~임베딩~로직' 자료를 찾고 있어 둘 다 tools/theone/ 으로  _(대기: E)_
-43. **MCP 자가점검 스크립트 저장소로 — E** — E 가 scratchpad/mcp_probe.py(initialize → tools/list → tools/call)를 만들어 뒀다. 별 수 믿지 말고 띄워 보는 도구라 전 파트 공용 — tools/mcp_probe.py 로 올려 달라 (radar 와 같은 자리)  _(대기: E)_
-44. **경로 끝 공백·마침표 strip 코드 반영 — E shortform.py · B 일러스트레이터 저장 경로** — constraint_note 56. 주석에 번호를 적는다. B 의 일러스트레이터 saveAs 는 실측 뒤 반영(미실측 추정)  _(대기: B·E)_
+43. **MCP 자가점검 스크립트 저장소로 — 완료 (E, 6bb8b0e → tools/mcp_probe.py)** — E 가 scratchpad/mcp_probe.py(initialize → tools/list → tools/call)를 만들어 뒀다. 별 수 믿지 말고 띄워 보는 도구라 전 파트 공용 — tools/mcp_probe.py 로 올려 달라 (radar 와 같은 자리)  _(대기: E)_
+44. **경로 끝 공백·마침표 가드 — 완료 (B aed48bd · E 6bb8b0e · D 2a7eddd, 이정찬 승인)** — constraint_note 56. 주석에 번호를 적는다. B 의 일러스트레이터 saveAs 는 실측 뒤 반영(미실측 추정)  _(대기: B·E)_
+45. **대본→차트장면 파이프라인 남은 것 — D (또는 아스트라)** — ① 12장 일괄 촬영(비트마다 심볼·주기 바꿔 도는 부분) ② 콘티 이미지·AE 컴포지션 생성(tools/ae 잡 틀) ③ 규칙을 차10 한 편에서 뽑았다 — 다른 회차로 검증 ④ 찍은 그림을 회사 드라이브 소스 폴더에 넣을지는 이정찬 판단(지금은 안 쓴다). 인수인계 원문 log/inbox/2026-09-18_D_아스트라_인수인계.md  _(대기: D·이정찬(④))_
 
 ## 대본과 컷 싱크
 
@@ -1843,4 +1851,43 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 411 | `3ee2a980` | 세이브 기록 save/2026-09-18-1436 | 5파일 +11/-3 |
 | 412 | `8f0adc71` | 병합: worktree-B_Image (09-18 오후 — 경로 끝 공백 constraint 후보·도구 공유·라이브화면 캠 자리) | 2파일 +118/-8 |
 | 413 | `661fd356` | 병합: worktree-E_Script (09-18 오후 — 경로 끝 공백 constraint 후보·도구 공유·라이브화면 캠 자리) | 1파일 +80/-0 |
-| 414 | `a975da83` | 세이브 save/2026-09-18-1438 — B·E 인박스 등재 — constraint 56~59(경로 끝 공백·yt-dlp·YouTube API·한국어 도구), decision 32 키 자리, external_tool 4~10, env_tool 13~15, next_step 43·44 | 5파일 +70/-7 |
+| 414 | `aed48bd4` | 일러스트레이터 저장 경로에 끝 공백·마침표 가드 (safeName) | 1파일 +10/-2 |
+| 415 | `a975da83` | 세이브 save/2026-09-18-1438 — B·E 인박스 등재 — constraint 56~59(경로 끝 공백·yt-dlp·YouTube API·한국어 도구), decision 32 키 자리, external_tool 4~10, env_tool 13~15, next_step 43·44 | 5파일 +70/-7 |
+| 416 | `1e00595d` | 세이브 기록 save/2026-09-18-1438 | 5파일 +11/-3 |
+| 417 | `2a7edddb` | 세이브 save/2026-09-18-1440 — 경로 끝 공백·마침표 — tools/style 6개의 사람이 치는 --out 을 만들 때 떼어 낸다 (B·E 실측 + D 재현) | 9파일 +26/-1 |
+| 418 | `3295be9e` | 세이브 기록 save/2026-09-18-1440 | 5파일 +11/-3 |
+| 419 | `f749f44e` | log/inbox — 경로 끝: 마침표는 안 터진다 (D 가 갈라냄, B 재확인) | 1파일 +36/-28 |
+| 420 | `bff748fc` | 세이브 save/2026-09-18-1455 — HyperFrames·Remotion 실측 — 59.94 유리수 fps·ProRes4444 알파·PNG 시퀀스 확인, 색 정확도 차이 기록 | 4파일 +67/-1 |
+| 421 | `b0d5fb8c` | 세이브 기록 save/2026-09-18-1455 | 5파일 +11/-3 |
+| 422 | `6bb8b0ea` | 이름 끝 공백·마침표 정리(safe_tail) + 왕복 시험 · MCP 자가점검 스크립트 | 3파일 +118/-2 |
+| 423 | `672a86f6` | log/inbox — 경로 끝 공백: E 쪽도 커밋 완료 (6bb8b0e) | 1파일 +2/-2 |
+| 424 | `67537c1c` | 차12 더블 볼린저밴드 대본 뼈대 — 규격·구간 배분 실측 근거 포함 | 1파일 +121/-0 |
+| 425 | `8b8328a0` | 세이브 save/2026-09-18-1537 — A/B 시험 — ov-pnl 컷을 우리 렌더러와 HyperFrames 로 각각 렌더해 속도·줄수·픽셀 대조 | 4파일 +39/-1 |
+| 426 | `a3509b95` | 세이브 기록 save/2026-09-18-1537 | 5파일 +11/-3 |
+| 427 | `ba7ecfd8` | 차12 더블 볼린저밴드 촬영용 대본 초안 (규격 채점 통과) | 1파일 +228/-0 |
+| 428 | `5ae3f254` | 차13 테스타 칼만 이평선 + ATR 촬영용 대본 초안 | 1파일 +238/-0 |
+| 429 | `0be66ea7` | 세이브 save/2026-09-18-1546 — MT5 MCP 연동 시험 — 도구 50종 확인, 창 캡처로 차트 배경, 틀·배지·로고 얹어 3초 렌더 | 4파일 +47/-1 |
+| 430 | `2e1dfb47` | 세이브 기록 save/2026-09-18-1546 | 5파일 +11/-3 |
+| 431 | `b02a3442` | 차12 다시 씀 — 레퍼런스 사슬대로 흐름 재구성 · 기간값 21→20 정정 | 2파일 +183/-165 |
+| 432 | `55f2cb3f` | 세이브 save/2026-09-18-1639 — MT5 차트 화면 가져오기 도구 — MCP 클라이언트·창 캡처·봉격자/가격축 자동보정 (RMS 1.93px) | 7파일 +403/-1 |
+| 433 | `9e58f71e` | 세이브 기록 save/2026-09-18-1639 | 5파일 +11/-3 |
+| 434 | `2de85a62` | 차13 다시 씀 — 새 사슬(일정표→레퍼런스 자막→Pool 채우기→완성) 적용 | 1파일 +150/-141 |
+| 435 | `c6553f6b` | 차13 뼈대 + 대본 채점기를 저장소로 | 2파일 +157/-0 |
+| 436 | `4efb4f58` | 세이브 save/2026-09-18-1644 — MT5 자체 렌더 캡처 — ChartScreenShot 지표와 shot.py (새 차트+템플릿, 사람 차트 안 건드림) | 6파일 +146/-1 |
+| 437 | `6f677556` | 세이브 기록 save/2026-09-18-1644 | 5파일 +11/-3 |
+| 438 | `4c7ebdfa` | 세이브 save/2026-09-18-1700 — MT5 자체 렌더 캡처 완성 — 열린 차트 그대로 찍기, 지표 자동 부착·자동 제거 | 5파일 +80/-19 |
+| 439 | `0c13b191` | 세이브 기록 save/2026-09-18-1700 | 5파일 +11/-3 |
+| 440 | `0997bd9b` | 세이브 save/2026-09-18-1718 — 대본→차트장면 선별 엔진 · MT5 장면 캡처(이동 후 창캡처) — 팀장 차10 자료에서 규칙 도출 | 7파일 +497/-11 |
+| 441 | `eb87db8c` | 세이브 기록 save/2026-09-18-1718 | 5파일 +11/-3 |
+| 442 | `698fffd8` | 세이브 save/2026-09-18-1733 — 대본→차트장면 뽑기 보고 — 팀장 기준 5가지와 실측 함정 5가지 | 4파일 +66/-1 |
+| 443 | `efa4ae42` | 세이브 기록 save/2026-09-18-1733 | 5파일 +11/-3 |
+| 444 | `322ec51b` | 세이브 save/2026-09-18-1735 — 차10 참고자료 — 대본 본문·팀장 그림 실측·엔진이 고른 콘티 | 7파일 +565/-1 |
+| 445 | `7ad17bbc` | 세이브 기록 save/2026-09-18-1735 | 5파일 +11/-3 |
+| 446 | `ac42cde2` | 세이브 save/2026-09-18-1740 — HyperFrames 합성 3벌과 쓰는 법 — A/B 판, MT5 틀 합성, 좌표 계산 합성 | 9파일 +296/-1 |
+| 447 | `36ce2b68` | 세이브 기록 save/2026-09-18-1740 | 5파일 +11/-3 |
+| 448 | `f5aa4eb8` | 세이브 save/2026-09-18-1743 — 아스트라 인수인계 — 같은 PC 경로 지도·남은 일·실측 함정 11가지·팀장 기준 5가지 | 4파일 +82/-1 |
+| 449 | `9c09c67b` | 세이브 기록 save/2026-09-18-1743 | 5파일 +11/-3 |
+| 450 | `70d060d4` | log — 라이브화면·롤링광고 매뉴얼 (B 세션용) | 1파일 +186/-0 |
+| 451 | `2e831ee1` | 병합: worktree-B_Image (09-18 저녁 — 경로 끝 가드 3벌·MT5 촬영·HyperFrames 실측·차12/13 대본·라이브화면 매뉴얼·아스트라 인수인계) | 3파일 +232/-30 |
+| 452 | `cad148ea` | 병합: worktree-E_Script (09-18 저녁 — 경로 끝 가드 3벌·MT5 촬영·HyperFrames 실측·차12/13 대본·라이브화면 매뉴얼·아스트라 인수인계) | 8파일 +889/-2 |
+| 453 | `7f2e3bd9` | 병합: worktree-D_Video (09-18 저녁 — 경로 끝 가드 3벌·MT5 촬영·HyperFrames 실측·차12/13 대본·라이브화면 매뉴얼·아스트라 인수인계) | 30파일 +2346/-0 |
