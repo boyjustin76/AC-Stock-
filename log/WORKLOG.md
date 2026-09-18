@@ -1894,3 +1894,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 453 | `7f2e3bd9` | 병합: worktree-D_Video (09-18 저녁 — 경로 끝 가드 3벌·MT5 촬영·HyperFrames 실측·차12/13 대본·라이브화면 매뉴얼·아스트라 인수인계) | 30파일 +2346/-0 |
 | 454 | `5d73d40a` | 세이브 save/2026-09-18-1750 — 09-18 저녁 병합 — 경로 끝 가드 3벌(56 정정)·MT5 촬영·HyperFrames·차12/13 초안·라이브화면 매뉴얼·아스트라 인수인계, AGENTS.md 신설, constraint 60·61, external_tool 11~13, next_step 45 | 8파일 +151/-20 |
 | 455 | `450e95eb` | 세이브 기록 save/2026-09-18-1750 | 5파일 +14/-4 |
+| 456 | `c2a0f609` | 세이브 save/2026-09-18-1928 — build_worklog_db git_commits — 커밋마다 git show 455회 → git log 한 번 (재빌드 6.2→3.2초, commit_log 동일) | 4파일 +12/-9 |
