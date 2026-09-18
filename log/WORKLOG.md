@@ -1809,3 +1809,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 398 | `3295be9e` | 세이브 기록 save/2026-09-18-1440 | 5파일 +11/-3 |
 | 399 | `bff748fc` | 세이브 save/2026-09-18-1455 — HyperFrames·Remotion 실측 — 59.94 유리수 fps·ProRes4444 알파·PNG 시퀀스 확인, 색 정확도 차이 기록 | 4파일 +67/-1 |
 | 400 | `b0d5fb8c` | 세이브 기록 save/2026-09-18-1455 | 5파일 +11/-3 |
+| 401 | `8b8328a0` | 세이브 save/2026-09-18-1537 — A/B 시험 — ov-pnl 컷을 우리 렌더러와 HyperFrames 로 각각 렌더해 속도·줄수·픽셀 대조 | 4파일 +39/-1 |

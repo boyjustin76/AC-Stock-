@@ -803,5 +803,12 @@
   "utc": "2026-09-18 05:55",
   "sha": "bff748f",
   "summary": "HyperFrames·Remotion 실측 — 59.94 유리수 fps·ProRes4444 알파·PNG 시퀀스 확인, 색 정확도 차이 기록"
+ },
+ {
+  "tag": "save/2026-09-18-1537",
+  "kst": "2026-09-18 15:37",
+  "utc": "2026-09-18 06:37",
+  "sha": "8b8328a",
+  "summary": "A/B 시험 — ov-pnl 컷을 우리 렌더러와 HyperFrames 로 각각 렌더해 속도·줄수·픽셀 대조"
  }
 ]
