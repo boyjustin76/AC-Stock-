@@ -57,13 +57,13 @@ ExtendScript 도 같다: `name = name.replace(/[ .]+$/, "")`.
 
 ## 부탁
 
-**이정찬 승인(2026-09-18)으로 셋 다 이미 넣었다.** 번호만 주시면 주석에 적는다.
+**이정찬 승인(2026-09-18)으로 셋 다 넣었다. 커밋까지 끝났다.** 번호만 주시면 주석에 적는다.
 
 | 누구 | 자리 | 커밋 |
 |---|---|---|
 | D | `tools/style/` 6개 (`frame` · `frames_clean` · `roll_ad` · `trad` · `trad_bands` · `trad_rr`) — `--out` 이 전부 사람이 친 경로다. `parse_args()` 뒤에 `a.out = a.out.rstrip(' .')` | `2a7eddd` (`worktree-D_Video`) |
 | B | 일러스트레이터 저장 `.ai` 이름 · 미리보기 png 이름(`BOARDS` 에서 온다). `safeName()` | `aed48bd` (`worktree-B_Image`) |
-| E | `tools/shortform.py` 폴더·파일 이름 생성 + 왕복 시험(폴더는 만들어 열어 보고, 파일은 디스크 이름과 대조) | 진행 중 |
+| E | `tools/shortform.py` 이름 끝 정리 + 왕복 시험 3개. 이름 대조를 먼저 하고 그 다음 실제로 써 본다 — 고친 부분을 되돌려 보니 마침표 제목은 **이름 대조**에서, 공백 제목은 **파일 쓰기**에서 각각 걸렸다(시험이 헛돌지 않는 것까지 확인). 전체 32개 통과 | `6bb8b0e` (`worktree-E_Script`) |
 
 D 의 `tools/ae/` 쪽(`--cap`·`--out`·`--dst`)은 기본값이 `labdir` 이 만드는 경로라 넣지 않았다 —
 사람이 덮어쓸 때만 해당된다. 번호 나올 때 같이 넣을지는 총괄 판단에 맡긴다.
