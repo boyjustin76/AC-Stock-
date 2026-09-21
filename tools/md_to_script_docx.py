@@ -110,9 +110,11 @@ def build(md, template, dest, keep_dir=True):
     sub = ("촬영용 프롬프터 스크립트 초안  ·  대사 예상 RT %d-%d분  ·  차트 포함 최종 예상 RT %d-%d분"
            % (lo, hi, lo + CHART_EXTRA, hi + CHART_EXTRA))
     no = re.sub(r"\D", "", ep)
-
+    # 머리 줄은 `L12` 꼴로 단다 (이정찬 2026-09-21). 폴더·문서 안에서는 `차12` 를 쓰지만
+    # 대본 표지는 더원 양식(`L07 · SHOOTING SCRIPT`)을 그대로 따라간다.
+    label = "L" + no
     ps = [
-        para("%s  ·  SHOOTING SCRIPT" % ep, '<w:spacing w:after="40"/>',
+        para("%s  ·  SHOOTING SCRIPT" % label, '<w:spacing w:after="40"/>',
              '<w:b/><w:color w:val="2E74B5"/><w:sz w:val="19"/>'),
         para(title, '<w:keepNext/><w:spacing w:after="100"/>',
              '<w:b/><w:color w:val="0B2545"/><w:sz w:val="48"/>'),
