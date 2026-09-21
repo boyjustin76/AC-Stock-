@@ -130,7 +130,32 @@ so.compatibility = Compatibility.ILLUSTRATOR24;   // ○ 현재 형식 (2026 판
 **처방** — 읽기만 할 원본은 여는 동안만 `UserInteractionLevel.DONTDISPLAYALERTS` 로 연다. 링크를 고치려고 원본을
 저장하지 않는다. (반대로 ⑨-2 처럼 **사람이 겪을 창을 확인하려는** 열기에서는 알림을 켠다 — 목적에 따라 갈린다.)
 창이 떠서 멈췄는지는 COM 이 답을 안 줄 때 화면을 찍어 보면 바로 안다. 이 창은 UI Automation 에 안 잡혀서
-키 입력(한글 IME 가 켜져 있으면 씹힌다) 대신 좌표 클릭으로 닫았다.
+키 입력(한글 IME 가 켜져 있으면 씹힌다) 대신 좌표 클릭으로 닫았다. **더 나은 방법은 ⑨-5 다.**
+
+### ⑨-4 `pdfCompatible = false` 로 저장하면 PDF 오류 창이 뜬다
+
+시험 스크립트에서 `IllustratorSaveOptions.pdfCompatible` 을 `false` 로 두고 `saveAs` 했더니 모달이 떴다
+(2026-09-21 실측, Illustrator 30.8.1):
+
+> Acrobat PDF 파일 포맷에 문제가 있습니다. The size of the passed callbacks struct is wrong.
+
+COM 이 그 앞에서 멈췄다 (CPU 20초 증분 0.41s = 사실상 0). **`pdfCompatible = true` 로 두면 안 뜬다** —
+`build_live.jsx`·`build_rollad.jsx` 가 원래 그렇게 하고 있었는데, 시험을 짜면서 "PDF 는 필요 없으니"
+꺼 버린 것이 원인이었다. 파일이 커지는 게 싫어도 끄지 마라.
+
+### ⑨-5 모달 내용은 `PrintWindow` 로 떠서 읽는다 — 화면 캡처·UIA 보다 확실하다
+
+⑨-3 에서 쓴 두 방법은 각각 구멍이 있다. 화면 캡처는 **다른 창에 가려 있으면** 안 찍히고(2026-09-21 실제로
+겪었다 — 창은 `보임=True` 인데 화면에는 없었다), UI Automation 은 어도비 자작 그리기 창의 속을 못 읽는다
+(`FindAll(Descendants)` 가 `OS_ViewContainer` 하나만 준다).
+
+**처방** — 프로세스 id 로 최상위 창을 다 뒤져 클래스가 `#32770` 인 것을 찾고(그게 모달이다), 그 핸들에
+`PrintWindow(h, hdc, 2)` 를 걸어 비트맵으로 뜬다. 가려져 있어도 나오고, 사용자 화면을 건드리지 않는다.
+**모달인지 아닌지는 메인 창(`클래스=illustrator`)이 `IsWindowEnabled = False` 인지로 판별한다.**
+
+닫을 때도 좌표 클릭보다 `PostMessage(dlg, WM_KEYDOWN/UP, VK_RETURN)` 이 낫다 — 포커스를 뺏지 않아서
+사람이 다른 일을 하는 중에도 안전하다. 다만 **닫으려 애쓰기보다 죽이고 기록하는 편이 낫다**
+(공용 실행기 제안, next_step 46).
 
 ### ⑩ mogrt 내보내기가 dirty 프로젝트를 디스크에 저장해 버린다
 
