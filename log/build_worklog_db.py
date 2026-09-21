@@ -1440,6 +1440,7 @@ ISSUES = [
     (43, "Remove-Job -Force 가 COM 에 붙잡힌 잡을 120초 기다려 45초 제한이 165초로 찍힘 (09-21, B)", "-TimeoutSec 45 인데 '걸린 시간: 165.3s'", "Wait-Job 뒤에 Remove-Job -Force 를 바로 불렀다. COM 호출 중인 잡은 앱이 살아 있는 한 안 끝난다", "시간은 Wait-Job 직후에 재고, Remove-Job 은 앱을 죽인 뒤로(COM 이 풀려 즉시 끝남)", "고친 뒤 45.2s(바깥 47.6s). constraint 68", "fixed"),
     (44, "일러스트레이터 잡의 시간 초과가 사용자의 포토샵까지 죽이게 돼 있었다 (09-21, B)", "시간 초과 처리가 @($s.Proc,'Photoshop') 을 통째로 taskkill", "1단계는 bridge 갈래(AE·프리미어가 포토샵을 길로 씀)만 있어서 포토샵을 늘 같이 죽였다. direct 갈래(일러·포샵)에는 그 전제가 없다", "Transport 가 bridge 면 둘, direct 면 제 앱만", "일러 잡이 600초에 걸려 죽는 동안 사용자 포토샵(PID 17416) 생존 확인", "fixed"),
     (45, "-TimeoutSec 기본 600 이 정상 빌드(build_live 640s)와 겹쳐 성공 잡을 죽임 (09-21, B)", "일러 build_live 가 제한에 걸려 실패 처리", "기본값을 짐작으로 둠(실측 없이). 실행기 1단계에 실측 잡이 AE 스모크(18s)뿐이었다", "일러·포토샵 껍데기 기본 1800초. 짧은 잡은 부를 때 -TimeoutSec 으로 줄인다", "build_live 640.1s 성공(미리보기 10장 md5 09-18 판과 동일)", "fixed"),
+    (46, "build_worklog_db 의 repo_file 이 첫 일치 키를 써서 폴더 키(tools·log/inbox)가 그 아래 파일 키를 삼킴 (09-21, 총괄 발견)", "repo_file 231행. tools/_com/*·tools/jev/*·log/inbox/* 의 개별 항목이 표에 안 나오고 폴더 한 줄로 뭉개짐. 등재했다고 보고한 항목이 실제 표엔 없었다", "dict 삽입 순서대로 훑고 startswith 첫 일치에서 break — 폴더 키가 먼저 들어 있으면 뒤의 구체 키는 못 이긴다", "가장 긴 키 우선(sorted(REPO_FILES, key=len, reverse=True))", "재빌드 뒤 repo_file 행 수·tools/_com/modal_* 존재 확인. 며칠 동안 '등재했다'가 표에 없던 것 — 확인한 것/안 본 것 규칙(decision 33)을 총괄이 어긴 사례", "fixed"),
 ]
 
 DECISIONS = [
@@ -3030,10 +3031,13 @@ def build():
     raw = subprocess.run(["git", "ls-files", "-z"], cwd=ROOT, capture_output=True, text=True, encoding="utf-8").stdout
     files = [f for f in raw.split("\0") if f]
     seen = set()
+    # 가장 긴 키가 이긴다 — 'tools' 같은 폴더 키가 'tools/_com/run.ps1' 을 삼키지 않게 (issue 46, 09-21)
+    keys_longest_first = sorted(REPO_FILES, key=len, reverse=True)
     for path in files:
-        for key, (role, note) in REPO_FILES.items():
+        for key in keys_longest_first:
             if path == key or path.startswith(key + "/"):
                 target = key
+                role, note = REPO_FILES[key]
                 break
         else:
             target, role, note = path, "기타", None
