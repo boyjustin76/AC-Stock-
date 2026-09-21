@@ -1984,3 +1984,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 515 | `899c828c` | 세이브 save/2026-09-21-1336 — Jev 2차(B·D §6) — radar 선택지에 TRAPS, thumbnail_rule 22 정정, constraint 65 정정, decision 37 보강, next_step 46·51 | 8파일 +78/-23 |
 | 516 | `5ecfe45a` | 세이브 기록 save/2026-09-21-1336 | 5파일 +11/-3 |
 | 517 | `af79a7e7` | 병합: worktree-D_Video (09-21 — Jev D-4 잡 로그 줄 판정 시험, 안 붙임) | 4파일 +1334/-1046 |
+| 518 | `750e7a05` | 세이브 save/2026-09-21-1711 — Jev D-4 병합 — 실행기 판정에 안 붙임(decision 37 ⑩·constraint 67), next_step 50 완료, D 답 | 6파일 +37/-15 |
