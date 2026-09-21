@@ -676,12 +676,15 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 한국어 도구는 과교정한다 — 자동 파이프라인에 넣지 않는다 (E 실측 09-18) | 맞춤법 MCP(@winterjung/mcp-korean-spell)는 네이버 검사기 비공식 사용이고 우리 용어도 고친다(메인밴드→메인 밴드). Kiwi space() 도 과교정(매매 법·21 기간). j5ng/et5-typos-corrector 는 '하락 구조'를 '상승 구조'로 바꿔 놓는다. KURE-v2 는 리더보드 1위지만 11편 인코딩 v1 68초 · v2 250초 | 맞춤법은 사람이 볼 때만, 고유 용어는 예외 목록. Kiwi 는 고칠 자리 찾는 용도로만(add_user_word 로 용어 등록). 뜻이 바뀌는 교정기는 안 쓴다. 임베딩은 KURE-v1. tiktoken 오류면 pip install tiktoken sentencepiece protobuf. 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §4 |
 | MT5 MCP — 인증·세션·캡처 함정 7 (D 실측 09-18) | ① 인증은 Authorization: Bearer <키> 뿐, initialize 의 Mcp-Session-Id 를 계속 싣고 notifications/initialized 는 id 없이 ② ChartScreenShot 은 스크롤 자리를 무시하고 늘 최신 구간 — 크기를 키우면 봉이 더 들어올 뿐 ③ ChartNavigate 는 자동스크롤 끄고 CopyRates 로 그 날짜 이력을 먼저 ④ chart_apply_template 은 지표를 통째로 갈아 끼움(3초 쉬고 붙인다) ⑤ 지표 목록은 터미널 시작 때 한 번 — 새 지표는 재시작 ⑥ PrintWindow 는 자식 핸들을 줘도 본 창 — 차트 판은 그림에서 찾는다 ⑦ trade_* 7종은 부르지 않는다 | 과거 장면은 ChartNavigate 로 옮긴 뒤 창을 PrintWindow 로 찍는다(tools/mt5/capture_scene.py). 키는 .secrets/ac_keys.env MT5_MCP_KEY. 원문 log/inbox/2026-09-18_D_아스트라_인수인계.md §3 · log/inbox/2026-09-18_D_MT5_MCP연동_시험.md |
 | 렌더 색·속도 — ProRes 4444 는 YUV 라 1 어긋난다, 차트 컷씬은 우리 렌더러가 4.5배 빠르다 (D A/B 실측 09-18) | #0D9488 이 ProRes4444 에서 (12,148,135). ov-pnl 같은 컷: 우리 렌더러 6.9초 vs HyperFrames 31.0초(300장). 이 PC PATH 에 ffmpeg 없음 | 색을 보증해야 하면 PNG 시퀀스. HyperFrames 는 우리 레이어에 없는 모양을 새로 만들 때만. ffmpeg 는 06_실험실/hf_smoke/node_modules 것을 PATH 앞에. 원문 log/inbox/2026-09-18_D_AB시험_우리렌더러_대_HyperFrames.md · log/inbox/2026-09-18_D_외부도구_HyperFrames·Remotion_실측.md |
-| 일러스트레이터 저장·모달 함정 둘 — TRAPS ⑨-4·⑨-5 가 원문 (B 실측 2026-09-21) | ⑨-4 pdfCompatible=false 로 saveAs 하면 'Acrobat PDF 파일 포맷에 문제가 있습니다' 모달이 뜨고 COM 이 멈춘다(CPU 증분 0.41s). ⑨-5 화면 캡처는 다른 창에 가려지면 헛장, UIA 는 어도비 자작 창 속을 못 읽는다(OS_ViewContainer 하나) | pdfCompatible 은 true 로 둔다(파일 커져도). 모달 판별은 메인 창 IsWindowEnabled=False, 내용은 프로세스의 #32770 창에 PrintWindow(h,hdc,2). 닫을 땐 좌표 클릭보다 PostMessage(VK_RETURN) — 그래도 닫기보다 죽이고 기록(next_step 46). 원문 brand/EXTENDSCRIPT-TRAPS.md ⑨-4·⑨-5 |
+| 일러스트레이터 저장·모달 함정 둘 — TRAPS ⑨-4·⑨-5 가 원문 (B 실측 2026-09-21) | ⑨-4 pdfCompatible=false 로 saveAs 하면 'Acrobat PDF 파일 포맷에 문제가 있습니다' 모달이 뜨고 COM 이 멈춘다(CPU 증분 0.41s). ⑨-5 화면 캡처는 다른 창에 가려지면 헛장, UIA 는 어도비 자작 창 속을 못 읽는다(OS_ViewContainer 하나) | pdfCompatible 은 true 로 둔다(파일 커져도). 모달 판별은 메인 창 IsWindowEnabled=False, 내용은 프로세스의 #32770 창에 PrintWindow(h,hdc,2). 닫을 땐 좌표 클릭보다 PostMessage(VK_RETURN) — 그래도 닫기보다 죽이고 기록(next_step 46). 정정(B 09-21 저녁): ⑨-4 는 늘 뜨지는 않는다 — 새 200x200 빈 문서에선 창 없이 3.1s 저장. 조건은 미확인, 재현 잡 tools/illustrator/_trap_pdf_modal.jsx. ⑨-5 글자는 Win32 로 읽힌다(constraint 70). 원문 brand/EXTENDSCRIPT-TRAPS.md ⑨-4·⑨-5 |
 | PowerShell 5.1 은 BOM 없는 .ps1 의 한글을 cp949 로 읽는다 (D 실측 2026-09-21) | 새로 쓴 run.ps1 이 'The string is missing the terminator: \"' 로 죽었다. 파일은 멀쩡했고 한글이 깨지며 따옴표가 먹혔다. 저장소의 기존 .ps1 넷은 전부 BOM 이 있어 안 겪던 일 | 한글이 든 .ps1 은 UTF-8 with BOM 으로 쓴다(.jsx 가 읽는 JSON 은 반대로 BOM 없이 — constraint 38·B-1 과 구분). 원문 log/inbox/2026-09-21_D_공용실행기_1단계.md |
 | Windows MainWindowHandle 은 못 믿는다 — 일러스트레이터가 160×28 짜리 엉뚱한 창을 돌려줬다 (D 실측 2026-09-21) | Process.MainWindowHandle 로 창을 잡아 PrintWindow 하면 빈 조각이 찍힌다. PowerShell Add-Type P/Invoke 는 System.Drawing.Rectangle 참조를 못 찾아 컴파일이 깨진다 | 프로세스의 보이는 최상위 창 중 가장 큰 것을 고른다 — tools/_com/shot_window.py 한 벌(파이썬). 못 찾으면 종료코드 2, 실행기는 화면 전체로 물러선다. 원문 log/inbox/2026-09-21_D_공용실행기_남은둘_실측.md §3 |
 | Jev 는 자리 치우침이 있다 — 같은 쌍을 A·B 바꿔 물으면 3/13 이 뒤집힌다 (E 실측 2026-09-21) | 확정본을 앞에 놓고 한 번만 물으면 12/13(92%)로 보이지만, 자리를 바꿔 둘 다 맞아야 인정하면 9/13(69%). 26번 중 앞자리를 고른 것이 16(62%). 틀리면서 confidence 0.73 인 경우 1건(S002) | **선호 비교(둘 중 나은 것)** 에서 난다 — 자리를 바꿔 두 번 묻고 갈리면 사람에게. **분류(여럿 중 무엇)** 에서는 거의 없다: D 21문항 0 뒤집힘, B 37문항 2 뒤집힘(둘 다 confidence 0.5 아래라 문에 걸림). 분류는 한 번 + confidence 문(0.7, 자동 실행이면 0.8)으로 충분하고, 두 번 묻기는 값이 싸니 해도 된다. 원문 log/inbox/2026-09-21_E_Jev_판정관_시험결과.md §2 |
 | 어도비 잡 로그는 생존 편향이 있다 — 실패한 잡은 로그를 안 남긴다 (D 09-21) | 작업실 로그 66개(AE 33·프리미어 33)가 거의 다 성공. 이걸로 성공/실패 판정을 재면 '무조건 성공' 모델이 17/20 을 받는다 | 판정 시험은 파일 단위가 아니라 줄 단위(한 로그 안의 ERR 줄과 true 줄, m5_frames2·a3_frame2)로. 공용 실행기가 _fail.txt 를 남기기 시작했으니 표본은 앞으로 쌓인다. 원문 log/inbox/2026-09-21_D_Jev시험.md §3 |
 | Jev 는 수를 견줘야 답이 갈리는 자리에서 높은 confidence 로 틀린다 — confidence 문이 안 걸러진다 (D-4 실측 2026-09-21) | 잡 로그 한 줄 성공/실패 20건: Jev 17/20, 지금 규칙(ERR·throw·false 낱말) 18/20. 틀린 셋 중 둘은 '반환 true 인데 실제로 안 된 줄'(폴더 목록이 앞 줄과 같음, 시퀀스 0 -> 0)을 confidence 0.91·0.86 으로 성공이라 했다. 문(≥0.7)을 걸어도 통과한다. 셋째(0.05)만 문에 걸린다 | 수를 견주는 일(같은가·늘었는가·0 인가)에는 안 쓴다 — 문서에 셈 못 한다고 명시돼 있고 실측이 그대로다. 뜻만으로 갈리는 자리(오류 분류 D-3, 모달 문구 B-1)에만. 잡의 성공/실패는 잡이 스스로 '판정:' 한 줄을 쓰게 한다(래칫 tests/test_verdict_lines.py). 원문 log/inbox/2026-09-21_D_Jev시험.md §7 · tools/jev/run_d4.py |
+| PowerShell Remove-Job -Force 는 COM 호출에 붙잡힌 잡을 한참(120초) 기다린다 (B 실측 2026-09-21) | 45초 제한을 걸었는데 165.3s. COM 이 답할 때까지 잡이 안 끝나고 Remove-Job 이 그걸 기다린다 | 시간은 Wait-Job 직후에 잰다. Remove-Job 은 앱을 taskkill 한 뒤에(COM 이 풀려 바로 끝남). tools/_com/run.ps1 · issue 43 |
+| 어도비 앱을 taskkill 한 직후 다시 띄우면 시작 화면에서 굳는다 — 프로세스는 있고 COM 은 안 답한다 (B 실측 2026-09-21, 한 번 겪음·재현은 안 함) | 프로세스 있음, 모달 없음, CPU 는 5분에 4초. 그 위로 잡을 던지면 제한 시간을 통째로 태운다(600초) | 실행기 시작 전 검사: 떠 있는데 COM 이 안 답하면 말하고 멈춘다 — 죽이지 않는다(사람이 막 띄운 것일 수도). 재현 조건은 미확인 |
+| 어도비 모달의 글자는 Win32 로 읽힌다 — UIA 가 못 읽는 것이지 EnumChildWindows+GetWindowTextW 는 그대로 나온다 (B 실측 2026-09-21) | TRAPS ⑨-5 '속을 못 읽는다' 는 UIA 얘기. #32770 창의 자식(버튼·정적 텍스트)에서 "확인(&O)"·본문이 읽혔다. 자식 창이 없는 자작 창도 있다 | tools/_com/modal_text.py 가 글자를, shot_window.py 가 그림을 — 둘 다 남긴다. 글자가 나오면 modal_class.py(표 → Jev 두 순서·문 0.8)로 한 줄 분류. TRAPS ⑨-5 갱신됨 |
 
 ## 다음에 할 일
 
@@ -730,7 +733,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 43. **MCP 자가점검 스크립트 저장소로 — 완료 (E, 6bb8b0e → tools/mcp_probe.py)** — E 가 scratchpad/mcp_probe.py(initialize → tools/list → tools/call)를 만들어 뒀다. 별 수 믿지 말고 띄워 보는 도구라 전 파트 공용 — tools/mcp_probe.py 로 올려 달라 (radar 와 같은 자리)  _(대기: E)_
 44. **경로 끝 공백·마침표 가드 — 완료 (B aed48bd · E 6bb8b0e · D 2a7eddd, 이정찬 승인)** — constraint_note 56. 주석에 번호를 적는다. B 의 일러스트레이터 saveAs 는 실측 뒤 반영(미실측 추정)  _(대기: B·E)_
 45. **대본→차트장면 파이프라인 남은 것 — D (또는 아스트라)** — ① 12장 일괄 촬영(비트마다 심볼·주기 바꿔 도는 부분) ② 콘티 이미지·AE 컴포지션 생성(tools/ae 잡 틀) ③ 규칙을 차10 한 편에서 뽑았다 — 다른 회차로 검증 ④ 찍은 그림을 회사 드라이브 소스 폴더에 넣을지는 이정찬 판단(지금은 안 쓴다). 인수인계 원문 log/inbox/2026-09-18_D_아스트라_인수인계.md  _(대기: D·이정찬(④))_
-46. **어도비 공용 실행기 — D 몫 완료(프리미어 잡 실행·프리미어 떠 있을 때 AE 차단 실측·창 단위 실패 캡처, 09-21 낮), 남은 것 B 2단계(일러·포토샵)** — run.ps1 네 벌을 tools/_com/run.ps1 하나로 합치면서 ① 앱·문서·프리미어 켜짐 검사 ② 타임아웃→taskkill→실패 기록 ③ 반환값 아닌 판정 줄로 성공 ④ 실패 시 **PrintWindow 로 모달 캡처**(화면 캡처는 가려지면 헛장 — B 09-21, TRAPS ⑨-5)+로그 30줄. 계기: GPT 가 WORKLOG 를 읽고 '진짜 위험은 모달·완료 판정·외부 앱 상태' — DB 로 확인(issue 28~31, TRAPS ⑦⑯). 제안서 log/inbox/2026-09-18_총괄_공용실행기_제안.md  _(대기: B 2단계 — 실패 캡처는 shot_window.py, 모달 문구 분류는 B-1 결과(5/5, 문 0.8)대로 '아는 문구면 정해진 대로 기록, 아니면 죽이고 기록')_
+46. **어도비 공용 실행기 — B 2단계 완료(09-21 저녁: 일러·포토샵 direct 갈래, 1단계 버그 셋(issue 42~44), 모달 문구 분류 표→Jev 문 0.8). 남은 셋은 bridge 갈래라 D** — run.ps1 네 벌을 tools/_com/run.ps1 하나로 합치면서 ① 앱·문서·프리미어 켜짐 검사 ② 타임아웃→taskkill→실패 기록 ③ 반환값 아닌 판정 줄로 성공 ④ 실패 시 **PrintWindow 로 모달 캡처**(화면 캡처는 가려지면 헛장 — B 09-21, TRAPS ⑨-5)+로그 30줄. 계기: GPT 가 WORKLOG 를 읽고 '진짜 위험은 모달·완료 판정·외부 앱 상태' — DB 로 확인(issue 28~31, TRAPS ⑦⑯). 제안서 log/inbox/2026-09-18_총괄_공용실행기_제안.md  _(대기: D — ① bridge 갈래에서 모달이 포토샵 쪽에 뜨면 Read-Modal 이 못 본다($s.Proc 만) — AE 에서 실제로 나는지 D 가 정한다 ② bridge 의 시간 초과·실패 경로를 새 코드로 한 번(AE 는 성공 경로만 봄) ③ 프리미어 잡 한 번. 원문 log/inbox/2026-09-21_B_공용실행기_2단계.md 끝 절)_
 47. **팀장 반려 문장 쌍 수동 수집 — E** — 반려·첨삭이 올 때마다 고치기 전/후 문장 쌍을 tools/theone/ 에 jsonl 로. 회차·날짜·누가 고쳤나(팀장/전문가/편집) 표시. 30쌍 넘으면 decision 35 다시 본다. 첫 자료가 이미 있다(09-21): 차12 6차 ↔ 이정찬판 INTRO~3구간(팀장 피드백을 이정찬이 적용) — 이 diff 에서 쌍을 뽑으면 된다  _(대기: 반려가 올 때마다 · 첫 쌍 추출은 E 가 시간 날 때)_
 48. **더블볼린저 편 방송 뒤 최종본 대조 — E** — 차12 가 리믹스하는 더블볼린저 편은 아직 방송 전(09-21). 방송되면 자막을 받아 차12 초안과 대조. 방송 실물에서 볼린저 기본 20일 4회 확인(21 은 0회) — 차12 의 21→20 정정 뒷받침. 전문가 실사용은 기간 30·데비에이션 1  _(대기: 방송 뒤)_
 49. **Jev 판정관 시험 — E 완료 (09-21: 한국어 통과·순위 9/13·자리 치우침·confidence 문 제안 → decision 37)** — ① 한국어: 합격 배너 8쌍을 팀장 기준 5개 Score 로 ② 순위: S016 확정본 vs 1안, 8회차 확정본 vs 1판 문구 — 확정본이 이기는 수 ③ 방송본 5쌍 초안 vs 방송본 ④ confidence 분포. 합격선 ②에서 6/8 + ① 정상 → decision 35 갱신·채택, 아니면 external_tool 14 rejected. 미공개 대본은 안 보낸다(이정찬 결정 전). 키는 이정찬 발급 → .secrets TYPESAFE_API_KEY  _(대기: 완료)_
@@ -1293,6 +1296,30 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 - 원인: save.py:167 git push -u origin BRANCH — worktree 로 나누기 전엔 맞던 코드. git_guard 는 python 안에서 도는 git 을 못 본다(훅은 Bash 명령줄만) → 세이브 스크립트가 가드 밖
 - 조치: 푸시는 현재 브랜치(rev-parse --abbrev-ref HEAD)로. 본류(MAINLINE)는 git config ac.role=총괄 인 clone 만 민다. upstream 도 두지 않는다. tests/test_save.py 3 (2026-09-18 총괄)
 - 확인: pytest 통과. 실제 옆가지 세이브 확인은 D·B·E 다음 세이브에서. 원문 log/inbox/2026-09-18_D_훅연결_실측.md §5
+
+### 42. 공용 실행기가 앱을 죽인 뒤에 모달을 찍고 있었다 (09-21, B 실측)  `fixed`
+- 증상: 시간 제한 → taskkill → _fail.png 순서. 앱이 죽으면 모달도 사라져 찍을 것이 없다
+- 원인: 1단계 순서 실수 — 찍기가 죽이기 뒤에 있었다
+- 조치: 찍기(Read-Modal: Win32 글자 + PrintWindow 그림)를 죽이기 앞으로. tools/_com/run.ps1
+- 확인: _trap_alert 잡으로 모달을 일부러 띄워 _fail.png(420x159 모달 창만)·글자 2줄 확인. 원문 log/inbox/2026-09-21_B_공용실행기_2단계.md
+
+### 43. Remove-Job -Force 가 COM 에 붙잡힌 잡을 120초 기다려 45초 제한이 165초로 찍힘 (09-21, B)  `fixed`
+- 증상: -TimeoutSec 45 인데 '걸린 시간: 165.3s'
+- 원인: Wait-Job 뒤에 Remove-Job -Force 를 바로 불렀다. COM 호출 중인 잡은 앱이 살아 있는 한 안 끝난다
+- 조치: 시간은 Wait-Job 직후에 재고, Remove-Job 은 앱을 죽인 뒤로(COM 이 풀려 즉시 끝남)
+- 확인: 고친 뒤 45.2s(바깥 47.6s). constraint 68
+
+### 44. 일러스트레이터 잡의 시간 초과가 사용자의 포토샵까지 죽이게 돼 있었다 (09-21, B)  `fixed`
+- 증상: 시간 초과 처리가 @($s.Proc,'Photoshop') 을 통째로 taskkill
+- 원인: 1단계는 bridge 갈래(AE·프리미어가 포토샵을 길로 씀)만 있어서 포토샵을 늘 같이 죽였다. direct 갈래(일러·포샵)에는 그 전제가 없다
+- 조치: Transport 가 bridge 면 둘, direct 면 제 앱만
+- 확인: 일러 잡이 600초에 걸려 죽는 동안 사용자 포토샵(PID 17416) 생존 확인
+
+### 45. -TimeoutSec 기본 600 이 정상 빌드(build_live 640s)와 겹쳐 성공 잡을 죽임 (09-21, B)  `fixed`
+- 증상: 일러 build_live 가 제한에 걸려 실패 처리
+- 원인: 기본값을 짐작으로 둠(실측 없이). 실행기 1단계에 실측 잡이 AE 스모크(18s)뿐이었다
+- 조치: 일러·포토샵 껍데기 기본 1800초. 짧은 잡은 부를 때 -TimeoutSec 으로 줄인다
+- 확인: build_live 640.1s 성공(미리보기 10장 md5 09-18 판과 동일)
 
 ## 판단과 근거
 
@@ -1992,3 +2019,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 520 | `5a30524d` | 차12 7차 (팀장 피드백 반영) · 대조용 판 3개 · 차13 4차 | 5파일 +719/-130 |
 | 521 | `abb1a8d8` | 병합: worktree-E_Script (09-21 — 차12 7차·대조판 3·차13 4차) | 5파일 +719/-130 |
 | 522 | `beb72c34` | 세이브 save/2026-09-21-1726 — E 병합 — 차12 7차·대조판 3(피드백적용/워크플로우/이정찬)·차13 4차 등재, next_step 47 에 첫 쌍 자료 | 5파일 +23/-11 |
+| 523 | `750a16d5` | 세이브 기록 save/2026-09-21-1726 | 5파일 +11/-3 |
+| 524 | `4bc9e172` | 공용 실행기 2단계 — 일러·포토샵을 얹고, 1단계 버그 셋을 고쳤다 (모달 문구 분류 문 0.8) | 15파일 +889/-189 |
+| 525 | `158e1e45` | 2단계 보고에 D 몫 인계 절을 넣었다 — 남은 셋은 bridge 갈래라 D 가 이어 받는다 | 1파일 +15/-4 |
+| 526 | `cbcf0545` | 병합: worktree-B_Image (09-21 — 공용 실행기 2단계 일러·포토샵, 1단계 버그 셋, 모달 문구 분류) | 15파일 +900/-189 |
