@@ -1737,6 +1737,7 @@ REPO_FILES = {
     "tools/_com/run.ps1": ("도구", "어도비 공용 실행기(D, 1단계) — 시작 전 앱·프리미어 켜짐 검사(AE 잡이면 중단), Start-Job 시간 제한→taskkill, 로그 '판정' 줄로 성공, 실패 시 <잡>_fail.png/.txt. 앱별 차이는 표 하나(photoshop·illustrator 자리 있음). ae/run.ps1·premiere/run.ps1 이 얹혀 있다"),
     "log/inbox/2026-09-21_D_공용실행기_1단계.md": ("기록", "D — 공용 실행기 1단계 보고: 4단계 반영, 판정 줄 없는 잡 완화(decision 36), 실측 4(성공·통과·실패 경로), PS 5.1 BOM 함정(constraint 63)"),
     "tests/test_verdict_lines.py": ("검증", "판정 줄 없는 어도비 잡 수 래칫(기준 46, 줄이기만). 공용 실행기의 '경고 통과' 완화를 장치로 묶는다 (decision 36)"),
+    "log/inbox/2026-09-21_총괄_Jev_판정관_시험제안.md": ("기록", "총괄 — TypeSafe Jev 조사(문서 9쪽)와 우리 자리 판정(판정관 1순위·비트 분류 2순위·가드/글자 수 제외), E 시험 설계 4단계·합격선, 이정찬 결정(미공개 대본 외부 전송)"),
 }
 
 RUNBOOK = [
@@ -2313,6 +2314,7 @@ NEXT_STEPS = [
     (46, "어도비 공용 실행기 — 1단계 완료(D 09-21, tools/_com/run.ps1 · AE·프리미어), 2단계 B(일러·포토샵)", "run.ps1 네 벌을 tools/_com/run.ps1 하나로 합치면서 ① 앱·문서·프리미어 켜짐 검사 ② 타임아웃→taskkill→실패 기록 ③ 반환값 아닌 판정 줄로 성공 ④ 실패 시 **PrintWindow 로 모달 캡처**(화면 캡처는 가려지면 헛장 — B 09-21, TRAPS ⑨-5)+로그 30줄. 계기: GPT 가 WORKLOG 를 읽고 '진짜 위험은 모달·완료 판정·외부 앱 상태' — DB 로 확인(issue 28~31, TRAPS ⑦⑯). 제안서 log/inbox/2026-09-18_총괄_공용실행기_제안.md", "B 2단계 · D: 프리미어 잡 실제 실행 1회·프리미어 떠 있을 때 AE 차단 실측"),
     (47, "팀장 반려 문장 쌍 수동 수집 — E", "반려·첨삭이 올 때마다 고치기 전/후 문장 쌍을 tools/theone/ 에 jsonl 로. 회차·날짜·누가 고쳤나(팀장/전문가/편집) 표시. 30쌍 넘으면 decision 35 다시 본다", "반려가 올 때마다"),
     (48, "더블볼린저 편 방송 뒤 최종본 대조 — E", "차12 가 리믹스하는 더블볼린저 편은 아직 방송 전(09-21). 방송되면 자막을 받아 차12 초안과 대조. 방송 실물에서 볼린저 기본 20일 4회 확인(21 은 0회) — 차12 의 21→20 정정 뒷받침. 전문가 실사용은 기간 30·데비에이션 1", "방송 뒤"),
+    (49, "Jev 판정관 시험 — E (반나절, 있는 자료만)", "① 한국어: 합격 배너 8쌍을 팀장 기준 5개 Score 로 ② 순위: S016 확정본 vs 1안, 8회차 확정본 vs 1판 문구 — 확정본이 이기는 수 ③ 방송본 5쌍 초안 vs 방송본 ④ confidence 분포. 합격선 ②에서 6/8 + ① 정상 → decision 35 갱신·채택, 아니면 external_tool 14 rejected. 미공개 대본은 안 보낸다(이정찬 결정 전). 키는 이정찬 발급 → .secrets TYPESAFE_API_KEY", "이정찬 키 발급 → E"),
 ]
 
 
@@ -2414,6 +2416,7 @@ EXTERNAL_TOOLS = [
     (11, "MT5 MCP (HedgeHood MT5 Terminal)", "로컬 MCP · 도구 50종", "대본 비트에 맞는 실제 차트 장면을 MT5 에서 찍는다 — 지표 자동 부착·제거, ChartNavigate 로 과거 구간", "MT5 설치 + MT5_MCP_KEY(.secrets) + CMG_Shot.mq5 지표 컴파일(재시작 한 번)", "adopt", "D 09-18 실측. 창 캡처 1920×1032 → calibrate.py 로 봉 격자·가격축 자동 보정 RMS 1.93px. 함정은 constraint_note 60. 사람 차트는 안 건드린다(새 차트+템플릿)"),
     (12, "HyperFrames", "github.com/hyperframes (로컬 clone 06_실험실/외부참고)", "HTML 로 합성 — MT5 틀 합성·좌표 계산 합성·A/B 판 (tools/hf/)", "Node · Chrome(.cache/hyperframes) · 59.94 유리수 fps 확인", "local-only", "우리 레이어에 없는 모양을 새로 만들 때만. 차트 컷씬은 우리 렌더러가 4.5배 빠르다(constraint_note 61). ProRes4444 알파·PNG 시퀀스 확인"),
     (13, "Remotion", "github.com/remotion-dev/remotion (로컬 clone)", "같은 목적 비교 대상", "-", "pending", "D 09-18 실측 — 59.94 fps·알파 확인. HyperFrames 와 같이 보류. 원문 D 외부도구 실측"),
+    (14, "TypeSafe Jev 1.13 (System One 판단 모델)", "docs.typesafe.ai · api.typesafe.ai/v1/systemone", "판정관 — 배너·대본 후보를 팀장 기준(Score 단계)으로 채점, confidence 로 사람에게 넘길지 결정. 2순위: D 대본 비트 분류(Choice)", "pip typesafe-sdk(py≥3.10) · TYPESAFE_API_KEY(.secrets) · 입력 $0.042/M, 출력 무료 · 64k · 한국어 미문서", "pending", "이정찬 요청 09-21. 글을 안 만들고 판단만 — 정확히 decision 35 에서 보류한 자리. 약점(셈·날짜·부정문·긴 state·적대 문장)은 문서 명시 → 가드·자막 글자 수엔 안 쓴다. 시험 설계·합격선은 log/inbox/2026-09-21_총괄_Jev_판정관_시험제안.md, next_step 49"),
 ]
 
 PRPROJ_FACTS = [
