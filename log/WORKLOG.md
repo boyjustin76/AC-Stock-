@@ -1971,3 +1971,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 503 | `fa3ebde7` | 병합: worktree-D_Video (09-21 오후 — Jev 시험 결과·자료·클라이언트) | 9파일 +821/-0 |
 | 504 | `980ad926` | 세이브 save/2026-09-21-1312 — Jev 결정(decision 37) — 순위 판정관 안 함·거름망·분류 채택, radar --jev(D-3), constraint 65·66, next_step 49~52 | 7파일 +113/-6 |
 | 505 | `5b64e582` | 세이브 기록 save/2026-09-21-1312 | 5파일 +11/-3 |
+| 506 | `1a8dbb73` | 세이브 save/2026-09-21-1313 — Jev 결정 DB 등재 — external_tool 14 adopt(조건부), decision 37, constraint 65·66, next_step 49~52 | 4파일 +31/-15 |
