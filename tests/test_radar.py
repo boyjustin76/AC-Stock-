@@ -61,3 +61,14 @@ def test_jev_classify_without_key_is_silent():
         raise SystemExit("TYPESAFE_API_KEY 가 없다")
     hits, note = radar.jev_classify("x", "x", 3, ask=no_key)
     assert hits == [] and "Jev 안 씀" in note
+
+
+def test_jev_options_include_traps_and_none():
+    seen = {}
+    def spy(state, q):
+        seen.update(q["c"]["criteria"])
+        return {"answers": {"c": {"type": "choice", "choice": "T⑦", "confidence": 0.9,
+                                  "probabilities": {"T⑦": 0.9, "0": 0.1}}}}
+    hits, _ = radar.jev_classify("x", "x", 3, ask=spy)
+    assert "T⑦" in seen and "0" in seen and seen["T⑦"].startswith("TRAPS ")
+    assert hits[0]["id"] == "T⑦" and hits[1]["id"] == 0

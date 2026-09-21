@@ -132,6 +132,13 @@ def jev_classify(sig: str, raw: str, n: int = 3, ask=None) -> tuple[list[dict], 
     rows = con.execute("SELECT id, topic FROM constraint_note ORDER BY id").fetchall()
     con.close()
     options = {str(i): t for i, t in rows}
+    # B 발견(09-21): 우리가 겪은 일의 절반은 constraint_note 가 아니라 TRAPS ①~㉒ 에 있다(51 이 그렇게 정했다).
+    # 선택지에 안 넣으면 '해당 없음'이 정답이 되는 시험이 된다 → TRAPS 머리(### ①…)를 T① 으로 같이 넣는다.
+    if TRAPS.exists():
+        for line in TRAPS.read_text(encoding="utf-8").splitlines():
+            m = re.match(r"^### (\S+)\s+(.+)$", line)
+            if m and m.group(1)[0] in "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒":
+                options["T" + m.group(1)] = "TRAPS " + m.group(2).replace("`", "")
     options["0"] = "해당 없음 — 기록에 없는 새 벽"
     try:
         if ask is None:
@@ -150,7 +157,7 @@ def jev_classify(sig: str, raw: str, n: int = 3, ask=None) -> tuple[list[dict], 
     a = ans.get("answers", {}).get("c", {})
     probs = a.get("probabilities") or {}
     top = sorted(probs.items(), key=lambda kv: -kv[1])[:n]
-    out = [{"id": int(k) if k.isdigit() else 0, "topic": options.get(k, k), "p": round(v, 2)} for k, v in top]
+    out = [{"id": (int(k) if k.isdigit() else (k if k.startswith("T") else 0)), "topic": options.get(k, k), "p": round(v, 2)} for k, v in top]
     return out, f"confidence {a.get('confidence', 0):.2f}"
 
 
@@ -231,8 +238,13 @@ def report(sig: str, local: list[dict], so: list[dict], so_note: str, gh: list[d
     if jev:
         L += ["", f"## 1b. Jev 가 고른 벽 (상위 {len(jev)}, {jev_note})"]
         for h in jev:
-            L.append(f"- constraint_note **{h['id']}** ({h['p']:.0%}) — {h['topic']}" if h["id"] else f"- 해당 없음 ({h['p']:.0%}) — 새 벽일 수 있다")
-        L.append("- 확률이 갈리면 둘 다 맞을 수 있다(원인/처방). 자리 치우침이 있으니 확신은 0.7 넘을 때만 (constraint_note 65)")
+            if not h["id"]:
+                L.append(f"- 해당 없음 ({h['p']:.0%}) — 새 벽일 수 있다")
+            elif isinstance(h["id"], str):
+                L.append(f"- brand/EXTENDSCRIPT-TRAPS.md **{h['id'][1:]}** ({h['p']:.0%}) — {h['topic']}")
+            else:
+                L.append(f"- constraint_note **{h['id']}** ({h['p']:.0%}) — {h['topic']}")
+        L.append("- 확률이 갈리면 둘 다 맞을 수 있다(원인/처방). 분류는 자리 치우침이 작다(D·B 실측) — 확신은 0.7 넘을 때만, 앱 이름이 틀리는 실수는 사람이 본다 (constraint_note 65)")
     elif jev_note:
         L += ["", f"## 1b. Jev — {jev_note}"]
     if web:
