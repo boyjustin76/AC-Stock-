@@ -162,8 +162,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "tools/illustrator/run.ps1" 
   이걸로 두 번, 9분 넘게 굳었다.
 - **PNG 내보내기는 `transparency` 만으로 부족하다 — `matte = false`** (⑮).
 - **캔버스는 원점에서 ±8172pt** (⑭) → 아트보드를 세로로 쌓고 `X0` 를 음수로 민다.
-- **경로 조각 끝의 공백·마침표** → `safeName()`. 폴더면 나중에 터지고, 파일이면 이름이 조용히
-  달라진다. B·E·D 가 따로 실측했다 (`log/inbox/2026-09-18_B·E_경로끝공백_constraint후보.md`).
+- **`pdfCompatible = false` 로 저장하면 PDF 오류 모달이 떠 COM 이 멈춘다** (⑨-4). 파일이 커져도 끄지 마라.
+- **모달 내용은 `PrintWindow` 로 떠서 읽는다** (⑨-5). 화면 캡처는 다른 창에 가리면 헛장을 찍고,
+  UIA 는 어도비 자작 창 속을 못 읽는다. 모달인지는 메인 창의 `IsWindowEnabled = False` 로 본다.
+- **경로 조각 끝의 공백·마침표** → `safeName()`, **constraint_note 56**. 폴더면 터지고 파일이면
+  이름이 조용히 달라진다. 일러스트레이터도 같다(2026-09-21 실측) — 부모 폴더 끝이 공백이면
+  `saveAs` 가 **`오류: the operation was cancelled`** 로 실패한다. 폴더가 없다는 말이 아니라서
+  이 문구만 보고는 원인을 못 찾는다.
 - **한글이 깨지면** 파이썬에 `PYTHONUTF8=1`. worktree 폴더에서 세션을 띄웠으면 저장소
   `.claude/settings.json` 이 걸려서 안 붙여도 된다.
 
@@ -181,6 +186,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "tools/illustrator/run.ps1" 
 
 - **OBS 8000x4500 재출력** — 팀장 컨펌 뒤에 `export_obs`. 구역이 바뀌었으니 컨펌 전에는
   뽑아 봐야 다시 뽑는다.
-- 총괄 `constraint_note` 번호가 나오면 `safeName()` 주석에 번호를 단다.
+- **공용 실행기 2단계** (next_step 46) — D 가 AE·프리미어를 `tools/_com/run.ps1` 로 합친 뒤
+  일러·포토샵을 그 위에 얹는다. **D 가 먼저다.** 얹을 때 "실패면 화면 캡처"는 `PrintWindow`
+  로 바꾸자고 제안해 뒀다 (가려진 창을 못 찍는 문제).
 - 로고 원본 2장을 저장소에 올릴지 — 지금은 납품 폴더에**만** 있어서, 그 폴더를 정리하면
-  `make_bg.py` 가 다시 구울 소재를 잃는다.
+  `make_bg.py` 가 다시 구울 소재를 잃는다. 이정찬 판단 대기.
+- 완료 보고에는 `확인한 것 / 안 본 것` 두 줄을 붙인다 (decision 33, `log/inbox/_완료보고_양식.md`).
