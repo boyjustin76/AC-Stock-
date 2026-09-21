@@ -1932,3 +1932,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 474 | `2af56d0d` | 세이브 save/2026-09-21-1056 — 공용 실행기 1단계 — tools/_com/run.ps1 (프리미어 떠 있으면 AE 중단·시간제한·판정 줄·실패 원자료), AE·프리미어 실행기를 그 위로 | 10파일 +294/-127 |
 | 475 | `4d01f36f` | 세이브 기록 save/2026-09-21-1056 | 5파일 +11/-3 |
 | 476 | `1e269479` | 병합: worktree-D_Video (09-21 — 공용 실행기 1단계 tools/_com/run.ps1, U-7) | 8파일 +282/-109 |
+| 477 | `e4eb2bf4` | 세이브 save/2026-09-21-1110 — D 공용 실행기 1단계 병합 — 판정 줄 래칫(decision 36)·PS BOM constraint 63·U-7 완료·next_step 46 2단계 | 7파일 +60/-10 |
