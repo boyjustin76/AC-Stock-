@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 JOB_DIRS = ("tools/ae/jobs", "tools/premiere/jobs", "tools/photoshop", "tools/illustrator")
-BASELINE = 46          # 2026-09-21 — 줄이기만 한다
+BASELINE = 56          # 2026-09-21 — 줄이기만 한다 (AE·프리미어 46 + 포토샵·일러)
 
 
 def _jobs():

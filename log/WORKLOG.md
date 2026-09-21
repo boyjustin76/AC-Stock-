@@ -1933,3 +1933,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 475 | `4d01f36f` | 세이브 기록 save/2026-09-21-1056 | 5파일 +11/-3 |
 | 476 | `1e269479` | 병합: worktree-D_Video (09-21 — 공용 실행기 1단계 tools/_com/run.ps1, U-7) | 8파일 +282/-109 |
 | 477 | `e4eb2bf4` | 세이브 save/2026-09-21-1110 — D 공용 실행기 1단계 병합 — 판정 줄 래칫(decision 36)·PS BOM constraint 63·U-7 완료·next_step 46 2단계 | 7파일 +60/-10 |
+| 478 | `0712c764` | 세이브 기록 save/2026-09-21-1110 | 5파일 +11/-3 |
