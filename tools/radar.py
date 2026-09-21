@@ -4,6 +4,7 @@
     python3 tools/radar.py "UnicodeEncodeError: 'cp949' codec can't encode character"
     python3 tools/radar.py --file err.txt --repo anthropics/claude-code --save
     python3 tools/radar.py "…" --no-web            # 우리 기록만 (오프라인)
+    python3 tools/radar.py "…" --jev               # + Jev 가 우리 벽 63개 중 상위 3 을 고른다 (키 필요)
 
 찾는 순서 (가까운 곳부터)
   1. 우리 기록 — log/worklog.db 의 issue·constraint_note, brand/EXTENDSCRIPT-TRAPS.md, log/inbox/*.md
@@ -121,6 +122,38 @@ def search_local(sig: str, n: int = 3) -> list[dict]:
     return out
 
 
+# ── 1b. Jev 분류 — 우리 벽(constraint_note) 중 어느 것인가, 상위 3 ─────────────
+def jev_classify(sig: str, raw: str, n: int = 3, ask=None) -> tuple[list[dict], str]:
+    """D 시험 D-3(11/12, 2026-09-21)로 채택 — 1등 하나가 아니라 확률 상위 n 개를 보여 준다(24/25 처럼 둘 다 맞는 경우).
+    키(TYPESAFE_API_KEY)나 망이 없으면 조용히 비운다 — 레이더가 죽어서 일을 막지 않는다. ask 는 시험용 주입."""
+    if not DB.exists():
+        return [], ""
+    con = sqlite3.connect(str(DB))
+    rows = con.execute("SELECT id, topic FROM constraint_note ORDER BY id").fetchall()
+    con.close()
+    options = {str(i): t for i, t in rows}
+    options["0"] = "해당 없음 — 기록에 없는 새 벽"
+    try:
+        if ask is None:
+            sys.path.insert(0, str(ROOT / "tools" / "jev"))
+            import jev  # noqa: PLC0415
+            ask = lambda state, q: jev.ask(state, q)  # noqa: E731
+            q = {"c": jev.choice("이 오류는 아래 기록 중 어느 것인가", options)}
+        else:
+            q = {"c": {"type": "choice", "instructions": "이 오류는 아래 기록 중 어느 것인가", "criteria": options}}
+        state = (raw.strip()[:1500] or sig)
+        ans = ask(state, q)
+    except SystemExit as e:                       # 키 없음 등 — jev.py 가 SystemExit 로 알린다
+        return [], f"Jev 안 씀 ({e})"
+    except Exception as e:
+        return [], f"Jev 못 씀 ({type(e).__name__}: {e})"
+    a = ans.get("answers", {}).get("c", {})
+    probs = a.get("probabilities") or {}
+    top = sorted(probs.items(), key=lambda kv: -kv[1])[:n]
+    out = [{"id": int(k) if k.isdigit() else 0, "topic": options.get(k, k), "p": round(v, 2)} for k, v in top]
+    return out, f"confidence {a.get('confidence', 0):.2f}"
+
+
 # ── 2·3. 웹 ────────────────────────────────────────────────────────────────
 def _get(url: str) -> tuple[int, dict | None, str]:
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
@@ -186,7 +219,7 @@ def _unescape(s: str) -> str:
 
 # ── 출력 ────────────────────────────────────────────────────────────────────
 def report(sig: str, local: list[dict], so: list[dict], so_note: str, gh: list[dict], gh_note: str,
-           raw: str, web: bool) -> str:
+           raw: str, web: bool, jev: list[dict] | None = None, jev_note: str = "") -> str:
     L = [f"# 레이더 · {dt.datetime.now().strftime('%Y-%m-%d %H:%M')}", "", f"**서명:** `{sig}`", ""]
     L.append("## 1. 우리 기록")
     if local:
@@ -195,6 +228,13 @@ def report(sig: str, local: list[dict], so: list[dict], so_note: str, gh: list[d
             L.append(f"  - 처방: {h['fix'][:300]}")
     else:
         L.append("- 없음 — 처음 보는 벽이다. 해결하면 log/inbox 에 원문을 남긴다 (decision 24)")
+    if jev:
+        L += ["", f"## 1b. Jev 가 고른 벽 (상위 {len(jev)}, {jev_note})"]
+        for h in jev:
+            L.append(f"- constraint_note **{h['id']}** ({h['p']:.0%}) — {h['topic']}" if h["id"] else f"- 해당 없음 ({h['p']:.0%}) — 새 벽일 수 있다")
+        L.append("- 확률이 갈리면 둘 다 맞을 수 있다(원인/처방). 자리 치우침이 있으니 확신은 0.7 넘을 때만 (constraint_note 65)")
+    elif jev_note:
+        L += ["", f"## 1b. Jev — {jev_note}"]
     if web:
         L += ["", "## 2. Stack Overflow" + (f"  ({so_note})" if so_note and so else "")]
         if so:
@@ -234,6 +274,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("-n", type=int, default=5, help="소스당 결과 수")
     ap.add_argument("--no-web", action="store_true", help="우리 기록만")
     ap.add_argument("--save", action="store_true", help="log/inbox/radar/ 에 남긴다")
+    ap.add_argument("--jev", action="store_true", help="Jev 로 우리 벽 중 어느 것인지 상위 3 (키 필요, D-3 11/12)")
     a = ap.parse_args(argv)
     raw = Path(a.file).read_text(encoding="utf-8", errors="replace") if a.file else (a.text or "")
     if not raw.strip() and not sys.stdin.isatty():
@@ -242,11 +283,14 @@ def main(argv: list[str] | None = None) -> int:
     if not sig:
         ap.error("오류 문장을 주세요")
     local = search_local(sig, 3)
+    jev_hits, jev_note = ([], "")
+    if a.jev:
+        jev_hits, jev_note = jev_classify(sig, raw)
     so, so_note, gh, gh_note = [], "", [], ""
     if not a.no_web:
         so, so_note = search_stackoverflow(sig, a.n)
         gh, gh_note = search_github(sig, a.repo, a.n)
-    md = report(sig, local, so, so_note, gh, gh_note, raw, web=not a.no_web)
+    md = report(sig, local, so, so_note, gh, gh_note, raw, web=not a.no_web, jev=jev_hits, jev_note=jev_note)
     print(md)
     if a.save:
         out = INBOX / "radar" / f"{dt.date.today().isoformat()}_{slug(sig)}.md"

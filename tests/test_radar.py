@@ -41,3 +41,23 @@ def test_parse_github():
     data = {"items": [{"title": "t", "html_url": "h", "state": "open", "comments": 3,
                        "repository_url": "https://api.github.com/repos/o/r"}]}
     assert radar.parse_gh(data, 5) == [{"title": "t", "url": "h", "state": "open", "comments": 3, "repo": "o/r"}]
+
+
+def test_jev_classify_top3_offline():
+    """망 없이 — ask 를 주입해 상위 3 추출과 '해당 없음' 처리만 본다."""
+    def fake_ask(state, q):
+        opts = q["c"]["criteria"]
+        keys = list(opts)
+        probs = {k: 0.0 for k in keys}
+        probs[keys[1]] = 0.6; probs[keys[2]] = 0.3; probs["0"] = 0.1
+        return {"answers": {"c": {"type": "choice", "choice": keys[1], "confidence": 0.6, "probabilities": probs}}}
+    hits, note = radar.jev_classify("x", "x", 3, ask=fake_ask)
+    assert [h["p"] for h in hits] == [0.6, 0.3, 0.1] and hits[-1]["id"] == 0 and "0.60" in note
+
+
+def test_jev_classify_without_key_is_silent():
+    """키가 없으면 jev.py 가 SystemExit 를 낸다 — 레이더는 죽지 않고 빈 결과 + 한 줄. (망을 안 타게 주입)"""
+    def no_key(state, q):
+        raise SystemExit("TYPESAFE_API_KEY 가 없다")
+    hits, note = radar.jev_classify("x", "x", 3, ask=no_key)
+    assert hits == [] and "Jev 안 씀" in note
