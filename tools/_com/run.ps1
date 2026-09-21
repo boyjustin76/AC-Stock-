@@ -168,15 +168,24 @@ foreach ($f in $fresh) {
 }
 [System.IO.File]::WriteAllLines($failPath, $lines, (New-Object System.Text.UTF8Encoding($false)))
 
+$shot = Join-Path $labLog "${Job}_fail.png"
 try {
-    Add-Type -AssemblyName System.Windows.Forms, System.Drawing
-    $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
-    $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
-    $g = [System.Drawing.Graphics]::FromImage($bmp)
-    $g.CopyFromScreen($b.Left, $b.Top, 0, 0, $bmp.Size)
-    $shot = Join-Path $labLog "${Job}_fail.png"
-    $bmp.Save($shot, [System.Drawing.Imaging.ImageFormat]::Png)
-    $g.Dispose(); $bmp.Dispose()
+    # 화면을 통째로 찍으면 **가려진 창**이 안 찍힌다. 모달이 다른 창 뒤에 있으면 원자료가 쓸모없다.
+    # 그래서 대상 앱 창을 PrintWindow(PW_RENDERFULLCONTENT)로 그린다 — 가려져 있어도 나온다.
+    # 구현은 tools/_com/shot_window.py 에 한 벌만 둔다(파이썬 쪽에 이미 검증된 코드가 있다).
+    # 창을 못 찾으면(최소화·앱이 안 뜸) 종료코드 2 로 빠지고, 여기서 화면 전체로 물러선다.
+    $py = Join-Path $PSScriptRoot 'shot_window.py'
+    & python $py --proc $s.Proc --out $shot 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+        $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
+        $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+        $g = [System.Drawing.Graphics]::FromImage($bmp)
+        $g.CopyFromScreen($b.Left, $b.Top, 0, 0, $bmp.Size)
+        $bmp.Save($shot, [System.Drawing.Imaging.ImageFormat]::Png)
+        $g.Dispose(); $bmp.Dispose()
+        Write-Host "  (창을 못 찾아 화면 전체를 찍었다)"
+    }
     Write-Host "  화면: $shot"
 } catch {
     Write-Host "  화면 캡처 실패: $($_.Exception.Message)"
