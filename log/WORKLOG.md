@@ -1952,3 +1952,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 490 | `e2b32c1e` | 세이브 기록 save/2026-09-21-1238 | 5파일 +11/-3 |
 | 491 | `b044a625` | 병합: worktree-E_Script (09-21 낮 — 공용 실행기 남은 둘 실측·창 캡처 / 초안→docx 도구) | 3파일 +232/-106 |
 | 492 | `24b656eb` | 병합: worktree-D_Video (09-21 낮 — 공용 실행기 남은 둘 실측·창 캡처 / 초안→docx 도구) | 8파일 +233/-28 |
+| 493 | `b503c223` | 세이브 save/2026-09-21-1242 — D 남은 둘 실측 병합 — 프리미어 잡·AE 차단·창 캡처(constraint 64), E docx 도구, next_step 46 은 B 2단계만 | 5파일 +48/-28 |
