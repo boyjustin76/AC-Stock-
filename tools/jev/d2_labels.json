@@ -1,0 +1,46 @@
+{
+  "_설명": "D-2 정답 자료 — 팀장이 차10 에서 실제로 쓴 그림 14장을 D 가 눈으로 확인해 표시한 것 (2026-09-21).",
+  "_읽는 법": {
+    "indicators": "그림에 실제로 켜져 있던 지표. 없으면 [] (민차트)",
+    "kind": "원리 | 지표설명 | 그밖  — 대본 문장이 그 비트에서 무엇을 하는가",
+    "event": "그림이 보여 주는 가격 움직임",
+    "출처": "그림은 G:\\…\\차명10_양방향 매매법\\소스, 대본은 log/data/ref_cha10/script10.txt"
+  },
+  "_주의": "이 표는 D 의 판독이다. 팀장에게 확인받은 것이 아니다. Jev 와 비교할 기준선으로만 쓴다.",
+  "items": [
+    {"id": "1-3",    "file": "차10_1-3.png",    "symbol": "US100", "tf": "M1",
+     "indicators": ["MA"], "sub": ["스토캐스틱"], "kind": "그밖", "event": "하락 뒤 반등, 다시 하락 (양쪽으로 쓸림)"},
+    {"id": "1-4",    "file": "차10_1-4.png",    "symbol": "BTCUSD", "tf": "M1",
+     "indicators": [], "sub": [], "kind": "그밖", "event": "등락 반복 뒤 급락"},
+    {"id": "1-5",    "file": "차10_1-5.png",    "symbol": "BTCUSD", "tf": "M1",
+     "indicators": ["MA"], "sub": [], "kind": "그밖", "event": "박스권 등락"},
+    {"id": "2-1(1)", "file": "차10_2-1(1).png", "symbol": "BTCUSD", "tf": "M1",
+     "indicators": ["볼린저밴드", "MA3"], "sub": [], "kind": "원리", "event": "박스권에서 상승 이탈 뒤 되돌림"},
+    {"id": "2-1(2)", "file": "차10_2-1(2).png", "symbol": "BTCUSD", "tf": "M1",
+     "indicators": [], "sub": [], "kind": "원리", "event": "상승 뒤 하락, 저점에서 다시 상승"},
+    {"id": "2-2",    "file": "차10_2-2.png",    "symbol": "BTCUSD", "tf": "M5",
+     "indicators": [], "sub": [], "kind": "원리", "event": "고점 뒤 급락, 그 뒤 반등"},
+    {"id": "2-3",    "file": "차10_2-3.png",    "symbol": "BTCUSD", "tf": "M1",
+     "indicators": [], "sub": [], "kind": "원리", "event": "상승·하락이 세 번 꺾이는 톱니"},
+    {"id": "3-0",    "file": "차10_3-0.png",    "symbol": "US100", "tf": "M1",
+     "indicators": ["볼린저밴드", "MA여러개"], "sub": [], "kind": "그밖", "event": "넓은 등락 (변동성 큰 구간)"},
+    {"id": "3-2",    "file": "차10_3-2.jpg",    "symbol": "BTCUSD", "tf": "Daily",
+     "indicators": [], "sub": [], "kind": "그밖", "event": "이어지는 하락 추세"},
+    {"id": "3-3",    "file": "차10_3-3.png",    "symbol": "US100", "tf": "M1",
+     "indicators": [], "sub": [], "kind": "그밖", "event": "급락 뒤 좁은 박스권"},
+    {"id": "3-4",    "file": "차10_3-4.png",    "symbol": "BTCUSD", "tf": "M1",
+     "indicators": [], "sub": [], "kind": "그밖", "event": "위아래로만 흔드는 톱니"},
+    {"id": "4-1",    "file": "차10_4-1.png",    "symbol": "BTCUSD", "tf": "M5",
+     "indicators": ["EMA20", "EMA200"], "sub": ["ADX"], "kind": "지표설명", "event": "200EMA 위아래를 오가며 추세가 붙는 구간"},
+    {"id": "4-1(2)", "file": "차10_4-1(2).png", "symbol": "US100", "tf": "M1",
+     "indicators": [], "sub": ["ADX"], "kind": "지표설명", "event": "ADX 가 오르내리는 구간 (추세 강도 설명용)"},
+    {"id": "4-2",    "file": "차10_4-2.png",    "symbol": "BTCUSD", "tf": "M5",
+     "indicators": ["EMA20", "EMA200"], "sub": ["ADX"], "kind": "지표설명", "event": "첫 방향과 반대로 밀려 20EMA 를 깨는 구간"}
+  ],
+  "_판독하고 알게 된 것": [
+    "본론(4-x) 만 대본이 말한 지표(20/200 EMA + ADX)를 정확히 켰다. 그 밖은 그때 화면에 있던 지표가 그냥 남아 있다.",
+    "그래서 D 가 scenes.py 에 적은 규칙 2('원리 비트는 민차트')는 절반만 맞다 — 2-2·2-3·2-1(2) 는 민차트지만 2-1(1) 은 볼린저+MA 다.",
+    "확실한 규칙은 규칙 3 하나다: **대본이 지표를 설명하는 비트는 그 지표를 켠다.**",
+    "심볼·주기는 고정이 아니다. BTCUSD M1/M5/Daily 와 US100 M1 이 섞여 있다 — 이야기에 맞는 움직임이 있는 곳을 고른 것으로 보인다."
+  ]
+}
