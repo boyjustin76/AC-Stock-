@@ -40,7 +40,8 @@
 
 ## 1. 명령
 
-전부 저장소 뿌리에서 돈다. `run.ps1` 이 일러스트레이터를 COM 으로 띄워 같은 폴더의 jsx 를 돌린다.
+전부 저장소 뿌리에서 돈다. `run.ps1` 은 **공용 실행기** `tools/_com/run.ps1` 로 넘기는 껍데기다
+(2026-09-21, next_step 46 2단계). AE·프리미어·포토샵도 같은 것을 쓴다 — 고칠 일이 생기면 거기서 고친다.
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File "tools/illustrator/run.ps1" <이름>
@@ -59,6 +60,22 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "tools/illustrator/run.ps1" 
 
 빌드는 10분쯤 걸리니 백그라운드로 돌리고 기다린다. 결과는 `01_납품_.../라이브화면/build_log.txt`
 와 미리보기 png 로 확인한다. **png 를 눈으로 보기 전에는 됐다고 하지 않는다.**
+
+### 공용 실행기가 해 주는 것 (2026-09-21부터)
+
+| 언제 | 하는 일 |
+|---|---|
+| 시작 전 | 일러스트레이터가 떠 있나 · **떠 있는데 COM 이 답 안 하면 멈춘다**(시작 화면에서 굳은 것) · 남의 문서 열림 검사 |
+| 실행 중 | 시간 제한 **기본 30분**(`-TimeoutSec`). 넘으면 **먼저 찍고** 앱을 죽인다 |
+| 끝 | 반환값이 아니라 로그의 `판정: …` 줄로 성공을 정한다. 줄이 없으면 '통과(경고)' |
+| 실패 | 결과 폴더에 넷을 남긴다 — `<잡>_fail.txt`(원인 후보·모달 문구·로그 30줄) · `<잡>_fail.png`(모달 창만, 가려져 있어도) · `<잡>_modal.json` · `<잡>_modal_class.json` |
+
+**모달은 닫지 않는다.** 닫는 길이 없어서(SendKeys·UIA 가 안 먹는다) 죽이고 기록한다.
+문구가 아는 것이면 `tools/_com/modal_known.json` 표대로 적고, 모르면 Jev 에게 한 번 묻는다
+(선택지 순서를 뒤집어 두 번, 둘 다 같고 confidence ≥ 0.8 일 때만). `-NoJev` 를 주면 표만 본다.
+
+실패 경로가 도는지 직접 보고 싶으면 **일부러 모달을 띄우는 잡**이 있다 —
+`.\tools\illustrator\run.ps1 _trap_alert -TimeoutSec 45`. 일러스트레이터가 죽으니 **열어 둔 문서가 없을 때만.**
 
 ## 2. 파일이 어디 있나
 

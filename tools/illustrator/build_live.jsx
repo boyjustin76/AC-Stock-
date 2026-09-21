@@ -352,7 +352,7 @@ function hanji(ly, b) {
     p.left = OX(b, 0);
     p.top  = OY(b, 0);
     p.embed();
-    L("  한지 바탕: " + bg.name);
+    L("  한지 바탕: " + decodeURI(bg.name));                 /* File.name 은 URI 로 인코딩돼 나온다 — 526줄과 같은 처리 */
 }
 
 /* ── 캡쳐 가져오기 ───────────────────────────────────────────
@@ -1054,6 +1054,10 @@ L("미리보기 png " + doc.artboards.length + "장");
 var nBoards = doc.artboards.length;          // 닫기 전에 세어 둔다 — 닫은 doc 은 못 읽는다
 doc.close(SaveOptions.DONOTSAVECHANGES);
 L("문서 닫음 — 결과는 디스크에 있다");
+
+/* 공용 실행기(tools/_com/run.ps1)는 반환값이 아니라 이 줄로 성공을 정한다 — issue 28 · decision 36.
+   줄이 없으면 '통과(경고)' 로만 나가고, 진짜로 끝났는지는 아무도 모른다. */
+L("판정: OK — 아트보드 " + nBoards + "장 · " + decodeURI(outFile.name) + " 저장");
 
 var lf = new File(OUT + "/build_log.txt");
 lf.encoding = "UTF-8"; lf.open("w"); lf.write(log.join(String.fromCharCode(10))); lf.close();
