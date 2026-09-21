@@ -1,0 +1,142 @@
+[
+ {
+  "줄": "① 슬래시 + .png\t반환=[object Object] · 새 파일=없음",
+  "정답": "실패",
+  "jev": "실패",
+  "conf": 0.99,
+  "규칙": "실패"
+ },
+ {
+  "줄": "② 슬래시 + 확장자없음\t반환=[object Object] · 새 파일=없음",
+  "정답": "실패",
+  "jev": "실패",
+  "conf": 0.98,
+  "규칙": "실패"
+ },
+ {
+  "줄": "③ 역슬래시 + .png\t반환=[object Object] · 새 파일=없음",
+  "정답": "실패",
+  "jev": "실패",
+  "conf": 0.99,
+  "규칙": "실패"
+ },
+ {
+  "줄": "④ fsName 로 다시 만든 File\t반환=[object Object] · 새 파일=없음",
+  "정답": "실패",
+  "jev": "실패",
+  "conf": 0.75,
+  "규칙": "실패"
+ },
+ {
+  "줄": "⑤ 문자열 그대로\tthrow: Error: After Effects 오류: 2 매개 변수로 인해 \"saveFrameToPng\"",
+  "정답": "실패",
+  "jev": "실패",
+  "conf": 1.0,
+  "규칙": "실패"
+ },
+ {
+  "줄": "⑥ 이미 열어 둔 File\t반환=[object Object] · 새 파일=v6.png",
+  "정답": "성공",
+  "jev": "실패",
+  "conf": 0.05,
+  "규칙": "성공"
+ },
+ {
+  "줄": "슬래시 경로\tret=ERR Error: Unknown error exception  폴더=",
+  "정답": "실패",
+  "jev": "실패",
+  "conf": 1.0,
+  "규칙": "실패"
+ },
+ {
+  "줄": "역슬래시 경로\tret=true  폴더=t_back.png.png",
+  "정답": "성공",
+  "jev": "성공",
+  "conf": 0.85,
+  "규칙": "성공"
+ },
+ {
+  "줄": "프레임 번호\tret=ERR Error: Illegal Parameter type  폴더=t_back.png.png",
+  "정답": "실패",
+  "jev": "실패",
+  "conf": 1.0,
+  "규칙": "실패"
+ },
+ {
+  "줄": "인자 순서 뒤집기\tret=false  폴더=t_back.png.png",
+  "정답": "실패",
+  "jev": "실패",
+  "conf": 0.99,
+  "규칙": "실패"
+ },
+ {
+  "줄": "JPEG\tret=true  폴더=t.jpg.jpg,t_back.png.png",
+  "정답": "성공",
+  "jev": "성공",
+  "conf": 0.9,
+  "규칙": "성공"
+ },
+ {
+  "줄": "TIFF\tret=true  폴더=t.jpg.jpg,t.tif.tif,t_back.png.png",
+  "정답": "성공",
+  "jev": "성공",
+  "conf": 0.74,
+  "규칙": "성공"
+ },
+ {
+  "줄": "Targa\tret=true  폴더=t.jpg.jpg,t.tga.tga,t.tga.tga.xmp,t.tif.tif,t_back.",
+  "정답": "성공",
+  "jev": "성공",
+  "conf": 0.43,
+  "규칙": "성공"
+ },
+ {
+  "줄": "앞 줄 폴더=t.jpg.jpg,t.tga.tga,t.tga.tga.xmp,t.tif.tif,t_back.png.png / CT",
+  "정답": "실패",
+  "jev": "성공",
+  "conf": 0.91,
+  "규칙": "성공"
+ },
+ {
+  "줄": "qe.newSequence(역슬래시)\ttrue /   → qe.newSequence(역슬래시)\t시퀀스 0 -> 0",
+  "정답": "실패",
+  "jev": "성공",
+  "conf": 0.86,
+  "규칙": "성공"
+ },
+ {
+  "줄": "qe.newSequence(File 객체)\tERR Error: Illegal Parameter type /   → qe.new",
+  "정답": "실패",
+  "jev": "실패",
+  "conf": 1.0,
+  "규칙": "실패"
+ },
+ {
+  "줄": "project.newSequence(역슬래시)\t[object Sequence] /   → project.newSequence(",
+  "정답": "성공",
+  "jev": "성공",
+  "conf": 0.97,
+  "규칙": "성공"
+ },
+ {
+  "줄": "project.newSequence(이름만)\tERR Error: Not Enough Parameters /   → projec",
+  "정답": "실패",
+  "jev": "실패",
+  "conf": 0.92,
+  "규칙": "실패"
+ },
+ {
+  "줄": "importFiles\ttrue",
+  "정답": "성공",
+  "jev": "성공",
+  "conf": 0.86,
+  "규칙": "성공"
+ },
+ {
+  "줄": "createNewSequenceFromClips\t[object Sequence] /   → createNewSequenceFr",
+  "정답": "성공",
+  "jev": "성공",
+  "conf": 0.99,
+  "규칙": "성공"
+ }
+]
