@@ -1978,3 +1978,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 510 | `09778521` | Jev 시험 B-1·B-2·B-3 — 셋 다 합격선 미달(5/6 · 9/11 · 14/20), 대신 우리 기록의 구멍 둘을 찾았다 | 6파일 +1301/-0 |
 | 511 | `5aa12b3e` | 병합: worktree-B_Image (09-21 — Jev 시험 B 셋·D 자리치우침 검사) | 6파일 +1301/-0 |
 | 512 | `6028433e` | 병합: worktree-D_Video (09-21 — Jev 시험 B 셋·D 자리치우침 검사) | 4파일 +316/-1 |
+| 513 | `899c828c` | 세이브 save/2026-09-21-1336 — Jev 2차(B·D §6) — radar 선택지에 TRAPS, thumbnail_rule 22 정정, constraint 65 정정, decision 37 보강, next_step 46·51 | 8파일 +78/-23 |

@@ -1034,5 +1034,12 @@
   "utc": "2026-09-21 04:13",
   "sha": "1a8dbb7",
   "summary": "Jev 결정 DB 등재 — external_tool 14 adopt(조건부), decision 37, constraint 65·66, next_step 49~52"
+ },
+ {
+  "tag": "save/2026-09-21-1336",
+  "kst": "2026-09-21 13:36",
+  "utc": "2026-09-21 04:36",
+  "sha": "899c828",
+  "summary": "Jev 2차(B·D §6) — radar 선택지에 TRAPS, thumbnail_rule 22 정정, constraint 65 정정, decision 37 보강, next_step 46·51"
  }
 ]
