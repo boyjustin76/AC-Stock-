@@ -674,6 +674,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | MT5 MCP — 인증·세션·캡처 함정 7 (D 실측 09-18) | ① 인증은 Authorization: Bearer <키> 뿐, initialize 의 Mcp-Session-Id 를 계속 싣고 notifications/initialized 는 id 없이 ② ChartScreenShot 은 스크롤 자리를 무시하고 늘 최신 구간 — 크기를 키우면 봉이 더 들어올 뿐 ③ ChartNavigate 는 자동스크롤 끄고 CopyRates 로 그 날짜 이력을 먼저 ④ chart_apply_template 은 지표를 통째로 갈아 끼움(3초 쉬고 붙인다) ⑤ 지표 목록은 터미널 시작 때 한 번 — 새 지표는 재시작 ⑥ PrintWindow 는 자식 핸들을 줘도 본 창 — 차트 판은 그림에서 찾는다 ⑦ trade_* 7종은 부르지 않는다 | 과거 장면은 ChartNavigate 로 옮긴 뒤 창을 PrintWindow 로 찍는다(tools/mt5/capture_scene.py). 키는 .secrets/ac_keys.env MT5_MCP_KEY. 원문 log/inbox/2026-09-18_D_아스트라_인수인계.md §3 · log/inbox/2026-09-18_D_MT5_MCP연동_시험.md |
 | 렌더 색·속도 — ProRes 4444 는 YUV 라 1 어긋난다, 차트 컷씬은 우리 렌더러가 4.5배 빠르다 (D A/B 실측 09-18) | #0D9488 이 ProRes4444 에서 (12,148,135). ov-pnl 같은 컷: 우리 렌더러 6.9초 vs HyperFrames 31.0초(300장). 이 PC PATH 에 ffmpeg 없음 | 색을 보증해야 하면 PNG 시퀀스. HyperFrames 는 우리 레이어에 없는 모양을 새로 만들 때만. ffmpeg 는 06_실험실/hf_smoke/node_modules 것을 PATH 앞에. 원문 log/inbox/2026-09-18_D_AB시험_우리렌더러_대_HyperFrames.md · log/inbox/2026-09-18_D_외부도구_HyperFrames·Remotion_실측.md |
 | 일러스트레이터 저장·모달 함정 둘 — TRAPS ⑨-4·⑨-5 가 원문 (B 실측 2026-09-21) | ⑨-4 pdfCompatible=false 로 saveAs 하면 'Acrobat PDF 파일 포맷에 문제가 있습니다' 모달이 뜨고 COM 이 멈춘다(CPU 증분 0.41s). ⑨-5 화면 캡처는 다른 창에 가려지면 헛장, UIA 는 어도비 자작 창 속을 못 읽는다(OS_ViewContainer 하나) | pdfCompatible 은 true 로 둔다(파일 커져도). 모달 판별은 메인 창 IsWindowEnabled=False, 내용은 프로세스의 #32770 창에 PrintWindow(h,hdc,2). 닫을 땐 좌표 클릭보다 PostMessage(VK_RETURN) — 그래도 닫기보다 죽이고 기록(next_step 46). 원문 brand/EXTENDSCRIPT-TRAPS.md ⑨-4·⑨-5 |
+| PowerShell 5.1 은 BOM 없는 .ps1 의 한글을 cp949 로 읽는다 (D 실측 2026-09-21) | 새로 쓴 run.ps1 이 'The string is missing the terminator: \"' 로 죽었다. 파일은 멀쩡했고 한글이 깨지며 따옴표가 먹혔다. 저장소의 기존 .ps1 넷은 전부 BOM 이 있어 안 겪던 일 | 한글이 든 .ps1 은 UTF-8 with BOM 으로 쓴다(.jsx 가 읽는 JSON 은 반대로 BOM 없이 — constraint 38·B-1 과 구분). 원문 log/inbox/2026-09-21_D_공용실행기_1단계.md |
 
 ## 다음에 할 일
 
@@ -717,12 +718,12 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 38. **더원트레이더 규칙 DB 등재 — 보류** — 컷 0.65s/−30dB/IN −0.08·OUT +0.07(표본 2편 50경계 0.051s) · 자막 14자(롱폼 21자 관측, 8편) · 배너 2판 공식(8편 중 5편). E 가 표본 병기 조건으로 동의. 새 채널로 넘어가 우선순위 낮음  _(대기: 새 정답 자료가 생길 때)_
 39. **prlinks.py 전 파트 공용 규칙 — 인박스 제안서** — 폴더 옮기기 전 find, 옮긴 뒤 check. 검사 범위에서 목적지 폴더를 빼지 않는다. 사람이 옮기는 경우는 훅이 못 막는다 — 이정찬도 옮기기 전에 돌린다 (runbook 19)  _(대기: 로컬 채택)_
 40. **개선안 회신 — B·D·E 전부 완료 (09-17 17:3x, 셋 다 본류 병합)** — B 641f4da · D 3f32389 · E e6c16b8. 채택 현황은 log/inbox/2026-09-17_총괄_개선안회신답.md 표 + E: 2-A(가지만 전환, 작업트리 두 벌은 단일화 방침으로 안 만듦)·E-1~E-7·ruff 5 적용, 회귀 45항목 동일, pytest 29. 남은 것은 next_step 41(세션 시작 폴더, 이정찬)뿐  _(대기: 완료)_
-41. **세션 시작 폴더 — 완료 (09-18 오전): B·D·E 셋 다 새 폴더·새 가지, D 훅 연결·실측 통과, B PYTHONUTF8=1 확인, E 는 다음 세션에서 확인** — 저장소 .claude/settings.json(env·훅·스킬)은 세션을 시작한 폴더에서만 읽힌다(공식 settings 문서, D 확인). 지금 B·D·E 는 …\이정찬\Claude 에서 시작해 아무것도 안 걸린다. 총괄 판단: 각 세션을 자기 worktree 폴더에서 띄운다(cd <worktree>; claude 또는 claude --worktree <이름>). 그러면 PYTHONUTF8·git_guard·radar 스킬이 자동으로 붙는다. 답이 오기 전엔 D 로컬 훅 유지  _(대기: 이정찬)_
+41. **세션 시작 폴더 — 완료. U-7(로컬 훅·bypass 되돌리기)도 완료 (이정찬+D 09-21)** — 저장소 .claude/settings.json(env·훅·스킬)은 세션을 시작한 폴더에서만 읽힌다(공식 settings 문서, D 확인). 지금 B·D·E 는 …\이정찬\Claude 에서 시작해 아무것도 안 걸린다. 총괄 판단: 각 세션을 자기 worktree 폴더에서 띄운다(cd <worktree>; claude 또는 claude --worktree <이름>). 그러면 PYTHONUTF8·git_guard·radar 스킬이 자동으로 붙는다. 답이 오기 전엔 D 로컬 훅 유지  _(대기: 이정찬)_
 42. **더원 배너 나머지 문서 둘 — 완료 (09-18, 이정찬이 파일을 건네 총괄이 등재)** — tools/theone/상단배너_공식.md 는 올라왔다(519625b). 같은 폴더에 로컬만 있는 상단배너_로직.md(7.2KB)·상단배너_임베딩분석.md(8.3KB) — 임베딩 채점기 수치(쌍 개수·유사도 분포·홀드아웃)가 거기 있다. 이정찬이 '대본~인덱스~임베딩~로직' 자료를 찾고 있어 둘 다 tools/theone/ 으로  _(대기: E)_
 43. **MCP 자가점검 스크립트 저장소로 — 완료 (E, 6bb8b0e → tools/mcp_probe.py)** — E 가 scratchpad/mcp_probe.py(initialize → tools/list → tools/call)를 만들어 뒀다. 별 수 믿지 말고 띄워 보는 도구라 전 파트 공용 — tools/mcp_probe.py 로 올려 달라 (radar 와 같은 자리)  _(대기: E)_
 44. **경로 끝 공백·마침표 가드 — 완료 (B aed48bd · E 6bb8b0e · D 2a7eddd, 이정찬 승인)** — constraint_note 56. 주석에 번호를 적는다. B 의 일러스트레이터 saveAs 는 실측 뒤 반영(미실측 추정)  _(대기: B·E)_
 45. **대본→차트장면 파이프라인 남은 것 — D (또는 아스트라)** — ① 12장 일괄 촬영(비트마다 심볼·주기 바꿔 도는 부분) ② 콘티 이미지·AE 컴포지션 생성(tools/ae 잡 틀) ③ 규칙을 차10 한 편에서 뽑았다 — 다른 회차로 검증 ④ 찍은 그림을 회사 드라이브 소스 폴더에 넣을지는 이정찬 판단(지금은 안 쓴다). 인수인계 원문 log/inbox/2026-09-18_D_아스트라_인수인계.md  _(대기: D·이정찬(④))_
-46. **어도비 공용 실행기 — 시작 전 상태 검사·시간 제한 taskkill·판정 줄 완료 (B·D)** — run.ps1 네 벌을 tools/_com/run.ps1 하나로 합치면서 ① 앱·문서·프리미어 켜짐 검사 ② 타임아웃→taskkill→실패 기록 ③ 반환값 아닌 판정 줄로 성공 ④ 실패 시 **PrintWindow 로 모달 캡처**(화면 캡처는 가려지면 헛장 — B 09-21, TRAPS ⑨-5)+로그 30줄. 계기: GPT 가 WORKLOG 를 읽고 '진짜 위험은 모달·완료 판정·외부 앱 상태' — DB 로 확인(issue 28~31, TRAPS ⑦⑯). 제안서 log/inbox/2026-09-18_총괄_공용실행기_제안.md  _(대기: B·D (급한 회차 없을 때 하루))_
+46. **어도비 공용 실행기 — 1단계 완료(D 09-21, tools/_com/run.ps1 · AE·프리미어), 2단계 B(일러·포토샵)** — run.ps1 네 벌을 tools/_com/run.ps1 하나로 합치면서 ① 앱·문서·프리미어 켜짐 검사 ② 타임아웃→taskkill→실패 기록 ③ 반환값 아닌 판정 줄로 성공 ④ 실패 시 **PrintWindow 로 모달 캡처**(화면 캡처는 가려지면 헛장 — B 09-21, TRAPS ⑨-5)+로그 30줄. 계기: GPT 가 WORKLOG 를 읽고 '진짜 위험은 모달·완료 판정·외부 앱 상태' — DB 로 확인(issue 28~31, TRAPS ⑦⑯). 제안서 log/inbox/2026-09-18_총괄_공용실행기_제안.md  _(대기: B 2단계 · D: 프리미어 잡 실제 실행 1회·프리미어 떠 있을 때 AE 차단 실측)_
 47. **팀장 반려 문장 쌍 수동 수집 — E** — 반려·첨삭이 올 때마다 고치기 전/후 문장 쌍을 tools/theone/ 에 jsonl 로. 회차·날짜·누가 고쳤나(팀장/전문가/편집) 표시. 30쌍 넘으면 decision 35 다시 본다  _(대기: 반려가 올 때마다)_
 48. **더블볼린저 편 방송 뒤 최종본 대조 — E** — 차12 가 리믹스하는 더블볼린저 편은 아직 방송 전(09-21). 방송되면 자막을 받아 차12 초안과 대조. 방송 실물에서 볼린저 기본 20일 4회 확인(21 은 0회) — 차12 의 21→20 정정 뒷받침. 전문가 실사용은 기간 30·데비에이션 1  _(대기: 방송 뒤)_
 
@@ -1378,6 +1379,9 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 - **배너·대본 판정관 — 팀장 선택 표본 없이는 보류, 수동 수집으로 대체 (2026-09-21)** — LLM 판정관·선호 학습은 팀장이 고른/버린 쌍이 수십 개 쌓일 때까지 보류. 대신 팀장 반려가 올 때마다 고친 문장의 앞/뒤 쌍을 tools/theone/ 에 쌓는다(팀장 부담 0). 방송본 5쌍은 '나간 것의 범위' 기준선으로만 쓰고, 초안 규격을 방송 기준으로 다시 잡지 않는다
   - 이유: E 실측 09-21: 더원 채널 방송 7편 자막(전부 ASR)을 받아 초안 5쌍과 대조 — 분량↑ 4/5·규칙어↓ 4/5 는 경향이지 법 아님(L01 한 편이 평균을 끌어올림). 이건 before/after 라 A/B 선택이 아니고, 변화 원인(첨삭·애드립·컷편집·ASR)을 팀장에게 못 돌린다. 판정관이 재는 건 취향이 아니라 '나간 것처럼 들리는가' — 그 차이를 흐리지 않는다(E). 이정찬: 팀장 직접 소통 없이는 힘들면 패스
   - 다시 볼 때: 팀장 선택 쌍이 30개를 넘을 때
+- **공용 실행기 — 판정 줄 없는 옛 잡은 '경고 통과', 대신 수가 늘지 않게 래칫** — 판정 줄 있음 → 성공. 없음 + 시간 안 넘김 + bridge 응답 → 통과(경고). 시간 초과·응답 없음 → 실패. tests/test_verdict_lines.py 가 판정 줄 없는 잡 수(09-21 기준 46)를 상한으로 잰다 — 새 잡은 판정 줄 필수, 옛 잡은 손댈 때 넣는다
+  - 이유: 제안서는 '없으면 실패' 였으나 잡 대부분이 옛 것이라 그대로면 아무것도 못 돌린다(D). 완화는 받되 문서가 아니라 장치로 묶는다(decision 34). -StrictVerdict 스위치는 안 만든다 — 래칫이 0 이 되면 기본을 엄격으로 바꾼다. 원문 log/inbox/2026-09-21_D_공용실행기_1단계.md
+  - 다시 볼 때: BASELINE 이 0 이 될 때 — 그때 '없으면 실패' 로
 
 ## 브랜드 스펙 (실측)
 
@@ -1924,3 +1928,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 470 | `6e45fc8a` | 매뉴얼 — constraint 56 실측 결과와 새 함정 둘 반영 | 1파일 +12/-4 |
 | 471 | `61f6a3fb` | 병합: worktree-E_Script (09-21 — constraint 56 일러 실측·차12/13 Pool 교체) | 3파일 +39/-39 |
 | 472 | `016069ae` | 세이브 save/2026-09-21-1046 — B·E 병합(09-21) — constraint 56 일러 실측 반영·추정 삭제, TRAPS ⑨-4·⑨-5 → constraint 62, 공용실행기 캡처는 PrintWindow | 5파일 +16/-8 |
+| 473 | `fd419279` | 세이브 기록 save/2026-09-21-1046 | 5파일 +11/-3 |
+| 474 | `2af56d0d` | 세이브 save/2026-09-21-1056 — 공용 실행기 1단계 — tools/_com/run.ps1 (프리미어 떠 있으면 AE 중단·시간제한·판정 줄·실패 원자료), AE·프리미어 실행기를 그 위로 | 10파일 +294/-127 |
+| 475 | `4d01f36f` | 세이브 기록 save/2026-09-21-1056 | 5파일 +11/-3 |
+| 476 | `1e269479` | 병합: worktree-D_Video (09-21 — 공용 실행기 1단계 tools/_com/run.ps1, U-7) | 8파일 +282/-109 |
