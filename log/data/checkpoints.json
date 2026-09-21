@@ -943,5 +943,12 @@
   "utc": "2026-09-21 01:15",
   "sha": "a869ca1",
   "summary": "E 방송본 대조 회신 — 판정관 보류·수동 수집(decision 35, next_step 47·48)"
+ },
+ {
+  "tag": "save/2026-09-21-1046",
+  "kst": "2026-09-21 10:46",
+  "utc": "2026-09-21 01:46",
+  "sha": "016069a",
+  "summary": "B·E 병합(09-21) — constraint 56 일러 실측 반영·추정 삭제, TRAPS ⑨-4·⑨-5 → constraint 62, 공용실행기 캡처는 PrintWindow"
  }
 ]

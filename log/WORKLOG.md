@@ -1923,3 +1923,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 469 | `b06ccc72` | constraint 56 — 일러스트레이터 saveAs 실측, 파이썬과 같다 (추정 줄 지워도 됨) | 3파일 +96/-4 |
 | 470 | `6e45fc8a` | 매뉴얼 — constraint 56 실측 결과와 새 함정 둘 반영 | 1파일 +12/-4 |
 | 471 | `61f6a3fb` | 병합: worktree-E_Script (09-21 — constraint 56 일러 실측·차12/13 Pool 교체) | 3파일 +39/-39 |
+| 472 | `016069ae` | 세이브 save/2026-09-21-1046 — B·E 병합(09-21) — constraint 56 일러 실측 반영·추정 삭제, TRAPS ⑨-4·⑨-5 → constraint 62, 공용실행기 캡처는 PrintWindow | 5파일 +16/-8 |
