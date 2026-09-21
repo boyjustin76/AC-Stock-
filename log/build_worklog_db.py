@@ -1739,6 +1739,9 @@ REPO_FILES = {
     "tests/test_verdict_lines.py": ("검증", "판정 줄 없는 어도비 잡 수 래칫(기준 46, 줄이기만). 공용 실행기의 '경고 통과' 완화를 장치로 묶는다 (decision 36)"),
     "log/inbox/2026-09-21_총괄_Jev_판정관_시험제안.md": ("기록", "총괄 — TypeSafe Jev 조사(문서 9쪽)와 우리 자리 판정(판정관 1순위·비트 분류 2순위·가드/글자 수 제외), E 시험 설계 4단계·합격선, 이정찬 결정(미공개 대본 외부 전송)"),
     "log/inbox/2026-09-21_총괄_Jev_시험_D·B.md": ("기록", "총괄 — D·B Jev 시험 설계 각 3(정답 자료·합격선), 하지 말 것(이미지·셈·색·날짜), 알아서 하나, 보고 형식. next_step 50·51"),
+    "tools/_com/shot_window.py": ("도구", "대상 프로세스의 보이는 최상위 창 중 가장 큰 것을 PrintWindow(PW_RENDERFULLCONTENT) 로 찍는다(가려져 있어도). 공용 실행기 실패 캡처용. MainWindowHandle 은 안 믿는다(constraint 64). 못 찾으면 exit 2 (D)"),
+    "tools/md_to_script_docx.py": ("도구", "초안 .md → 촬영용 스크립트 .docx (E). 표지 줄은 L<번호> (이정찬 09-21)"),
+    "log/inbox/2026-09-21_D_공용실행기_남은둘_실측.md": ("기록", "D — 공용 실행기 남은 둘 실측: 프리미어 probe·save_quit 실행(경고 통과·엄격 성공·정상 종료), 프리미어 떠 있을 때 AE 잡 차단(AE 안 뜸 — TRAPS ⑦ 막음), 실패 캡처를 창 단위로"),
 }
 
 RUNBOOK = [
@@ -2160,6 +2163,7 @@ CONSTRAINTS = [
     ("렌더 색·속도 — ProRes 4444 는 YUV 라 1 어긋난다, 차트 컷씬은 우리 렌더러가 4.5배 빠르다 (D A/B 실측 09-18)", "#0D9488 이 ProRes4444 에서 (12,148,135). ov-pnl 같은 컷: 우리 렌더러 6.9초 vs HyperFrames 31.0초(300장). 이 PC PATH 에 ffmpeg 없음", "색을 보증해야 하면 PNG 시퀀스. HyperFrames 는 우리 레이어에 없는 모양을 새로 만들 때만. ffmpeg 는 06_실험실/hf_smoke/node_modules 것을 PATH 앞에. 원문 log/inbox/2026-09-18_D_AB시험_우리렌더러_대_HyperFrames.md · log/inbox/2026-09-18_D_외부도구_HyperFrames·Remotion_실측.md"),
     ("일러스트레이터 저장·모달 함정 둘 — TRAPS ⑨-4·⑨-5 가 원문 (B 실측 2026-09-21)", "⑨-4 pdfCompatible=false 로 saveAs 하면 'Acrobat PDF 파일 포맷에 문제가 있습니다' 모달이 뜨고 COM 이 멈춘다(CPU 증분 0.41s). ⑨-5 화면 캡처는 다른 창에 가려지면 헛장, UIA 는 어도비 자작 창 속을 못 읽는다(OS_ViewContainer 하나)", "pdfCompatible 은 true 로 둔다(파일 커져도). 모달 판별은 메인 창 IsWindowEnabled=False, 내용은 프로세스의 #32770 창에 PrintWindow(h,hdc,2). 닫을 땐 좌표 클릭보다 PostMessage(VK_RETURN) — 그래도 닫기보다 죽이고 기록(next_step 46). 원문 brand/EXTENDSCRIPT-TRAPS.md ⑨-4·⑨-5"),
     ("PowerShell 5.1 은 BOM 없는 .ps1 의 한글을 cp949 로 읽는다 (D 실측 2026-09-21)", "새로 쓴 run.ps1 이 'The string is missing the terminator: \\\"' 로 죽었다. 파일은 멀쩡했고 한글이 깨지며 따옴표가 먹혔다. 저장소의 기존 .ps1 넷은 전부 BOM 이 있어 안 겪던 일", "한글이 든 .ps1 은 UTF-8 with BOM 으로 쓴다(.jsx 가 읽는 JSON 은 반대로 BOM 없이 — constraint 38·B-1 과 구분). 원문 log/inbox/2026-09-21_D_공용실행기_1단계.md"),
+    ("Windows MainWindowHandle 은 못 믿는다 — 일러스트레이터가 160×28 짜리 엉뚱한 창을 돌려줬다 (D 실측 2026-09-21)", "Process.MainWindowHandle 로 창을 잡아 PrintWindow 하면 빈 조각이 찍힌다. PowerShell Add-Type P/Invoke 는 System.Drawing.Rectangle 참조를 못 찾아 컴파일이 깨진다", "프로세스의 보이는 최상위 창 중 가장 큰 것을 고른다 — tools/_com/shot_window.py 한 벌(파이썬). 못 찾으면 종료코드 2, 실행기는 화면 전체로 물러선다. 원문 log/inbox/2026-09-21_D_공용실행기_남은둘_실측.md §3"),
 ]
 
 NEXT_STEPS = [
@@ -2312,7 +2316,7 @@ NEXT_STEPS = [
     (43, "MCP 자가점검 스크립트 저장소로 — 완료 (E, 6bb8b0e → tools/mcp_probe.py)", "E 가 scratchpad/mcp_probe.py(initialize → tools/list → tools/call)를 만들어 뒀다. 별 수 믿지 말고 띄워 보는 도구라 전 파트 공용 — tools/mcp_probe.py 로 올려 달라 (radar 와 같은 자리)", "E"),
     (44, "경로 끝 공백·마침표 가드 — 완료 (B aed48bd · E 6bb8b0e · D 2a7eddd, 이정찬 승인)", "constraint_note 56. 주석에 번호를 적는다. B 의 일러스트레이터 saveAs 는 실측 뒤 반영(미실측 추정)", "B·E"),
     (45, "대본→차트장면 파이프라인 남은 것 — D (또는 아스트라)", "① 12장 일괄 촬영(비트마다 심볼·주기 바꿔 도는 부분) ② 콘티 이미지·AE 컴포지션 생성(tools/ae 잡 틀) ③ 규칙을 차10 한 편에서 뽑았다 — 다른 회차로 검증 ④ 찍은 그림을 회사 드라이브 소스 폴더에 넣을지는 이정찬 판단(지금은 안 쓴다). 인수인계 원문 log/inbox/2026-09-18_D_아스트라_인수인계.md", "D·이정찬(④)"),
-    (46, "어도비 공용 실행기 — 1단계 완료(D 09-21, tools/_com/run.ps1 · AE·프리미어), 2단계 B(일러·포토샵)", "run.ps1 네 벌을 tools/_com/run.ps1 하나로 합치면서 ① 앱·문서·프리미어 켜짐 검사 ② 타임아웃→taskkill→실패 기록 ③ 반환값 아닌 판정 줄로 성공 ④ 실패 시 **PrintWindow 로 모달 캡처**(화면 캡처는 가려지면 헛장 — B 09-21, TRAPS ⑨-5)+로그 30줄. 계기: GPT 가 WORKLOG 를 읽고 '진짜 위험은 모달·완료 판정·외부 앱 상태' — DB 로 확인(issue 28~31, TRAPS ⑦⑯). 제안서 log/inbox/2026-09-18_총괄_공용실행기_제안.md", "B 2단계 · D: 프리미어 잡 실제 실행 1회·프리미어 떠 있을 때 AE 차단 실측"),
+    (46, "어도비 공용 실행기 — D 몫 완료(프리미어 잡 실행·프리미어 떠 있을 때 AE 차단 실측·창 단위 실패 캡처, 09-21 낮), 남은 것 B 2단계(일러·포토샵)", "run.ps1 네 벌을 tools/_com/run.ps1 하나로 합치면서 ① 앱·문서·프리미어 켜짐 검사 ② 타임아웃→taskkill→실패 기록 ③ 반환값 아닌 판정 줄로 성공 ④ 실패 시 **PrintWindow 로 모달 캡처**(화면 캡처는 가려지면 헛장 — B 09-21, TRAPS ⑨-5)+로그 30줄. 계기: GPT 가 WORKLOG 를 읽고 '진짜 위험은 모달·완료 판정·외부 앱 상태' — DB 로 확인(issue 28~31, TRAPS ⑦⑯). 제안서 log/inbox/2026-09-18_총괄_공용실행기_제안.md", "B 2단계 (실패 캡처는 tools/_com/shot_window.py 그대로 부른다)"),
     (47, "팀장 반려 문장 쌍 수동 수집 — E", "반려·첨삭이 올 때마다 고치기 전/후 문장 쌍을 tools/theone/ 에 jsonl 로. 회차·날짜·누가 고쳤나(팀장/전문가/편집) 표시. 30쌍 넘으면 decision 35 다시 본다", "반려가 올 때마다"),
     (48, "더블볼린저 편 방송 뒤 최종본 대조 — E", "차12 가 리믹스하는 더블볼린저 편은 아직 방송 전(09-21). 방송되면 자막을 받아 차12 초안과 대조. 방송 실물에서 볼린저 기본 20일 4회 확인(21 은 0회) — 차12 의 21→20 정정 뒷받침. 전문가 실사용은 기간 30·데비에이션 1", "방송 뒤"),
     (49, "Jev 판정관 시험 — E (반나절, 있는 자료만)", "① 한국어: 합격 배너 8쌍을 팀장 기준 5개 Score 로 ② 순위: S016 확정본 vs 1안, 8회차 확정본 vs 1판 문구 — 확정본이 이기는 수 ③ 방송본 5쌍 초안 vs 방송본 ④ confidence 분포. 합격선 ②에서 6/8 + ① 정상 → decision 35 갱신·채택, 아니면 external_tool 14 rejected. 미공개 대본은 안 보낸다(이정찬 결정 전). 키는 이정찬 발급 → .secrets TYPESAFE_API_KEY", "이정찬 키 발급 → E"),

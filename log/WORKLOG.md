@@ -675,6 +675,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 렌더 색·속도 — ProRes 4444 는 YUV 라 1 어긋난다, 차트 컷씬은 우리 렌더러가 4.5배 빠르다 (D A/B 실측 09-18) | #0D9488 이 ProRes4444 에서 (12,148,135). ov-pnl 같은 컷: 우리 렌더러 6.9초 vs HyperFrames 31.0초(300장). 이 PC PATH 에 ffmpeg 없음 | 색을 보증해야 하면 PNG 시퀀스. HyperFrames 는 우리 레이어에 없는 모양을 새로 만들 때만. ffmpeg 는 06_실험실/hf_smoke/node_modules 것을 PATH 앞에. 원문 log/inbox/2026-09-18_D_AB시험_우리렌더러_대_HyperFrames.md · log/inbox/2026-09-18_D_외부도구_HyperFrames·Remotion_실측.md |
 | 일러스트레이터 저장·모달 함정 둘 — TRAPS ⑨-4·⑨-5 가 원문 (B 실측 2026-09-21) | ⑨-4 pdfCompatible=false 로 saveAs 하면 'Acrobat PDF 파일 포맷에 문제가 있습니다' 모달이 뜨고 COM 이 멈춘다(CPU 증분 0.41s). ⑨-5 화면 캡처는 다른 창에 가려지면 헛장, UIA 는 어도비 자작 창 속을 못 읽는다(OS_ViewContainer 하나) | pdfCompatible 은 true 로 둔다(파일 커져도). 모달 판별은 메인 창 IsWindowEnabled=False, 내용은 프로세스의 #32770 창에 PrintWindow(h,hdc,2). 닫을 땐 좌표 클릭보다 PostMessage(VK_RETURN) — 그래도 닫기보다 죽이고 기록(next_step 46). 원문 brand/EXTENDSCRIPT-TRAPS.md ⑨-4·⑨-5 |
 | PowerShell 5.1 은 BOM 없는 .ps1 의 한글을 cp949 로 읽는다 (D 실측 2026-09-21) | 새로 쓴 run.ps1 이 'The string is missing the terminator: \"' 로 죽었다. 파일은 멀쩡했고 한글이 깨지며 따옴표가 먹혔다. 저장소의 기존 .ps1 넷은 전부 BOM 이 있어 안 겪던 일 | 한글이 든 .ps1 은 UTF-8 with BOM 으로 쓴다(.jsx 가 읽는 JSON 은 반대로 BOM 없이 — constraint 38·B-1 과 구분). 원문 log/inbox/2026-09-21_D_공용실행기_1단계.md |
+| Windows MainWindowHandle 은 못 믿는다 — 일러스트레이터가 160×28 짜리 엉뚱한 창을 돌려줬다 (D 실측 2026-09-21) | Process.MainWindowHandle 로 창을 잡아 PrintWindow 하면 빈 조각이 찍힌다. PowerShell Add-Type P/Invoke 는 System.Drawing.Rectangle 참조를 못 찾아 컴파일이 깨진다 | 프로세스의 보이는 최상위 창 중 가장 큰 것을 고른다 — tools/_com/shot_window.py 한 벌(파이썬). 못 찾으면 종료코드 2, 실행기는 화면 전체로 물러선다. 원문 log/inbox/2026-09-21_D_공용실행기_남은둘_실측.md §3 |
 
 ## 다음에 할 일
 
@@ -723,7 +724,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 43. **MCP 자가점검 스크립트 저장소로 — 완료 (E, 6bb8b0e → tools/mcp_probe.py)** — E 가 scratchpad/mcp_probe.py(initialize → tools/list → tools/call)를 만들어 뒀다. 별 수 믿지 말고 띄워 보는 도구라 전 파트 공용 — tools/mcp_probe.py 로 올려 달라 (radar 와 같은 자리)  _(대기: E)_
 44. **경로 끝 공백·마침표 가드 — 완료 (B aed48bd · E 6bb8b0e · D 2a7eddd, 이정찬 승인)** — constraint_note 56. 주석에 번호를 적는다. B 의 일러스트레이터 saveAs 는 실측 뒤 반영(미실측 추정)  _(대기: B·E)_
 45. **대본→차트장면 파이프라인 남은 것 — D (또는 아스트라)** — ① 12장 일괄 촬영(비트마다 심볼·주기 바꿔 도는 부분) ② 콘티 이미지·AE 컴포지션 생성(tools/ae 잡 틀) ③ 규칙을 차10 한 편에서 뽑았다 — 다른 회차로 검증 ④ 찍은 그림을 회사 드라이브 소스 폴더에 넣을지는 이정찬 판단(지금은 안 쓴다). 인수인계 원문 log/inbox/2026-09-18_D_아스트라_인수인계.md  _(대기: D·이정찬(④))_
-46. **어도비 공용 실행기 — 1단계 완료(D 09-21, tools/_com/run.ps1 · AE·프리미어), 2단계 B(일러·포토샵)** — run.ps1 네 벌을 tools/_com/run.ps1 하나로 합치면서 ① 앱·문서·프리미어 켜짐 검사 ② 타임아웃→taskkill→실패 기록 ③ 반환값 아닌 판정 줄로 성공 ④ 실패 시 **PrintWindow 로 모달 캡처**(화면 캡처는 가려지면 헛장 — B 09-21, TRAPS ⑨-5)+로그 30줄. 계기: GPT 가 WORKLOG 를 읽고 '진짜 위험은 모달·완료 판정·외부 앱 상태' — DB 로 확인(issue 28~31, TRAPS ⑦⑯). 제안서 log/inbox/2026-09-18_총괄_공용실행기_제안.md  _(대기: B 2단계 · D: 프리미어 잡 실제 실행 1회·프리미어 떠 있을 때 AE 차단 실측)_
+46. **어도비 공용 실행기 — D 몫 완료(프리미어 잡 실행·프리미어 떠 있을 때 AE 차단 실측·창 단위 실패 캡처, 09-21 낮), 남은 것 B 2단계(일러·포토샵)** — run.ps1 네 벌을 tools/_com/run.ps1 하나로 합치면서 ① 앱·문서·프리미어 켜짐 검사 ② 타임아웃→taskkill→실패 기록 ③ 반환값 아닌 판정 줄로 성공 ④ 실패 시 **PrintWindow 로 모달 캡처**(화면 캡처는 가려지면 헛장 — B 09-21, TRAPS ⑨-5)+로그 30줄. 계기: GPT 가 WORKLOG 를 읽고 '진짜 위험은 모달·완료 판정·외부 앱 상태' — DB 로 확인(issue 28~31, TRAPS ⑦⑯). 제안서 log/inbox/2026-09-18_총괄_공용실행기_제안.md  _(대기: B 2단계 (실패 캡처는 tools/_com/shot_window.py 그대로 부른다))_
 47. **팀장 반려 문장 쌍 수동 수집 — E** — 반려·첨삭이 올 때마다 고치기 전/후 문장 쌍을 tools/theone/ 에 jsonl 로. 회차·날짜·누가 고쳤나(팀장/전문가/편집) 표시. 30쌍 넘으면 decision 35 다시 본다  _(대기: 반려가 올 때마다)_
 48. **더블볼린저 편 방송 뒤 최종본 대조 — E** — 차12 가 리믹스하는 더블볼린저 편은 아직 방송 전(09-21). 방송되면 자막을 받아 차12 초안과 대조. 방송 실물에서 볼린저 기본 20일 4회 확인(21 은 0회) — 차12 의 21→20 정정 뒷받침. 전문가 실사용은 기간 30·데비에이션 1  _(대기: 방송 뒤)_
 49. **Jev 판정관 시험 — E (반나절, 있는 자료만)** — ① 한국어: 합격 배너 8쌍을 팀장 기준 5개 Score 로 ② 순위: S016 확정본 vs 1안, 8회차 확정본 vs 1판 문구 — 확정본이 이기는 수 ③ 방송본 5쌍 초안 vs 방송본 ④ confidence 분포. 합격선 ②에서 6/8 + ① 정상 → decision 35 갱신·채택, 아니면 external_tool 14 rejected. 미공개 대본은 안 보낸다(이정찬 결정 전). 키는 이정찬 발급 → .secrets TYPESAFE_API_KEY  _(대기: 이정찬 키 발급 → E)_
@@ -1425,22 +1426,22 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 
 | 파일 | 포맷 | 프레임 | 크기 | 비고 |
 |---|---|---|---|---|
-| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | - | 29.97 기준 125f |
-| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | - | 29.97 기준 117f |
-| `out/cmg/cut3-fear.mp4` | mp4 | 152 | - | 29.97 기준 76f |
-| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | - | 29.97 기준 160f |
-| `out/cmg/_reel.mp4` | mp4 | 956 | - | 4컷 이어붙임, 29.97 기준 478f |
-| `out/01-open.mp4` | mp4 | 420 | - |  |
-| `out/02-structure.mp4` | mp4 | 450 | - |  |
-| `out/03-breakdown.mp4` | mp4 | 420 | - |  |
-| `out/04-entry.mp4` | mp4 | 420 | - |  |
-| `out/05-tpsl.mp4` | mp4 | 450 | - |  |
-| `out/06-result.mp4` | mp4 | 540 | - |  |
-| `out/_reel.mp4` | mp4 | 2700 | - | 다크 6컷 릴 45초 |
-| `out/ov-chart.mov` | qtrle | 300 | - | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
-| `out/ov-chart.webm` | vp9a | 300 | - | 전송용 압축본 |
-| `out/ov-tpsl.mov` | qtrle | 300 | - |  |
-| `out/ov-pnl.mov` | qtrle | 300 | - |  |
+| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | 0.8 MB | 29.97 기준 125f |
+| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | 1.0 MB | 29.97 기준 117f |
+| `out/cmg/cut3-fear.mp4` | mp4 | 152 | 1.1 MB | 29.97 기준 76f |
+| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | 3.4 MB | 29.97 기준 160f |
+| `out/cmg/_reel.mp4` | mp4 | 956 | 6.4 MB | 4컷 이어붙임, 29.97 기준 478f |
+| `out/01-open.mp4` | mp4 | 420 | 4.4 MB |  |
+| `out/02-structure.mp4` | mp4 | 450 | 4.3 MB |  |
+| `out/03-breakdown.mp4` | mp4 | 420 | 4.9 MB |  |
+| `out/04-entry.mp4` | mp4 | 420 | 3.7 MB |  |
+| `out/05-tpsl.mp4` | mp4 | 450 | 3.6 MB |  |
+| `out/06-result.mp4` | mp4 | 540 | 4.8 MB |  |
+| `out/_reel.mp4` | mp4 | 2700 | 25.6 MB | 다크 6컷 릴 45초 |
+| `out/ov-chart.mov` | qtrle | 300 | 38.5 MB | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
+| `out/ov-chart.webm` | vp9a | 300 | 3.2 MB | 전송용 압축본 |
+| `out/ov-tpsl.mov` | qtrle | 300 | 17.1 MB |  |
+| `out/ov-pnl.mov` | qtrle | 300 | 17.0 MB |  |
 
 ## 받아 온 자료
 
@@ -1939,9 +1940,15 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 478 | `0712c764` | 세이브 기록 save/2026-09-21-1110 | 5파일 +11/-3 |
 | 479 | `87d9d142` | 세이브 save/2026-09-21-1111 — 판정 줄 래칫 기준선 정정 — 포토샵·일러 잡 포함 56 | 4파일 +3/-2 |
 | 480 | `da9598f2` | 세이브 기록 save/2026-09-21-1111 | 5파일 +11/-3 |
-| 481 | `b127b853` | 세이브 save/2026-09-21-1132 — Jev 조사 — 판정관 자리 시험 제안(external_tool 14 pending, next_step 49) | 5파일 +48/-3 |
-| 482 | `e70effbc` | 세이브 기록 save/2026-09-21-1132 | 5파일 +11/-3 |
-| 483 | `0bb5b270` | Jev 제안 — 3순위 radar 오류 분류(Choice) 추가 | 1파일 +1/-0 |
-| 484 | `012e8b36` | 세이브 save/2026-09-21-1230 — Jev 시험 설계 D·B (next_step 50·51) | 5파일 +42/-2 |
-| 485 | `82829444` | 세이브 기록 save/2026-09-21-1230 | 5파일 +11/-3 |
-| 486 | `de51536d` | 세이브 save/2026-09-21-1238 — 공용 실행기 — 프리미어 잡 실제 실행·프리미어 떠 있을 때 AE 차단 실측, 실패 캡처를 창 단위(PrintWindow)로 | 6파일 +223/-26 |
+| 481 | `f71529d7` | 차12·차13 — INTRO 를 줄이고 잘게 끊긴 문장을 합쳤다 | 2파일 +69/-106 |
+| 482 | `b69a306e` | 초안 .md 를 촬영용 스크립트 .docx 로 바꾸는 도구 | 1파일 +161/-0 |
+| 483 | `b127b853` | 세이브 save/2026-09-21-1132 — Jev 조사 — 판정관 자리 시험 제안(external_tool 14 pending, next_step 49) | 5파일 +48/-3 |
+| 484 | `e70effbc` | 세이브 기록 save/2026-09-21-1132 | 5파일 +11/-3 |
+| 485 | `0bb5b270` | Jev 제안 — 3순위 radar 오류 분류(Choice) 추가 | 1파일 +1/-0 |
+| 486 | `72fa7d95` | docx 표지 줄을 L<번호> 로 (이정찬 2026-09-21) | 1파일 +4/-2 |
+| 487 | `012e8b36` | 세이브 save/2026-09-21-1230 — Jev 시험 설계 D·B (next_step 50·51) | 5파일 +42/-2 |
+| 488 | `82829444` | 세이브 기록 save/2026-09-21-1230 | 5파일 +11/-3 |
+| 489 | `de51536d` | 세이브 save/2026-09-21-1238 — 공용 실행기 — 프리미어 잡 실제 실행·프리미어 떠 있을 때 AE 차단 실측, 실패 캡처를 창 단위(PrintWindow)로 | 6파일 +223/-26 |
+| 490 | `e2b32c1e` | 세이브 기록 save/2026-09-21-1238 | 5파일 +11/-3 |
+| 491 | `b044a625` | 병합: worktree-E_Script (09-21 낮 — 공용 실행기 남은 둘 실측·창 캡처 / 초안→docx 도구) | 3파일 +232/-106 |
+| 492 | `24b656eb` | 병합: worktree-D_Video (09-21 낮 — 공용 실행기 남은 둘 실측·창 캡처 / 초안→docx 도구) | 8파일 +233/-28 |
