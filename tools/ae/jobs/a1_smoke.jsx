@@ -63,7 +63,8 @@ try {
     var f = new File(LOG);
     f.encoding = "UTF-8";
     if (!f.open("w")) throw new Error("open 실패 — 환경설정 파일쓰기 허용이 꺼져 있을 가능성이 가장 크다");
-    f.write("A1 통신 스모크\n" + out.join("\n") + "\n");
+    // 첫 줄이 판정이다 — 공용 실행기(tools/_com/run.ps1)가 반환값 말고 이 줄로 성공을 정한다.
+    f.write("판정: OK — A1 통신 스모크\n" + out.join("\n") + "\n");
     f.close();
     wrote = (new File(LOG)).exists ? "성공 (" + (new File(LOG)).length + " bytes)" : "open 은 됐는데 파일이 없다";
 } catch (e) {
