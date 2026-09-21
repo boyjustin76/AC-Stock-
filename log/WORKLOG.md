@@ -1942,3 +1942,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 481 | `b127b853` | 세이브 save/2026-09-21-1132 — Jev 조사 — 판정관 자리 시험 제안(external_tool 14 pending, next_step 49) | 5파일 +48/-3 |
 | 482 | `e70effbc` | 세이브 기록 save/2026-09-21-1132 | 5파일 +11/-3 |
 | 483 | `0bb5b270` | Jev 제안 — 3순위 radar 오류 분류(Choice) 추가 | 1파일 +1/-0 |
+| 484 | `012e8b36` | 세이브 save/2026-09-21-1230 — Jev 시험 설계 D·B (next_step 50·51) | 5파일 +42/-2 |

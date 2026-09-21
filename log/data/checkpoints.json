@@ -978,5 +978,12 @@
   "utc": "2026-09-21 02:32",
   "sha": "b127b85",
   "summary": "Jev 조사 — 판정관 자리 시험 제안(external_tool 14 pending, next_step 49)"
+ },
+ {
+  "tag": "save/2026-09-21-1230",
+  "kst": "2026-09-21 12:30",
+  "utc": "2026-09-21 03:30",
+  "sha": "012e8b3",
+  "summary": "Jev 시험 설계 D·B (next_step 50·51)"
  }
 ]
