@@ -277,6 +277,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `log/inbox/2026-09-21_총괄_Jev_시험_D·B.md` | 총괄 — D·B Jev 시험 설계 각 3(정답 자료·합격선), 하지 말 것(이미지·셈·색·날짜), 알아서 하나, 보고 형식. next_step 50·51 |
 | `log/inbox/2026-09-21_총괄_Jev_판정관_시험제안.md` | 총괄 — TypeSafe Jev 조사(문서 9쪽)와 우리 자리 판정(판정관 1순위·비트 분류 2순위·가드/글자 수 제외), E 시험 설계 4단계·합격선, 이정찬 결정(미공개 대본 외부 전송) |
 | `log/inbox/2026-09-22_B_시작화면굳음_재현안됨.md` | B — 09-21 '시작 화면 굳음' 을 같은 절차로 재현: 9초 만에 정상, 복구 창 없음. constraint 후보 ② 를 스스로 낮춤. 모달 못 찾으면 창 전부 찍자는 제안 → D 가 넣음 |
+| `log/inbox/2026-09-22_D_next53_AE복구창_멈춤.md` | D — next_step 53: AE 복구 창을 자식 창 뼈대로 판별, 시작 전·대기 중 5초마다 검사해 안 죽이고 멈춤(15.5초/0.2초), 정상 잡 1.7초, 죽인 뒤 주의 줄. BridgeTalk 70초 원인 못 찾음 |
 | `log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md` | D — bridge 갈래 셋: FAIL TIMEOUT·JOBERR 가짜 통과 고침(issue 47), AE 충돌 복구 창(constraint 71, 자동 클릭 반대·시작 전 검사 제안), 프리미어 probe·save_quit, shot_window --all |
 | `log/inbox/2026-09-22_월요일_전달묶음.md` | 이정찬이 월요일에 B·D·E 에게 전할 것 한 장 — 토큰 재발급(5분, 첫째)·완료 보고 두 줄·guard 4·save.py 기본값·경로 래칫·파트별 할 일 |
 | `log/inbox/2026-09-22_총괄_실행기_마감_답.md` | 총괄 — B·D 09-22 답: 공용 실행기 완료(next_step 46), constraint 69 낮춤·71 신설, 복구 창은 자동 클릭 안 함(53), decision 36 보강 |
@@ -340,7 +341,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools` | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
 | `tools/_com/modal_class.py` | 모달 글자 → 처리 한 줄. 표(modal_known.json) 조각이 걸리면 그대로, 아니면 Jev 두 순서 일치 + confidence ≥ 0.8, 아니면 '모름'. 판정은 _fail.txt 의 한 줄만 바꾸고 처리(죽이고 기록)는 안 바꾼다. stdout ASCII (B, 09-21) |
 | `tools/_com/modal_known.json` | 아는 모달 문구 표 — 조각·처리·왜(TRAPS ⑨-2·⑨-3·⑨-4 출처) 5행 + 힌트표 2행. B1_모달문구.json(원문)과 tests/test_modal_known.py 로 묶여 있다. '새 시퀀스' 행은 조각이 비어 있다 — 겪으면 채운다 |
-| `tools/_com/modal_text.py` | 시간 초과 때 앱의 #32770 모달 창을 찾아 Win32 EnumChildWindows+GetWindowTextW 로 글자를 읽어 modal.json 으로 (B, 09-21). UIA 는 못 읽고 이건 읽힌다(constraint 70) |
+| `tools/_com/modal_text.py` | 시간 초과 때 앱의 #32770 모달 창을 찾아 Win32 EnumChildWindows+GetWindowTextW 로 글자를 읽어 modal.json 으로 (B, 09-21). UIA 는 못 읽고 이건 읽힌다(constraint 70). --ae-recovery 는 AE 충돌 복구 창을 자식 창 뼈대로 알아본다 (D, 09-22, constraint 71) |
 | `tools/_com/run.ps1` | 어도비 공용 실행기(D 1단계·B 2단계) — 표 한 줄로 앱 넷: Transport bridge(ae·premiere, 포토샵 COM→bridge.jsx)·direct(illustrator·photoshop, 제 ProgId). 시작 전 앱·문서(DocGuard)·프리미어·COM 응답 검사, Wait-Job 시간 제한→모달 글자+그림 먼저→taskkill(direct 는 제 앱만)→Remove-Job, 로그 '판정' 줄로 성공, 실패 시 <잡>_fail.png/.txt + 모달 분류 한 줄. 껍데기 넷(ae·premiere·illustrator·photoshop/run.ps1)이 얹혀 있다 |
 | `tools/_com/shot_window.py` | 대상 프로세스의 보이는 최상위 창 중 가장 큰 것을 PrintWindow(PW_RENDERFULLCONTENT) 로 찍는다(가려져 있어도). --all 이면 크기로 거르지 않고 전부 <잡>_fail_all_<앱>_N.png (모달 못 찾은 실패용, B 제안·D 09-22). MainWindowHandle 은 안 믿는다(constraint 64). 못 찾으면 exit 2 (D) |
 | `tools/ae/_labdir.jsx` | AE 작업실 찾기 공용 aeLabDir(start, cfgLabDir) — bridge.jsx(포토샵 쪽)·jobs/_lib.jsx(AE 잡 35개)가 부른다. 복붙 10벌 중 AE 쪽 통일 (D, 44efdf5) |

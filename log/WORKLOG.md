@@ -320,6 +320,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `log/inbox/2026-09-21_총괄_Jev_시험_D·B.md` | 기록 | 총괄 — D·B Jev 시험 설계 각 3(정답 자료·합격선), 하지 말 것(이미지·셈·색·날짜), 알아서 하나, 보고 형식. next_step 50·51 |
 | `log/inbox/2026-09-21_총괄_Jev_판정관_시험제안.md` | 기록 | 총괄 — TypeSafe Jev 조사(문서 9쪽)와 우리 자리 판정(판정관 1순위·비트 분류 2순위·가드/글자 수 제외), E 시험 설계 4단계·합격선, 이정찬 결정(미공개 대본 외부 전송) |
 | `log/inbox/2026-09-22_B_시작화면굳음_재현안됨.md` | 기록 | B — 09-21 '시작 화면 굳음' 을 같은 절차로 재현: 9초 만에 정상, 복구 창 없음. constraint 후보 ② 를 스스로 낮춤. 모달 못 찾으면 창 전부 찍자는 제안 → D 가 넣음 |
+| `log/inbox/2026-09-22_D_next53_AE복구창_멈춤.md` | 기록 | D — next_step 53: AE 복구 창을 자식 창 뼈대로 판별, 시작 전·대기 중 5초마다 검사해 안 죽이고 멈춤(15.5초/0.2초), 정상 잡 1.7초, 죽인 뒤 주의 줄. BridgeTalk 70초 원인 못 찾음 |
 | `log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md` | 기록 | D — bridge 갈래 셋: FAIL TIMEOUT·JOBERR 가짜 통과 고침(issue 47), AE 충돌 복구 창(constraint 71, 자동 클릭 반대·시작 전 검사 제안), 프리미어 probe·save_quit, shot_window --all |
 | `log/inbox/2026-09-22_월요일_전달묶음.md` | 기록 | 이정찬이 월요일에 B·D·E 에게 전할 것 한 장 — 토큰 재발급(5분, 첫째)·완료 보고 두 줄·guard 4·save.py 기본값·경로 래칫·파트별 할 일 |
 | `log/inbox/2026-09-22_총괄_실행기_마감_답.md` | 기록 | 총괄 — B·D 09-22 답: 공용 실행기 완료(next_step 46), constraint 69 낮춤·71 신설, 복구 창은 자동 클릭 안 함(53), decision 36 보강 |
@@ -462,7 +463,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `src/tools/profile-render.mjs` | 도구 | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
 | `tools` | 도구 | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
 | `tools/_com/modal_class.py` | 도구 | 모달 글자 → 처리 한 줄. 표(modal_known.json) 조각이 걸리면 그대로, 아니면 Jev 두 순서 일치 + confidence ≥ 0.8, 아니면 '모름'. 판정은 _fail.txt 의 한 줄만 바꾸고 처리(죽이고 기록)는 안 바꾼다. stdout ASCII (B, 09-21) |
-| `tools/_com/modal_text.py` | 도구 | 시간 초과 때 앱의 #32770 모달 창을 찾아 Win32 EnumChildWindows+GetWindowTextW 로 글자를 읽어 modal.json 으로 (B, 09-21). UIA 는 못 읽고 이건 읽힌다(constraint 70) |
+| `tools/_com/modal_text.py` | 도구 | 시간 초과 때 앱의 #32770 모달 창을 찾아 Win32 EnumChildWindows+GetWindowTextW 로 글자를 읽어 modal.json 으로 (B, 09-21). UIA 는 못 읽고 이건 읽힌다(constraint 70). --ae-recovery 는 AE 충돌 복구 창을 자식 창 뼈대로 알아본다 (D, 09-22, constraint 71) |
 | `tools/_com/run.ps1` | 도구 | 어도비 공용 실행기(D 1단계·B 2단계) — 표 한 줄로 앱 넷: Transport bridge(ae·premiere, 포토샵 COM→bridge.jsx)·direct(illustrator·photoshop, 제 ProgId). 시작 전 앱·문서(DocGuard)·프리미어·COM 응답 검사, Wait-Job 시간 제한→모달 글자+그림 먼저→taskkill(direct 는 제 앱만)→Remove-Job, 로그 '판정' 줄로 성공, 실패 시 <잡>_fail.png/.txt + 모달 분류 한 줄. 껍데기 넷(ae·premiere·illustrator·photoshop/run.ps1)이 얹혀 있다 |
 | `tools/_com/shot_window.py` | 도구 | 대상 프로세스의 보이는 최상위 창 중 가장 큰 것을 PrintWindow(PW_RENDERFULLCONTENT) 로 찍는다(가려져 있어도). --all 이면 크기로 거르지 않고 전부 <잡>_fail_all_<앱>_N.png (모달 못 찾은 실패용, B 제안·D 09-22). MainWindowHandle 은 안 믿는다(constraint 64). 못 찾으면 exit 2 (D) |
 | `tools/ae/_labdir.jsx` | 도구 | AE 작업실 찾기 공용 aeLabDir(start, cfgLabDir) — bridge.jsx(포토샵 쪽)·jobs/_lib.jsx(AE 잡 35개)가 부른다. 복붙 10벌 중 AE 쪽 통일 (D, 44efdf5) |
@@ -797,7 +798,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | PowerShell Remove-Job -Force 는 COM 호출에 붙잡힌 잡을 한참(120초) 기다린다 (B 실측 2026-09-21) | 45초 제한을 걸었는데 165.3s. COM 이 답할 때까지 잡이 안 끝나고 Remove-Job 이 그걸 기다린다 | 시간은 Wait-Job 직후에 잰다. Remove-Job 은 앱을 taskkill 한 뒤에(COM 이 풀려 바로 끝남). tools/_com/run.ps1 · issue 43 |
 | 어도비 앱이 떠 있는데 COM 이 안 답하는 상태가 있다 — 원인 미확정, 규칙 아님 (B 09-21 한 번 겪음 → 09-22 재현 실패) | 09-21 일러를 taskkill 뒤 재기동하자 시작 화면인 채 COM 무응답, 600초를 태움. 09-22 같은 절차로 재현하니 9초 만에 정상(복구 창 없음). 그때와 다른 점: 연달아 두 번 죽였고 뜨는 중에 COM 호출 하나가 CO_E_SERVER_EXEC_FAILURE 로 실패했다. 당시 캡처가 가장 큰 창 하나라 작은 창이 있었는지 모른다 | '한 번 겪은 것을 규칙처럼 적지 않는다' 의 사례로 남긴다(B 스스로 낮춤). 실행기의 '떠 있는데 COM 이 안 답하면 말하고 멈춘다(죽이지 않는다)' 검사는 원인과 무관하게 유효하니 그대로. 모달 못 찾은 실패는 보이는 창을 전부 찍는다(shot_window --all, D). 원문 log/inbox/2026-09-22_B_시작화면굳음_재현안됨.md |
 | 어도비 모달의 글자는 Win32 로 읽힌다 — UIA 가 못 읽는 것이지 EnumChildWindows+GetWindowTextW 는 그대로 나온다 (B 실측 2026-09-21) | TRAPS ⑨-5 '속을 못 읽는다' 는 UIA 얘기. #32770 창의 자식(버튼·정적 텍스트)에서 "확인(&O)"·본문이 읽혔다. 자식 창이 없는 자작 창도 있다 | tools/_com/modal_text.py 가 글자를, shot_window.py 가 그림을 — 둘 다 남긴다. 글자가 나오면 modal_class.py(표 → Jev 두 순서·문 0.8)로 한 줄 분류. TRAPS ⑨-5 갱신됨 |
-| AE 를 강제 종료하면 다음 기동 때 '충돌 복구 옵션' 창(534x365)이 뜨고 잡이 닿지 못한다 — 자동으로 누르지 않는다 (D 실측 2026-09-22) | 버튼 넷(안전 모드·환경 설정 재설정·플러그인 관리·계속). Enter(SendKeys) 안 먹음. 마우스 클릭은 먹지만(SetProcessDPIAware+SetForegroundWindow 뒤 두 번 재현) DPI 인식 없이 누른 첫 시도가 빗나가 옆의 탐색기로 가서 프리미어를 띄웠다. 어도비 자작 창이라 글자는 OS_ViewContainer 뿐 → 분류 '모름'. 일러스트레이터는 이 창이 없다(B 재현). BridgeTalk 이 왜 약 70초에서 끊는지는 미확인(bridge.jsx 는 600초) | 실행기가 창을 누르게 하지 않는다(빗나가면 남의 앱이 뜬다 — 총괄 결정 09-22). 시작 전 검사에서 이 창(대상 앱 #32770 534x365, 주창 없음)을 보면 '충돌 복구 창 — 계속을 누르고 다시 부르세요' 로 바로 멈춘다(next_step 53). 죽인 뒤 _fail.txt 에 '다음 실행 때 복구 창이 뜹니다' 한 줄. 원문 log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md §2 |
+| AE 를 강제 종료하면 다음 기동 때 '충돌 복구 옵션' 창(534x365)이 뜨고 잡이 닿지 못한다 — 자동으로 누르지 않는다 (D 실측 2026-09-22) | 버튼 넷(안전 모드·환경 설정 재설정·플러그인 관리·계속). Enter(SendKeys) 안 먹음. 마우스 클릭은 먹지만(SetProcessDPIAware+SetForegroundWindow 뒤 두 번 재현) DPI 인식 없이 누른 첫 시도가 빗나가 옆의 탐색기로 가서 프리미어를 띄웠다. 어도비 자작 창이라 글자는 OS_ViewContainer 뿐 → 분류 '모름'. 일러스트레이터는 이 창이 없다(B 재현). BridgeTalk 이 왜 약 70초에서 끊는지는 미확인(bridge.jsx 는 600초) | 실행기가 창을 누르게 하지 않는다(빗나가면 남의 앱이 뜬다 — 총괄 결정 09-22). 시작 전 검사에서 이 창(대상 앱 #32770 534x365, 주창 없음)을 보면 '충돌 복구 창 — 계속을 누르고 다시 부르세요' 로 바로 멈춘다(next_step 53, D 완료 09-22). 판별은 크기가 아니라 자식 창 뼈대: 복구 창 = #32770 + OS_ViewContainer×2 + OS_EditTextContainer, AE 주창 없음 / 시작 화면 = OS_ViewContainer 하나(크기는 배율 따라 달라 조건에서 뺌). 시작 전 + 대기 중 5초마다(COM 이 AE 를 띄울 때 뜨므로). 멈출 때 아무것도 죽이지 않는다. 죽인 뒤 _fail.txt 에 '다음 실행 때 복구 창이 뜹니다' 한 줄. BridgeTalk ~70초 원인은 못 찾음(네 번 68~74초). 원문 log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md §2 · 2026-09-22_D_next53_AE복구창_멈춤.md |
 
 ## 다음에 할 일
 
@@ -853,7 +854,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 50. **Jev 시험 — D 완료 (D-3 11/12 → radar 에 붙음 · D-1 줄 단위=D-4 17/20 < 규칙 18/20 → 실행기 판정에 안 붙임 · D-2 승자 없음, 팀장 분류 기준 뒤 = 52 와 함께)** — D-1 잡 로그 성공/실패 Noul(20개 중 18, 틀린 것의 confidence 낮으면 run.ps1 경고 통과 자리에) · D-2 대본 비트 분류 Choice(차10 콘티 12장 중 10) · D-3 오류 분류 Choice(30건 중 25). 이미지·좌표·날짜는 제외. E 한국어 시험이 먼저. 설계 log/inbox/2026-09-21_총괄_Jev_시험_D·B.md  _(대기: 완료 (D-2 재측정은 52 에 붙음))_
 51. **Jev 시험 — B 완료 (09-21: 5/6·9/11·14/20 미달, 그러나 틀린 9건 중 6건은 우리 자료 — 발견 둘: 선택지에 TRAPS 필요·규칙 22 설명 정정)** — B-1 모달 문구 → 처리 종류 Choice(실제 문구 5~6개 전부) · B-2 썸네일 강조 대상 Choice(규칙 22, 빨강 든 회차 전부) · B-3 오류 분류(20건 중 16). 픽셀·색 코드·캡처 판정은 제외  _(대기: 완료)_
 52. **scenes.py 규칙 2 정정 — D** — D 판독: '원리 비트는 민차트' 는 절반만 맞다(2-1(1)은 볼린저+MA). 확실한 건 규칙 3(지표 설명 비트는 그 지표를 켠다)뿐. 심볼·주기도 고정 아님. 팀장 분류 기준 확인 뒤 규칙 2 를 고치거나 뺀다. 원문 log/inbox/2026-09-21_D_Jev시험.md §2  _(대기: 팀장 기준 확인 → D)_
-53. **공용 실행기 — AE 충돌 복구 창을 시작 전 검사에서 잡아 바로 멈추기 (D)** — 강제 종료된 AE 를 다시 띄우면 복구 창(534x365, 대상 앱 #32770, 주창 없음)이 뜨고 잡은 70초 뒤 FAIL TIMEOUT 으로 끝난다. 자동 클릭은 안 한다(constraint 71 — 빗나가면 남의 앱이 뜬다). ① 시작 전 검사에 그 창 감지 → '충돌 복구 창이 떠 있습니다 — 계속을 누르고 다시 부르세요' 로 exit ② 앱을 죽인 실패의 _fail.txt 에 '다음 실행 때 복구 창이 뜹니다' 한 줄. 급하지 않다 — 손댈 때  _(대기: D, 급하지 않음)_
+53. **공용 실행기 — AE 충돌 복구 창 감지·즉시 멈춤 — D 완료 (09-22: 시작 전 0.2초·대기 중 5초마다 15.5초, 정상 잡 1.7초 안 막힘)** — 강제 종료된 AE 를 다시 띄우면 복구 창(534x365, 대상 앱 #32770, 주창 없음)이 뜨고 잡은 70초 뒤 FAIL TIMEOUT 으로 끝난다. 자동 클릭은 안 한다(constraint 71 — 빗나가면 남의 앱이 뜬다). ① 시작 전 검사에 그 창 감지 → '충돌 복구 창이 떠 있습니다 — 계속을 누르고 다시 부르세요' 로 exit ② 앱을 죽인 실패의 _fail.txt 에 '다음 실행 때 복구 창이 뜹니다' 한 줄. 급하지 않다 — 손댈 때. 완료: modal_text.py --ae-recovery 가 자식 창 뼈대(OS_ViewContainer×2+OS_EditTextContainer, 주창 없음)로 알아본다. 원문 log/inbox/2026-09-22_D_next53_AE복구창_멈춤.md  _(대기: 완료)_
 
 ## 대본과 컷 싱크
 
@@ -1589,22 +1590,22 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 
 | 파일 | 포맷 | 프레임 | 크기 | 비고 |
 |---|---|---|---|---|
-| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | - | 29.97 기준 125f |
-| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | - | 29.97 기준 117f |
-| `out/cmg/cut3-fear.mp4` | mp4 | 152 | - | 29.97 기준 76f |
-| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | - | 29.97 기준 160f |
-| `out/cmg/_reel.mp4` | mp4 | 956 | - | 4컷 이어붙임, 29.97 기준 478f |
-| `out/01-open.mp4` | mp4 | 420 | - |  |
-| `out/02-structure.mp4` | mp4 | 450 | - |  |
-| `out/03-breakdown.mp4` | mp4 | 420 | - |  |
-| `out/04-entry.mp4` | mp4 | 420 | - |  |
-| `out/05-tpsl.mp4` | mp4 | 450 | - |  |
-| `out/06-result.mp4` | mp4 | 540 | - |  |
-| `out/_reel.mp4` | mp4 | 2700 | - | 다크 6컷 릴 45초 |
-| `out/ov-chart.mov` | qtrle | 300 | - | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
-| `out/ov-chart.webm` | vp9a | 300 | - | 전송용 압축본 |
-| `out/ov-tpsl.mov` | qtrle | 300 | - |  |
-| `out/ov-pnl.mov` | qtrle | 300 | - |  |
+| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | 0.8 MB | 29.97 기준 125f |
+| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | 1.0 MB | 29.97 기준 117f |
+| `out/cmg/cut3-fear.mp4` | mp4 | 152 | 1.1 MB | 29.97 기준 76f |
+| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | 3.4 MB | 29.97 기준 160f |
+| `out/cmg/_reel.mp4` | mp4 | 956 | 6.4 MB | 4컷 이어붙임, 29.97 기준 478f |
+| `out/01-open.mp4` | mp4 | 420 | 4.4 MB |  |
+| `out/02-structure.mp4` | mp4 | 450 | 4.3 MB |  |
+| `out/03-breakdown.mp4` | mp4 | 420 | 4.9 MB |  |
+| `out/04-entry.mp4` | mp4 | 420 | 3.7 MB |  |
+| `out/05-tpsl.mp4` | mp4 | 450 | 3.6 MB |  |
+| `out/06-result.mp4` | mp4 | 540 | 4.8 MB |  |
+| `out/_reel.mp4` | mp4 | 2700 | 25.6 MB | 다크 6컷 릴 45초 |
+| `out/ov-chart.mov` | qtrle | 300 | 38.5 MB | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
+| `out/ov-chart.webm` | vp9a | 300 | 3.2 MB | 전송용 압축본 |
+| `out/ov-tpsl.mov` | qtrle | 300 | 17.1 MB |  |
+| `out/ov-pnl.mov` | qtrle | 300 | 17.0 MB |  |
 
 ## 받아 온 자료
 
@@ -2168,3 +2169,5 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 543 | `a98c9136` | 세이브 save/2026-09-22-1133 — B·D·E 09-22 병합 — 공용 실행기 완료(46), issue 47, constraint 69 낮춤·71, next_step 53, E 차13 도구 둘 등재 | 6파일 +114/-44 |
 | 544 | `de13d7b2` | 세이브 기록 save/2026-09-22-1133 | 5파일 +14/-4 |
 | 545 | `46d19cc8` | 세이브 save/2026-09-22-1311 — next_step 53 — AE 충돌 복구 창을 시작 전·대기 중 알아보고 바로 멈춤(15.5초/0.2초), 죽인 뒤 주의 줄 | 6파일 +121/-20 |
+| 546 | `ddac9883` | 세이브 기록 save/2026-09-22-1311 | 5파일 +11/-3 |
+| 547 | `6660178d` | 병합: worktree-D_Video (09-22 — next_step 53 AE 복구 창 멈춤) | 8파일 +131/-22 |
