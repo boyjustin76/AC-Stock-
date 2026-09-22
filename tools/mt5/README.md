@@ -78,3 +78,22 @@ python tools/mt5/shot.py out/chart4k.png 3840 2160
 **걸리는 것 하나**: 터미널은 쓸 수 있는 지표 목록을 캐시해 둔다. 새로 컴파일한 `CMG_Shot` 이
 목록에 없으면 `chart_add_indicator` 가 `specified indicator not found in base` 를 낸다.
 → MT5 **탐색기(Navigator) 우클릭 > 새로고침** 한 번(또는 터미널 재시작)이면 잡힌다. 그 뒤론 자동이다.
+
+## 대본 한 편을 통째로 — `batch_capture.py` (next_step 45 ①, 2026-09-22)
+
+```bash
+python tools/mt5/batch_capture.py <대본.docx|.txt> <출력폴더>          # 골라서 찍기
+python tools/mt5/batch_capture.py <대본> <출력폴더> --dry              # 고르기만 (MT5 창 안 건드림)
+```
+
+비트마다 ① 찾을 움직임(규칙 → 못 잡으면 Jev, 문 0.7) ② 종목·주기(BTCUSD M1·M5, US100. M1 중 점수 최고)
+③ 구간을 고르고, **새 차트를 열어** 템플릿 `기본값.tpl` → CMG_Shot 으로 자리·지표 → 창 캡처 → 차트 닫기.
+사람이 보던 차트는 안 건드린다. 결과는 `<비트>.png` · `콘티.json` · `콘티.md`(비트마다 왜 이 장면인지).
+
+걸렸던 것
+1. **지표 목록은 `+` 로 잇는다.** MCP `chart_add_indicator` 는 인자 문자열을 쉼표로 나눈다.
+   `ShotInds=EMA200,EMA20,ADX` 는 EMA200 하나만 붙고 **오류도 없다.** → `EMA200+EMA20+ADX`.
+   그래서 찍기 직전 차트에 실제로 달린 지표를 세어 요청과 맞추고, 모자라면 콘티에 경고를 남긴다.
+2. **CMG_Shot 은 4.8초쯤 스스로 지표를 뗀다.** 밖에서 창을 찍는 모드는 `KeepInds=true` 를 준다(차트째 닫으니 안 남는다).
+3. **창 제목은 브로커가 정한다.** HedgeHood 는 'MetaTrader' 가 제목에 없다 → 제목으로 못 찾으면 terminal64 프로세스 창을 쓴다.
+4. **점수는 비율이어야 한다.** 톱니 점수가 가격 그대로라 BTCUSD 가 늘 이겼다 → '가장 작은 다리 / 구간폭'.
