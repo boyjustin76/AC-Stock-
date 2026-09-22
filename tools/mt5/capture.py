@@ -56,9 +56,16 @@ def find_window(hint=TITLE_HINT):
         return True
 
     u.EnumWindows(cb, 0)
-    if not out:
-        raise SystemExit(f'제목에 {hint!r} 가 든 창을 못 찾았다 — MT5_WINDOW_HINT 로 바꿔라')
-    return out[0]
+    if out:
+        return out[0]
+    # 제목은 브로커가 정한다 — HedgeHood 터미널은 '935002683 - HedgeHoodMU-1: 데모계좌 - …' 라 'MetaTrader' 가 없다(09-22).
+    # 그래서 제목으로 못 찾으면 terminal64 프로세스의 가장 큰 보이는 창을 쓴다.
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '_com'))
+    from shot_window import find_window as by_proc
+    got = by_proc(proc='terminal64')
+    if got:
+        return got[0]
+    raise SystemExit(f'제목에 {hint!r} 가 든 창도, terminal64 창도 못 찾았다 — MT5 가 떠 있나 보라')
 
 
 def shoot(hwnd):

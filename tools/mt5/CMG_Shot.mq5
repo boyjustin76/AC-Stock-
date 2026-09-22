@@ -19,9 +19,11 @@ input int    ShotW       = 1920;            // 가로 픽셀
 input int    ShotH       = 1080;            // 세로 픽셀
 input string ShotEndTime = "";              // 오른쪽 끝에 둘 시각 "YYYY.MM.DD HH:MM" (빈칸이면 최신)
 input int    ShotScale   = -1;              // 배율 0~5 (-1 이면 그대로)
-input string ShotInds    = "";               // 켤 지표 "EMA20,EMA200,ADX" (빈칸이면 그대로)
+input string ShotInds    = "";               // 켤 지표 "EMA20+EMA200+ADX" (빈칸이면 그대로). MCP 로 줄 때는 '+' — 쉼표는 잘린다
 input bool   ShotRestore = false;            // true 면 찍지 않고 보던 자리(최신)로 되돌리기만 한다
 input bool   SelfRemove  = true;            // 찍은 뒤 스스로 빠지기
+input bool   KeepInds    = false;           // true 면 얹은 지표를 떼지 않는다 — 밖에서 창을 찍고 차트째 닫을 때
+                                            // (떼는 단계가 ~4.8초에 와서, 밖의 캡처가 떼는 도중을 찍었다 — 09-22)
 
 int    g_step = 0;
 string g_name = "CMG_Shot";
@@ -33,8 +35,12 @@ long   g_autoscroll0 = -1;   // 원래 자동스크롤 값 — 끝나면 돌려�
 //--- 대본이 말한 지표를 그 자리에서 얹는다 (템플릿을 안 만들어도 되게)
 void AddInds()
   {
+   // 구분자는 '+' 다. MCP chart_add_indicator 는 인자 문자열을 쉼표로 나누기 때문에
+   // "ShotInds=EMA200,EMA20,ADX" 는 EMA200 하나만 남는다 (09-22 실측 — 로그에 EMA200 만 얹혔다).
+   string s = ShotInds;
+   StringReplace(s, ",", "+");
    string parts[];
-   int n = StringSplit(ShotInds, ',', parts);
+   int n = StringSplit(s, '+', parts);
    for(int i = 0; i < n; i++)
      {
       string k = parts[i];
@@ -167,7 +173,8 @@ void OnTimer()
      }
 //--- 4단계: 스스로 빠진다
    EventKillTimer();
-   DropInds();
+   if(!KeepInds)
+      DropInds();
    // 사람 차트를 빌려 썼으면 보던 자리로 돌려놓는다 (찍지 않는 모드는 밖에서 캡처해야 하니 그대로 둔다)
    if(g_autoscroll0 >= 0 && StringLen(ShotFile) > 0)
      {

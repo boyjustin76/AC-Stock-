@@ -31,6 +31,7 @@ def _attach(m, chart_id, params, settle=3.5):
 
 
 def scene(out, end_time, inds='', scale=-1, restore=True):
+    inds = inds.replace(',', '+')     # MCP 가 인자 문자열을 쉼표로 나눠 첫 지표만 남는다(09-22) — '+' 로 넘긴다
     m = MT5()
     chart = m.open_charts()[0]
     cid = str(chart['chart_id'])

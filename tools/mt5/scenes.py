@@ -200,8 +200,11 @@ def find(name, bars, page=110):
             if len(d) < 4:
                 continue
             alt = all((d[k] > 0) != (d[k + 1] > 0) for k in range(3))
-            if alt:
-                best.append((sum(abs(x) for x in d), i, f'네 구간 등락 {[round(x, 1) for x in d]}'))
+            rng = max(seg) - min(seg)
+            if alt and rng > 0:
+                # 가장 작은 다리 / 구간폭 — 네 번 다 크게 꺾여야 높다. 비율이라 종목·주기끼리 견줄 수 있다.
+                # (전엔 등락 합을 가격 그대로 써서 BTCUSD 가 늘 이겼고, 한 다리만 큰 톱니가 뽑혔다 — 09-22)
+                best.append((min(abs(x) for x in d) / rng, i, f'네 구간 등락 {[round(x, 1) for x in d]}'))
 
     elif name == 'chop_box':
         # 좁은 박스 — 전체 폭 대비 순이동이 작을수록 좋다
