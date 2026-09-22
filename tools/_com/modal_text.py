@@ -102,12 +102,37 @@ def find_modal(proc):
     return None, main
 
 
+def ae_recovery():
+    """AE 의 '충돌 복구 옵션' 창이 떠 있나 (constraint 71 · next_step 53).
+
+    강제 종료된 AE 를 다시 띄우면 뜬다. 어도비가 그린 창이라 문구는 안 읽히지만 **뼈대**는 읽힌다 (09-22 D 실측):
+      · 복구 창   #32770 · 자식 OS_ViewContainer ×2 + **OS_EditTextContainer** · AE 주창 없음 (534x365)
+      · 시작 화면 #32770 · 자식 OS_ViewContainer 하나뿐 (766x516) — 이것과 헷갈리면 안 된다
+    크기는 화면 배율마다 달라질 수 있어 조건에 안 넣는다.
+    """
+    wins = top_windows("AfterFX")
+    if any(d["class"].startswith("AE_CApplication") for d in wins):
+        return None
+    for d in wins:
+        if d["class"] == DIALOG_CLASS and "OS_EditTextContainer" in child_texts(d["hwnd"]):
+            return d
+    return None
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--proc", required=True, help="프로세스 이름 (확장자 없이). 예 Illustrator")
+    ap.add_argument("--proc", help="프로세스 이름 (확장자 없이). 예 Illustrator")
     ap.add_argument("--out", help="모달 그림을 쓸 자리 (.png)")
     ap.add_argument("--json", help="찾은 것을 쓸 자리 (.json, UTF-8)")
+    ap.add_argument("--ae-recovery", action="store_true",
+                    help="AE 충돌 복구 창만 본다. 종료코드 0 = 떠 있다 · 2 = 없다")
     a = ap.parse_args()
+    if a.ae_recovery:
+        d = ae_recovery()
+        print(f"ae_recovery={int(d is not None)}" + (f" size={d['w']}x{d['h']}" if d else ""))
+        return 0 if d else 2
+    if not a.proc:
+        ap.error("--proc 가 있어야 한다")
 
     modal, main_win = find_modal(a.proc)
     res = {
