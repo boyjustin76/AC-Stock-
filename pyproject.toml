@@ -4,7 +4,7 @@
 [tool.ruff]
 line-length = 120
 target-version = "py311"
-extend-exclude = ["tools/legacy", "lab", "deliver", "out", "node_modules"]
+extend-exclude = ["tools/legacy", "lab", "deliver", "out", "node_modules", "data"]
 
 [tool.ruff.lint]
 select = ["E", "F", "B", "UP"]

@@ -223,6 +223,9 @@ git restore --source=<해시> -- .              # 되돌리기
 | `brand/thumbnail/틀.png` | 템플릿 '틀' 도형 원본 픽셀 (안쪽 투명) |
 | `brand/ui` | 매수·매도 버튼, 시네마스코프, 댓글 유도 |
 | `data/synth/newch-trad.json` | seed 11 합성 시장 앞에 워밍업 60봉 — 이평선이 첫 화면 봉부터 그려지게 (tools/style/trad-bars.mjs) |
+| `data/대본자료` | E 의 대본 작업 자료 중 저장소에 두는 것만(decision 38): README(로컬 05_대본자료 구조 설명)·워크플로우.md(단계 12·관문·도구)·팀장쌍/pairs.jsonl. Pool·자막·레퍼런스·방송본·양식은 로컬에만(.gitignore) |
+| `data/대본자료/도구` | E 의 대본 파이프라인 도구 41 .py — pipeline.py(관문 12), skeleton2·pool·cohesion·wordy·flow_check·novel_words·grade 등, paths.py 가 자료 위치 한 곳. 문체실험/ 은 실험 코드. ruff 대상 밖(E 의 일상 코드). 자료 파일(json·txt)은 안 올린다 |
+| `deliver/script/차트명가New` | E 납품물 중 .md 만(decision 38): 차12 ABC 비교표·인과사슬 팀장로직·팀장 피드백 모음·팀장스타일 레퍼런스 도구 공식·차12/차13 뼈대·초안. .docx 는 로컬·드라이브에만 |
 | `deliver/shortform` | 납품한 숏폼 자막·컷리스트 (영상·음성은 드라이브/전달분에만) |
 | `deliver/thumbnail` | 채택된 썸네일. out/ 은 .gitignore 라 여기에 따로 둔다 |
 | `lab/ae/AEP-MOGRT-조사보고.txt` | .aep/.mogrt 납품 가능성 조사 — 공식 자료 vs 우리 실측, 결론: 파일 직접 쓰기 배제, ExtendScript 로 AE 가 굽게 한다 (next_step 27) |
