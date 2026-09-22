@@ -16,3 +16,14 @@ tools/illustrator/_rollad/
 .claude/worktrees/
 .claude/settings.local.json
 .claude/prlinks_find.ok
+
+# 대본 원자료·자막·문서 원본은 저장소 밖 (이정찬 결정 2026-09-22, decision 38) — 저장소는 public
+data/대본자료/Pool/
+data/대본자료/메이저자막/
+data/대본자료/레퍼런스/
+data/대본자료/방송본/
+data/대본자료/양식/
+data/대본자료/**/*.json
+data/대본자료/**/*.txt
+data/대본자료/**/*.bak_*
+deliver/script/**/*.docx
