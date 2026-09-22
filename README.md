@@ -276,6 +276,8 @@ git restore --source=<해시> -- .              # 되돌리기
 | `log/inbox/2026-09-21_총괄_Jev_결정_2.md` | 총괄 — B·D 2차 보고 답: radar 선택지에 TRAPS T①~T㉒, thumbnail_rule 22 정정, constraint 65 정정(선호 비교 vs 분류), B-1 을 공용 실행기 2단계에 |
 | `log/inbox/2026-09-21_총괄_Jev_시험_D·B.md` | 총괄 — D·B Jev 시험 설계 각 3(정답 자료·합격선), 하지 말 것(이미지·셈·색·날짜), 알아서 하나, 보고 형식. next_step 50·51 |
 | `log/inbox/2026-09-21_총괄_Jev_판정관_시험제안.md` | 총괄 — TypeSafe Jev 조사(문서 9쪽)와 우리 자리 판정(판정관 1순위·비트 분류 2순위·가드/글자 수 제외), E 시험 설계 4단계·합격선, 이정찬 결정(미공개 대본 외부 전송) |
+| `log/inbox/2026-09-22_B_시작화면굳음_재현안됨.md` | B — 09-21 '시작 화면 굳음' 을 같은 절차로 재현: 9초 만에 정상, 복구 창 없음. constraint 후보 ② 를 스스로 낮춤. 모달 못 찾으면 창 전부 찍자는 제안 → D 가 넣음 |
+| `log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md` | D — bridge 갈래 셋: FAIL TIMEOUT·JOBERR 가짜 통과 고침(issue 47), AE 충돌 복구 창(constraint 71, 자동 클릭 반대·시작 전 검사 제안), 프리미어 probe·save_quit, shot_window --all |
 | `log/inbox/2026-09-22_월요일_전달묶음.md` | 이정찬이 월요일에 B·D·E 에게 전할 것 한 장 — 토큰 재발급(5분, 첫째)·완료 보고 두 줄·guard 4·save.py 기본값·경로 래칫·파트별 할 일 |
 | `log/inbox/_완료보고_양식.md` | 완료 보고 두 줄 — 확인한 것 / 안 본 것 (decision 33). 검증 범위 오류 여덟 건의 처방 |
 | `log/worklog.db` | 작업 로그 원본 (SQLite) |
@@ -284,6 +286,8 @@ git restore --source=<해시> -- .              # 되돌리기
 | `log/차12_더블볼린저_이정찬판.md` | 차12 이정찬이 직접 고친 판(팀장은 3구간까지 봄) — 대조용 .md. 6차↔이 판의 INTRO~3구간 차이가 next_step 47 의 첫 문장 쌍 자료다 (E, 09-21) |
 | `log/차12_더블볼린저_초안.md` | 차12 더블 볼린저밴드 촬영용 대본 초안(E) — 레퍼런스 사슬대로 재구성, 기간값 20, 규격 채점 통과. 7차(09-21): INTRO~3구간은 이정찬 수정본 그대로, 4구간~OUTRO 에 같은 로직 적용. 일상 작업(총괄은 상태만) |
 | `log/차12_더블볼린저_초안_피드백적용.md` | 차12 5차 — 이정찬 피드백 19곳 반영(화자 축 너/나, 덜어냄, 이음), pipeline.py 관문 12 중 11 통과. A/B/C 대조의 B (E, 09-21) |
+| `log/차13_테스타칼만ATR_뼈대.md` | 차13 뼈대 7구간 — Pool 조각 49개를 출처 앵커로 적고 tools/pool_pieces.py 로 기계 대조 (E, 09-22). 일상 작업 |
+| `log/차13_테스타칼만ATR_뼈대_회사양식.md` | 차13 뼈대의 회사 기본폼 원고(표 한 줄·줄글 란) — tools/skeleton_docx.py 로 .docx (팀장 검사용, E 09-22) |
 | `log/차13_테스타칼만ATR_초안.md` | 차13 테스타 칼만 이평선+ATR 촬영용 대본 초안(E) — 새 사슬(일정표→레퍼런스 자막→Pool→완성) 적용, 4차(09-21). 뼈대는 차13_테스타칼만ATR_뼈대.md |
 | `package.json` | 의존성과 npm 스크립트 |
 | `pyproject.toml` | ruff(E·F·B·UP, E501 제외)+pytest 설정. 경고 0 을 요구하지 않는다 — 새 코드와 고치는 줄부터 |
@@ -337,8 +341,10 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/_com/modal_known.json` | 아는 모달 문구 표 — 조각·처리·왜(TRAPS ⑨-2·⑨-3·⑨-4 출처) 5행 + 힌트표 2행. B1_모달문구.json(원문)과 tests/test_modal_known.py 로 묶여 있다. '새 시퀀스' 행은 조각이 비어 있다 — 겪으면 채운다 |
 | `tools/_com/modal_text.py` | 시간 초과 때 앱의 #32770 모달 창을 찾아 Win32 EnumChildWindows+GetWindowTextW 로 글자를 읽어 modal.json 으로 (B, 09-21). UIA 는 못 읽고 이건 읽힌다(constraint 70) |
 | `tools/_com/run.ps1` | 어도비 공용 실행기(D 1단계·B 2단계) — 표 한 줄로 앱 넷: Transport bridge(ae·premiere, 포토샵 COM→bridge.jsx)·direct(illustrator·photoshop, 제 ProgId). 시작 전 앱·문서(DocGuard)·프리미어·COM 응답 검사, Wait-Job 시간 제한→모달 글자+그림 먼저→taskkill(direct 는 제 앱만)→Remove-Job, 로그 '판정' 줄로 성공, 실패 시 <잡>_fail.png/.txt + 모달 분류 한 줄. 껍데기 넷(ae·premiere·illustrator·photoshop/run.ps1)이 얹혀 있다 |
-| `tools/_com/shot_window.py` | 대상 프로세스의 보이는 최상위 창 중 가장 큰 것을 PrintWindow(PW_RENDERFULLCONTENT) 로 찍는다(가려져 있어도). 공용 실행기 실패 캡처용. MainWindowHandle 은 안 믿는다(constraint 64). 못 찾으면 exit 2 (D) |
+| `tools/_com/shot_window.py` | 대상 프로세스의 보이는 최상위 창 중 가장 큰 것을 PrintWindow(PW_RENDERFULLCONTENT) 로 찍는다(가려져 있어도). --all 이면 크기로 거르지 않고 전부 <잡>_fail_all_<앱>_N.png (모달 못 찾은 실패용, B 제안·D 09-22). MainWindowHandle 은 안 믿는다(constraint 64). 못 찾으면 exit 2 (D) |
 | `tools/ae/_labdir.jsx` | AE 작업실 찾기 공용 aeLabDir(start, cfgLabDir) — bridge.jsx(포토샵 쪽)·jobs/_lib.jsx(AE 잡 35개)가 부른다. 복붙 10벌 중 AE 쪽 통일 (D, 44efdf5) |
+| `tools/ae/jobs/_trap_alert.jsx` | AE 판 alert 함정 잡 — bridge 갈래 실패 경로 회귀용. 밑줄이라 래칫 제외 (D, 09-22) |
+| `tools/ae/jobs/_trap_throw.jsx` | AE 예외 함정 잡 — 모달 없는 실패(JOBERR) 경로 회귀용 (D, 09-22) |
 | `tools/ae/jobs/c10_trad_motion_export_one.jsx` | trad_motion 템플릿 하나만 같은 이름으로 다시 내보내기 (저장 안 함 · 팩 밖으로 낸 뒤 검사하고 교체) |
 | `tools/ae/jobs/c11_relink_check.jsx` | 작업실을 옮긴 뒤 .aep 5개가 푸티지를 스스로 찾는지 실측 (저장 안 함) |
 | `tools/ae/jobs/c1_trad_build.jsx` | 전통 층 PNG 65장 → 컴포지션 4개 (trad.aep) |
@@ -388,6 +394,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/photoshop/dump_layer_fx.jsx` | 레이어 효과(lfx2)를 ActionManager 로 값까지 읽는다 |
 | `tools/photoshop/dump_text_runs.jsx` | 타이틀을 문자 단위로 읽어 한 줄 안에서 색·크기가 갈리는 곳을 찾는다. config 에 runsTarget 을 넣으면 결과물 .psd 도 검사한다 |
 | `tools/photoshop/run.ps1` | 포토샵을 COM 으로 띄워 .jsx 를 실행하는 드라이버 |
+| `tools/pool_pieces.py` | 뼈대의 조각 출처(앵커)를 Pool 원문 173편에 대고 검사·글자수 채우기 — 눈대중 대신 기계 대조 (E, 09-22) |
 | `tools/premiere` | 프리미어 자동화 (D 영역) — run.ps1(BridgeTalk 드라이버)·jobs/*.jsx·verify.py(되읽기 검사기)·presets/30fps sqpreset |
 | `tools/premiere/_labdir.jsx` | 프리미어 실험실 폴더를 박지 않고 찾는다 (ExtendScript · 잡들이 $.evalFile 로 불러 쓴다) |
 | `tools/premiere/jobs/save_quit.jsx` | 열린 프리미어 프로젝트 전부 저장 후 종료 (경로 없는 프로젝트가 있으면 끄지 않는다) |
@@ -395,6 +402,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/psdedit.py` | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
 | `tools/radar.py` | 오류 레이더 — 오류 문장에서 서명을 뽑아 worklog.db(issue·constraint_note)·TRAPS·inbox → Stack Overflow(키 없음 300/일) → GitHub Issues(비인증 10/분) 순으로 찾는다. 의존성 0. --save 로 log/inbox/radar/ 에 남김 |
 | `tools/render-cmg12-layers.mjs` | 차12 병합 인트로(intro-hook)를 5층으로 렌더 — 1_candle(mp4 바닥)/2_ma/3_mark/4_text/5_tag(QT RLE 알파). tag 최상위(규칙 ⑭). AE/프리미어 조립 소스 |
+| `tools/skeleton_docx.py` | 뼈대_회사양식.md → 회사 기본폼 .docx(6단계 퍼널 표 + 줄글 란). 표 칸은 한 줄, 대본은 줄글 (E, 09-22) |
 | `tools/style/fonts/NanumBrushScript.ttf` | 나눔손글씨 붓 (OFL) — 붓 물음표 |
 | `tools/style/frame.py` | 새 채널 v1~v4 합성기 — 브라우저 창 크롬·타이틀 블록·툴킷 |
 | `tools/style/frames_clean.py` | 틀만 조립 완성본 — 가운데 뚫은 투명 PNG 2종(브라우저창·병풍) |

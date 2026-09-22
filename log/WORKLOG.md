@@ -319,11 +319,15 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `log/inbox/2026-09-21_총괄_Jev_결정_2.md` | 기록 | 총괄 — B·D 2차 보고 답: radar 선택지에 TRAPS T①~T㉒, thumbnail_rule 22 정정, constraint 65 정정(선호 비교 vs 분류), B-1 을 공용 실행기 2단계에 |
 | `log/inbox/2026-09-21_총괄_Jev_시험_D·B.md` | 기록 | 총괄 — D·B Jev 시험 설계 각 3(정답 자료·합격선), 하지 말 것(이미지·셈·색·날짜), 알아서 하나, 보고 형식. next_step 50·51 |
 | `log/inbox/2026-09-21_총괄_Jev_판정관_시험제안.md` | 기록 | 총괄 — TypeSafe Jev 조사(문서 9쪽)와 우리 자리 판정(판정관 1순위·비트 분류 2순위·가드/글자 수 제외), E 시험 설계 4단계·합격선, 이정찬 결정(미공개 대본 외부 전송) |
+| `log/inbox/2026-09-22_B_시작화면굳음_재현안됨.md` | 기록 | B — 09-21 '시작 화면 굳음' 을 같은 절차로 재현: 9초 만에 정상, 복구 창 없음. constraint 후보 ② 를 스스로 낮춤. 모달 못 찾으면 창 전부 찍자는 제안 → D 가 넣음 |
+| `log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md` | 기록 | D — bridge 갈래 셋: FAIL TIMEOUT·JOBERR 가짜 통과 고침(issue 47), AE 충돌 복구 창(constraint 71, 자동 클릭 반대·시작 전 검사 제안), 프리미어 probe·save_quit, shot_window --all |
 | `log/inbox/2026-09-22_월요일_전달묶음.md` | 기록 | 이정찬이 월요일에 B·D·E 에게 전할 것 한 장 — 토큰 재발급(5분, 첫째)·완료 보고 두 줄·guard 4·save.py 기본값·경로 래칫·파트별 할 일 |
 | `log/차12_더블볼린저_워크플로우판.md` | 기록 | 차12 A/B 대조용 — 피드백 없이 pipeline.py 관문 미달만 근거로 고친 판(이음·닫기·인터럽트·흐름 z). 규칙 출처 06_외부스킬 (E, 09-21) |
 | `log/차12_더블볼린저_이정찬판.md` | 기록 | 차12 이정찬이 직접 고친 판(팀장은 3구간까지 봄) — 대조용 .md. 6차↔이 판의 INTRO~3구간 차이가 next_step 47 의 첫 문장 쌍 자료다 (E, 09-21) |
 | `log/차12_더블볼린저_초안.md` | 기록 | 차12 더블 볼린저밴드 촬영용 대본 초안(E) — 레퍼런스 사슬대로 재구성, 기간값 20, 규격 채점 통과. 7차(09-21): INTRO~3구간은 이정찬 수정본 그대로, 4구간~OUTRO 에 같은 로직 적용. 일상 작업(총괄은 상태만) |
 | `log/차12_더블볼린저_초안_피드백적용.md` | 기록 | 차12 5차 — 이정찬 피드백 19곳 반영(화자 축 너/나, 덜어냄, 이음), pipeline.py 관문 12 중 11 통과. A/B/C 대조의 B (E, 09-21) |
+| `log/차13_테스타칼만ATR_뼈대.md` | 기록 | 차13 뼈대 7구간 — Pool 조각 49개를 출처 앵커로 적고 tools/pool_pieces.py 로 기계 대조 (E, 09-22). 일상 작업 |
+| `log/차13_테스타칼만ATR_뼈대_회사양식.md` | 기록 | 차13 뼈대의 회사 기본폼 원고(표 한 줄·줄글 란) — tools/skeleton_docx.py 로 .docx (팀장 검사용, E 09-22) |
 | `log/차13_테스타칼만ATR_초안.md` | 기록 | 차13 테스타 칼만 이평선+ATR 촬영용 대본 초안(E) — 새 사슬(일정표→레퍼런스 자막→Pool→완성) 적용, 4차(09-21). 뼈대는 차13_테스타칼만ATR_뼈대.md |
 | `.gitignore` | 기타 |  |
 | `CLAUDE.md` | 기타 |  |
@@ -425,7 +429,6 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `log/build_readme.py` | 기타 |  |
 | `log/save.py` | 기타 |  |
 | `log/차12_더블볼린저_뼈대.md` | 기타 |  |
-| `log/차13_테스타칼만ATR_뼈대.md` | 기타 |  |
 | `package-lock.json` | 기타 |  |
 | `scenes/cmg12-cross.scenes.js` | 기타 |  |
 | `scenes/cmg12-layer-candle.scenes.js` | 기타 |  |
@@ -460,8 +463,10 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `tools/_com/modal_class.py` | 도구 | 모달 글자 → 처리 한 줄. 표(modal_known.json) 조각이 걸리면 그대로, 아니면 Jev 두 순서 일치 + confidence ≥ 0.8, 아니면 '모름'. 판정은 _fail.txt 의 한 줄만 바꾸고 처리(죽이고 기록)는 안 바꾼다. stdout ASCII (B, 09-21) |
 | `tools/_com/modal_text.py` | 도구 | 시간 초과 때 앱의 #32770 모달 창을 찾아 Win32 EnumChildWindows+GetWindowTextW 로 글자를 읽어 modal.json 으로 (B, 09-21). UIA 는 못 읽고 이건 읽힌다(constraint 70) |
 | `tools/_com/run.ps1` | 도구 | 어도비 공용 실행기(D 1단계·B 2단계) — 표 한 줄로 앱 넷: Transport bridge(ae·premiere, 포토샵 COM→bridge.jsx)·direct(illustrator·photoshop, 제 ProgId). 시작 전 앱·문서(DocGuard)·프리미어·COM 응답 검사, Wait-Job 시간 제한→모달 글자+그림 먼저→taskkill(direct 는 제 앱만)→Remove-Job, 로그 '판정' 줄로 성공, 실패 시 <잡>_fail.png/.txt + 모달 분류 한 줄. 껍데기 넷(ae·premiere·illustrator·photoshop/run.ps1)이 얹혀 있다 |
-| `tools/_com/shot_window.py` | 도구 | 대상 프로세스의 보이는 최상위 창 중 가장 큰 것을 PrintWindow(PW_RENDERFULLCONTENT) 로 찍는다(가려져 있어도). 공용 실행기 실패 캡처용. MainWindowHandle 은 안 믿는다(constraint 64). 못 찾으면 exit 2 (D) |
+| `tools/_com/shot_window.py` | 도구 | 대상 프로세스의 보이는 최상위 창 중 가장 큰 것을 PrintWindow(PW_RENDERFULLCONTENT) 로 찍는다(가려져 있어도). --all 이면 크기로 거르지 않고 전부 <잡>_fail_all_<앱>_N.png (모달 못 찾은 실패용, B 제안·D 09-22). MainWindowHandle 은 안 믿는다(constraint 64). 못 찾으면 exit 2 (D) |
 | `tools/ae/_labdir.jsx` | 도구 | AE 작업실 찾기 공용 aeLabDir(start, cfgLabDir) — bridge.jsx(포토샵 쪽)·jobs/_lib.jsx(AE 잡 35개)가 부른다. 복붙 10벌 중 AE 쪽 통일 (D, 44efdf5) |
+| `tools/ae/jobs/_trap_alert.jsx` | 도구 | AE 판 alert 함정 잡 — bridge 갈래 실패 경로 회귀용. 밑줄이라 래칫 제외 (D, 09-22) |
+| `tools/ae/jobs/_trap_throw.jsx` | 도구 | AE 예외 함정 잡 — 모달 없는 실패(JOBERR) 경로 회귀용 (D, 09-22) |
 | `tools/ae/jobs/c10_trad_motion_export_one.jsx` | 도구 | trad_motion 템플릿 하나만 같은 이름으로 다시 내보내기 (저장 안 함 · 팩 밖으로 낸 뒤 검사하고 교체) |
 | `tools/ae/jobs/c11_relink_check.jsx` | 도구 | 작업실을 옮긴 뒤 .aep 5개가 푸티지를 스스로 찾는지 실측 (저장 안 함) |
 | `tools/ae/jobs/c1_trad_build.jsx` | 도구 | 전통 층 PNG 65장 → 컴포지션 4개 (trad.aep) |
@@ -510,6 +515,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `tools/photoshop/dump_layer_fx.jsx` | 도구 | 레이어 효과(lfx2)를 ActionManager 로 값까지 읽는다 |
 | `tools/photoshop/dump_text_runs.jsx` | 도구 | 타이틀을 문자 단위로 읽어 한 줄 안에서 색·크기가 갈리는 곳을 찾는다. config 에 runsTarget 을 넣으면 결과물 .psd 도 검사한다 |
 | `tools/photoshop/run.ps1` | 도구 | 포토샵을 COM 으로 띄워 .jsx 를 실행하는 드라이버 |
+| `tools/pool_pieces.py` | 도구 | 뼈대의 조각 출처(앵커)를 Pool 원문 173편에 대고 검사·글자수 채우기 — 눈대중 대신 기계 대조 (E, 09-22) |
 | `tools/premiere` | 도구 | 프리미어 자동화 (D 영역) — run.ps1(BridgeTalk 드라이버)·jobs/*.jsx·verify.py(되읽기 검사기)·presets/30fps sqpreset |
 | `tools/premiere/_labdir.jsx` | 도구 | 프리미어 실험실 폴더를 박지 않고 찾는다 (ExtendScript · 잡들이 $.evalFile 로 불러 쓴다) |
 | `tools/premiere/jobs/save_quit.jsx` | 도구 | 열린 프리미어 프로젝트 전부 저장 후 종료 (경로 없는 프로젝트가 있으면 끄지 않는다) |
@@ -517,6 +523,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `tools/psdedit.py` | 도구 | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
 | `tools/radar.py` | 도구 | 오류 레이더 — 오류 문장에서 서명을 뽑아 worklog.db(issue·constraint_note)·TRAPS·inbox → Stack Overflow(키 없음 300/일) → GitHub Issues(비인증 10/분) 순으로 찾는다. 의존성 0. --save 로 log/inbox/radar/ 에 남김 |
 | `tools/render-cmg12-layers.mjs` | 도구 | 차12 병합 인트로(intro-hook)를 5층으로 렌더 — 1_candle(mp4 바닥)/2_ma/3_mark/4_text/5_tag(QT RLE 알파). tag 최상위(규칙 ⑭). AE/프리미어 조립 소스 |
+| `tools/skeleton_docx.py` | 도구 | 뼈대_회사양식.md → 회사 기본폼 .docx(6단계 퍼널 표 + 줄글 란). 표 칸은 한 줄, 대본은 줄글 (E, 09-22) |
 | `tools/style/frame.py` | 도구 | 새 채널 v1~v4 합성기 — 브라우저 창 크롬·타이틀 블록·툴킷 |
 | `tools/style/frames_clean.py` | 도구 | 틀만 조립 완성본 — 가운데 뚫은 투명 PNG 2종(브라우저창·병풍) |
 | `tools/style/pixel.py` | 도구 | 영역 픽셀 실측 (검정·흰색 걸러 대표색) |
@@ -787,8 +794,9 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 어도비 잡 로그는 생존 편향이 있다 — 실패한 잡은 로그를 안 남긴다 (D 09-21) | 작업실 로그 66개(AE 33·프리미어 33)가 거의 다 성공. 이걸로 성공/실패 판정을 재면 '무조건 성공' 모델이 17/20 을 받는다 | 판정 시험은 파일 단위가 아니라 줄 단위(한 로그 안의 ERR 줄과 true 줄, m5_frames2·a3_frame2)로. 공용 실행기가 _fail.txt 를 남기기 시작했으니 표본은 앞으로 쌓인다. 원문 log/inbox/2026-09-21_D_Jev시험.md §3 |
 | Jev 는 수를 견줘야 답이 갈리는 자리에서 높은 confidence 로 틀린다 — confidence 문이 안 걸러진다 (D-4 실측 2026-09-21) | 잡 로그 한 줄 성공/실패 20건: Jev 17/20, 지금 규칙(ERR·throw·false 낱말) 18/20. 틀린 셋 중 둘은 '반환 true 인데 실제로 안 된 줄'(폴더 목록이 앞 줄과 같음, 시퀀스 0 -> 0)을 confidence 0.91·0.86 으로 성공이라 했다. 문(≥0.7)을 걸어도 통과한다. 셋째(0.05)만 문에 걸린다 | 수를 견주는 일(같은가·늘었는가·0 인가)에는 안 쓴다 — 문서에 셈 못 한다고 명시돼 있고 실측이 그대로다. 뜻만으로 갈리는 자리(오류 분류 D-3, 모달 문구 B-1)에만. 잡의 성공/실패는 잡이 스스로 '판정:' 한 줄을 쓰게 한다(래칫 tests/test_verdict_lines.py). 원문 log/inbox/2026-09-21_D_Jev시험.md §7 · tools/jev/run_d4.py |
 | PowerShell Remove-Job -Force 는 COM 호출에 붙잡힌 잡을 한참(120초) 기다린다 (B 실측 2026-09-21) | 45초 제한을 걸었는데 165.3s. COM 이 답할 때까지 잡이 안 끝나고 Remove-Job 이 그걸 기다린다 | 시간은 Wait-Job 직후에 잰다. Remove-Job 은 앱을 taskkill 한 뒤에(COM 이 풀려 바로 끝남). tools/_com/run.ps1 · issue 43 |
-| 어도비 앱을 taskkill 한 직후 다시 띄우면 시작 화면에서 굳는다 — 프로세스는 있고 COM 은 안 답한다 (B 실측 2026-09-21, 한 번 겪음·재현은 안 함) | 프로세스 있음, 모달 없음, CPU 는 5분에 4초. 그 위로 잡을 던지면 제한 시간을 통째로 태운다(600초) | 실행기 시작 전 검사: 떠 있는데 COM 이 안 답하면 말하고 멈춘다 — 죽이지 않는다(사람이 막 띄운 것일 수도). 재현 조건은 미확인 |
+| 어도비 앱이 떠 있는데 COM 이 안 답하는 상태가 있다 — 원인 미확정, 규칙 아님 (B 09-21 한 번 겪음 → 09-22 재현 실패) | 09-21 일러를 taskkill 뒤 재기동하자 시작 화면인 채 COM 무응답, 600초를 태움. 09-22 같은 절차로 재현하니 9초 만에 정상(복구 창 없음). 그때와 다른 점: 연달아 두 번 죽였고 뜨는 중에 COM 호출 하나가 CO_E_SERVER_EXEC_FAILURE 로 실패했다. 당시 캡처가 가장 큰 창 하나라 작은 창이 있었는지 모른다 | '한 번 겪은 것을 규칙처럼 적지 않는다' 의 사례로 남긴다(B 스스로 낮춤). 실행기의 '떠 있는데 COM 이 안 답하면 말하고 멈춘다(죽이지 않는다)' 검사는 원인과 무관하게 유효하니 그대로. 모달 못 찾은 실패는 보이는 창을 전부 찍는다(shot_window --all, D). 원문 log/inbox/2026-09-22_B_시작화면굳음_재현안됨.md |
 | 어도비 모달의 글자는 Win32 로 읽힌다 — UIA 가 못 읽는 것이지 EnumChildWindows+GetWindowTextW 는 그대로 나온다 (B 실측 2026-09-21) | TRAPS ⑨-5 '속을 못 읽는다' 는 UIA 얘기. #32770 창의 자식(버튼·정적 텍스트)에서 "확인(&O)"·본문이 읽혔다. 자식 창이 없는 자작 창도 있다 | tools/_com/modal_text.py 가 글자를, shot_window.py 가 그림을 — 둘 다 남긴다. 글자가 나오면 modal_class.py(표 → Jev 두 순서·문 0.8)로 한 줄 분류. TRAPS ⑨-5 갱신됨 |
+| AE 를 강제 종료하면 다음 기동 때 '충돌 복구 옵션' 창(534x365)이 뜨고 잡이 닿지 못한다 — 자동으로 누르지 않는다 (D 실측 2026-09-22) | 버튼 넷(안전 모드·환경 설정 재설정·플러그인 관리·계속). Enter(SendKeys) 안 먹음. 마우스 클릭은 먹지만(SetProcessDPIAware+SetForegroundWindow 뒤 두 번 재현) DPI 인식 없이 누른 첫 시도가 빗나가 옆의 탐색기로 가서 프리미어를 띄웠다. 어도비 자작 창이라 글자는 OS_ViewContainer 뿐 → 분류 '모름'. 일러스트레이터는 이 창이 없다(B 재현). BridgeTalk 이 왜 약 70초에서 끊는지는 미확인(bridge.jsx 는 600초) | 실행기가 창을 누르게 하지 않는다(빗나가면 남의 앱이 뜬다 — 총괄 결정 09-22). 시작 전 검사에서 이 창(대상 앱 #32770 534x365, 주창 없음)을 보면 '충돌 복구 창 — 계속을 누르고 다시 부르세요' 로 바로 멈춘다(next_step 53). 죽인 뒤 _fail.txt 에 '다음 실행 때 복구 창이 뜹니다' 한 줄. 원문 log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md §2 |
 
 ## 다음에 할 일
 
@@ -837,13 +845,14 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 43. **MCP 자가점검 스크립트 저장소로 — 완료 (E, 6bb8b0e → tools/mcp_probe.py)** — E 가 scratchpad/mcp_probe.py(initialize → tools/list → tools/call)를 만들어 뒀다. 별 수 믿지 말고 띄워 보는 도구라 전 파트 공용 — tools/mcp_probe.py 로 올려 달라 (radar 와 같은 자리)  _(대기: E)_
 44. **경로 끝 공백·마침표 가드 — 완료 (B aed48bd · E 6bb8b0e · D 2a7eddd, 이정찬 승인)** — constraint_note 56. 주석에 번호를 적는다. B 의 일러스트레이터 saveAs 는 실측 뒤 반영(미실측 추정)  _(대기: B·E)_
 45. **대본→차트장면 파이프라인 남은 것 — D (또는 아스트라)** — ① 12장 일괄 촬영(비트마다 심볼·주기 바꿔 도는 부분) ② 콘티 이미지·AE 컴포지션 생성(tools/ae 잡 틀) ③ 규칙을 차10 한 편에서 뽑았다 — 다른 회차로 검증 ④ 찍은 그림을 회사 드라이브 소스 폴더에 넣을지는 이정찬 판단(지금은 안 쓴다). 인수인계 원문 log/inbox/2026-09-18_D_아스트라_인수인계.md  _(대기: D·이정찬(④))_
-46. **어도비 공용 실행기 — B 2단계 완료(09-21 저녁: 일러·포토샵 direct 갈래, 1단계 버그 셋(issue 42~44), 모달 문구 분류 표→Jev 문 0.8). 남은 셋은 bridge 갈래라 D** — run.ps1 네 벌을 tools/_com/run.ps1 하나로 합치면서 ① 앱·문서·프리미어 켜짐 검사 ② 타임아웃→taskkill→실패 기록 ③ 반환값 아닌 판정 줄로 성공 ④ 실패 시 **PrintWindow 로 모달 캡처**(화면 캡처는 가려지면 헛장 — B 09-21, TRAPS ⑨-5)+로그 30줄. 계기: GPT 가 WORKLOG 를 읽고 '진짜 위험은 모달·완료 판정·외부 앱 상태' — DB 로 확인(issue 28~31, TRAPS ⑦⑯). 제안서 log/inbox/2026-09-18_총괄_공용실행기_제안.md  _(대기: D — ① bridge 갈래에서 모달이 포토샵 쪽에 뜨면 Read-Modal 이 못 본다($s.Proc 만) — AE 에서 실제로 나는지 D 가 정한다 ② bridge 의 시간 초과·실패 경로를 새 코드로 한 번(AE 는 성공 경로만 봄) ③ 프리미어 잡 한 번. 원문 log/inbox/2026-09-21_B_공용실행기_2단계.md 끝 절)_
+46. **어도비 공용 실행기 — 완료 (D 1단계 09-21 낮 · B 2단계 09-21 저녁 · D bridge 갈래 셋 09-22: FAIL/JOBERR 가짜 통과 고침(issue 47), 프리미어 probe·save_quit, 모달 못 찾으면 창 전부 찍기). 복구 창 검사만 53 으로** — run.ps1 네 벌을 tools/_com/run.ps1 하나로 합치면서 ① 앱·문서·프리미어 켜짐 검사 ② 타임아웃→taskkill→실패 기록 ③ 반환값 아닌 판정 줄로 성공 ④ 실패 시 **PrintWindow 로 모달 캡처**(화면 캡처는 가려지면 헛장 — B 09-21, TRAPS ⑨-5)+로그 30줄. 계기: GPT 가 WORKLOG 를 읽고 '진짜 위험은 모달·완료 판정·외부 앱 상태' — DB 로 확인(issue 28~31, TRAPS ⑦⑯). 제안서 log/inbox/2026-09-18_총괄_공용실행기_제안.md  _(대기: 완료)_
 47. **팀장 반려 문장 쌍 수동 수집 — E** — 반려·첨삭이 올 때마다 고치기 전/후 문장 쌍을 tools/theone/ 에 jsonl 로. 회차·날짜·누가 고쳤나(팀장/전문가/편집) 표시. 30쌍 넘으면 decision 35 다시 본다. 첫 자료가 이미 있다(09-21): 차12 6차 ↔ 이정찬판 INTRO~3구간(팀장 피드백을 이정찬이 적용) — 이 diff 에서 쌍을 뽑으면 된다  _(대기: 반려가 올 때마다 · 첫 쌍 추출은 E 가 시간 날 때)_
 48. **더블볼린저 편 방송 뒤 최종본 대조 — E** — 차12 가 리믹스하는 더블볼린저 편은 아직 방송 전(09-21). 방송되면 자막을 받아 차12 초안과 대조. 방송 실물에서 볼린저 기본 20일 4회 확인(21 은 0회) — 차12 의 21→20 정정 뒷받침. 전문가 실사용은 기간 30·데비에이션 1  _(대기: 방송 뒤)_
 49. **Jev 판정관 시험 — E 완료 (09-21: 한국어 통과·순위 9/13·자리 치우침·confidence 문 제안 → decision 37)** — ① 한국어: 합격 배너 8쌍을 팀장 기준 5개 Score 로 ② 순위: S016 확정본 vs 1안, 8회차 확정본 vs 1판 문구 — 확정본이 이기는 수 ③ 방송본 5쌍 초안 vs 방송본 ④ confidence 분포. 합격선 ②에서 6/8 + ① 정상 → decision 35 갱신·채택, 아니면 external_tool 14 rejected. 미공개 대본은 안 보낸다(이정찬 결정 전). 키는 이정찬 발급 → .secrets TYPESAFE_API_KEY  _(대기: 완료)_
 50. **Jev 시험 — D 완료 (D-3 11/12 → radar 에 붙음 · D-1 줄 단위=D-4 17/20 < 규칙 18/20 → 실행기 판정에 안 붙임 · D-2 승자 없음, 팀장 분류 기준 뒤 = 52 와 함께)** — D-1 잡 로그 성공/실패 Noul(20개 중 18, 틀린 것의 confidence 낮으면 run.ps1 경고 통과 자리에) · D-2 대본 비트 분류 Choice(차10 콘티 12장 중 10) · D-3 오류 분류 Choice(30건 중 25). 이미지·좌표·날짜는 제외. E 한국어 시험이 먼저. 설계 log/inbox/2026-09-21_총괄_Jev_시험_D·B.md  _(대기: 완료 (D-2 재측정은 52 에 붙음))_
 51. **Jev 시험 — B 완료 (09-21: 5/6·9/11·14/20 미달, 그러나 틀린 9건 중 6건은 우리 자료 — 발견 둘: 선택지에 TRAPS 필요·규칙 22 설명 정정)** — B-1 모달 문구 → 처리 종류 Choice(실제 문구 5~6개 전부) · B-2 썸네일 강조 대상 Choice(규칙 22, 빨강 든 회차 전부) · B-3 오류 분류(20건 중 16). 픽셀·색 코드·캡처 판정은 제외  _(대기: 완료)_
 52. **scenes.py 규칙 2 정정 — D** — D 판독: '원리 비트는 민차트' 는 절반만 맞다(2-1(1)은 볼린저+MA). 확실한 건 규칙 3(지표 설명 비트는 그 지표를 켠다)뿐. 심볼·주기도 고정 아님. 팀장 분류 기준 확인 뒤 규칙 2 를 고치거나 뺀다. 원문 log/inbox/2026-09-21_D_Jev시험.md §2  _(대기: 팀장 기준 확인 → D)_
+53. **공용 실행기 — AE 충돌 복구 창을 시작 전 검사에서 잡아 바로 멈추기 (D)** — 강제 종료된 AE 를 다시 띄우면 복구 창(534x365, 대상 앱 #32770, 주창 없음)이 뜨고 잡은 70초 뒤 FAIL TIMEOUT 으로 끝난다. 자동 클릭은 안 한다(constraint 71 — 빗나가면 남의 앱이 뜬다). ① 시작 전 검사에 그 창 감지 → '충돌 복구 창이 떠 있습니다 — 계속을 누르고 다시 부르세요' 로 exit ② 앱을 죽인 실패의 _fail.txt 에 '다음 실행 때 복구 창이 뜹니다' 한 줄. 급하지 않다 — 손댈 때  _(대기: D, 급하지 않음)_
 
 ## 대본과 컷 싱크
 
@@ -1431,6 +1440,12 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 - 조치: 가장 긴 키 우선(sorted(REPO_FILES, key=len, reverse=True))
 - 확인: 재빌드 뒤 repo_file 행 수·tools/_com/modal_* 존재 확인. 며칠 동안 '등재했다'가 표에 없던 것 — 확인한 것/안 본 것 규칙(decision 33)을 총괄이 어긴 사례
 
+### 47. 공용 실행기 bridge 갈래가 'FAIL TIMEOUT'·'OK JOBERR …' 반환을 통과로 냈다 (09-22, D 실측)  `fixed`
+- 증상: AE 가 alert 에 막히면 실행기 제한 전에 BridgeTalk 이 약 70초 만에 onTimeout → bridge.jsx 가 'FAIL TIMEOUT' 을 돌려주는데 완화 규칙(decision 36: 반환이 비어 있지 않으면 통과)이 exit 0. 잡 안의 예외도 'OK JOBERR …' 로 와서 통과. 모달은 안 찍히고 AE 는 alert 를 띄운 채 남음
+- 원인: 완화 규칙이 '반환 있음' 만 봤다. bridge 는 실패도 문자열로 돌려준다. B 가 고친 '죽이기 전에 찍기' 는 bridge 에선 들어가지도 않는다(BridgeTalk 이 늘 먼저 끝남)
+- 조치: bridge 는 반환이 OK 로 시작하고 JOBERR 가 없을 때만 답. 시간 초과가 아닌 실패에서도 모달을 보고 찾으면 찍고 그 앱(+포토샵)을 닫는다. Read-Modal 이 모달 가진 프로세스 이름을 돌려준다. tools/_com/run.ps1
+- 확인: alert 함정 exit 1·71초·426x159 캡처·문구 전부 읽힘, _trap_throw exit 1(모달 없음·창 전부 찍기), 프리미어 probe 통과·save_quit 판정 줄 성공. 원문 log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md
+
 ## 판단과 근거
 
 - **렌더 방식** — 실시간 재생이 아니라 프레임 번호를 받아 그린다
@@ -1528,7 +1543,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
   - 이유: E 실측 09-21: 더원 채널 방송 7편 자막(전부 ASR)을 받아 초안 5쌍과 대조 — 분량↑ 4/5·규칙어↓ 4/5 는 경향이지 법 아님(L01 한 편이 평균을 끌어올림). 이건 before/after 라 A/B 선택이 아니고, 변화 원인(첨삭·애드립·컷편집·ASR)을 팀장에게 못 돌린다. 판정관이 재는 건 취향이 아니라 '나간 것처럼 들리는가' — 그 차이를 흐리지 않는다(E). 이정찬: 팀장 직접 소통 없이는 힘들면 패스
   - 다시 볼 때: 팀장 선택 쌍이 30개를 넘을 때
 - **공용 실행기 — 판정 줄 없는 옛 잡은 '경고 통과', 대신 수가 늘지 않게 래칫** — 판정 줄 있음 → 성공. 없음 + 시간 안 넘김 + bridge 응답 → 통과(경고). 시간 초과·응답 없음 → 실패. tests/test_verdict_lines.py 가 판정 줄 없는 잡 수(09-21 기준 46)를 상한으로 잰다 — 새 잡은 판정 줄 필수, 옛 잡은 손댈 때 넣는다
-  - 이유: 제안서는 '없으면 실패' 였으나 잡 대부분이 옛 것이라 그대로면 아무것도 못 돌린다(D). 완화는 받되 문서가 아니라 장치로 묶는다(decision 34). -StrictVerdict 스위치는 안 만든다 — 래칫이 0 이 되면 기본을 엄격으로 바꾼다. 원문 log/inbox/2026-09-21_D_공용실행기_1단계.md
+  - 이유: 제안서는 '없으면 실패' 였으나 잡 대부분이 옛 것이라 그대로면 아무것도 못 돌린다(D). 완화는 받되 문서가 아니라 장치로 묶는다(decision 34). -StrictVerdict 스위치는 안 만든다 — 래칫이 0 이 되면 기본을 엄격으로 바꾼다. 원문 log/inbox/2026-09-21_D_공용실행기_1단계.md. 09-22 보강(issue 47): 'bridge 응답' 은 OK 로 시작하고 JOBERR 가 없는 것만 — FAIL TIMEOUT·JOBERR 는 실패
   - 다시 볼 때: BASELINE 이 0 이 될 때 — 그때 '없으면 실패' 로
 - **Jev — 거르기·분류에 조건부 채택, 순위 판정관은 아님 (E·D 시험 2026-09-21)** — ① 순위(둘 중 나은 것) 판정관 채택 안 함 — 13편 69% ② 거름망으로만: 자리 바꿔 두 번 일치 + confidence ≥ 0.7 → 자동, 아니면 사람(13편 중 9 자동·4 사람) ③ 분류(우리 벽 중 어느 것)는 채택 — radar --jev, 상위 2~3 을 보여 주고 사람이 고른다(D-3 11/12) ④ 셈·날짜·이미지·좌표는 계속 코드 ⑤ 미공개 대본은 이정찬 승인 후 전송(09-21 승인)
   - 이유: E: 한국어 통과, 값 $0.0014, 자리 치우침(constraint 65), S016 에서 틀리며 confidence 0.30·0.04. D: D-3 11/12(conf 맞은 것 0.97·틀린 것 0.87), D-2 는 분류 기준에 달려 승자 없음, D-1 생존 편향(constraint 66). B: '해당 없음' 선택지·허용 목록 → 둘 다 받는다. 원문 log/inbox/2026-09-21_E_Jev_판정관_시험결과.md · log/inbox/2026-09-21_D_Jev시험.md
@@ -1573,22 +1588,22 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 
 | 파일 | 포맷 | 프레임 | 크기 | 비고 |
 |---|---|---|---|---|
-| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | - | 29.97 기준 125f |
-| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | - | 29.97 기준 117f |
-| `out/cmg/cut3-fear.mp4` | mp4 | 152 | - | 29.97 기준 76f |
-| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | - | 29.97 기준 160f |
-| `out/cmg/_reel.mp4` | mp4 | 956 | - | 4컷 이어붙임, 29.97 기준 478f |
-| `out/01-open.mp4` | mp4 | 420 | - |  |
-| `out/02-structure.mp4` | mp4 | 450 | - |  |
-| `out/03-breakdown.mp4` | mp4 | 420 | - |  |
-| `out/04-entry.mp4` | mp4 | 420 | - |  |
-| `out/05-tpsl.mp4` | mp4 | 450 | - |  |
-| `out/06-result.mp4` | mp4 | 540 | - |  |
-| `out/_reel.mp4` | mp4 | 2700 | - | 다크 6컷 릴 45초 |
-| `out/ov-chart.mov` | qtrle | 300 | - | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
-| `out/ov-chart.webm` | vp9a | 300 | - | 전송용 압축본 |
-| `out/ov-tpsl.mov` | qtrle | 300 | - |  |
-| `out/ov-pnl.mov` | qtrle | 300 | - |  |
+| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | 0.8 MB | 29.97 기준 125f |
+| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | 1.0 MB | 29.97 기준 117f |
+| `out/cmg/cut3-fear.mp4` | mp4 | 152 | 1.1 MB | 29.97 기준 76f |
+| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | 3.4 MB | 29.97 기준 160f |
+| `out/cmg/_reel.mp4` | mp4 | 956 | 6.4 MB | 4컷 이어붙임, 29.97 기준 478f |
+| `out/01-open.mp4` | mp4 | 420 | 4.4 MB |  |
+| `out/02-structure.mp4` | mp4 | 450 | 4.3 MB |  |
+| `out/03-breakdown.mp4` | mp4 | 420 | 4.9 MB |  |
+| `out/04-entry.mp4` | mp4 | 420 | 3.7 MB |  |
+| `out/05-tpsl.mp4` | mp4 | 450 | 3.6 MB |  |
+| `out/06-result.mp4` | mp4 | 540 | 4.8 MB |  |
+| `out/_reel.mp4` | mp4 | 2700 | 25.6 MB | 다크 6컷 릴 45초 |
+| `out/ov-chart.mov` | qtrle | 300 | 38.5 MB | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
+| `out/ov-chart.webm` | vp9a | 300 | 3.2 MB | 전송용 압축본 |
+| `out/ov-tpsl.mov` | qtrle | 300 | 17.1 MB |  |
+| `out/ov-pnl.mov` | qtrle | 300 | 17.0 MB |  |
 
 ## 받아 온 자료
 
@@ -2130,13 +2145,22 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 521 | `abb1a8d8` | 병합: worktree-E_Script (09-21 — 차12 7차·대조판 3·차13 4차) | 5파일 +719/-130 |
 | 522 | `beb72c34` | 세이브 save/2026-09-21-1726 — E 병합 — 차12 7차·대조판 3(피드백적용/워크플로우/이정찬)·차13 4차 등재, next_step 47 에 첫 쌍 자료 | 5파일 +23/-11 |
 | 523 | `750a16d5` | 세이브 기록 save/2026-09-21-1726 | 5파일 +11/-3 |
-| 524 | `4bc9e172` | 공용 실행기 2단계 — 일러·포토샵을 얹고, 1단계 버그 셋을 고쳤다 (모달 문구 분류 문 0.8) | 15파일 +889/-189 |
-| 525 | `158e1e45` | 2단계 보고에 D 몫 인계 절을 넣었다 — 남은 셋은 bridge 갈래라 D 가 이어 받는다 | 1파일 +15/-4 |
-| 526 | `cbcf0545` | 병합: worktree-B_Image (09-21 — 공용 실행기 2단계 일러·포토샵, 1단계 버그 셋, 모달 문구 분류) | 15파일 +900/-189 |
-| 527 | `cf0125e3` | 세이브 save/2026-09-21-1810 — B 2단계 병합 — 공용 실행기 일러·포토샵, issue 42~45·constraint 68~70·62 정정, next_step 46 → D, B 답 | 5파일 +83/-10 |
-| 528 | `24732e8b` | 세이브 기록 save/2026-09-21-1810 | 5파일 +11/-3 |
-| 529 | `1fbc8904` | 세이브 save/2026-09-21-1812 — build_worklog_db repo_file 첫 일치 버그 고침(가장 긴 키 우선, issue 46) — 등재 항목이 표에 실제로 나오게 | 5파일 +224/-5 |
-| 530 | `e509c5ac` | 세이브 기록 save/2026-09-21-1812 | 5파일 +11/-3 |
-| 531 | `b11fbf63` | 세이브 save/2026-09-22-1103 — 공용 실행기 bridge 갈래 — FAIL TIMEOUT 가짜 통과 고침, 충돌 복구 창 실측, 프리미어 probe·save_quit | 6파일 +132/-27 |
-| 532 | `67a19345` | 세이브 기록 save/2026-09-22-1103 | 5파일 +11/-3 |
-| 533 | `a99f29fb` | 세이브 save/2026-09-22-1110 — 실행기 — 모달 못 찾으면 보이는 창 전부 찍기(B 제안), JOBERR 도 실패로 확인 | 7파일 +85/-4 |
+| 524 | `953e0874` | 차13 뼈대를 회사 기본폼(.docx) 꼴로 — 팀장 검사용 | 2파일 +275/-0 |
+| 525 | `4bc9e172` | 공용 실행기 2단계 — 일러·포토샵을 얹고, 1단계 버그 셋을 고쳤다 (모달 문구 분류 문 0.8) | 15파일 +889/-189 |
+| 526 | `158e1e45` | 2단계 보고에 D 몫 인계 절을 넣었다 — 남은 셋은 bridge 갈래라 D 가 이어 받는다 | 1파일 +15/-4 |
+| 527 | `901ef797` | 차13 뼈대 7구간 — Pool 조각 49개를 기계로 대조 | 2파일 +411/-68 |
+| 528 | `cbcf0545` | 병합: worktree-B_Image (09-21 — 공용 실행기 2단계 일러·포토샵, 1단계 버그 셋, 모달 문구 분류) | 15파일 +900/-189 |
+| 529 | `28c2f622` | 회사 양식을 잘못 뜯었다 — 표는 한 줄, 대본은 줄글 란 | 2파일 +101/-38 |
+| 530 | `cf0125e3` | 세이브 save/2026-09-21-1810 — B 2단계 병합 — 공용 실행기 일러·포토샵, issue 42~45·constraint 68~70·62 정정, next_step 46 → D, B 답 | 5파일 +83/-10 |
+| 531 | `24732e8b` | 세이브 기록 save/2026-09-21-1810 | 5파일 +11/-3 |
+| 532 | `1fbc8904` | 세이브 save/2026-09-21-1812 — build_worklog_db repo_file 첫 일치 버그 고침(가장 긴 키 우선, issue 46) — 등재 항목이 표에 실제로 나오게 | 5파일 +224/-5 |
+| 533 | `e509c5ac` | 세이브 기록 save/2026-09-21-1812 | 5파일 +11/-3 |
+| 534 | `bd5dbea9` | 차13 줄글 대본 — 뼈대 조각 49개를 이어 회사 기본폼 .docx 로 | 2파일 +88/-18 |
+| 535 | `b11fbf63` | 세이브 save/2026-09-22-1103 — 공용 실행기 bridge 갈래 — FAIL TIMEOUT 가짜 통과 고침, 충돌 복구 창 실측, 프리미어 probe·save_quit | 6파일 +132/-27 |
+| 536 | `67a19345` | 세이브 기록 save/2026-09-22-1103 | 5파일 +11/-3 |
+| 537 | `b9981d4a` | constraint 후보 ② 를 낮춘다 — 일러 taskkill 뒤 재기동은 굳지 않았다(재현 1회) | 1파일 +40/-0 |
+| 538 | `a99f29fb` | 세이브 save/2026-09-22-1110 — 실행기 — 모달 못 찾으면 보이는 창 전부 찍기(B 제안), JOBERR 도 실패로 확인 | 7파일 +85/-4 |
+| 539 | `13a47ecb` | 세이브 기록 save/2026-09-22-1110 | 5파일 +11/-3 |
+| 540 | `fbf482dc` | 병합: worktree-B_Image (09-22) | 1파일 +40/-0 |
+| 541 | `692dbebb` | 병합: worktree-D_Video (09-22) | 10파일 +232/-30 |
+| 542 | `093540b4` | 병합: worktree-E_Script (09-22) | 4파일 +819/-68 |
