@@ -322,6 +322,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `log/inbox/2026-09-22_B_시작화면굳음_재현안됨.md` | 기록 | B — 09-21 '시작 화면 굳음' 을 같은 절차로 재현: 9초 만에 정상, 복구 창 없음. constraint 후보 ② 를 스스로 낮춤. 모달 못 찾으면 창 전부 찍자는 제안 → D 가 넣음 |
 | `log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md` | 기록 | D — bridge 갈래 셋: FAIL TIMEOUT·JOBERR 가짜 통과 고침(issue 47), AE 충돌 복구 창(constraint 71, 자동 클릭 반대·시작 전 검사 제안), 프리미어 probe·save_quit, shot_window --all |
 | `log/inbox/2026-09-22_월요일_전달묶음.md` | 기록 | 이정찬이 월요일에 B·D·E 에게 전할 것 한 장 — 토큰 재발급(5분, 첫째)·완료 보고 두 줄·guard 4·save.py 기본값·경로 래칫·파트별 할 일 |
+| `log/inbox/2026-09-22_총괄_실행기_마감_답.md` | 기록 | 총괄 — B·D 09-22 답: 공용 실행기 완료(next_step 46), constraint 69 낮춤·71 신설, 복구 창은 자동 클릭 안 함(53), decision 36 보강 |
 | `log/차12_더블볼린저_워크플로우판.md` | 기록 | 차12 A/B 대조용 — 피드백 없이 pipeline.py 관문 미달만 근거로 고친 판(이음·닫기·인터럽트·흐름 z). 규칙 출처 06_외부스킬 (E, 09-21) |
 | `log/차12_더블볼린저_이정찬판.md` | 기록 | 차12 이정찬이 직접 고친 판(팀장은 3구간까지 봄) — 대조용 .md. 6차↔이 판의 INTRO~3구간 차이가 next_step 47 의 첫 문장 쌍 자료다 (E, 09-21) |
 | `log/차12_더블볼린저_초안.md` | 기록 | 차12 더블 볼린저밴드 촬영용 대본 초안(E) — 레퍼런스 사슬대로 재구성, 기간값 20, 규격 채점 통과. 7차(09-21): INTRO~3구간은 이정찬 수정본 그대로, 4구간~OUTRO 에 같은 로직 적용. 일상 작업(총괄은 상태만) |
@@ -2164,3 +2165,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 540 | `fbf482dc` | 병합: worktree-B_Image (09-22) | 1파일 +40/-0 |
 | 541 | `692dbebb` | 병합: worktree-D_Video (09-22) | 10파일 +232/-30 |
 | 542 | `093540b4` | 병합: worktree-E_Script (09-22) | 4파일 +819/-68 |
+| 543 | `a98c9136` | 세이브 save/2026-09-22-1133 — B·D·E 09-22 병합 — 공용 실행기 완료(46), issue 47, constraint 69 낮춤·71, next_step 53, E 차13 도구 둘 등재 | 6파일 +114/-44 |
