@@ -1589,22 +1589,22 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 
 | 파일 | 포맷 | 프레임 | 크기 | 비고 |
 |---|---|---|---|---|
-| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | 0.8 MB | 29.97 기준 125f |
-| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | 1.0 MB | 29.97 기준 117f |
-| `out/cmg/cut3-fear.mp4` | mp4 | 152 | 1.1 MB | 29.97 기준 76f |
-| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | 3.4 MB | 29.97 기준 160f |
-| `out/cmg/_reel.mp4` | mp4 | 956 | 6.4 MB | 4컷 이어붙임, 29.97 기준 478f |
-| `out/01-open.mp4` | mp4 | 420 | 4.4 MB |  |
-| `out/02-structure.mp4` | mp4 | 450 | 4.3 MB |  |
-| `out/03-breakdown.mp4` | mp4 | 420 | 4.9 MB |  |
-| `out/04-entry.mp4` | mp4 | 420 | 3.7 MB |  |
-| `out/05-tpsl.mp4` | mp4 | 450 | 3.6 MB |  |
-| `out/06-result.mp4` | mp4 | 540 | 4.8 MB |  |
-| `out/_reel.mp4` | mp4 | 2700 | 25.6 MB | 다크 6컷 릴 45초 |
-| `out/ov-chart.mov` | qtrle | 300 | 38.5 MB | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
-| `out/ov-chart.webm` | vp9a | 300 | 3.2 MB | 전송용 압축본 |
-| `out/ov-tpsl.mov` | qtrle | 300 | 17.1 MB |  |
-| `out/ov-pnl.mov` | qtrle | 300 | 17.0 MB |  |
+| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | - | 29.97 기준 125f |
+| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | - | 29.97 기준 117f |
+| `out/cmg/cut3-fear.mp4` | mp4 | 152 | - | 29.97 기준 76f |
+| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | - | 29.97 기준 160f |
+| `out/cmg/_reel.mp4` | mp4 | 956 | - | 4컷 이어붙임, 29.97 기준 478f |
+| `out/01-open.mp4` | mp4 | 420 | - |  |
+| `out/02-structure.mp4` | mp4 | 450 | - |  |
+| `out/03-breakdown.mp4` | mp4 | 420 | - |  |
+| `out/04-entry.mp4` | mp4 | 420 | - |  |
+| `out/05-tpsl.mp4` | mp4 | 450 | - |  |
+| `out/06-result.mp4` | mp4 | 540 | - |  |
+| `out/_reel.mp4` | mp4 | 2700 | - | 다크 6컷 릴 45초 |
+| `out/ov-chart.mov` | qtrle | 300 | - | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
+| `out/ov-chart.webm` | vp9a | 300 | - | 전송용 압축본 |
+| `out/ov-tpsl.mov` | qtrle | 300 | - |  |
+| `out/ov-pnl.mov` | qtrle | 300 | - |  |
 
 ## 받아 온 자료
 
@@ -2166,3 +2166,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 541 | `692dbebb` | 병합: worktree-D_Video (09-22) | 10파일 +232/-30 |
 | 542 | `093540b4` | 병합: worktree-E_Script (09-22) | 4파일 +819/-68 |
 | 543 | `a98c9136` | 세이브 save/2026-09-22-1133 — B·D·E 09-22 병합 — 공용 실행기 완료(46), issue 47, constraint 69 낮춤·71, next_step 53, E 차13 도구 둘 등재 | 6파일 +114/-44 |
+| 544 | `de13d7b2` | 세이브 기록 save/2026-09-22-1133 | 5파일 +14/-4 |

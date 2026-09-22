@@ -101,6 +101,16 @@ if (-not (Test-Path $labLog)) { New-Item -ItemType Directory $labLog | Out-Null 
 # ── 시작 전 검사 ────────────────────────────────────────────────────────
 function Get-Proc([string]$name) { Get-Process -Name $name -ErrorAction SilentlyContinue }
 
+<#  AE 충돌 복구 창 (constraint 71 · next_step 53). 강제 종료된 AE 를 다시 띄우면 이 창에서 멈추고,
+    잡은 AE 에 닿지도 못한 채 BridgeTalk 이 약 70초 뒤 FAIL TIMEOUT 을 낸다(09-22 D 실측).
+    **누르지 않는다** — 빗나간 좌표 클릭이 남의 앱을 띄웠다(총괄 판단 09-22). 보이면 말하고 멈춘다. #>
+$AE_RECOVERY_MSG = "AE 가 '충돌 복구 옵션' 창에서 멈춰 있습니다 (지난번에 강제로 닫혀서 뜨는 창, constraint 71).`n   AE 화면에서 '계속' 을 눌러 AE 가 다 뜬 뒤 다시 부르세요. 실행기는 이 창을 누르지 않습니다."
+function Test-AeRecovery {
+    if ($App -ne 'ae' -or -not (Get-Proc 'AfterFX')) { return $false }
+    & python (Join-Path $PSScriptRoot 'modal_text.py') --ae-recovery 2>$null | Out-Null
+    return ($LASTEXITCODE -eq 0)
+}
+
 if (-not $SkipPreflight) {
     # 프리미어가 떠 있으면 BridgeTalk 이 AE 잡을 **프리미어 안의 AE 엔진**으로 보낸다 (TRAPS ⑦).
     # 닫으라고 말만 하고 우리가 닫지는 않는다 — 사람이 편집 중일 수 있다.
@@ -110,6 +120,7 @@ if (-not $SkipPreflight) {
             throw "프리미어가 떠 있습니다(PID $($ppro.Id)). AE 잡이 프리미어의 AE 엔진으로 갑니다(TRAPS 7). 프리미어를 닫고 다시 부르세요."
         }
     }
+    if (Test-AeRecovery) { throw $AE_RECOVERY_MSG }
     $mine = Get-Proc $s.Proc
     if ($mine) { Write-Host "  $($s.Proc) 이미 떠 있음 (PID $($mine.Id))" }
     else       { Write-Host "  $($s.Proc) 안 떠 있음 — COM 이 띄웁니다. 첫 실행은 화면을 보세요(모달)" }
@@ -185,7 +196,27 @@ if ($s.Transport -eq 'bridge') {
     $runArg = @($s.ProgId, (Resolve-Path $jobPath).Path)
 }
 $jobHandle = Start-Job -ScriptBlock $runner -ArgumentList $runArg
-$done = Wait-Job $jobHandle -Timeout $TimeoutSec
+$recovery = $false
+if ($App -eq 'ae') {
+    # AE 는 꺼져 있다가 COM 이 띄울 때 복구 창이 뜨는 일이 흔하다 — 시작 전 검사로는 못 본다.
+    # 그래서 기다리는 동안 5초마다 본다. 보이면 70초를 태우지 않고 바로 멈춘다.
+    $done = $null
+    while (-not $done -and ((Get-Date) - $started).TotalSeconds -lt $TimeoutSec) {
+        $done = Wait-Job $jobHandle -Timeout 5
+        if (-not $done -and (Test-AeRecovery)) { $recovery = $true; break }
+    }
+} else {
+    $done = Wait-Job $jobHandle -Timeout $TimeoutSec
+}
+if ($recovery) {
+    # 잡은 아직 AE 에 안 닿았다. 아무것도 **죽이지 않는다** — AE 를 죽이면 다음에 또 이 창이 뜬다.
+    # 포토샵의 bridge.jsx 는 BridgeTalk 이 끊으면(약 70초) 스스로 끝난다. 붙잡힌 잡은 치우지 않고 그냥 나간다 —
+    # Remove-Job -Force 는 COM 에 붙잡힌 잡을 한참 기다린다(09-21 B 실측 165초).
+    Write-Host ""
+    Write-Host "  $AE_RECOVERY_MSG" -ForegroundColor Red
+    Write-Host "  (걸린 시간: $([math]::Round(((Get-Date) - $started).TotalSeconds, 1))s)"
+    exit 1
+}
 $timedOut = ($null -eq $done)
 
 # 시간은 **여기서** 잰다. `Remove-Job -Force` 는 COM 에 붙잡힌 잡을 끝내려고 한참 기다린다 —
@@ -370,6 +401,9 @@ if (Test-Path $classJson) {
     foreach ($h in $c.힌트) { $lines += "힌트: $h" }
 }
 if ($bridgeOut) { $lines += "반환: $($bridgeOut.Result)" }
+if ($App -eq 'ae' -and ($timedOut -or $modalProc -eq 'AfterFX')) {
+    $lines += "주의: AE 를 강제로 닫았다 — 다음에 AE 를 띄우면 '충돌 복구 옵션' 창이 뜬다. '계속' 을 눌러야 잡이 닿는다 (constraint 71)."
+}
 foreach ($f in $fresh) {
     $lines += ""
     $lines += "---- $($f.Name) 마지막 30줄 ----"
