@@ -53,11 +53,42 @@ void AddInds()
          h = iMA(_Symbol, _Period, per, 0, MODE_EMA, PRICE_CLOSE);
          nm = "MA(" + IntegerToString(per) + ")";
         }
+      else if(StringFind(k, "MA") == 0 && StringFind(k, "MACD") != 0)
+        {
+         // 단순 이평 — 차11 '20일 이동평균선' (09-22 다른 회차 검증에서 필요해졌다)
+         int per = (int)StringToInteger(StringSubstr(k, 2));
+         if(per <= 0) continue;
+         h = iMA(_Symbol, _Period, per, 0, MODE_SMA, PRICE_CLOSE);
+         nm = "MA(" + IntegerToString(per) + ")";
+        }
+      else if(k == "BB")
+        {
+         h = iBands(_Symbol, _Period, 20, 0, 2.0, PRICE_CLOSE);
+         nm = "Bands(20,2.00)";
+        }
       else if(k == "ADX")
         {
          h = iADX(_Symbol, _Period, 14);
          sub = (int)ChartGetInteger(0, CHART_WINDOWS_TOTAL);
          nm = "ADX(14)";
+        }
+      else if(k == "RSI")
+        {
+         h = iRSI(_Symbol, _Period, 14, PRICE_CLOSE);
+         sub = (int)ChartGetInteger(0, CHART_WINDOWS_TOTAL);
+         nm = "RSI(14)";
+        }
+      else if(k == "STOCH")
+        {
+         h = iStochastic(_Symbol, _Period, 5, 3, 3, MODE_SMA, STO_LOWHIGH);
+         sub = (int)ChartGetInteger(0, CHART_WINDOWS_TOTAL);
+         nm = "Stoch(5,3,3)";
+        }
+      else if(k == "MACD")
+        {
+         h = iMACD(_Symbol, _Period, 12, 26, 9, PRICE_CLOSE);
+         sub = (int)ChartGetInteger(0, CHART_WINDOWS_TOTAL);
+         nm = "MACD(12,26,9)";
         }
       if(h != INVALID_HANDLE && ChartIndicatorAdd(0, sub, h) && g_nadd < 8)
         {
