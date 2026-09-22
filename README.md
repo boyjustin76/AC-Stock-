@@ -186,12 +186,12 @@ git restore --source=<해시> -- .              # 되돌리기
 
 | 시각 (KST) | 슬롯 | 커밋 | 어디까지 |
 |---|---|---|---|
+| 2026-09-22 16:00 | `save/2026-09-22-1600` | `3de999e` | next_step 45 ② — 콘티 한 장 + AE 프로젝트 세팅(d1_conti_build), 지지선·쓸림 전용 탐색, 차10 끝까지 |
+| 2026-09-22 15:53 | `save/2026-09-22-1553` | `860f350` | next_step 45 ① — 대본 한 편 12비트 일괄 촬영(batch_capture), 종목·주기 선택, Jev 보조, 지표 쉼표 잘림·자동 떼기·창 제목·톱니 점수 고침 |
 | 2026-09-22 15:03 | `save/2026-09-22-1503` | `b373278` | next_step 41~44 blocked_by 를 제목대로 완료로 — 열린 목록이 실제와 맞게 |
 | 2026-09-22 15:02 | `save/2026-09-22-1502` | `43a6e5f` | D 53 병합 — AE 복구 창 감지·멈춤 완료, constraint 71 판별법, next_step 53 닫음 |
 | 2026-09-22 13:11 | `save/2026-09-22-1311` | `46d19cc` | next_step 53 — AE 충돌 복구 창을 시작 전·대기 중 알아보고 바로 멈춤(15.5초/0.2초), 죽인 뒤 주의 줄 |
 | 2026-09-22 11:33 | `save/2026-09-22-1133` | `a98c913` | B·D·E 09-22 병합 — 공용 실행기 완료(46), issue 47, constraint 69 낮춤·71, next_step 53, E 차13 도구 둘 등재 |
-| 2026-09-22 11:10 | `save/2026-09-22-1110` | `a99f29f` | 실행기 — 모달 못 찾으면 보이는 창 전부 찍기(B 제안), JOBERR 도 실패로 확인 |
-| 2026-09-22 11:03 | `save/2026-09-22-1103` | `b11fbf6` | 공용 실행기 bridge 갈래 — FAIL TIMEOUT 가짜 통과 고침, 충돌 복구 창 실측, 프리미어 probe·save_quit |
 
 ---
 
@@ -277,6 +277,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `log/inbox/2026-09-21_총괄_Jev_시험_D·B.md` | 총괄 — D·B Jev 시험 설계 각 3(정답 자료·합격선), 하지 말 것(이미지·셈·색·날짜), 알아서 하나, 보고 형식. next_step 50·51 |
 | `log/inbox/2026-09-21_총괄_Jev_판정관_시험제안.md` | 총괄 — TypeSafe Jev 조사(문서 9쪽)와 우리 자리 판정(판정관 1순위·비트 분류 2순위·가드/글자 수 제외), E 시험 설계 4단계·합격선, 이정찬 결정(미공개 대본 외부 전송) |
 | `log/inbox/2026-09-22_B_시작화면굳음_재현안됨.md` | B — 09-21 '시작 화면 굳음' 을 같은 절차로 재현: 9초 만에 정상, 복구 창 없음. constraint 후보 ② 를 스스로 낮춤. 모달 못 찾으면 창 전부 찍자는 제안 → D 가 넣음 |
+| `log/inbox/2026-09-22_D_next45_대본→차트장면_일괄촬영·AE세팅.md` | D — next_step 45 ①②: 차10 대본 → 12장 → 콘티 → AE 프로젝트 끝까지, 팀장 그림과 8/9 일치, 구멍 다섯(지표 쉼표 잘림·자동 떼기·창 제목·톱니 점수·지지선/쓸림 탐색), 남은 ③④ |
 | `log/inbox/2026-09-22_D_next53_AE복구창_멈춤.md` | D — next_step 53: AE 복구 창을 자식 창 뼈대로 판별, 시작 전·대기 중 5초마다 검사해 안 죽이고 멈춤(15.5초/0.2초), 정상 잡 1.7초, 죽인 뒤 주의 줄. BridgeTalk 70초 원인 못 찾음 |
 | `log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md` | D — bridge 갈래 셋: FAIL TIMEOUT·JOBERR 가짜 통과 고침(issue 47), AE 충돌 복구 창(constraint 71, 자동 클릭 반대·시작 전 검사 제안), 프리미어 probe·save_quit, shot_window --all |
 | `log/inbox/2026-09-22_월요일_전달묶음.md` | 이정찬이 월요일에 B·D·E 에게 전할 것 한 장 — 토큰 재발급(5분, 첫째)·완료 보고 두 줄·guard 4·save.py 기본값·경로 래칫·파트별 할 일 |
@@ -363,6 +364,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/ae/jobs/c8_close_nosave.jsx` | 열린 AE 프로젝트를 저장 없이 닫기 (시험 문구가 남은 채 저장되는 사고 방지) |
 | `tools/ae/jobs/c8q_close_quit.jsx` | 열린 AE 프로젝트를 저장 없이 닫고 scheduleTask 로 AE 를 스스로 종료 (프리미어 다이내믹 링크가 남긴 AE 정리 · 강제 종료 대신) |
 | `tools/ae/jobs/c9_trad_rr_set_aep.jsx` | 버튼-선 세트 5개(익절선&박스·손절선&박스·진입선·지지선·저항선)를 세트마다 aep 로 저장·재열기 (c5 빌더 차용) |
+| `tools/ae/jobs/d1_conti_build.jsx` | 콘티 json → AE 프로젝트(비트 컴포지션 12 + 전체, 1920x1080·59.94fps, 가이드 레이어에 대본·고른 이유). 공용 실행기로 20초 (D, 09-22) |
 | `tools/ae/labdir.mjs` | 같은 것의 Node 판 — pack.mjs·diff.mjs·anchors.mjs·scene-export.mjs 가 쓴다 |
 | `tools/ae/labdir.ps1` | 같은 것의 PowerShell 판 — run.ps1·trad_rr_export.ps1 이 점으로 불러 쓴다 |
 | `tools/ae/labdir.py` | AE 작업실 폴더를 박지 않고 찾는다 (파이썬) — AELAB_DIR → config.labDir → 위로 탐색 → 옛 자리 |
@@ -388,7 +390,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/legacy/roll_ad_check.py` | 레거시(2026-09-17 격리) — 지운 한지판 전용 롤링광고 검사기 (D) |
 | `tools/mcp_probe.py` | MCP 자가점검(E) — initialize → tools/list → tools/call 까지 그 자리에서 띄워 본다. 별 수 믿지 말고 띄워 보고 판단(external_tool 10 전례) |
 | `tools/md_to_script_docx.py` | 초안 .md → 촬영용 스크립트 .docx (E). 표지 줄은 L<번호> (이정찬 09-21) |
-| `tools/mt5` | MT5 촬영 파이프라인(D) — mcp.py(MCP 클라이언트)·scenes.py(대본 docx → 비트 → 사건 → 실제 봉 구간 선정, 팀장 차10 기준 5)·capture_scene.py(ChartNavigate 후 창 캡처)·capture.py·shot.py+CMG_Shot.mq5(자체 렌더 캡처 지표)·calibrate.py(봉 격자·가격축 보정 RMS 1.93px). README 있음 |
+| `tools/mt5` | MT5 촬영 파이프라인(D) — mcp.py(MCP 클라이언트)·scenes.py(대본 docx → 비트 → 사건 → 실제 봉 구간 선정, 팀장 차10 기준 5)·capture_scene.py(ChartNavigate 후 창 캡처)·capture.py·shot.py+CMG_Shot.mq5(자체 렌더 캡처 지표)·calibrate.py(봉 격자·가격축 보정 RMS 1.93px)·batch_capture.py(대본 한 편 12비트 일괄 촬영, 종목·주기 선택, Jev 보조)·conti_sheet.py(콘티.png + AE 입력 json). README 있음 |
 | `tools/photoshop` | 포토샵 COM+ExtendScript 로 템플릿 .psd 를 직접 편집한다 — 썸네일은 이 경로가 최신 |
 | `tools/photoshop/build_thumb.jsx` | 회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg |
 | `tools/photoshop/config.json` | 템플릿·차트·출력 경로와 회차 문구 — 컨테이너의 thumbnail_png.py 도 같은 파일을 읽는다(스펙 단일화, decision 21) |
