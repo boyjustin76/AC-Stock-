@@ -215,6 +215,7 @@ $failPath  = Join-Path $labLog "${Job}_fail.txt"
 foreach ($stale in @($shot, $modalJson, $classJson, $failPath)) {
     Remove-Item $stale -Force -ErrorAction SilentlyContinue
 }
+Get-ChildItem $labLog -Filter "${Job}_fail_all_*" -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
 
 function Read-Modal {
     # 돌려주는 것: 모달을 가진 프로세스 이름, 못 찾으면 $null.
@@ -229,6 +230,10 @@ function Read-Modal {
     Remove-Item $modalJson -Force -ErrorAction SilentlyContinue   # 못 찾은 쪽이 남긴 빈 기록
     # 모달을 못 찾았다 — 앱 창 전체라도 찍어 둔다 (shot_window.py, PrintWindow)
     $py2 = Join-Path $PSScriptRoot 'shot_window.py'
+    # 가장 큰 창 하나만 찍으면 옆의 작은 창을 놓친다(09-22 B 제안) — 보이는 창을 전부 <잡>_fail_all_N.png 로도 남긴다
+    foreach ($p in $procs) {
+        & python $py2 --proc $p --all --out (Join-Path $labLog "${Job}_fail_all_$p.png") 2>&1 | ForEach-Object { Write-Host "    shot_window($p): $_" }
+    }
     & python $py2 --proc $s.Proc --out $shot 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) {
         Add-Type -AssemblyName System.Windows.Forms, System.Drawing
@@ -352,8 +357,12 @@ if (Test-Path $modalJson) {
 $lines = @()
 $lines += "잡: $Job ($App) · $((Get-Date).ToString('yyyy-MM-dd HH:mm:ss')) · ${elapsed}s"
 if ($timedOut) { $lines += "원인 후보: 시간 제한 $TimeoutSec 초 초과 (모달로 보고 앱을 죽였다)" }
-else           { $lines += "원인 후보: 판정 줄도 성공 답(OK)도 없다 (잡이 끝까지 못 갔거나 bridge 가 FAIL 을 돌려줬다)" }
+else           { $lines += "원인 후보: 판정 줄도 성공 답(OK)도 없다 (잡이 끝까지 못 갔거나 bridge 가 FAIL·JOBERR 를 돌려줬다)" }
 $lines += "모달 창: $(if ($modalFound) { "찾았다($modalProc, 찍고 앱을 닫았다) — " + $shot } else { '못 찾았다 (앱 창이나 화면 전체를 찍었다) — ' + $shot })"
+foreach ($wl in (Get-ChildItem $labLog -Filter "${Job}_fail_all_*_windows.txt" -ErrorAction SilentlyContinue)) {
+    $lines += "보이는 창 전부 ($($wl.Name)):"
+    $lines += (Get-Content $wl.FullName -Encoding UTF8 | ForEach-Object { "  $_" })
+}
 if ($classLine) { $lines += $classLine }
 if (Test-Path $classJson) {
     $c = Get-Content $classJson -Raw -Encoding UTF8 | ConvertFrom-Json

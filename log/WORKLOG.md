@@ -2138,3 +2138,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 529 | `1fbc8904` | 세이브 save/2026-09-21-1812 — build_worklog_db repo_file 첫 일치 버그 고침(가장 긴 키 우선, issue 46) — 등재 항목이 표에 실제로 나오게 | 5파일 +224/-5 |
 | 530 | `e509c5ac` | 세이브 기록 save/2026-09-21-1812 | 5파일 +11/-3 |
 | 531 | `b11fbf63` | 세이브 save/2026-09-22-1103 — 공용 실행기 bridge 갈래 — FAIL TIMEOUT 가짜 통과 고침, 충돌 복구 창 실측, 프리미어 probe·save_quit | 6파일 +132/-27 |
+| 532 | `67a19345` | 세이브 기록 save/2026-09-22-1103 | 5파일 +11/-3 |
