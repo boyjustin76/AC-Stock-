@@ -2173,3 +2173,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 547 | `6660178d` | 병합: worktree-D_Video (09-22 — next_step 53 AE 복구 창 멈춤) | 8파일 +131/-22 |
 | 548 | `43a6e5f0` | 세이브 save/2026-09-22-1502 — D 53 병합 — AE 복구 창 감지·멈춤 완료, constraint 71 판별법, next_step 53 닫음 | 5파일 +33/-28 |
 | 549 | `89778684` | 세이브 기록 save/2026-09-22-1502 | 5파일 +11/-3 |
+| 550 | `b3732785` | 세이브 save/2026-09-22-1503 — next_step 41~44 blocked_by 를 제목대로 완료로 — 열린 목록이 실제와 맞게 | 4파일 +11/-10 |
