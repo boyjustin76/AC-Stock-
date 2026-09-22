@@ -81,8 +81,17 @@ def esc(s):
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def runs(text):
+굵게 = "<w:b/><w:bCs/>"
+# 회사 문서 차명09~12 는 줄글 란의 섹션 머리글을 **초록 강조**로 칠한다(차명12 에 34곳).
+# 기본폼에는 없다 — 09 부터 덧칠한 것이다. 요소 순서는 스키마가 정한다: b · bCs 가 highlight 보다 앞.
+머리글서식 = 굵게 + '<w:highlight w:val="green"/>'
+
+
+def runs(text, 바탕=""):
     """여러 줄 → <w:r> 묶음. 줄바꿈은 <w:br/>, `**굵게**` 는 <w:b/> 로 살린다.
+
+    `바탕` 은 모든 run 에 깔 서식(<w:rPr> 속)이다. 머리글처럼 원래 굵던 문단을 고쳐 쓸 때
+    이걸 안 주면 **서식이 지워진다** — 소제목을 붙인 머리글이 보통 글씨로 나왔다(2026-09-22).
 
     별표를 그대로 두면 워드 문서에 `**방향**` 이 글자로 찍힌다 — 회사 문서는 마크다운이 아니다.
     """
@@ -93,12 +102,15 @@ def runs(text):
         for j, 조각 in enumerate(re.split(r"\*\*(.+?)\*\*", line)):
             if not 조각:
                 continue
-            굵게 = "<w:rPr><w:b/><w:bCs/></w:rPr>" if j % 2 else ""
-            out.append('<w:r>%s<w:t xml:space="preserve">%s</w:t></w:r>' % (굵게, esc(조각)))
+            속 = 바탕
+            if j % 2 and 굵게 not in 속:
+                속 = 굵게 + 속
+            rpr = "<w:rPr>%s</w:rPr>" % 속 if 속 else ""
+            out.append('<w:r>%s<w:t xml:space="preserve">%s</w:t></w:r>' % (rpr, esc(조각)))
     return "".join(out)
 
 
-def 문단채우기(p, text):
+def 문단채우기(p, text, 바탕=""):
     """문단 하나의 글자를 갈아 끼운다. <w:pPr>(서식)는 남긴다."""
     m = re.match(r"(<w:p\b[^>]*?)(/>|>)", p)
     if not m:
@@ -106,7 +118,7 @@ def 문단채우기(p, text):
     여는태그 = m.group(1) + ">"
     속 = "" if m.group(2) == "/>" else p[m.end():p.rindex("</w:p>")]
     ppr = re.search(r"<w:pPr>.*?</w:pPr>", 속, re.S)
-    return 여는태그 + (ppr.group(0) if ppr else "") + runs(text) + "</w:p>"
+    return 여는태그 + (ppr.group(0) if ppr else "") + runs(text, 바탕) + "</w:p>"
 
 
 def 칸채우기(tc, text):
@@ -216,9 +228,10 @@ def 만들기(자료, 틀경로, 낼곳):
         키 = n.group(1)
         if 키 not in 자료["본문"] and 키 not in 자료["소제목"]:
             return p
-        머리 = 문단채우기(p, t + ": " + 자료["소제목"][키]) if 키 in 자료["소제목"] else p
-        # 머리글 문단을 본떠 같은 서식으로 대본 문단을 찍어 낸다.
-        return 머리 + "".join(문단채우기(p, 문단) for 문단 in 자료["본문"].get(키, []))
+        # 소제목은 붙여 쓴다 — 차명12 가 `타이틀이 필요한 이유:크로스 매매가…` 로 썼다.
+        머리 = 문단채우기(p, t + ":" + 자료["소제목"][키], 머리글서식) if 키 in 자료["소제목"] else p
+        # 대본 문단은 **서식 없는 보통 문단**으로 찍는다. 머리글 문단을 본뜨면 문단 기호의 굵게까지 따라온다.
+        return 머리 + "".join("<w:p>%s</w:p>" % runs(문단) for 문단 in 자료["본문"].get(키, []))
 
     # **맨 위 층 덩이만** 훑는다. 한 번에 표와 문단을 갈라 다뤄야 한다 —
     # 문단만 따로 훑으면 표 **안**의 `1. 후킹(현황&썰)` 칸까지 머리글로 잡아
