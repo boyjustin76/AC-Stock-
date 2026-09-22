@@ -325,6 +325,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `log/inbox/2026-09-22_D_next53_AE복구창_멈춤.md` | 기록 | D — next_step 53: AE 복구 창을 자식 창 뼈대로 판별, 시작 전·대기 중 5초마다 검사해 안 죽이고 멈춤(15.5초/0.2초), 정상 잡 1.7초, 죽인 뒤 주의 줄. BridgeTalk 70초 원인 못 찾음 |
 | `log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md` | 기록 | D — bridge 갈래 셋: FAIL TIMEOUT·JOBERR 가짜 통과 고침(issue 47), AE 충돌 복구 창(constraint 71, 자동 클릭 반대·시작 전 검사 제안), 프리미어 probe·save_quit, shot_window --all |
 | `log/inbox/2026-09-22_월요일_전달묶음.md` | 기록 | 이정찬이 월요일에 B·D·E 에게 전할 것 한 장 — 토큰 재발급(5분, 첫째)·완료 보고 두 줄·guard 4·save.py 기본값·경로 래칫·파트별 할 일 |
+| `log/inbox/2026-09-22_총괄_E_자료정리_답.md` | 기록 | 총괄 — E 402 파일 푸시에 대한 답: 이정찬 결정(public 유지·원자료 밖), 남긴 49·지운 353 과 이유, 옆가지 되돌리기 절차, 기록에 없는 결정은 묻는다, 도구 lm 미정의(surprisal_models.py:15) |
 | `log/inbox/2026-09-22_총괄_실행기_마감_답.md` | 기록 | 총괄 — B·D 09-22 답: 공용 실행기 완료(next_step 46), constraint 69 낮춤·71 신설, 복구 창은 자동 클릭 안 함(53), decision 36 보강 |
 | `log/차12_더블볼린저_워크플로우판.md` | 기록 | 차12 A/B 대조용 — 피드백 없이 pipeline.py 관문 미달만 근거로 고친 판(이음·닫기·인터럽트·흐름 z). 규칙 출처 06_외부스킬 (E, 09-21) |
 | `log/차12_더블볼린저_이정찬판.md` | 기록 | 차12 이정찬이 직접 고친 판(팀장은 3구간까지 봄) — 대조용 .md. 6차↔이 판의 INTRO~3구간 차이가 next_step 47 의 첫 문장 쌍 자료다 (E, 09-21) |
@@ -2197,3 +2198,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 557 | `88da5e2f` | 세이브 save/2026-09-22-1639 — D 45 ①② 병합 — 일괄 촬영·콘티·AE 세팅, constraint 60 ⑧⑨⑩, next_step 45 남은 ③④ | 5파일 +26/-14 |
 | 558 | `c86c2c13` | 세이브 기록 save/2026-09-22-1639 | 5파일 +1145/-1137 |
 | 559 | `45734eeb` | E 자료 정리 병합 — 워크플로우·팀장쌍·도구 코드·문서만 (원본 자막·Pool·docx 는 저장소 밖, 이정찬 결정 09-22) | 50파일 +4487/-0 |
+| 560 | `9d411be8` | 세이브 save/2026-09-22-1722 — E 자료 정리 — decision 38(public 유지·원자료 밖), issue 48, next_step 47 pairs.jsonl, .gitignore·ruff exclude, E 답 | 7파일 +97/-10 |

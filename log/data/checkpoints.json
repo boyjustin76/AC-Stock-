@@ -1139,5 +1139,12 @@
   "utc": "2026-09-22 07:39",
   "sha": "88da5e2",
   "summary": "D 45 ①② 병합 — 일괄 촬영·콘티·AE 세팅, constraint 60 ⑧⑨⑩, next_step 45 남은 ③④"
+ },
+ {
+  "tag": "save/2026-09-22-1722",
+  "kst": "2026-09-22 17:22",
+  "utc": "2026-09-22 08:22",
+  "sha": "9d411be",
+  "summary": "E 자료 정리 — decision 38(public 유지·원자료 밖), issue 48, next_step 47 pairs.jsonl, .gitignore·ruff exclude, E 답"
  }
 ]
