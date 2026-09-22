@@ -177,7 +177,51 @@ def find(name, bars, page=110):
     best = []
     half = page // 2
 
-    if name in ('high_then_drop', 'support_break', 'whipsaw'):
+    if name == 'support_break':
+        # 앞 70% 에서 같은 바닥을 두 번 이상 찍은 수평선 → 뒤 30% 에서 그 아래로 내려가 머문다.
+        # (전엔 high_then_drop 계산을 빌려 써서 '떨어졌다 다시 오르는' 그림이 뽑혔다 — 차10 1-2, 09-22)
+        for i in range(half, n - half):
+            a, b = _win(bars, i, half, half)
+            seg = bars[a:b]
+            cut = int(len(seg) * 0.7)
+            head, tail = seg[:cut], seg[cut:]
+            rng = max(s['high'] for s in seg) - min(s['low'] for s in seg)
+            if rng <= 0:
+                continue
+            sup = min(s['low'] for s in head)
+            tol = 0.06 * rng
+            touches, last = 0, -99
+            for k, s in enumerate(head):
+                if s['low'] - sup <= tol and k - last >= 8:
+                    touches, last = touches + 1, k
+            if touches < 2:
+                continue
+            below = sum(1 for s in tail if s['close'] < sup) / len(tail)
+            depth = (sup - min(s['low'] for s in tail)) / rng
+            if below < 0.6 or depth <= 0:
+                continue
+            best.append((depth * min(touches, 3) / 3, i, f'지지 {touches}번 확인 뒤 이탈 · 깊이 {100 * depth:.0f}%'))
+
+    elif name == 'whipsaw':
+        # 구간폭 30% 넘는 꺾임이 다섯 번 이상 — 크게 양쪽으로 쓸린다 (톱니 네 다리와 다르다)
+        for i in range(half, n - half):
+            a, b = _win(bars, i, half, half)
+            seg = closes[a:b]
+            rng = max(seg) - min(seg)
+            if rng <= 0:
+                continue
+            th, piv, dirn, swings = 0.3 * rng, seg[0], 0, 0
+            for v in seg[1:]:
+                if dirn >= 0 and v <= piv - th:
+                    swings, dirn, piv = swings + 1, -1, v
+                elif dirn <= 0 and v >= piv + th:
+                    swings, dirn, piv = swings + 1, 1, v
+                elif (dirn >= 0 and v > piv) or (dirn < 0 and v < piv):
+                    piv = v
+            if swings >= 5:
+                best.append((min(swings, 8) / 8, i, f'구간폭 30% 넘는 꺾임 {swings}번'))
+
+    elif name == 'high_then_drop':
         # 고점 뒤 낙폭이 큰 자리 — 화면 안에 고점과 바닥이 같이 들어와야 한다
         for i in range(half, n - half):
             a, b = _win(bars, i, half, half)
