@@ -2182,3 +2182,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 554 | `3de999eb` | 세이브 save/2026-09-22-1600 — next_step 45 ② — 콘티 한 장 + AE 프로젝트 세팅(d1_conti_build), 지지선·쓸림 전용 탐색, 차10 끝까지 | 7파일 +331/-2 |
 | 555 | `c1994b42` | 세이브 기록 save/2026-09-22-1600 | 5파일 +11/-3 |
 | 556 | `a58081b7` | 병합: worktree-D_Video (09-22 — next_step 45 ①② 일괄 촬영·콘티·AE 세팅) | 10파일 +1727/-1129 |
+| 557 | `88da5e2f` | 세이브 save/2026-09-22-1639 — D 45 ①② 병합 — 일괄 촬영·콘티·AE 세팅, constraint 60 ⑧⑨⑩, next_step 45 남은 ③④ | 5파일 +26/-14 |
