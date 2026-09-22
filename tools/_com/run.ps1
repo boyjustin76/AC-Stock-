@@ -209,18 +209,31 @@ $shot      = Join-Path $labLog "${Job}_fail.png"
 $modalJson = Join-Path $labLog "${Job}_modal.json"
 $classJson = Join-Path $labLog "${Job}_modal_class.json"
 $modalFound = $false
+$modalProc = $null
 $failPath  = Join-Path $labLog "${Job}_fail.txt"
 # 지난번 실패 자취를 먼저 지운다 — 안 지우면 이번에 안 찍혔을 때 **옛 모달을 이번 것으로 읽는다.**
 foreach ($stale in @($shot, $modalJson, $classJson, $failPath)) {
     Remove-Item $stale -Force -ErrorAction SilentlyContinue
 }
+Get-ChildItem $labLog -Filter "${Job}_fail_all_*" -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
 
 function Read-Modal {
+    # 돌려주는 것: 모달을 가진 프로세스 이름, 못 찾으면 $null.
+    # bridge 는 대상 앱 다음에 포토샵도 본다. AE 잡의 alert() 는 AE 에 떴고 포토샵은 깨끗했다(09-22 D 실측) —
+    # 그래도 포토샵이 시작 화면 등에서 막히면 DoJavaScriptFile 부터 멈추니 한 번 더 본다.
     $py = Join-Path $PSScriptRoot 'modal_text.py'
-    & python $py --proc $s.Proc --out $shot --json $modalJson 2>&1 | ForEach-Object { Write-Host "    modal_text: $_" }
-    if ($LASTEXITCODE -eq 0) { return $true }
+    $procs = if ($s.Transport -eq 'bridge') { @($s.Proc, 'Photoshop') } else { @($s.Proc) }
+    foreach ($p in $procs) {
+        & python $py --proc $p --out $shot --json $modalJson 2>&1 | ForEach-Object { Write-Host "    modal_text($p): $_" }
+        if ($LASTEXITCODE -eq 0) { return $p }
+    }
+    Remove-Item $modalJson -Force -ErrorAction SilentlyContinue   # 못 찾은 쪽이 남긴 빈 기록
     # 모달을 못 찾았다 — 앱 창 전체라도 찍어 둔다 (shot_window.py, PrintWindow)
     $py2 = Join-Path $PSScriptRoot 'shot_window.py'
+    # 가장 큰 창 하나만 찍으면 옆의 작은 창을 놓친다(09-22 B 제안) — 보이는 창을 전부 <잡>_fail_all_N.png 로도 남긴다
+    foreach ($p in $procs) {
+        & python $py2 --proc $p --all --out (Join-Path $labLog "${Job}_fail_all_$p.png") 2>&1 | ForEach-Object { Write-Host "    shot_window($p): $_" }
+    }
     & python $py2 --proc $s.Proc --out $shot 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) {
         Add-Type -AssemblyName System.Windows.Forms, System.Drawing
@@ -232,12 +245,13 @@ function Read-Modal {
         $g.Dispose(); $bmp.Dispose()
         Write-Host "    (창을 못 찾아 화면 전체를 찍었다)"
     }
-    return $false
+    return $null
 }
 
 if ($timedOut) {
     Write-Host "  $TimeoutSec 초를 넘겼습니다 — 모달로 봅니다. 먼저 찍고 앱을 닫습니다." -ForegroundColor Yellow
-    try { $modalFound = Read-Modal } catch { Write-Host "  모달 읽기 실패: $($_.Exception.Message)" }
+    try { $modalProc = Read-Modal } catch { Write-Host "  모달 읽기 실패: $($_.Exception.Message)" }
+    $modalFound = [bool]$modalProc
 
     # bridge 전송로는 포토샵을 길로 쓰므로 포토샵도 같이 죽인다. direct 는 제 앱만 죽인다 —
     # 일러스트레이터 잡이 남의 포토샵을 죽이면 안 된다.
@@ -292,7 +306,16 @@ if ($verdict -and -not $timedOut) {
 # 판정 줄을 쓰는 잡은 몇 개 안 된다(09-21 실측: 없는 것 56). 나머지를 전부 실패로 내면 아무것도 못 돌린다.
 # 그래서 **시간 제한을 안 넘겼고 잡이 답을 준 옛 잡**은 경고만 하고 통과시킨다 (decision 36).
 # 새 잡은 로그에 `판정: …` 한 줄을 쓴다 — 그래야 진짜로 판정된다. 래칫 tests/test_verdict_lines.py.
-if (-not $timedOut -and $bridgeOut -and $bridgeOut.Result) {
+#
+# bridge 의 '답' 은 **OK 로 시작할 때만** 답이다. bridge.jsx 는 실패도 문자열로 돌려준다(FAIL TIMEOUT ·
+# FAIL NO_TARGET · 본문 안 JOBERR). 09-22 D 실측: AE 잡이 alert 에 막혀 있는데 BridgeTalk 이 74초에
+# 'FAIL TIMEOUT' 을 돌려주자 비어 있지 않다는 이유로 통과(exit 0)했고, 모달도 안 찍혔다.
+$answered = $bridgeOut -and $bridgeOut.Result
+if ($answered -and $s.Transport -eq 'bridge') {
+    $r = [string]$bridgeOut.Result
+    $answered = ($r -match '^\s*OK\b') -and ($r -notmatch 'JOBERR')
+}
+if (-not $timedOut -and $answered) {
     Write-Host ""
     Write-Host "  통과(판정 줄 없음) — 옛 잡이다. 로그에 '판정: …' 한 줄을 넣어 주세요." -ForegroundColor Yellow
     Write-Host "  반환 첫 줄: $(($bridgeOut.Result -split "`n")[0].Trim())"
@@ -301,8 +324,18 @@ if (-not $timedOut -and $bridgeOut -and $bridgeOut.Result) {
 
 # ── 실패: 사람이 안 봐도 붙일 원자료를 남긴다 ─────────────────────────
 if (-not $timedOut) {
-    # 시간은 안 넘겼는데 판정도 반환도 없다 — 잡이 중간에 죽었다. 앱은 아직 살아 있으니 지금 찍는다.
-    try { $modalFound = Read-Modal } catch { Write-Host "  모달 읽기 실패: $($_.Exception.Message)" }
+    # 시간은 안 넘겼는데 판정도 성공 답도 없다 — 잡이 중간에 죽었거나 bridge 가 FAIL 을 돌려줬다.
+    # 앱은 아직 살아 있으니 지금 찍는다.
+    try { $modalProc = Read-Modal } catch { Write-Host "  모달 읽기 실패: $($_.Exception.Message)" }
+    $modalFound = [bool]$modalProc
+    if ($modalProc) {
+        # 모달이 떠 있으면 그 앱은 막혀 있다. 두면 다음 잡도 같은 창에 걸린다 — 찍었으니 닫는다.
+        Write-Host "  $modalProc 에 모달이 떠 있습니다 — 찍었고, 앱을 닫습니다." -ForegroundColor Yellow
+        Get-Proc $modalProc | ForEach-Object { taskkill /PID $_.Id /F 2>$null | Out-Null }
+        if ($s.Transport -eq 'bridge' -and $modalProc -ne 'Photoshop') {
+            Get-Proc 'Photoshop' | ForEach-Object { taskkill /PID $_.Id /F 2>$null | Out-Null }   # 시간 초과 경로와 같게
+        }
+    }
 }
 
 # 모달 문구 분류 — 아는 문구면 표대로, 아니면 '모름'. **닫지는 않는다** (총괄 2026-09-21, 문 0.8).
@@ -324,8 +357,12 @@ if (Test-Path $modalJson) {
 $lines = @()
 $lines += "잡: $Job ($App) · $((Get-Date).ToString('yyyy-MM-dd HH:mm:ss')) · ${elapsed}s"
 if ($timedOut) { $lines += "원인 후보: 시간 제한 $TimeoutSec 초 초과 (모달로 보고 앱을 죽였다)" }
-else           { $lines += "원인 후보: 판정 줄이 없다 (잡이 끝까지 못 갔거나 로그를 안 남겼다)" }
-$lines += "모달 창: $(if ($modalFound) { '찾았다 — ' + $shot } else { '못 찾았다 (앱 창이나 화면 전체를 찍었다) — ' + $shot })"
+else           { $lines += "원인 후보: 판정 줄도 성공 답(OK)도 없다 (잡이 끝까지 못 갔거나 bridge 가 FAIL·JOBERR 를 돌려줬다)" }
+$lines += "모달 창: $(if ($modalFound) { "찾았다($modalProc, 찍고 앱을 닫았다) — " + $shot } else { '못 찾았다 (앱 창이나 화면 전체를 찍었다) — ' + $shot })"
+foreach ($wl in (Get-ChildItem $labLog -Filter "${Job}_fail_all_*_windows.txt" -ErrorAction SilentlyContinue)) {
+    $lines += "보이는 창 전부 ($($wl.Name)):"
+    $lines += (Get-Content $wl.FullName -Encoding UTF8 | ForEach-Object { "  $_" })
+}
 if ($classLine) { $lines += $classLine }
 if (Test-Path $classJson) {
     $c = Get-Content $classJson -Raw -Encoding UTF8 | ConvertFrom-Json

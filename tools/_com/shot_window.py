@@ -83,6 +83,37 @@ def find_window(proc=None, title=None):
     return found[0][1:]
 
 
+def all_windows(proc):
+    """그 프로세스의 보이는 최상위 창 **전부** — 크기로 거르지 않는다. [(hwnd, 클래스, 폭, 높이)], 큰 것부터.
+
+    가장 큰 창 하나만 찍으면 옆에 뜬 작은 창(시작 화면 옆 대화상자 등)을 놓친다 —
+    B 가 09-21 '시작 화면에서 굳음' 을 복구 창인지 가리지 못한 이유다(09-22 B 제안).
+    """
+    found = []
+
+    @ctypes.WINFUNCTYPE(ctypes.c_bool, w.HWND, w.LPARAM)
+    def cb(h, _):
+        if not u.IsWindowVisible(h):
+            return True
+        pid = w.DWORD()
+        u.GetWindowThreadProcessId(h, ctypes.byref(pid))
+        if _pid_name(pid.value).lower() != proc.lower():
+            return True
+        r = w.RECT()
+        u.GetWindowRect(h, ctypes.byref(r))
+        cw, ch = r.right - r.left, r.bottom - r.top
+        if cw <= 0 or ch <= 0:
+            return True
+        b = ctypes.create_unicode_buffer(256)
+        u.GetClassNameW(h, b, 256)
+        found.append((cw * ch, h, b.value, cw, ch))
+        return True
+
+    u.EnumWindows(cb, 0)
+    found.sort(reverse=True)
+    return [f[1:] for f in found]
+
+
 def shoot(hwnd, cw, ch, out):
     hdc = u.GetWindowDC(hwnd)
     mdc = g.CreateCompatibleDC(hdc)
@@ -107,9 +138,31 @@ def main():
     ap.add_argument('--proc', help='프로세스 이름 (확장자 없이). 예 AfterFX')
     ap.add_argument('--title', help='창 제목에 든 글자')
     ap.add_argument('--out', required=True)
+    ap.add_argument('--all', action='store_true',
+                    help='--proc 의 보이는 창을 전부 <out 이름>_1.png … 로 찍고 목록을 <out 이름>_windows.txt 에 쓴다')
     a = ap.parse_args()
     if not a.proc and not a.title:
         ap.error('--proc 이나 --title 중 하나는 있어야 한다')
+    if a.all:
+        if not a.proc:
+            ap.error('--all 은 --proc 과 같이 쓴다')
+        wins = all_windows(a.proc)
+        if not wins:
+            print('창을 못 찾았다', file=sys.stderr)
+            return 2
+        stem = a.out[:-4] if a.out.lower().endswith('.png') else a.out
+        rows = []
+        for i, (hwnd, cls, cw, ch) in enumerate(wins, 1):
+            p = f'{stem}_{i}.png'
+            try:
+                ok = shoot(hwnd, cw, ch, p)
+            except Exception as e:                  # 한 장이 안 찍혀도 나머지는 찍는다
+                ok, p = 0, f'(실패 {e})'
+            rows.append(f'{i}\t{cls}\t{cw}x{ch}\tPrintWindow={int(bool(ok))}\t{p}')
+        with open(f'{stem}_windows.txt', 'w', encoding='utf-8') as f:
+            f.write('\n'.join(rows) + '\n')
+        print(f'windows={len(wins)} -> {stem}_windows.txt')   # ASCII 만 (PS 5.1 cp949)
+        return 0
     got = find_window(a.proc, a.title)
     if not got:
         print('창을 못 찾았다', file=sys.stderr)
