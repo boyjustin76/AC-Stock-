@@ -137,12 +137,20 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--proc', help='프로세스 이름 (확장자 없이). 예 AfterFX')
     ap.add_argument('--title', help='창 제목에 든 글자')
-    ap.add_argument('--out', required=True)
+    ap.add_argument('--out', help='찍을 자리 (.png). --check 면 없어도 된다')
+    ap.add_argument('--check', action='store_true',
+                    help='찍지 않고 창이 떴는지만 본다 — 종료코드 0 = 떴다 · 2 = 아직 (앱 시작 기다릴 때)')
     ap.add_argument('--all', action='store_true',
                     help='--proc 의 보이는 창을 전부 <out 이름>_1.png … 로 찍고 목록을 <out 이름>_windows.txt 에 쓴다')
     a = ap.parse_args()
     if not a.proc and not a.title:
         ap.error('--proc 이나 --title 중 하나는 있어야 한다')
+    if a.check:
+        got = find_window(a.proc, a.title)
+        print(f'window={int(bool(got))}')
+        return 0 if got else 2
+    if not a.out:
+        ap.error('--out 이 있어야 한다 (또는 --check)')
     if a.all:
         if not a.proc:
             ap.error('--all 은 --proc 과 같이 쓴다')

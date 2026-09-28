@@ -14,14 +14,31 @@ sys.path.insert(0, os.path.join(ROOT, 'tools', 'mt5'))
 B = pytest.importorskip('batch_capture')
 
 
+def test_right_edge_tolerance():
+    """화면 오른쪽 끝 봉 검사 — 목표 봉이나 데이터상 **다음 봉**이면 맞다. 그보다 벌어지면 다른 구간."""
+    want, nxt = '2026.09.21 11:32', '2026.09.21 11:33:00'
+    assert B.near_enough(want, want, nxt)
+    assert B.near_enough('2026.09.21 11:33', want, nxt), '다음 봉은 정상이어야 한다'
+    assert not B.near_enough('2026.09.21 11:35', want, nxt), '세 봉 뒤를 정상으로 봤다'
+    assert not B.near_enough('2026.09.22 11:32', want, nxt), '하루 뒤를 정상으로 봤다 (09-22 사고)'
+    assert not B.near_enough('2026.09.28 05:07', want, nxt), '최신 화면(못 옮김)을 정상으로 봤다 (09-28 2-1)'
+    assert not B.near_enough('2026.09.21 11:31', want, nxt), '목표보다 앞은 덜 옮겨진 것이다'
+    assert not B.near_enough('', want, nxt) and not B.near_enough(None, want, nxt)
+    # 주말 구멍 — 금 23:00 다음 봉이 월 01:00 이다. 시계로 세면 사흘이라 오탐이 났다(09-28 1-1)
+    assert B.near_enough('2026.04.20 01:00', '2026.04.17 23:00', '2026.04.20 01:00:00')
+    assert not B.near_enough('2026.04.20 02:00', '2026.04.17 23:00', '2026.04.20 01:00:00')
+
+
 def fake_pools(scores, monkeypatch, ties=None):
+    """가짜 후보 풀. choose 가 고른 뒤 '다음 봉 시각' 을 찾으므로 봉 두 개를 둔다."""
     ties = ties or {}
-    pools = {k: {'bars': [k], 'used': []} for k in scores}
+    pools = {k: {'bars': [{'time': f'{k[0]} t0'}, {'time': f'{k[0]} t1'}], 'used': []} for k in scores}
+    by_bars = {id(p['bars']): k for k, p in pools.items()}
 
     def pick(sp, bars, used=None, step_sec=60, cache=None):
-        k = bars[0]
+        k = by_bars[id(bars)]
         used.append((0, 1))
-        return {'score': scores[k], 'ties': ties.get(k, 1), 'from': 't', 'to': 't'}
+        return {'score': scores[k], 'ties': ties.get(k, 1), 'from': bars[0]['time'], 'to': bars[0]['time']}
     monkeypatch.setattr(B.S, 'pick', pick)
     return pools
 

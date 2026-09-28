@@ -184,12 +184,28 @@ def choose(sp, pools, order=ORDER_PLAIN):
     near = [t for t in ok if t[1]['score'] >= NEAR_TIE * top]
     rank = {k: i for i, k in enumerate(order)}
     key, got, trial = min(near, key=lambda t: (rank.get(f'{t[0][0]}:{t[0][1]}', 99), -t[1]['score']))
+    # 구간 마지막 봉의 **다음 봉 시각** — 찍은 자리 확인에 쓴다(주말·휴장 구멍이 있어 시계로 못 센다)
+    bars = pools[key]['bars']
+    times = pools[key].setdefault('times', [b['time'] for b in bars])
+    j = times.index(got['to'])
+    got['to_next'] = times[j + 1] if j + 1 < len(times) else None
     pools[key]['used'] = trial                      # 고른 후보에만 '쓴 구간' 을 남긴다
     got.update(symbol=key[0], period=key[1])
     return got
 
 
 # ─── 3. 찍기 ──────────────────────────────────────────────────────────
+
+def near_enough(seen, want, want_next=None):
+    """화면 오른쪽 끝 봉이 목표와 같은가. 목표 봉이나 **바로 다음 봉**이면 맞다.
+
+    ChartNavigate 가 목표를 오른쪽에서 두 번째에 놓아 늘 한 봉이 더 보인다(09-28: 35장 전부 +1봉).
+    다음 봉의 시각은 **데이터에서 가져온다** — 시계로 재면 주말·휴장 구멍에서 오탐이 난다
+    (금 23:00 다음 봉이 월 01:00 이라 사흘 차이로 보였다). 그보다 벌어지면 다른 구간이다(09-22: 하루 뒤를 찍었다)."""
+    if not seen:
+        return False
+    return seen == want or (want_next is not None and seen == want_next[:16])
+
 
 def capture(m, got, out):
     import capture as CAP
@@ -207,18 +223,31 @@ def capture(m, got, out):
                                     f"ShotInds={inds},SelfRemove=true,KeepInds=true,Hold=true"})
         # 옮겼다고 믿지 않는다 — CMG_Shot(Hold) 이 적는 '화면 오른쪽 끝 봉 시각' 이 목표와 같아질 때까지 기다린다.
         # (09-22 차11 2-3: 기록엔 옮겼다고 나왔는데 찍기 전 장중 차트가 최신으로 되돌아가 하루 뒤를 찍었다)
-        want = got['to'][:16]
+        want, nxt = got['to'][:16], got.get('to_next')
         nav = os.path.join(MQL5_FILES, f'cmg_nav_{cid}.txt')
-        seen, t0 = None, time.time()
-        while time.time() - t0 < 15:
-            time.sleep(1.0)
-            try:
-                seen = io.open(nav, encoding='ascii', errors='ignore').read().strip()
-            except OSError:
-                continue
-            if seen == want:
-                time.sleep(1.5)                          # 지표·축이 다 그려지게
-                break
+
+        def wait_move(sec):
+            seen, t0 = None, time.time()
+            while time.time() - t0 < sec:
+                time.sleep(1.0)
+                try:
+                    seen = io.open(nav, encoding='ascii', errors='ignore').read().strip()
+                except OSError:
+                    continue
+                if near_enough(seen, want, nxt):
+                    time.sleep(1.5)                      # 지표·축이 다 그려지게
+                    return True
+            return False
+
+        if not wait_move(20):
+            # 안 옮겨졌다 — 먼 날짜는 이력이 아직 안 내려온 것일 수 있다. 지표를 한 번 더 얹어 다시 시킨다.
+            # (09-28 차11 2-1: US100 M1 이 끝내 최신 화면이었는데 그냥 찍혔다)
+            print('   자리를 못 잡았다 — 한 번 더 시킨다')
+            m.call('chart_add_indicator', {
+                'chart_id': cid, 'indicator_name': 'CMG_Shot', 'custom_indicator_path': IND,
+                'indicator_parameters': f"ShotFile=,ShotEndTime={want},ShotScale={SCALE},"
+                                        f"ShotInds=,SelfRemove=true,KeepInds=true,Hold=true"})
+            wait_move(25)
         ch = next((c for c in m.open_charts() if str(c['chart_id']) == cid), None)
         # 붙었다고 믿지 않는다 — 차트에 실제로 달린 지표를 세어 요청과 맞춘다.
         # (09-22: 쉼표 때문에 EMA200 하나만 붙었는데 아무 오류도 없었다)
@@ -240,8 +269,9 @@ def capture(m, got, out):
         except OSError:
             after = None
         got['right_edge'] = after
-        if after != want:                            # 찍는 사이 되돌아갔거나 끝내 못 옮겼다
-            msg = f'화면 오른쪽 끝이 {after} (목표 {want}) — 엉뚱한 구간을 찍었을 수 있다'
+        if not near_enough(after, want, nxt):        # 찍는 사이 되돌아갔거나 끝내 못 옮겼다
+            got['bad_capture'] = True                # 콘티에서 **못 쓰는 장**으로 표시된다
+            msg = f'엉뚱한 구간을 찍었다 — 화면 오른쪽 끝 {after} (목표 {want})'
             got['warn'] = (got['warn'] + ' / ' + msg) if got.get('warn') else msg
             print(f'   경고 — {msg}')
         if w < MIN_CHART_W:                          # 도중에 창이 줄었어도 알린다
@@ -308,7 +338,7 @@ def main():
     jpath = os.path.join(a.out, '콘티.json')
     if a.resume and os.path.exists(jpath):
         for c in json.load(io.open(jpath, encoding='utf-8')):
-            if c.get('png') and os.path.exists(os.path.join(a.out, c['png'])):
+            if c.get('png') and not c.get('bad_capture') and os.path.exists(os.path.join(a.out, c['png'])):
                 done[c['id']] = c
                 pool = pools.get((c.get('symbol'), c.get('period')))
                 if pool:
