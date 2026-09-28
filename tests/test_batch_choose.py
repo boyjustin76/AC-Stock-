@@ -68,6 +68,14 @@ def test_box_override_leaves_trend_script_alone(monkeypatch):
     assert sp['name'] == 'trend_burst'
 
 
+def test_indicator_enumeration_is_read():
+    """'5일, 20일, 60일선' 처럼 앞엣것에 '선' 이 안 붙는 나열도 읽는다 (09-28 4차 검수: 2-4 가 MA60 하나뿐이었다)."""
+    got = B.S.indicators_of('주식 시장의 5일, 20일, 60일선 등을 그대로 띄워두고 매매합니다', 20)
+    assert {'MA5', 'MA20', 'MA60'} <= set(got), got
+    # 이평선 이야기가 아닌 숫자는 줍지 않는다
+    assert not B.S.indicators_of('1단계 0.1계약, 2단계 0.2계약으로 늘립니다', None)
+
+
 def test_symbol_follows_script():
     """대본이 부른 종목을 먼저 본다 (09-28 검수: 암호화폐 대목에 US100 이 뽑혔다)."""
     order = B.ORDER_DAILY_MA

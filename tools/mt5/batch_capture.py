@@ -296,8 +296,8 @@ def capture(m, got, out):
             seen, t0 = None, time.time()
             while time.time() - t0 < sec:
                 time.sleep(1.0)
-                try:
-                    seen = io.open(nav, encoding='ascii', errors='ignore').read().strip()
+                try:      # 첫 줄이 화면 오른쪽 끝 시각, 둘째 줄이 그린 지표다
+                    seen = io.open(nav, encoding='ascii', errors='ignore').read().split('\n')[0].strip()
                 except OSError:
                     continue
                 if near_enough(seen, want, nxt):
@@ -319,10 +319,28 @@ def capture(m, got, out):
         # (09-22: 쉼표 때문에 EMA200 하나만 붙었는데 아무 오류도 없었다)
         on = [i.get('name', '') for i in (ch or {}).get('indicators', [])]
         got['indicators_on'] = on
-        def missing(names):
-            return [k for k, pat in KIND.items()
-                    if sum(1 for x in got['indicators'] if kind_of(x) == k) > sum(1 for n in names if pat in n)]
+        # 이평선은 CMG_Shot 이 **제 버퍼로 직접 그린다**(색을 달리하려고) — 차트의 지표 목록에는 안 나온다.
+        # 그래서 이평선은 상태 파일의 'MA:' 줄로, 나머지는 차트 목록으로 센다.
+        def drawn_mas():
+            try:
+                lines = io.open(nav, encoding='ascii', errors='ignore').read().split('\n')
+            except OSError:
+                return []
+            for ln in lines:
+                if ln.startswith('MA:'):
+                    return [x for x in ln[3:].split('|')[0].split(',') if x]
+            return []
 
+        def missing(names):
+            out = []
+            for k, pat in KIND.items():
+                want = sum(1 for x in got['indicators'] if kind_of(x) == k)
+                have = len(drawn_mas()) if k == 'ma' else sum(1 for n in names if pat in n)
+                if want > have:
+                    out.append(k)
+            return out
+
+        got['ma_drawn'] = drawn_mas()
         short = missing(on)
         if short and inds:
             # 한 번 더 붙여 본다 — 09-28 3-4: MA20 요청에 차트엔 CMG_Shot 만 있었다(붙이기가 조용히 실패)
@@ -345,7 +363,7 @@ def capture(m, got, out):
         h = ch['rect_bottom'] if ch else full.size[1] - top
         full.crop((0, top, w, top + h)).save(out)
         try:
-            after = io.open(nav, encoding='ascii', errors='ignore').read().strip()
+            after = io.open(nav, encoding='ascii', errors='ignore').read().split('\n')[0].strip()
         except OSError:
             after = None
         got['right_edge'] = after

@@ -133,6 +133,8 @@ FALLBACK = dict(name='trend_burst', indicators=[], why='한 방향으로 시원�
 # 이름은 CMG_Shot 이 알아듣는 것: MA<n>(단순) · EMA<n> · BB · RSI · STOCH · MACD · ADX
 
 MA_RE = re.compile(r'(\d{1,3})\s*(?:일\s*)?(?:이동\s*평균선?|이평선?|일선)')
+# "5일, 20일, 60일선" 처럼 앞의 것들에는 '선' 이 안 붙는 나열 (09-28 4차 검수: 2-4 가 MA60 하나만 켰다)
+MA_LIST_RE = re.compile(r'(\d{1,3})\s*일(?=\s*[,·]|\s*,|\s*(?:과|와|및)\s)')
 EMA_RE = re.compile(r'(\d{1,3})\s*EMA|EMA\s*(\d{1,3})', re.I)
 NAMED = [('BB', r'볼린저'), ('RSI', r'RSI'), ('STOCH', r'스토캐스틱'), ('MACD', r'MACD'), ('ADX', r'ADX')]
 MAX_INDS = 4
@@ -153,6 +155,11 @@ def indicators_of(text, episode_ma=None):
         n = int(m.group(1))
         if 2 <= n <= 400 and f'EMA{n}' not in out:
             out.append(f'MA{n}')
+    if any(x.startswith('MA') for x in out):          # 이평선 이야기가 있는 문장에서만 나열을 줍는다
+        for m in MA_LIST_RE.finditer(text):
+            n = int(m.group(1))
+            if 2 <= n <= 400 and f'MA{n}' not in out and f'EMA{n}' not in out:
+                out.append(f'MA{n}')
     if not any(x.startswith(('MA', 'EMA')) for x in out) and episode_ma and re.search(r'이평선|이동\s*평균', text):
         out.append(f'MA{episode_ma}')
     for name, pat in NAMED:
@@ -291,6 +298,19 @@ def readable(seg, k=READABLE):
     return med > 0 and _rng(seg) >= k * med
 
 
+def box_ok(seg, rng, spike=0.35, edge=0.1):
+    """박스 계열 공통 조건 — ① 급락·급등 한 방이 없다 ② 구간 **끝이 박스 안**에 있다.
+
+    한 곳만 막으면 다른 구멍이 드러난다(09-28 4차: 이평 출렁임을 잡으니 가격 급락이 들어왔고,
+    ma_flat_box 에만 넣은 끝 이탈 검사가 chop_box 에는 없어 5-6 이 위로 올라타며 끝났다). 그래서 한 곳에 모은다.
+    """
+    cs = [s['close'] for s in seg]
+    if max(abs(y - x) for x, y in zip(cs, cs[1:])) > spike * rng:
+        return False
+    lo, hi = min(cs), max(cs)
+    return lo + edge * rng <= cs[-1] <= hi - edge * rng
+
+
 def _windows(bars, half):
     """읽히는 창만 돌려준다 — 모든 탐색이 이걸 거친다."""
     for i in range(half, len(bars) - half):
@@ -415,7 +435,7 @@ def _chop_box(bars, closes, half, direction, **kw):
         # 급락 한 방이 섞이면 박스가 아니다 — 한 봉이 박스 폭을 얼마나 먹는지 본다
         # (09-28 검수: 5-6 은 -460p 한 방, 4-5 는 왼쪽 1/3 이 급락)
         jump = max(abs(y - x) for x, y in zip(cs, cs[1:])) / rng
-        if jump > 0.35:
+        if not box_ok(seg, rng):
             continue
         # 박스는 값이 띠 안을 **고르게 채운다**. 급락으로 두 층이 생기면 가운데가 빈다 —
         # 한 봉 크기만으로는 계단형을 못 가른다(09-28: 0.02 차이). 열 칸으로 나눠 몇 칸이 찼는지 본다.
@@ -455,6 +475,8 @@ def _trend_burst(bars, closes, half, direction, **kw):
         if max(abs(y - x) for x, y in zip(cs3, cs3[1:])) > 0.5 * abs(net):
             continue
         spread = min(abs(x) for x in legs) / (abs(net) / 4) if net else 0
+        if spread < 0.5:
+            continue                                      # 한 토막이 거의 안 가면 가운데가 눌린 모양이다 (09-28 4차: 5-1·4-2)
         out.append((abs(net) / rng * min(1.0, spread), i,
                     f'{"상승" if net > 0 else "하락"} · 순이동이 구간폭의 {100 * abs(net) / rng:.0f}% · 고르기 {100 * min(1.0, spread):.0f}%'))
     return out
@@ -591,10 +613,7 @@ def _ma_flat_box(bars, closes, half, direction, **kw):
             # 기울기가 크면 누운 게 아니고, **끝점은 같아도 중간이 출렁이면** 누운 것으로 안 보인다
             # (09-28 검수 3차: 5-7·5-8 은 기울기 0~1% 인데 출렁임 39~46% 였다)
             continue
-        # 끝에서 박스를 벗어나면 '누운 이평선 안의 등락' 이 아니다 — 마지막 값이 띠 안에 있어야 한다
-        cs2 = [s['close'] for s in seg]
-        lo2, hi2 = min(cs2), max(cs2)
-        if not (lo2 + 0.1 * rng <= cs2[-1] <= hi2 - 0.1 * rng):
+        if not box_ok(seg, rng):      # 급락 한 방 없고 끝이 박스 안 (공통 조건)
             continue
         flat = (1 - min(1.0, slope)) * (1 - min(1.0, (max(mm) - min(mm)) / rng))
         sides = [s['close'] > v for s, v in zip(seg, mm)]
