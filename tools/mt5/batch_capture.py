@@ -319,8 +319,22 @@ def capture(m, got, out):
         # (09-22: 쉼표 때문에 EMA200 하나만 붙었는데 아무 오류도 없었다)
         on = [i.get('name', '') for i in (ch or {}).get('indicators', [])]
         got['indicators_on'] = on
-        short = [k for k, pat in KIND.items()
-                 if sum(1 for x in got['indicators'] if kind_of(x) == k) > sum(1 for n in on if pat in n)]
+        def missing(names):
+            return [k for k, pat in KIND.items()
+                    if sum(1 for x in got['indicators'] if kind_of(x) == k) > sum(1 for n in names if pat in n)]
+
+        short = missing(on)
+        if short and inds:
+            # 한 번 더 붙여 본다 — 09-28 3-4: MA20 요청에 차트엔 CMG_Shot 만 있었다(붙이기가 조용히 실패)
+            print(f'   지표가 덜 붙었다({short}) — 한 번 더 붙인다')
+            m.call('chart_add_indicator', {
+                'chart_id': cid, 'indicator_name': 'CMG_Shot', 'custom_indicator_path': IND,
+                'indicator_parameters': f"ShotFile=,ShotInds={inds},SelfRemove=true,KeepInds=true"})
+            time.sleep(3.5)
+            ch = next((c for c in m.open_charts() if str(c['chart_id']) == cid), None)
+            on = [i.get('name', '') for i in (ch or {}).get('indicators', [])]
+            got['indicators_on'] = on
+            short = missing(on)
         if short:
             w = f'지표가 덜 붙었다: 요청 {got["indicators"]} · 차트 {on}'
             got['warn'] = (got['warn'] + ' / ' + w) if got.get('warn') else w
