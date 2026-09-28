@@ -37,6 +37,7 @@ STEP = {'M1': 60, 'M2': 120, 'M5': 300, 'M15': 900, 'M30': 1800, 'H1': 3600, 'H4
 TEMPLATE = '기본값.tpl'            # 지표 없는 깨끗한 판 — 켤 지표는 CMG_Shot 이 붙인다
 SCALE = 4                          # 봉 하나 16px → 1920 폭에 약 117봉 (탐색 창 110봉과 맞춘다)
 JEV_GATE = 0.7
+JEV_OVERRIDE = 0.8                 # 규칙이 고른 장면을 Jev 가 뒤집으려면 이만큼 확신해야 한다 (차10 은 규칙이 맞았다)
 THEME_MIN = 8                      # 이평선이 대본에 이만큼 넘게 나오면 회차 주제 지표로 보고 모든 비트에 켠다
 LONG_FROM = '2026-03-01'           # M15 이상은 여기서부터 봉을 받는다
 PAGE_BARS = 110                    # 장면 구간 봉 수 (scenes.pick 의 page)
@@ -127,6 +128,12 @@ def spec_of(beat, use_jev, episode_ma=None, always_on=None):
     # 회차 주제 지표는 늘 켠다 — 차11 팀장 그림 42장 중 35장에 20이평 (09-22 판독)
     base = [always_on] if always_on and not any(kind_of(x) == 'ma' for x in read + list(sp.get('indicators') or [])) else []
     sp['indicators'] = list(dict.fromkeys(base + list(sp.get('indicators') or []) + read))[:S.MAX_INDS]
+    if sp['name'] != S.FALLBACK['name'] and use_jev:
+        # 낱말 규칙은 뜻을 거꾸로 읽는다 — 차11 3-4 "20일선이 지지선 역할(지지 성공)" 에 '지지선' 이 걸려 지지선 **붕괴**,
+        # 4-4 "돌파했으니 매도(횡보장 속임수)" 에 '돌파' 가 걸려 깨끗한 돌파가 뽑혔다(09-22 검수). Jev 가 다르게 보면 따른다.
+        r, conf = ask_jev(beat, S.RULES)
+        if r not in (None, 'none') and r['name'] != sp['name'] and conf >= JEV_OVERRIDE:
+            sp = dict(r, id=beat['id'], by=f"Jev {conf:.2f} (규칙 {sp['name']} 을 뒤집음)")
     if sp['name'] == S.FALLBACK['name'] and use_jev:
         r, conf = ask_jev(beat, S.RULES)
         if r == 'none':
@@ -186,7 +193,9 @@ def choose(sp, pools, order=ORDER_PLAIN):
 
 def capture(m, got, out):
     import capture as CAP
-    from capture_scene import IND
+    from capture_scene import IND, MQL5
+    global MQL5_FILES
+    MQL5_FILES = os.path.join(MQL5, 'Files')
     cid = str(m.call('chart_open', {'symbol': got['symbol'], 'period': got['period']})['chart_id'])
     try:
         m.call('chart_apply_template', {'chart_id': cid, 'template_filename': TEMPLATE})
@@ -195,10 +204,21 @@ def capture(m, got, out):
         m.call('chart_add_indicator', {
             'chart_id': cid, 'indicator_name': 'CMG_Shot', 'custom_indicator_path': IND,
             'indicator_parameters': f"ShotFile=,ShotEndTime={got['to'][:16]},ShotScale={SCALE},"
-                                    f"ShotInds={inds},SelfRemove=true,KeepInds=true"})
-        # CMG_Shot 은 1.2초마다 한 단계 — 자리 잡기가 3.6초에 끝나고 4.8초에 스스로 빠진다.
-        # KeepInds 라 지표는 남으니 넉넉히 기다린다 (차트째 닫으므로 사람 차트엔 안 남는다)
-        time.sleep(6.5)
+                                    f"ShotInds={inds},SelfRemove=true,KeepInds=true,Hold=true"})
+        # 옮겼다고 믿지 않는다 — CMG_Shot(Hold) 이 적는 '화면 오른쪽 끝 봉 시각' 이 목표와 같아질 때까지 기다린다.
+        # (09-22 차11 2-3: 기록엔 옮겼다고 나왔는데 찍기 전 장중 차트가 최신으로 되돌아가 하루 뒤를 찍었다)
+        want = got['to'][:16]
+        nav = os.path.join(MQL5_FILES, f'cmg_nav_{cid}.txt')
+        seen, t0 = None, time.time()
+        while time.time() - t0 < 15:
+            time.sleep(1.0)
+            try:
+                seen = io.open(nav, encoding='ascii', errors='ignore').read().strip()
+            except OSError:
+                continue
+            if seen == want:
+                time.sleep(1.5)                          # 지표·축이 다 그려지게
+                break
         ch = next((c for c in m.open_charts() if str(c['chart_id']) == cid), None)
         # 붙었다고 믿지 않는다 — 차트에 실제로 달린 지표를 세어 요청과 맞춘다.
         # (09-22: 쉼표 때문에 EMA200 하나만 붙었는데 아무 오류도 없었다)
@@ -215,6 +235,15 @@ def capture(m, got, out):
         w = ch['rect_right'] if ch else full.size[0]
         h = ch['rect_bottom'] if ch else full.size[1] - top
         full.crop((0, top, w, top + h)).save(out)
+        try:
+            after = io.open(nav, encoding='ascii', errors='ignore').read().strip()
+        except OSError:
+            after = None
+        got['right_edge'] = after
+        if after != want:                            # 찍는 사이 되돌아갔거나 끝내 못 옮겼다
+            msg = f'화면 오른쪽 끝이 {after} (목표 {want}) — 엉뚱한 구간을 찍었을 수 있다'
+            got['warn'] = (got['warn'] + ' / ' + msg) if got.get('warn') else msg
+            print(f'   경고 — {msg}')
         if w < MIN_CHART_W:                          # 도중에 창이 줄었어도 알린다
             msg = f'그림 폭 {w}px — 구간이 잘렸다 ({w // 16}/{PAGE_BARS}봉만 보인다)'
             got['warn'] = (got['warn'] + ' / ' + msg) if got.get('warn') else msg
@@ -222,6 +251,10 @@ def capture(m, got, out):
         return ch
     finally:
         m.call('chart_close', {'chart_id': cid})
+        try:
+            os.remove(os.path.join(MQL5_FILES, f'cmg_nav_{cid}.txt'))
+        except OSError:
+            pass
 
 
 # ─── 실행 ─────────────────────────────────────────────────────────────

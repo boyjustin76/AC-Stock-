@@ -187,6 +187,42 @@ def test_top_score_is_not_shared_by_many_events(name):
     assert S.ties(cands, PAGE) < S.SATURATED, f'{name}: 1등 점수가 서로 다른 사건 {S.ties(cands, PAGE)}곳에 똑같다'
 
 
+# ─── ④ 검수에서 나온 '틀린 모양' (09-22 차11 35장 서브에이전트 검수) ─────
+
+def _embed(real, decoy, seed=11):
+    r = random.Random(seed)
+    lv = (max(real) + min(real)) / 2
+    pre = calm(280, lv, r) + line(lv, real[0], 20)[1:]
+    mid = line(real[-1], decoy[0], 40)[1:]
+    return series(pre, real, mid, decoy, calm(200, decoy[-1], r)), len(pre) + len(real) // 2
+
+
+def _box(center, n=110, amp=1.5):
+    return [center + amp * math.sin(k / 3.5) for k in range(n)]
+
+
+BAD = {
+    # 박스권: 좁은 역V자는 순이동 0 · 폭도 좁지만 박스가 아니다 (검수: chop_box 3건 모두 '큰 역V자')
+    'chop_box': (series(line(100, 120, 150), _box(120), line(120, 140, 150)),
+                 series(line(140, 160, 150), line(160, 163, 55), line(163, 160, 55)[1:], line(160, 180, 150))),
+    # 누운 이평선: 이평선 자체가 크게 출렁이면 '누운' 게 아니다 (검수: ma_flat_box 3건 모두 '파도치는 이평선')
+    'ma_flat_box': ([100 + 3 * math.sin(2 * math.pi * k / 22) for k in range(132)],
+                    [100 + 3 * math.sin(2 * math.pi * k / 22) + 8 * math.sin(2 * math.pi * k / 90) for k in range(132)]),
+    # 지지 반등: 앞에 오름세가 있어야 '눌림' 이다 (검수: 3-1·2-6 '앞에 오르는 추세가 없다')
+    'ma_support_bounce': (series(line(100, 118, 60), line(118, 115, 6)[1:], line(115, 130, 45)[1:]),
+                          series(line(118, 100, 60), [100] * 8, line(100, 112, 45)[1:])),
+}
+
+
+@pytest.mark.parametrize('name', sorted(BAD))
+def test_rejects_shapes_found_in_review(name):
+    real, decoy = BAD[name]
+    closes, center = _embed(real, decoy)
+    cands = S.find(name, bars_from(closes), PAGE)
+    assert cands, f'{name}: 후보가 없다'
+    assert abs(cands[0][1] - center) <= HALF, f'{name}: 검수에서 틀렸던 모양을 골랐다 (1등 {cands[0][1]}, 진짜 {center}) — {cands[0][2]}'
+
+
 def test_direction_filter():
     closes = series(line(100, 120, 110), [120] * 100, line(120, 100, 110))
     bars = bars_from(closes)

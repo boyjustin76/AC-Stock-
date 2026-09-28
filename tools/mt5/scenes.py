@@ -406,7 +406,14 @@ def _chop_box(bars, closes, half, direction, **kw):
         crng = _rng(ctx)
         net = abs(seg[-1]['close'] - seg[0]['close'])
         narrow = 1 - rng / crng if crng > 0 else 0
-        out.append(((1 - net / rng) * narrow, i, f'넓은 구간의 {100 * rng / crng:.0f}% 폭 · 순이동 {100 * net / rng:.0f}%'))
+        # 박스는 가운데 선을 여러 번 넘나든다 — 역V자도 순이동 0·좁음이지만 한 번 넘고 끝난다 (09-22 검수: 3건 모두 역V)
+        cs = [s['close'] for s in seg]
+        mid = (max(cs) + min(cs)) / 2
+        cross = sum(1 for x, y in zip(cs, cs[1:]) if (x - mid) * (y - mid) < 0)
+        if cross < 4:
+            continue
+        out.append(((1 - net / rng) * narrow * min(cross, 8) / 8, i,
+                    f'넓은 구간의 {100 * rng / crng:.0f}% 폭 · 순이동 {100 * net / rng:.0f}% · 가운데 넘나듦 {cross}번'))
     return out
 
 
@@ -514,6 +521,10 @@ def _ma_touch(bars, closes, half, up, ma):
         # 문턱 8%: 추세 중 가격은 이평선 위로 구간폭의 ~10% 쯤 떠 있다(시험의 0.3/봉 오름세 11%). 쉬다 오른 곳은 1% 미만.
         if pre < 0.08 * rng:
             continue
+        # 닿기 전에 이평선이 추세 쪽으로 가고 있었어야 '눌림' 이다 (09-22 검수: 3-1·2-6 앞에 오름세가 없었다)
+        lead = ((mm[k] - mm[0]) if up else (mm[0] - mm[k])) / rng
+        if lead < 0.1:
+            continue
         after = seg[k:]
         go = (max(s['high'] for s in after) - seg[k]['low']) if up else (seg[k]['high'] - min(s['low'] for s in after))
         out.append((go / rng * side * min(1.0, pre / (0.15 * rng)), a + k,
@@ -544,7 +555,8 @@ def _ma_flat_box(bars, closes, half, direction, **kw):
         if mm[0] is None:
             continue
         rng = _rng(seg)
-        flat = 1 - min(1.0, abs(mm[-1] - mm[0]) / rng)
+        # 끝점 기울기만 보면 이평선이 파도치듯 출렁여도 '누웠다' 가 된다(09-22 검수: 3건 모두) — 이평선 자체의 폭도 본다
+        flat = (1 - min(1.0, abs(mm[-1] - mm[0]) / rng)) * (1 - min(1.0, (max(mm) - min(mm)) / rng))
         sides = [s['close'] > v for s, v in zip(seg, mm)]
         cross = sum(1 for x, y in zip(sides, sides[1:]) if x != y)
         if cross < 3:

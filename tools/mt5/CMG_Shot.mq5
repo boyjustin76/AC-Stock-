@@ -22,6 +22,9 @@ input int    ShotScale   = -1;              // 배율 0~5 (-1 이면 그대로)
 input string ShotInds    = "";               // 켤 지표 "EMA20+EMA200+ADX" (빈칸이면 그대로). MCP 로 줄 때는 '+' — 쉼표는 잘린다
 input bool   ShotRestore = false;            // true 면 찍지 않고 보던 자리(최신)로 되돌리기만 한다
 input bool   SelfRemove  = true;            // 찍은 뒤 스스로 빠지기
+input bool   Hold        = false;           // true 면 빠지지 않고 1.2초마다 자리를 다시 잡으며, 화면 오른쪽 끝 봉 시각을
+                                            // MQL5\Files\cmg_nav_<차트ID>.txt 에 적는다 — 밖의 캡처가 확인하고 찍는다.
+                                            // (09-22: 옮긴 뒤 찍기 전에 장중 US100 차트가 최신으로 되돌아가 엉뚱한 날을 찍었다)
 input bool   KeepInds    = false;           // true 면 얹은 지표를 떼지 않는다 — 밖에서 창을 찍고 차트째 닫을 때
                                             // (떼는 단계가 ~4.8초에 와서, 밖의 캡처가 떼는 도중을 찍었다 — 09-22)
 
@@ -200,6 +203,25 @@ void OnTimer()
       PrintFormat("CMG_Shot: %s %s %dx%d 첫보임=%d 보이는봉=%d",
                   ok ? "OK" : "FAIL", ShotFile, ShotW, ShotH, (int)fv, (int)vb);
       g_step = 9;
+      return;
+     }
+//--- 붙잡기: 자리를 계속 못박고, 지금 보이는 오른쪽 끝 봉의 시각을 적는다 (차트를 닫으면 같이 사라진다)
+   if(Hold && StringLen(ShotEndTime) > 0)
+     {
+      ChartSetInteger(0, CHART_AUTOSCROLL, false);
+      int sh = iBarShift(_Symbol, _Period, StringToTime(ShotEndTime), false);
+      if(sh > 0)
+         ChartNavigate(0, CHART_END, -sh);
+      ChartRedraw(0);
+      long fv = ChartGetInteger(0, CHART_FIRST_VISIBLE_BAR);
+      long vb = ChartGetInteger(0, CHART_VISIBLE_BARS);
+      int right = (int)MathMax(0, fv - vb + 1);
+      int fh = FileOpen("cmg_nav_" + IntegerToString(ChartID()) + ".txt", FILE_WRITE | FILE_TXT | FILE_ANSI);
+      if(fh != INVALID_HANDLE)
+        {
+         FileWriteString(fh, TimeToString(iTime(_Symbol, _Period, right), TIME_DATE | TIME_MINUTES));
+         FileClose(fh);
+        }
       return;
      }
 //--- 4단계: 스스로 빠진다
