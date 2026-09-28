@@ -161,8 +161,10 @@ def box_override(beat, sp, use_jev):
     """
     if not use_jev or sp['name'] not in TRENDY or not any(w in beat['text'] for w in BOX_WORDS):
         return sp
+    # '채널·박스권·횡보장' 처럼 분명히 이름을 부르면 문을 낮춘다 (09-28 3차: 5-9 가 0.62 로 아깝게 걸렸다)
+    gate = 0.5 if any(w in beat['text'] for w in ('박스권', '채널', '횡보장')) else BOX_GATE
     side, sconf = is_sideways(beat)
-    if not side or sconf < BOX_GATE:
+    if not side or sconf < gate:
         return sp
     r, conf = ask_jev(beat, [x for x in S.RULES if x['name'] in BOXY], allow_none=False, gate=0.0)
     if r in (None, 'none'):
@@ -173,11 +175,6 @@ def box_override(beat, sp, use_jev):
 def spec_of(beat, use_jev, episode_ma=None, always_on=None):
     sp = S.spec_for(beat)
     sp['by'] = '규칙'
-    # 대본이 말한 지표를 켠다 — 규칙에 박힌 지표(차10) + 대본에서 읽은 지표(다른 회차)
-    read = S.indicators_of(beat['text'], episode_ma)
-    # 회차 주제 지표는 늘 켠다 — 차11 팀장 그림 42장 중 35장에 20이평 (09-22 판독)
-    base = [always_on] if always_on and not any(kind_of(x) == 'ma' for x in read + list(sp.get('indicators') or [])) else []
-    sp['indicators'] = list(dict.fromkeys(base + list(sp.get('indicators') or []) + read))[:S.MAX_INDS]
     if sp['name'] != S.FALLBACK['name'] and use_jev:
         # 낱말 규칙은 뜻을 거꾸로 읽는다 — 차11 3-4 "20일선이 지지선 역할(지지 성공)" 에 '지지선' 이 걸려 지지선 **붕괴**,
         # 4-4 "돌파했으니 매도(횡보장 속임수)" 에 '돌파' 가 걸려 깨끗한 돌파가 뽑혔다(09-22 검수). Jev 가 다르게 보면 따른다.
@@ -193,6 +190,12 @@ def spec_of(beat, use_jev, episode_ma=None, always_on=None):
         else:
             sp['by'] = f'기본값 (Jev {conf:.2f} — 문 {JEV_GATE} 아래)'
     sp = box_override(beat, sp, use_jev)
+    # 지표는 **장면을 다 정한 뒤에** 붙인다. 먼저 붙이면 장면을 바꾸는 순간 같이 날아간다 —
+    # 09-28 검수: 4-4 가 whipsaw 로 바뀌며 MA20 이 사라졌는데 대본은 "20일선에 닿았으니 매수" 였다.
+    read = S.indicators_of(beat['text'], episode_ma)
+    # 회차 주제 지표는 늘 켠다 — 차11 팀장 그림 42장 중 35장에 20이평 (09-22 판독)
+    base = [always_on] if always_on and not any(kind_of(x) == 'ma' for x in read + list(sp.get('indicators') or [])) else []
+    sp['indicators'] = list(dict.fromkeys(base + list(sp.get('indicators') or []) + read))[:S.MAX_INDS]
     # 이평선 기준 장면은 그 이평선이 화면에 있어야 이야기가 된다
     mas = [int(x[2:]) for x in sp['indicators'] if x.startswith('MA') and not x.startswith('MACD')]
     sp['ma'] = mas[0] if mas else (episode_ma or 20)
@@ -213,6 +216,18 @@ NEAR_TIE = 0.9    # 1등 점수의 이만큼 안이면 사실상 동점 — 그�
 #   'N일선' 이 주제인 회차(차11)  US100 M15·H1·D1 이 대부분, M1 은 0장 — 일 단위 이평선 이야기라 긴 주기
 ORDER_PLAIN = ['BTCUSD:M1', 'BTCUSD:M5', 'US100.:M1', 'US100.:M15', 'US100.:H1']
 ORDER_DAILY_MA = ['US100.:H1', 'US100.:M15', 'US100.:M1', 'BTCUSD:M5', 'BTCUSD:M1']
+
+# 대본이 종목을 말하면 그 종목을 먼저 본다 (09-28 검수: 2-3 은 암호화폐 대목인데 US100 이 뽑혔다)
+SYMBOL_WORDS = {'BTCUSD': ('비트코인', '암호화폐', '코인', 'BTC'), 'US100.': ('나스닥', 'US100', '지수')}
+
+
+def order_for(beat, order):
+    """대본이 부른 종목을 순서 앞으로 당긴다. 없으면 회차 순서 그대로."""
+    for sym, words in SYMBOL_WORDS.items():
+        if any(w in beat['text'] for w in words):
+            mine = [k for k in order if k.startswith(sym)]
+            return mine + [k for k in order if k not in mine]
+    return order
 
 
 def choose(sp, pools, order=ORDER_PLAIN):
@@ -404,7 +419,7 @@ def main():
             conti.append(done[be['id']])
             continue
         sp = spec_of(be, not a.no_jev, ep_ma, always_on)
-        got = choose(sp, pools, ORDER_DAILY_MA if always_on else ORDER_PLAIN)
+        got = choose(sp, pools, order_for(be, ORDER_DAILY_MA if always_on else ORDER_PLAIN))
         line = f"({be['id']}) {sp['name']:<17} [{sp['by']}]"
         if not got:
             print(line + '  못 찾음')

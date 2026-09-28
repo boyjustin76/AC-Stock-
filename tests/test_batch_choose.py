@@ -68,6 +68,29 @@ def test_box_override_leaves_trend_script_alone(monkeypatch):
     assert sp['name'] == 'trend_burst'
 
 
+def test_symbol_follows_script():
+    """대본이 부른 종목을 먼저 본다 (09-28 검수: 암호화폐 대목에 US100 이 뽑혔다)."""
+    order = B.ORDER_DAILY_MA
+    crypto = B.order_for({'text': '비트코인과 같은 암호화폐 시장은 주말 없이 돌아갑니다'}, order)
+    assert crypto[0].startswith('BTCUSD'), crypto
+    index = B.order_for({'text': '나스닥을 기준으로 본다면 개장 직후 변동성이 큽니다'}, order)
+    assert index[0].startswith('US100'), index
+    assert B.order_for({'text': '이동평균선은 한 달 평균 단가입니다'}, order) == order, '종목 말이 없으면 그대로 둔다'
+    assert sorted(crypto) == sorted(order), '후보를 빠뜨리거나 더했다'
+
+
+def test_indicators_survive_scene_override(monkeypatch):
+    """장면을 바꿔도 회차 주제 지표는 남아야 한다 (09-28 검수: 4-4 가 whipsaw 로 바뀌며 MA20 이 사라졌다)."""
+    monkeypatch.setattr(B, 'is_sideways', lambda beat: (True, 0.9))
+    monkeypatch.setattr(B, 'ask_jev', lambda beat, rules, allow_none=True, gate=None:
+                        (next(r for r in rules if r['name'] == 'whipsaw'), 0.4)
+                        if all(r['name'] in B.BOXY for r in rules) else (None, 0.0))
+    beat = {'id': '4-4', 'text': '이러한 횡보장에서 20일선을 돌파했으니 매도한다는 원칙을 대입하면 손절만 반복됩니다'}
+    sp = B.spec_of(beat, True, episode_ma=20, always_on='MA20')
+    assert sp['name'] == 'whipsaw'
+    assert 'MA20' in sp['indicators'], f"장면을 바꾸며 지표가 날아갔다: {sp['indicators']}"
+
+
 def fake_pools(scores, monkeypatch, ties=None):
     """가짜 후보 풀. choose 가 고른 뒤 '다음 봉 시각' 을 찾으므로 봉 두 개를 둔다."""
     ties = ties or {}

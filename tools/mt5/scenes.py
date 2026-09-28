@@ -419,6 +419,11 @@ def _chop_box(bars, closes, half, direction, **kw):
             continue
         # 박스는 값이 띠 안을 **고르게 채운다**. 급락으로 두 층이 생기면 가운데가 빈다 —
         # 한 봉 크기만으로는 계단형을 못 가른다(09-28: 0.02 차이). 열 칸으로 나눠 몇 칸이 찼는지 본다.
+        # 완만한 산(올랐다 내려와 제자리)은 순이동도 작고 띠도 채우지만 박스가 아니다 (09-28 검수 3차: 5-10)
+        t = len(cs) // 3
+        a1, a2, a3 = (sum(cs[:t]) / t, sum(cs[t:2 * t]) / t, sum(cs[2 * t:]) / len(cs[2 * t:]))
+        if abs(a2 - (a1 + a3) / 2) > 0.2 * rng:
+            continue
         lo_, hi_ = min(cs), max(cs)
         bins = [0] * 10
         for v in cs:
@@ -445,6 +450,10 @@ def _trend_burst(bars, closes, half, direction, **kw):
         legs = [seg[(k + 1) * q - 1]['close'] - seg[k * q]['close'] for k in range(4)]
         if any((x > 0) != (net > 0) for x in legs):
             continue                                      # 한 토막이라도 반대로 가면 한 방향 추세가 아니다
+        # 한 봉이 추세의 절반 넘게 만들면 '추세' 가 아니라 급등 한 방이다 (09-28 검수 3차: 5-2)
+        cs3 = [x['close'] for x in seg]
+        if max(abs(y - x) for x, y in zip(cs3, cs3[1:])) > 0.5 * abs(net):
+            continue
         spread = min(abs(x) for x in legs) / (abs(net) / 4) if net else 0
         out.append((abs(net) / rng * min(1.0, spread), i,
                     f'{"상승" if net > 0 else "하락"} · 순이동이 구간폭의 {100 * abs(net) / rng:.0f}% · 고르기 {100 * min(1.0, spread):.0f}%'))
@@ -576,7 +585,18 @@ def _ma_flat_box(bars, closes, half, direction, **kw):
             continue
         rng = _rng(seg)
         # 끝점 기울기만 보면 이평선이 파도치듯 출렁여도 '누웠다' 가 된다(09-22 검수: 3건 모두) — 이평선 자체의 폭도 본다
-        flat = (1 - min(1.0, abs(mm[-1] - mm[0]) / rng)) * (1 - min(1.0, (max(mm) - min(mm)) / rng))
+        slope = abs(mm[-1] - mm[0]) / rng
+        wave = (max(mm) - min(mm)) / rng
+        if slope > 0.35 or wave > 0.35:
+            # 기울기가 크면 누운 게 아니고, **끝점은 같아도 중간이 출렁이면** 누운 것으로 안 보인다
+            # (09-28 검수 3차: 5-7·5-8 은 기울기 0~1% 인데 출렁임 39~46% 였다)
+            continue
+        # 끝에서 박스를 벗어나면 '누운 이평선 안의 등락' 이 아니다 — 마지막 값이 띠 안에 있어야 한다
+        cs2 = [s['close'] for s in seg]
+        lo2, hi2 = min(cs2), max(cs2)
+        if not (lo2 + 0.1 * rng <= cs2[-1] <= hi2 - 0.1 * rng):
+            continue
+        flat = (1 - min(1.0, slope)) * (1 - min(1.0, (max(mm) - min(mm)) / rng))
         sides = [s['close'] > v for s, v in zip(seg, mm)]
         cross = sum(1 for x, y in zip(sides, sides[1:]) if x != y)
         if cross < 3:
@@ -584,7 +604,7 @@ def _ma_flat_box(bars, closes, half, direction, **kw):
         # 넘나들되 이평선 근처에서만 떨면 안 읽힌다 — 이평선에서 벌어진 폭의 평균도 본다
         spread = sum(abs(s['close'] - v) for s, v in zip(seg, mm)) / len(seg) / rng
         out.append((flat * min(cross, 8) / 8 * min(1.0, 4 * spread), i,
-                    f'{ma}이평 기울기 {100 * (1 - flat):.0f}% · 넘나듦 {cross}번'))
+                    f'{ma}이평 기울기 {100 * slope:.0f}% · 이평 출렁임 {100 * (max(mm) - min(mm)) / rng:.0f}% · 넘나듦 {cross}번'))
     return out
 
 

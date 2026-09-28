@@ -219,11 +219,24 @@ BAD = {
     # 지지 반등: 앞에 오름세가 있어야 '눌림' 이다 (검수: 3-1·2-6 '앞에 오르는 추세가 없다')
     'ma_support_bounce': (series(line(100, 118, 60), line(118, 115, 6)[1:], line(115, 130, 45)[1:]),
                           series(line(118, 100, 60), [100] * 8, line(100, 112, 45)[1:])),
-    # 추세: 화면 내내 가야 추세다. 앞 2/3 가 제자리고 끝에서만 솟는 것은 추세 장면이 아니다
-    # (검수: trend_burst 16건 중 5건이 '추세가 화면 절반 이하')
+    # 추세: 화면 내내 가야 추세다. 앞 2/3 가 제자리고 끝에서만 솟는 것/한 봉이 다 만든 급등은 추세 장면이 아니다
+    # (검수 2차: 16건 중 5건이 '추세가 화면 절반 이하' · 3차: 5-2 '급등 한 방')
     'trend_burst': (line(100, 124, 110),
-                    series(_box(100, 74, 1.2), line(100, 124, 36)[1:])),
+                    [series(_box(100, 74, 1.2), line(100, 124, 36)[1:]),
+                     series(_box(100, 54, 1.0), [112], _box(112, 55, 1.0))]),          # 한 봉이 12 를 뛴다
+    # 누운 이평선: 구간 끝이 박스를 벗어나면 '누웠다' 가 아니다 (검수 3차: 5-7·5-8 끝부분 이탈)
+    'ma_flat_box': ([100 + 3 * math.sin(2 * math.pi * k / 22) for k in range(132)],
+                    [100 + 3 * math.sin(2 * math.pi * k / 22) + 8 * math.sin(2 * math.pi * k / 90) for k in range(132)]),
 }
+# 위 BAD 에 이어 붙이는 미끼들 (한 장면에 여러 모양)
+BAD['chop_box'] = (BAD['chop_box'][0], list(BAD['chop_box'][1]) + [
+    # 완만한 산 — 올랐다 내려와 제자리라 순이동은 작지만 박스가 아니다 (검수 3차: 5-10)
+    [200 + 9 * math.sin(math.pi * k / 120) + 0.8 * math.sin(2 * math.pi * k / 9) for k in range(120)],
+])
+BAD['ma_flat_box'] = (BAD['ma_flat_box'][0], list(BAD['ma_flat_box'][1:]) + [
+    # 박스 안에서 오가다 **끝에서 이탈**한다
+    series([100 + 3 * math.sin(2 * math.pi * k / 22) for k in range(88)], line(100, 116, 30)),
+])
 
 
 @pytest.mark.parametrize('name', sorted(BAD))
