@@ -189,12 +189,18 @@ def test_top_score_is_not_shared_by_many_events(name):
 
 # ─── ④ 검수에서 나온 '틀린 모양' (09-22 차11 35장 서브에이전트 검수) ─────
 
-def _embed(real, decoy, seed=11):
+def _embed(real, decoys, seed=11):
+    """바탕 + 진짜 + (이음 + 미끼)* + 바탕. 미끼는 하나여도 되고 여럿이어도 된다."""
+    if not isinstance(decoys, (list, tuple)) or isinstance(decoys[0], (int, float)):
+        decoys = [decoys]
     r = random.Random(seed)
     lv = (max(real) + min(real)) / 2
-    pre = calm(280, lv, r) + line(lv, real[0], 20)[1:]
-    mid = line(real[-1], decoy[0], 40)[1:]
-    return series(pre, real, mid, decoy, calm(200, decoy[-1], r)), len(pre) + len(real) // 2
+    out = calm(280, lv, r) + line(lv, real[0], 20)[1:]
+    center = len(out) + len(real) // 2
+    out = out + real
+    for d in decoys:
+        out = out + line(out[-1], d[0], 40)[1:] + d
+    return out + calm(200, out[-1], r), center
 
 
 def _box(center, n=110, amp=1.5):
@@ -204,23 +210,50 @@ def _box(center, n=110, amp=1.5):
 BAD = {
     # 박스권: 좁은 역V자는 순이동 0 · 폭도 좁지만 박스가 아니다 (검수: chop_box 3건 모두 '큰 역V자')
     'chop_box': (series(line(100, 120, 150), _box(120), line(120, 140, 150)),
-                 series(line(140, 160, 150), line(160, 163, 55), line(163, 160, 55)[1:], line(160, 180, 150))),
+                 [series(line(140, 160, 150), line(160, 163, 55), line(163, 160, 55)[1:], line(160, 180, 150)),
+                  # 급락 한 방이 섞인 구간 — 순이동 0·좁음·넘나듦 다 되지만 박스가 아니다 (검수: 5-6·4-5)
+                  series(_box(180, 40, 1.0), line(180, 168, 3)[1:], _box(168, 30, 1.0)[1:], line(168, 180, 3)[1:], _box(180, 34, 1.0)[1:])]),
     # 누운 이평선: 이평선 자체가 크게 출렁이면 '누운' 게 아니다 (검수: ma_flat_box 3건 모두 '파도치는 이평선')
     'ma_flat_box': ([100 + 3 * math.sin(2 * math.pi * k / 22) for k in range(132)],
                     [100 + 3 * math.sin(2 * math.pi * k / 22) + 8 * math.sin(2 * math.pi * k / 90) for k in range(132)]),
     # 지지 반등: 앞에 오름세가 있어야 '눌림' 이다 (검수: 3-1·2-6 '앞에 오르는 추세가 없다')
     'ma_support_bounce': (series(line(100, 118, 60), line(118, 115, 6)[1:], line(115, 130, 45)[1:]),
                           series(line(118, 100, 60), [100] * 8, line(100, 112, 45)[1:])),
+    # 추세: 화면 내내 가야 추세다. 앞 2/3 가 제자리고 끝에서만 솟는 것은 추세 장면이 아니다
+    # (검수: trend_burst 16건 중 5건이 '추세가 화면 절반 이하')
+    'trend_burst': (line(100, 124, 110),
+                    series(_box(100, 74, 1.2), line(100, 124, 36)[1:])),
 }
 
 
 @pytest.mark.parametrize('name', sorted(BAD))
 def test_rejects_shapes_found_in_review(name):
-    real, decoy = BAD[name]
-    closes, center = _embed(real, decoy)
+    real, decoys = BAD[name]
+    closes, center = _embed(real, decoys)
     cands = S.find(name, bars_from(closes), PAGE)
     assert cands, f'{name}: 후보가 없다'
     assert abs(cands[0][1] - center) <= HALF, f'{name}: 검수에서 틀렸던 모양을 골랐다 (1등 {cands[0][1]}, 진짜 {center}) — {cands[0][2]}'
+
+
+def _top(name, closes):
+    c = S.find(name, bars_from(closes), PAGE)
+    return c[0][0] if c else 0.0
+
+
+@pytest.mark.parametrize('name,margin', [('trend_burst', 0.15), ('chop_box', 0.15)])
+def test_bad_shapes_score_clearly_lower(name, margin):
+    """진짜가 미끼보다 **뚜렷하게** 높아야 한다.
+
+    1등만 겨우 이기는 점수는 실제 데이터의 잡음에 뒤집힌다 — 09-28 검수에서 추세 16건 중 5건이
+    '추세가 화면 절반 이하', 박스 3건에 '급락 한 방' 이 섞여 있었는데 합성 시험은 통과했다.
+    """
+    r = random.Random(5)
+    real, decoys = BAD[name]
+    # 미끼가 하나일 때는 그 자체가 종가 목록이다 (숫자인지 보고 가른다 — 예전엔 마지막 '숫자' 를 미끼로 잡았다)
+    decoy = decoys[-1] if isinstance(decoys[0], (list, tuple)) else decoys
+    hi = _top(name, series(calm(150, real[0], r), real, calm(150, real[-1], r)))
+    lo = _top(name, series(calm(150, decoy[0], r), decoy, calm(150, decoy[-1], r)))
+    assert hi - lo >= margin, f'{name}: 진짜 {hi:.2f} · 미끼 {lo:.2f} — 차이가 {hi - lo:.2f} 뿐이라 실제 데이터에서 뒤집힌다'
 
 
 def test_direction_filter():

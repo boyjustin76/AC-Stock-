@@ -29,6 +29,30 @@ def test_right_edge_tolerance():
     assert not B.near_enough('2026.04.20 02:00', '2026.04.17 23:00', '2026.04.20 01:00:00')
 
 
+def test_box_script_does_not_get_trend_scene(monkeypatch):
+    """대본이 횡보장을 말하는데 추세·돌파 장면이 걸리면 박스 계열에서 다시 고른다 (09-28 검수 4-4·5-9)."""
+    asked = {}
+
+    def fake_ask(beat, rules):
+        asked['names'] = [r['name'] for r in rules]
+        return next(r for r in rules if r['name'] == 'chop_box'), 0.9
+    monkeypatch.setattr(B, 'ask_jev', fake_ask)
+    beat = {'id': '4-4', 'text': '이러한 횡보장에서 "20일선을 돌파했으니 매도한다" 는 원칙을 대입하면 손절만 반복됩니다'}
+    sp = B.box_override(beat, {'name': 'ma_break_up', 'indicators': [], 'why': 'x', 'by': '규칙'}, True)
+    assert sp['name'] == 'chop_box', f"횡보 대목에 {sp['name']} 이 그대로 남았다"
+    assert set(asked['names']) <= set(B.BOXY), '박스 계열 밖의 선택지를 줬다'
+
+
+def test_box_override_leaves_trend_script_alone(monkeypatch):
+    """횡보 낱말이 없으면 건드리지 않는다 — Jev 에게 묻지도 않는다."""
+    def fake_ask(beat, rules):
+        raise AssertionError('묻지 말아야 한다')
+    monkeypatch.setattr(B, 'ask_jev', fake_ask)
+    beat = {'id': '5-1', 'text': '가격이 20일선 위에서 강한 상승 추세를 이어 갑니다'}
+    sp = B.box_override(beat, {'name': 'trend_burst', 'indicators': [], 'why': 'x', 'by': '규칙'}, True)
+    assert sp['name'] == 'trend_burst'
+
+
 def fake_pools(scores, monkeypatch, ties=None):
     """가짜 후보 풀. choose 가 고른 뒤 '다음 봉 시각' 을 찾으므로 봉 두 개를 둔다."""
     ties = ties or {}

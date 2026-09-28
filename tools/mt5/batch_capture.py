@@ -120,6 +120,24 @@ def direction_of(beat):
     return None, f'방향 없음 (Jev {got} {conf:.2f})'
 
 
+# 대본이 횡보장을 말하는데 추세·돌파 장면을 고르면 화면과 말이 정반대가 된다
+# (09-28 검수: 4-4 "횡보장에서 돌파에 속아 손절" 에 깨끗한 돌파, 5-9 "채널 하단 복귀 매수" 에 추세)
+BOX_WORDS = ('횡보', '박스권', '박스 권', '채널', '눕')
+BOXY = ('chop_box', 'ma_flat_box', 'whipsaw')
+TRENDY = ('trend_burst', 'ma_break_up', 'ma_break_down', 'ema200_adx_entry', 'ema20_switch',
+          'ma_support_bounce', 'ma_resist_drop')
+
+
+def box_override(beat, sp, use_jev):
+    """횡보 대목에 추세 장면이 걸렸으면 박스 계열 안에서 Jev 에게 다시 고르게 한다."""
+    if not use_jev or sp['name'] not in TRENDY or not any(w in beat['text'] for w in BOX_WORDS):
+        return sp
+    r, conf = ask_jev(beat, [x for x in S.RULES if x['name'] in BOXY])
+    if r in (None, 'none') or conf < JEV_GATE:
+        return sp
+    return dict(r, id=beat['id'], by=f"Jev {conf:.2f} (대본이 횡보장 — {sp['name']} 대신)")
+
+
 def spec_of(beat, use_jev, episode_ma=None, always_on=None):
     sp = S.spec_for(beat)
     sp['by'] = '규칙'
@@ -142,6 +160,7 @@ def spec_of(beat, use_jev, episode_ma=None, always_on=None):
             sp = dict(r, id=beat['id'], by=f'Jev {conf:.2f}')
         else:
             sp['by'] = f'기본값 (Jev {conf:.2f} — 문 {JEV_GATE} 아래)'
+    sp = box_override(beat, sp, use_jev)
     # 이평선 기준 장면은 그 이평선이 화면에 있어야 이야기가 된다
     mas = [int(x[2:]) for x in sp['indicators'] if x.startswith('MA') and not x.startswith('MACD')]
     sp['ma'] = mas[0] if mas else (episode_ma or 20)

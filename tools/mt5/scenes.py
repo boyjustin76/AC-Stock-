@@ -412,8 +412,20 @@ def _chop_box(bars, closes, half, direction, **kw):
         cross = sum(1 for x, y in zip(cs, cs[1:]) if (x - mid) * (y - mid) < 0)
         if cross < 4:
             continue
-        out.append(((1 - net / rng) * narrow * min(cross, 8) / 8, i,
-                    f'넓은 구간의 {100 * rng / crng:.0f}% 폭 · 순이동 {100 * net / rng:.0f}% · 가운데 넘나듦 {cross}번'))
+        # 급락 한 방이 섞이면 박스가 아니다 — 한 봉이 박스 폭을 얼마나 먹는지 본다
+        # (09-28 검수: 5-6 은 -460p 한 방, 4-5 는 왼쪽 1/3 이 급락)
+        jump = max(abs(y - x) for x, y in zip(cs, cs[1:])) / rng
+        if jump > 0.35:
+            continue
+        # 박스는 값이 띠 안을 **고르게 채운다**. 급락으로 두 층이 생기면 가운데가 빈다 —
+        # 한 봉 크기만으로는 계단형을 못 가른다(09-28: 0.02 차이). 열 칸으로 나눠 몇 칸이 찼는지 본다.
+        lo_, hi_ = min(cs), max(cs)
+        bins = [0] * 10
+        for v in cs:
+            bins[min(9, int(10 * (v - lo_) / (hi_ - lo_)))] += 1
+        filled = sum(1 for b in bins if b >= 0.03 * len(cs)) / 10
+        out.append(((1 - net / rng) * narrow * min(cross, 8) / 8 * (1 - jump) * filled, i,
+                    f'넓은 구간의 {100 * rng / crng:.0f}% 폭 · 순이동 {100 * net / rng:.0f}% · 넘나듦 {cross}번 · 띠 채움 {100 * filled:.0f}%'))
     return out
 
 
@@ -427,7 +439,15 @@ def _trend_burst(bars, closes, half, direction, **kw):
         net = seg[-1]['close'] - seg[0]['close']
         if direction and (net > 0) != (direction == 'up'):
             continue
-        out.append((abs(net) / rng, i, f'{"상승" if net > 0 else "하락"} · 순이동이 구간폭의 {100 * abs(net) / rng:.0f}%'))
+        # 추세는 **화면 내내** 가야 한다. 앞이 제자리고 끝에서만 솟으면 추세 장면이 아니다
+        # (09-28 검수: 추세 16건 중 5건이 '추세가 화면 절반 이하'). 네 토막이 고르게 같은 방향인지 본다.
+        q = len(seg) // 4
+        legs = [seg[(k + 1) * q - 1]['close'] - seg[k * q]['close'] for k in range(4)]
+        if any((x > 0) != (net > 0) for x in legs):
+            continue                                      # 한 토막이라도 반대로 가면 한 방향 추세가 아니다
+        spread = min(abs(x) for x in legs) / (abs(net) / 4) if net else 0
+        out.append((abs(net) / rng * min(1.0, spread), i,
+                    f'{"상승" if net > 0 else "하락"} · 순이동이 구간폭의 {100 * abs(net) / rng:.0f}% · 고르기 {100 * min(1.0, spread):.0f}%'))
     return out
 
 
