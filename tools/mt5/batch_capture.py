@@ -273,116 +273,93 @@ def near_enough(seen, want, want_next=None):
     return seen == want or (want_next is not None and seen == want_next[:16])
 
 
-def capture(m, got, out):
+def _warn(got, msg):
+    got['warn'] = (got['warn'] + ' / ' + msg) if got.get('warn') else msg
+    print(f'   경고 — {msg}')
+
+
+def capture(m, got, out, tries=2):
+    """한 장을 찍는다. **자리와 지표를 확인하고**, 어긋나면 차트를 닫고 처음부터 다시 한다.
+
+    고쳐 가며 붙인 '한 번 더 시키기' 들이 서로 엉켰다 — 다시 붙인 지표는 스스로 빠지며 제가 그린 선도
+    같이 가져갔고(09-28 5-6), 두 번째 CMG_Shot 이 같은 상태 파일에 겹쳐 썼다. 통째로 다시 하는 쪽이 단순하다.
+    """
     import capture as CAP
     from capture_scene import IND, MQL5
     global MQL5_FILES
     MQL5_FILES = os.path.join(MQL5, 'Files')
-    cid = str(m.call('chart_open', {'symbol': got['symbol'], 'period': got['period']})['chart_id'])
-    try:
-        m.call('chart_apply_template', {'chart_id': cid, 'template_filename': TEMPLATE})
-        time.sleep(3.0)                             # 템플릿이 지표를 갈아 끼우는 중에 붙이면 같이 지워진다
-        inds = '+'.join(got['indicators'])          # 쉼표는 MCP 가 인자 구분자로 먹는다 — '+' 로 잇는다
-        m.call('chart_add_indicator', {
-            'chart_id': cid, 'indicator_name': 'CMG_Shot', 'custom_indicator_path': IND,
-            'indicator_parameters': f"ShotFile=,ShotEndTime={got['to'][:16]},ShotScale={SCALE},"
-                                    f"ShotInds={inds},SelfRemove=true,KeepInds=true,Hold=true"})
-        # 옮겼다고 믿지 않는다 — CMG_Shot(Hold) 이 적는 '화면 오른쪽 끝 봉 시각' 이 목표와 같아질 때까지 기다린다.
-        # (09-22 차11 2-3: 기록엔 옮겼다고 나왔는데 찍기 전 장중 차트가 최신으로 되돌아가 하루 뒤를 찍었다)
-        want, nxt = got['to'][:16], got.get('to_next')
+    want, nxt = got['to'][:16], got.get('to_next')
+    inds = '+'.join(got['indicators'])          # 쉼표는 MCP 가 인자 구분자로 먹는다 — '+' 로 잇는다
+    last = None
+
+    for k in range(tries):
+        cid = str(m.call('chart_open', {'symbol': got['symbol'], 'period': got['period']})['chart_id'])
         nav = os.path.join(MQL5_FILES, f'cmg_nav_{cid}.txt')
-
-        def wait_move(sec):
-            seen, t0 = None, time.time()
-            while time.time() - t0 < sec:
-                time.sleep(1.0)
-                try:      # 첫 줄이 화면 오른쪽 끝 시각, 둘째 줄이 그린 지표다
-                    seen = io.open(nav, encoding='ascii', errors='ignore').read().split('\n')[0].strip()
-                except OSError:
-                    continue
-                if near_enough(seen, want, nxt):
-                    time.sleep(1.5)                      # 지표·축이 다 그려지게
-                    return True
-            return False
-
-        if not wait_move(20):
-            # 안 옮겨졌다 — 먼 날짜는 이력이 아직 안 내려온 것일 수 있다. 지표를 한 번 더 얹어 다시 시킨다.
-            # (09-28 차11 2-1: US100 M1 이 끝내 최신 화면이었는데 그냥 찍혔다)
-            print('   자리를 못 잡았다 — 한 번 더 시킨다')
+        try:
+            m.call('chart_apply_template', {'chart_id': cid, 'template_filename': TEMPLATE})
+            time.sleep(3.0)                     # 템플릿이 지표를 갈아 끼우는 중에 붙이면 같이 지워진다
             m.call('chart_add_indicator', {
                 'chart_id': cid, 'indicator_name': 'CMG_Shot', 'custom_indicator_path': IND,
                 'indicator_parameters': f"ShotFile=,ShotEndTime={want},ShotScale={SCALE},"
-                                        f"ShotInds=,SelfRemove=true,KeepInds=true,Hold=true"})
-            wait_move(25)
-        ch = next((c for c in m.open_charts() if str(c['chart_id']) == cid), None)
-        # 붙었다고 믿지 않는다 — 차트에 실제로 달린 지표를 세어 요청과 맞춘다.
-        # (09-22: 쉼표 때문에 EMA200 하나만 붙었는데 아무 오류도 없었다)
-        on = [i.get('name', '') for i in (ch or {}).get('indicators', [])]
-        got['indicators_on'] = on
-        # 이평선은 CMG_Shot 이 **제 버퍼로 직접 그린다**(색을 달리하려고) — 차트의 지표 목록에는 안 나온다.
-        # 그래서 이평선은 상태 파일의 'MA:' 줄로, 나머지는 차트 목록으로 센다.
-        def drawn_mas():
-            try:
-                lines = io.open(nav, encoding='ascii', errors='ignore').read().split('\n')
-            except OSError:
-                return []
-            for ln in lines:
-                if ln.startswith('MA:'):
-                    return [x for x in ln[3:].split('|')[0].split(',') if x]
-            return []
+                                        f"ShotInds={inds},SelfRemove=true,KeepInds=true,Hold=true"})
 
-        def missing(names):
-            out = []
-            for k, pat in KIND.items():
-                want = sum(1 for x in got['indicators'] if kind_of(x) == k)
-                have = len(drawn_mas()) if k == 'ma' else sum(1 for n in names if pat in n)
-                if want > have:
-                    out.append(k)
-            return out
+            def status():
+                """(화면 오른쪽 끝 시각, 그린 이평선) — CMG_Shot(Hold) 이 적어 둔다."""
+                try:
+                    lines = io.open(nav, encoding='ascii', errors='ignore').read().split('\n')
+                except OSError:
+                    return None, []
+                edge = lines[0].strip() if lines else None
+                mas = []
+                for ln in lines[1:]:
+                    if ln.startswith('MA:'):
+                        mas = [x for x in ln[3:].split('|')[0].split(',') if x]
+                return edge, mas
 
-        got['ma_drawn'] = drawn_mas()
-        short = missing(on)
-        if short and inds:
-            # 한 번 더 붙여 본다 — 09-28 3-4: MA20 요청에 차트엔 CMG_Shot 만 있었다(붙이기가 조용히 실패)
-            print(f'   지표가 덜 붙었다({short}) — 한 번 더 붙인다')
-            m.call('chart_add_indicator', {
-                'chart_id': cid, 'indicator_name': 'CMG_Shot', 'custom_indicator_path': IND,
-                'indicator_parameters': f"ShotFile=,ShotInds={inds},SelfRemove=true,KeepInds=true"})
-            time.sleep(3.5)
+            t0 = time.time()
+            while time.time() - t0 < 25:        # 옮겼다고 믿지 않는다 — 자리가 맞을 때까지 기다린다
+                time.sleep(1.0)
+                if near_enough(status()[0], want, nxt):
+                    time.sleep(1.5)             # 지표·축이 다 그려지게
+                    break
+
             ch = next((c for c in m.open_charts() if str(c['chart_id']) == cid), None)
             on = [i.get('name', '') for i in (ch or {}).get('indicators', [])]
-            got['indicators_on'] = on
-            short = missing(on)
-        if short:
-            w = f'지표가 덜 붙었다: 요청 {got["indicators"]} · 차트 {on}'
-            got['warn'] = (got['warn'] + ' / ' + w) if got.get('warn') else w
-            print(f"   경고 — {w}")
-        full = CAP.shoot(CAP.find_window())
-        top = CAP.chart_top(full)
-        w = ch['rect_right'] if ch else full.size[0]
-        h = ch['rect_bottom'] if ch else full.size[1] - top
-        full.crop((0, top, w, top + h)).save(out)
-        try:
-            after = io.open(nav, encoding='ascii', errors='ignore').read().split('\n')[0].strip()
-        except OSError:
-            after = None
-        got['right_edge'] = after
-        if not near_enough(after, want, nxt):        # 찍는 사이 되돌아갔거나 끝내 못 옮겼다
-            got['bad_capture'] = True                # 콘티에서 **못 쓰는 장**으로 표시된다
-            msg = f'엉뚱한 구간을 찍었다 — 화면 오른쪽 끝 {after} (목표 {want})'
-            got['warn'] = (got['warn'] + ' / ' + msg) if got.get('warn') else msg
-            print(f'   경고 — {msg}')
-        if w < MIN_CHART_W:                          # 도중에 창이 줄었어도 알린다
-            msg = f'그림 폭 {w}px — 구간이 잘렸다 ({w // 16}/{PAGE_BARS}봉만 보인다)'
-            got['warn'] = (got['warn'] + ' / ' + msg) if got.get('warn') else msg
-            print(f'   경고 — {msg}')
-        return ch
-    finally:
-        m.call('chart_close', {'chart_id': cid})
-        try:
-            os.remove(os.path.join(MQL5_FILES, f'cmg_nav_{cid}.txt'))
-        except OSError:
-            pass
+            edge, mas = status()
+            # 이평선은 CMG_Shot 이 제 버퍼로 그린다(색을 달리하려고) — 차트 지표 목록에 안 나오니 상태 파일로 센다
+            short = [kind for kind, pat in KIND.items()
+                     if sum(1 for x in got['indicators'] if kind_of(x) == kind)
+                     > (len(mas) if kind == 'ma' else sum(1 for n in on if pat in n))]
+
+            full = CAP.shoot(CAP.find_window())
+            top = CAP.chart_top(full)
+            w = ch['rect_right'] if ch else full.size[0]
+            h = ch['rect_bottom'] if ch else full.size[1] - top
+            after = status()[0]                 # 찍는 사이 되돌아갔을 수 있다
+            ok = near_enough(after, want, nxt) and not short and w >= MIN_CHART_W
+            last = {'ch': ch, 'on': on, 'mas': mas, 'short': short, 'after': after, 'w': w}
+            if ok or k == tries - 1:
+                full.crop((0, top, w, top + h)).save(out)
+                break
+            print(f'   다시 찍는다 ({k + 2}번째) — 자리 {after} · 모자란 지표 {short}')
+        finally:
+            m.call('chart_close', {'chart_id': cid})
+            try:
+                os.remove(nav)
+            except OSError:
+                pass
+
+    got['indicators_on'] = last['on']
+    got['ma_drawn'] = last['mas']
+    got['right_edge'] = last['after']
+    if last['short']:
+        _warn(got, f"지표가 덜 붙었다: 요청 {got['indicators']} · 그린 이평 {last['mas']} · 차트 {last['on']}")
+    if not near_enough(last['after'], want, nxt):
+        got['bad_capture'] = True               # 콘티에서 **못 쓰는 장**으로 표시된다
+        _warn(got, f"엉뚱한 구간을 찍었다 — 화면 오른쪽 끝 {last['after']} (목표 {want})")
+    if last['w'] < MIN_CHART_W:
+        _warn(got, f"그림 폭 {last['w']}px — 구간이 잘렸다 ({last['w'] // 16}/{PAGE_BARS}봉만 보인다)")
+    return last['ch']
 
 
 # ─── 실행 ─────────────────────────────────────────────────────────────

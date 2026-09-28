@@ -256,7 +256,17 @@ void OnTimer()
    if(Hold && StringLen(ShotEndTime) > 0)
      {
       ChartSetInteger(0, CHART_AUTOSCROLL, false);
-      int sh = iBarShift(_Symbol, _Period, StringToTime(ShotEndTime), false);
+      datetime want = StringToTime(ShotEndTime);
+      int sh = iBarShift(_Symbol, _Period, want, false);
+      if(sh < 0)
+        {
+         // 그 시각 봉이 아직 안 내려왔다 — 다시 달라고 하고 다음 틱에 또 본다
+         // (09-28: 두 장이 끝내 최신 화면인 채로 찍혔다)
+         MqlRates rr[];
+         CopyRates(_Symbol, _Period, want, 2, rr);
+         Print("CMG_Shot: 이력 기다리는 중 ", ShotEndTime);
+         return;
+        }
       if(sh > 0)
          ChartNavigate(0, CHART_END, -sh);
       ChartRedraw(0);
