@@ -38,6 +38,7 @@ TEMPLATE = '기본값.tpl'            # 지표 없는 깨끗한 판 — 켤 지�
 SCALE = 4                          # 봉 하나 16px → 1920 폭에 약 117봉 (탐색 창 110봉과 맞춘다)
 JEV_GATE = 0.7
 JEV_OVERRIDE = 0.8                 # 규칙이 고른 장면을 Jev 가 뒤집으려면 이만큼 확신해야 한다 (차10 은 규칙이 맞았다)
+BOX_GATE = 0.6                     # '이 대목은 횡보장인가' 판정의 문 (둘 중 하나 고르기라 0.5 가 찍기다)
 THEME_MIN = 8                      # 이평선이 대본에 이만큼 넘게 나오면 회차 주제 지표로 보고 모든 비트에 켠다
 LONG_FROM = '2026-03-01'           # M15 이상은 여기서부터 봉을 받는다
 PAGE_BARS = 110                    # 장면 구간 봉 수 (scenes.pick 의 page)
@@ -65,14 +66,20 @@ JEV_DESC = {
 
 # ─── 1. 비트 → 움직임 ──────────────────────────────────────────────────
 
-def ask_jev(beat, rules):
-    """규칙이 못 잡은 비트를 Jev 에게 뜻으로 묻는다 → (규칙 dict | None, confidence)."""
+def ask_jev(beat, rules, allow_none=True, gate=None):
+    """규칙이 못 잡은 비트를 Jev 에게 뜻으로 묻는다 → (규칙 dict | 'none' | None, confidence).
+
+    allow_none=False 는 **이미 성격이 정해진 자리**에 쓴다(예: 대본이 횡보장이라고 말한 비트).
+    선택지를 줄이면서 '해당 없음' 을 남겨 두면 그쪽으로 도망간다 — 09-28 4-4: 전체 선택지에선 whipsaw 0.70 인데
+    박스 셋으로 줄이니 '해당 없음' 0.31 이었다.
+    """
     try:
         import jev
     except Exception:
         return None, 0.0
     opts = {r['name']: JEV_DESC.get(r['name'], r['why']) for r in rules}
-    opts['none'] = '대본이 특정 움직임을 말하지 않는다(질문·원칙·숫자 설명 등) → 한 방향으로 뻗는 추세면 충분하다'
+    if allow_none:
+        opts['none'] = '대본이 특정 움직임을 말하지 않는다(질문·원칙·숫자 설명 등) → 한 방향으로 뻗는 추세면 충분하다'
     try:
         ans = jev.ask({'대본 대목': beat['text'][:500]},
                       {'q': jev.choice('이 대목을 말할 때 화면의 차트는 어떤 움직임을 보여 줘야 하는가', opts)})
@@ -82,7 +89,7 @@ def ask_jev(beat, rules):
         return None, 0.0
     if got == 'none':
         return 'none', conf
-    if conf < JEV_GATE:
+    if conf < (JEV_GATE if gate is None else gate):      # 문은 부르는 쪽이 정한다 (자리마다 다르다)
         return None, conf
     return next(r for r in rules if r['name'] == got), conf
 
@@ -128,14 +135,39 @@ TRENDY = ('trend_burst', 'ma_break_up', 'ma_break_down', 'ema200_adx_entry', 'em
           'ma_support_bounce', 'ma_resist_drop')
 
 
+def is_sideways(beat):
+    """이 대목의 화면은 추세장인가 횡보장인가 — 둘 중 하나로 묻는다 → (횡보인가, confidence).
+
+    '횡보·박스권' 낱말만으로는 못 가른다. "박스권이 아니라 추세장이면…" 같은 문장이 있기 때문이다.
+    """
+    try:
+        import jev
+        ans = jev.ask({'대본 대목': beat['text'][:500]}, {'q': jev.choice(
+            '이 대목을 말할 때 화면에 보여야 하는 장은 어느 쪽인가',
+            {'sideways': '옆으로 오가는 장 — 횡보·박스권·채널 안 등락, 방향이 없어 속임수 신호가 잦다',
+             'trend': '한 방향으로 가는 장 — 추세·돌파·눌림 뒤 이어짐'})})
+        got, conf = jev.pick(ans, 'q')
+        return got == 'sideways', conf
+    except Exception:
+        return False, 0.0
+
+
 def box_override(beat, sp, use_jev):
-    """횡보 대목에 추세 장면이 걸렸으면 박스 계열 안에서 Jev 에게 다시 고르게 한다."""
+    """횡보 대목에 추세 장면이 걸렸으면 박스 계열로 바꾼다.
+
+    두 걸음이다 — ① 횡보장인가(둘 중 하나) ② 박스 셋 중 어느 것인가.
+    ②는 문을 두지 않는다. 셋 다 옆으로 가는 그림이라 어느 것이든 추세·돌파 그림보다 낫고,
+    Jev 는 셋 사이에서 잘 못 가른다(09-28 4-4: 1등이 0.26). 고른 값과 확신은 by 에 남긴다.
+    """
     if not use_jev or sp['name'] not in TRENDY or not any(w in beat['text'] for w in BOX_WORDS):
         return sp
-    r, conf = ask_jev(beat, [x for x in S.RULES if x['name'] in BOXY])
-    if r in (None, 'none') or conf < JEV_GATE:
+    side, sconf = is_sideways(beat)
+    if not side or sconf < BOX_GATE:
         return sp
-    return dict(r, id=beat['id'], by=f"Jev {conf:.2f} (대본이 횡보장 — {sp['name']} 대신)")
+    r, conf = ask_jev(beat, [x for x in S.RULES if x['name'] in BOXY], allow_none=False, gate=0.0)
+    if r in (None, 'none'):
+        return sp
+    return dict(r, id=beat['id'], by=f"Jev 횡보 {sconf:.2f}/{r['name']} {conf:.2f} ({sp['name']} 대신)")
 
 
 def spec_of(beat, use_jev, episode_ma=None, always_on=None):

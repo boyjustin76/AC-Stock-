@@ -33,21 +33,36 @@ def test_box_script_does_not_get_trend_scene(monkeypatch):
     """대본이 횡보장을 말하는데 추세·돌파 장면이 걸리면 박스 계열에서 다시 고른다 (09-28 검수 4-4·5-9)."""
     asked = {}
 
-    def fake_ask(beat, rules):
+    def fake_ask(beat, rules, allow_none=True, gate=None):
         asked['names'] = [r['name'] for r in rules]
-        return next(r for r in rules if r['name'] == 'chop_box'), 0.9
+        asked['allow_none'] = allow_none
+        return next(r for r in rules if r['name'] == 'chop_box'), 0.3
+    monkeypatch.setattr(B, 'is_sideways', lambda beat: (True, 0.9))
     monkeypatch.setattr(B, 'ask_jev', fake_ask)
     beat = {'id': '4-4', 'text': '이러한 횡보장에서 "20일선을 돌파했으니 매도한다" 는 원칙을 대입하면 손절만 반복됩니다'}
     sp = B.box_override(beat, {'name': 'ma_break_up', 'indicators': [], 'why': 'x', 'by': '규칙'}, True)
     assert sp['name'] == 'chop_box', f"횡보 대목에 {sp['name']} 이 그대로 남았다"
     assert set(asked['names']) <= set(B.BOXY), '박스 계열 밖의 선택지를 줬다'
+    assert asked['allow_none'] is False, "'해당 없음' 을 남기면 그쪽으로 도망간다 (09-28: 0.70 → 0.31)"
+
+
+def test_box_override_needs_sideways_judgement(monkeypatch):
+    """'박스권이 아니라 추세장이면…' 같은 문장도 있다 — 낱말만으로 바꾸지 않는다."""
+    monkeypatch.setattr(B, 'is_sideways', lambda beat: (False, 0.9))
+
+    def fake_ask(beat, rules, allow_none=True, gate=None):
+        raise AssertionError('횡보장이 아니라고 했으면 장면을 다시 묻지 않는다')
+    monkeypatch.setattr(B, 'ask_jev', fake_ask)
+    beat = {'id': '5-2', 'text': '박스권이 아니라 추세장이라면 20일선을 따라 끝까지 끌고 갑니다'}
+    sp = B.box_override(beat, {'name': 'trend_burst', 'indicators': [], 'why': 'x', 'by': '규칙'}, True)
+    assert sp['name'] == 'trend_burst'
 
 
 def test_box_override_leaves_trend_script_alone(monkeypatch):
     """횡보 낱말이 없으면 건드리지 않는다 — Jev 에게 묻지도 않는다."""
-    def fake_ask(beat, rules):
+    def fake_side(beat):
         raise AssertionError('묻지 말아야 한다')
-    monkeypatch.setattr(B, 'ask_jev', fake_ask)
+    monkeypatch.setattr(B, 'is_sideways', fake_side)
     beat = {'id': '5-1', 'text': '가격이 20일선 위에서 강한 상승 추세를 이어 갑니다'}
     sp = B.box_override(beat, {'name': 'trend_burst', 'indicators': [], 'why': 'x', 'by': '규칙'}, True)
     assert sp['name'] == 'trend_burst'
