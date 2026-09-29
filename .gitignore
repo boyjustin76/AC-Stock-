@@ -27,3 +27,6 @@ data/대본자료/**/*.json
 data/대본자료/**/*.txt
 data/대본자료/**/*.bak_*
 deliver/script/**/*.docx
+deliver/script/**/*.pdf
+deliver/script/**/*.txt
+deliver/script/**/*.json

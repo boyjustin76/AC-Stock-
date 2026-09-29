@@ -186,12 +186,12 @@ git restore --source=<해시> -- .              # 되돌리기
 
 | 시각 (KST) | 슬롯 | 커밋 | 어디까지 |
 |---|---|---|---|
-| 2026-09-28 11:12 | `save/2026-09-28-1112` | `85e3d3e` | decision 39 — 차트명가New 는 김직선 카피캣(비주얼+말투), next_step 55 비주얼 기준 재실측, CLAUDE.md 한 줄 |
-| 2026-09-23 12:30 | `save/2026-09-23-1230` | `1eb0679` | E·이정찬 09-21~22 막힌 자리 일곱 피드백 — 답 문서 덧붙임, issue 49~51, next_step 54 |
-| 2026-09-22 17:22 | `save/2026-09-22-1722` | `9d411be` | E 자료 정리 — decision 38(public 유지·원자료 밖), issue 48, next_step 47 pairs.jsonl, .gitignore·ruff exclude, E 답 |
-| 2026-09-22 16:39 | `save/2026-09-22-1639` | `88da5e2` | D 45 ①② 병합 — 일괄 촬영·콘티·AE 세팅, constraint 60 ⑧⑨⑩, next_step 45 남은 ③④ |
-| 2026-09-22 16:00 | `save/2026-09-22-1600` | `3de999e` | next_step 45 ② — 콘티 한 장 + AE 프로젝트 세팅(d1_conti_build), 지지선·쓸림 전용 탐색, 차10 끝까지 |
-| 2026-09-22 15:53 | `save/2026-09-22-1553` | `860f350` | next_step 45 ① — 대본 한 편 12비트 일괄 촬영(batch_capture), 종목·주기 선택, Jev 보조, 지표 쉼표 잘림·자동 떼기·창 제목·톱니 점수 고침 |
+| 2026-09-28 18:48 | `save/2026-09-28-1848` | `a556a7e` | 촬영 한 장을 통째로 다시 시도하는 구조(자리·지표 확인 후 재시도), 이력 미도착 때 다시 받기 |
+| 2026-09-28 18:37 | `save/2026-09-28-1837` | `b895496` | 이평선을 CMG_Shot 이 색 달리해 직접 그림(1-1 네 선 구분), 지표 나열 읽기(5일·20일·60일선), 박스 공통 조건(급락·끝 이탈), 추세 토막 하한 |
+| 2026-09-28 18:27 | `save/2026-09-28-1827` | `066271e` | 지표가 덜 붙으면 한 번 더 붙이기(3-4 MA20 누락) |
+| 2026-09-28 18:18 | `save/2026-09-28-1818` | `ce6a82b` | 검수 3차 반영 — 지표를 장면 확정 뒤에 붙임(4-4 MA20 소실), 누운이평 출렁임·이탈 상한, 박스 산모양 거르기, 추세 한 봉 쏠림, 횡보 문턱·대본 종목 따르기 |
+| 2026-09-28 18:01 | `save/2026-09-28-1801` | `989944e` | 횡보 대목 되돌리기 두 걸음(추세/횡보 먼저 판정 → 박스 셋에서 고르기), Jev 문을 부르는 쪽이 정하게 |
+| 2026-09-28 17:50 | `save/2026-09-28-1750` | `1281ff2` | 검수 3건 반영 — 추세는 네 토막 고르게, 박스는 띠 채움·급락 거르기, 횡보 대본에 추세 장면이면 박스 계열에서 다시 고르기 |
 
 ---
 
@@ -226,6 +226,8 @@ git restore --source=<해시> -- .              # 되돌리기
 | `data/대본자료` | E 의 대본 작업 자료 중 저장소에 두는 것만(decision 38): README(로컬 05_대본자료 구조 설명)·워크플로우.md(단계 12·관문·도구)·팀장쌍/pairs.jsonl. Pool·자막·레퍼런스·방송본·양식은 로컬에만(.gitignore) |
 | `data/대본자료/도구` | E 의 대본 파이프라인 도구 41 .py — pipeline.py(관문 12), skeleton2·pool·cohesion·wordy·flow_check·novel_words·grade 등, paths.py 가 자료 위치 한 곳. 문체실험/ 은 실험 코드. ruff 대상 밖(E 의 일상 코드). 자료 파일(json·txt)은 안 올린다 |
 | `deliver/script/차트명가New` | E 납품물 중 .md 만(decision 38): 차12 ABC 비교표·인과사슬 팀장로직·팀장 피드백 모음·팀장스타일 레퍼런스 도구 공식·차12/차13 뼈대·초안. .docx 는 로컬·드라이브에만 |
+| `deliver/script/차트명가New/차12_더블볼린저밴드_261020/작업기록` | 차12 작업기록 중 저장소에 두는 것(.md·.py): 초안~6차 md, 7차·8차 빌드 스크립트, 인과사슬 measure.py, README. 원문 txt·docx·pdf·json(대본 본문·팀장 피드백 원문·판정 json)은 로컬에만(.gitignore, decision 38) (E 09-22) |
+| `deliver/script/차트명가New/차13_테스타칼만ATR_261027/차13_문장대조_김직선말투.md` | 차13 문장별 원문 ↔ 김직선 말투 대조표 (E 09-23) |
 | `deliver/shortform` | 납품한 숏폼 자막·컷리스트 (영상·음성은 드라이브/전달분에만) |
 | `deliver/thumbnail` | 채택된 썸네일. out/ 은 .gitignore 라 여기에 따로 둔다 |
 | `lab/ae/AEP-MOGRT-조사보고.txt` | .aep/.mogrt 납품 가능성 조사 — 공식 자료 vs 우리 실측, 결론: 파일 직접 쓰기 배제, ExtendScript 로 AE 가 굽게 한다 (next_step 27) |
@@ -283,9 +285,11 @@ git restore --source=<해시> -- .              # 되돌리기
 | `log/inbox/2026-09-22_D_next45_대본→차트장면_일괄촬영·AE세팅.md` | D — next_step 45 ①②: 차10 대본 → 12장 → 콘티 → AE 프로젝트 끝까지, 팀장 그림과 8/9 일치, 구멍 다섯(지표 쉼표 잘림·자동 떼기·창 제목·톱니 점수·지지선/쓸림 탐색), 남은 ③④ |
 | `log/inbox/2026-09-22_D_next53_AE복구창_멈춤.md` | D — next_step 53: AE 복구 창을 자식 창 뼈대로 판별, 시작 전·대기 중 5초마다 검사해 안 죽이고 멈춤(15.5초/0.2초), 정상 잡 1.7초, 죽인 뒤 주의 줄. BridgeTalk 70초 원인 못 찾음 |
 | `log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md` | D — bridge 갈래 셋: FAIL TIMEOUT·JOBERR 가짜 통과 고침(issue 47), AE 충돌 복구 창(constraint 71, 자동 클릭 반대·시작 전 검사 제안), 프리미어 probe·save_quit, shot_window --all |
+| `log/inbox/2026-09-22_D_장면탐색_재발방지·차11검증·방향.md` | D — 45 ③: 재발 방지 세 겹(전용 함수·심은 시험·몰림 경고, 되살리기 4/4), 방향은 Jev 문 0.7, 차11 35비트 검증(지표·종목 일치, 주기 반만 — constraint 72), 운영 사고 둘(창 958px → 폭 가드 issue 53, 탐색 캐시 30초→11초) |
 | `log/inbox/2026-09-22_월요일_전달묶음.md` | 이정찬이 월요일에 B·D·E 에게 전할 것 한 장 — 토큰 재발급(5분, 첫째)·완료 보고 두 줄·guard 4·save.py 기본값·경로 래칫·파트별 할 일 |
 | `log/inbox/2026-09-22_총괄_E_자료정리_답.md` | 총괄 — E 402 파일 푸시에 대한 답 + 09-23 덧붙임: E·이정찬이 막힌 자리 일곱(양식 오독·docx 자작 버그·도구 전부틀림·피드백 네 통로/색 범례·판본 14개·A/B/C·402 푸시) 원인·판단·장치, 잘한 것 넷, 이정찬 할 것 다섯(next_step 54, issue 49~51) |
 | `log/inbox/2026-09-22_총괄_실행기_마감_답.md` | 총괄 — B·D 09-22 답: 공용 실행기 완료(next_step 46), constraint 69 낮춤·71 신설, 복구 창은 자동 클릭 안 함(53), decision 36 보강 |
+| `log/inbox/2026-09-28_D_최적화_정리_B에게.md` | D → B — 자가발전하며 굳힌 방법 7절: 결과를 다시 읽는다(constraint 73), 래칫 시험(전용 함수·미끼·불변식·되살리기), Jev 쓰는 자리·문, 서브에이전트 그림 판독, 속도(캐시·resume), 외부 앱 사고, 도구 목록 + B↔D 접점(프레임 규격 JSON). 이정찬 09-28 지시(디자인 카피 = B) 기록 |
 | `log/inbox/_완료보고_양식.md` | 완료 보고 두 줄 — 확인한 것 / 안 본 것 (decision 33). 검증 범위 오류 여덟 건의 처방 |
 | `log/worklog.db` | 작업 로그 원본 (SQLite) |
 | `log/worklog.html` | 브라우저로 보는 작업 로그 |
@@ -293,6 +297,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `log/차12_더블볼린저_이정찬판.md` | 차12 이정찬이 직접 고친 판(팀장은 3구간까지 봄) — 대조용 .md. 6차↔이 판의 INTRO~3구간 차이가 next_step 47 의 첫 문장 쌍 자료다 (E, 09-21) |
 | `log/차12_더블볼린저_초안.md` | 차12 더블 볼린저밴드 촬영용 대본 초안(E) — 레퍼런스 사슬대로 재구성, 기간값 20, 규격 채점 통과. 7차(09-21): INTRO~3구간은 이정찬 수정본 그대로, 4구간~OUTRO 에 같은 로직 적용. 일상 작업(총괄은 상태만) |
 | `log/차12_더블볼린저_초안_피드백적용.md` | 차12 5차 — 이정찬 피드백 19곳 반영(화자 축 너/나, 덜어냄, 이음), pipeline.py 관문 12 중 11 통과. A/B/C 대조의 B (E, 09-21) |
+| `log/차13_테스타칼만ATR_김직선말투.md` | 차13 을 Pool 정보 + 김직선 말투로 조립한 판 — 106문장 중 89 바뀜, '입니다' 91%→51%, '~요/죠' 2%→47%, 뜻 0.78 (E 09-23, decision 39) |
 | `log/차13_테스타칼만ATR_뼈대.md` | 차13 뼈대 7구간 — Pool 조각 49개를 출처 앵커로 적고 tools/pool_pieces.py 로 기계 대조 (E, 09-22). 일상 작업 |
 | `log/차13_테스타칼만ATR_뼈대_회사양식.md` | 차13 뼈대의 회사 기본폼 원고(표 한 줄·줄글 란) — tools/skeleton_docx.py 로 .docx (팀장 검사용, E 09-22) |
 | `log/차13_테스타칼만ATR_초안.md` | 차13 테스타 칼만 이평선+ATR 촬영용 대본 초안(E) — 새 사슬(일정표→레퍼런스 자막→Pool→완성) 적용, 4차(09-21). 뼈대는 차13_테스타칼만ATR_뼈대.md |
@@ -337,10 +342,12 @@ git restore --source=<해시> -- .              # 되돌리기
 | `src/tools/probe-labels.mjs` | 렌더 없이 라벨 클리핑 전수 감사 — 등장~퇴장 0.25초 간격으로 앵커 y 를 계산해 잘림 구간을 표로 |
 | `src/tools/profile-render.mjs` | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
 | `tests` | pytest 단위 시험 — test_git_guard(훅 규칙 11)·test_radar(서명·우리 기록·응답 파싱 5). python3 -m pytest |
+| `tests/test_batch_choose.py` | batch_capture.choose 의 종목·주기·동점 처리 (D 09-22, 4개) |
 | `tests/test_cutedit.py` | 컷편집 시험 8 — split_cue(14자·글자 보존)·read_srt(번호 없음·여러 줄·깨진 타임코드)·make_xml rate/pathurl·fmt·S015 컷 12·check 겹침. 저장소 안 자료만 (E) |
 | `tests/test_modal_known.py` | B-1 원문 여섯이 modal_known.json 조각에 걸려 정답 처리로 가는지(6/6). 원문과 조각이 어긋나면 깨진다 (B, 09-21) |
 | `tests/test_no_path_literals.py` | 절대경로 리터럴 래칫 — 코드(tools·src·scenes·log/*.py)에 C:/ 나 /c/Users 문자열이 새로 박히면 실패. BASELINE 은 줄이기만 (decision 34) |
 | `tests/test_save.py` | save.py 푸시 대상 규칙 3 — 옆가지는 자기 가지로, 본류는 총괄만, detached 는 안 민다 |
+| `tests/test_scene_finders.py` | 장면 탐색 함수마다 가짜 차트에 진짜 + 예전 구멍 미끼를 심어 진짜를 고르는지, 점수 비율·0~1·몰림 없음 (D 09-22, 42개). 새 장면을 RULES 에 넣고 시험을 안 보태면 깨진다 |
 | `tests/test_shortform_names.py` | shortform 이름 왕복 시험 4 — safe_tail 로 끝 공백·마침표 뗀 뒤 folder_name↔check_name 왕복 (E) |
 | `tests/test_verdict_lines.py` | 판정 줄 없는 어도비 잡 수 래칫(기준 46, 줄이기만). 공용 실행기의 '경고 통과' 완화를 장치로 묶는다 (decision 36) |
 | `tools` | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
@@ -386,6 +393,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/illustrator/_trap_alert.jsx` | 일부러 alert 모달을 띄우는 잡 — 실행기의 시간 초과·모달 캡처 경로 회귀용. 이름 앞 밑줄이라 판정 줄 래칫이 건너뛴다 (B, 09-21) |
 | `tools/illustrator/_trap_pdf_modal.jsx` | pdfCompatible=false 저장 모달 재현용 — 빈 문서에선 안 뜬다(3.1s 저장). 조건을 좁힐 때 쓴다 (B, 09-21) |
 | `tools/jev` | TypeSafe Jev 얇은 클라이언트 jev.py(choice·score·noul·ask·pick, 키는 .secrets) + D 시험(run_d2·run_d3·run_d4·run_order_check, 결과 json, 팀장 그림 14장 판독표, 선택지 63). run_d4 = 잡 로그 줄 20건 정답표(어려운 줄 셋 포함). radar --jev 가 jev.py 를 쓴다 (D, 09-21) |
+| `tools/jev/ch11_labels.json` | 팀장 차11 그림 60장 판독표(서브에이전트) — 차트 42·개념도·밈 18, 종목·주기·지표·움직임 (D 09-22) |
 | `tools/jev/run_order_check.py` | D 자리 치우침 검사 — D-3·D-2 를 선택지 차례 뒤집어 한 번 더(42호출). 결과 order_check.json: 12/12·9/9 안정 (D, 09-21) |
 | `tools/jev_b_test.py` | B Jev 시험 도구 — b1(모달 문구→처리)·b2(썸네일 빨강 대상)·b3(오류→constraint), 문항마다 선택지 순서 뒤집어 두 번, --dry. 키는 .secrets (B, 09-21) |
 | `tools/legacy` | 1세대 도구 격리(실행 금지) — psdwrite.py·thumbnail.py(썸네일 효과 손그림·폭 역산, 2026-08-28)·build_cuts.py(컷편집 1세대, 2026-09-17) |
@@ -394,7 +402,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/legacy/roll_ad_check.py` | 레거시(2026-09-17 격리) — 지운 한지판 전용 롤링광고 검사기 (D) |
 | `tools/mcp_probe.py` | MCP 자가점검(E) — initialize → tools/list → tools/call 까지 그 자리에서 띄워 본다. 별 수 믿지 말고 띄워 보고 판단(external_tool 10 전례) |
 | `tools/md_to_script_docx.py` | 초안 .md → 촬영용 스크립트 .docx (E). 표지 줄은 L<번호> (이정찬 09-21) |
-| `tools/mt5` | MT5 촬영 파이프라인(D) — mcp.py(MCP 클라이언트)·scenes.py(대본 docx → 비트 → 사건 → 실제 봉 구간 선정, 팀장 차10 기준 5)·capture_scene.py(ChartNavigate 후 창 캡처)·capture.py·shot.py+CMG_Shot.mq5(자체 렌더 캡처 지표)·calibrate.py(봉 격자·가격축 보정 RMS 1.93px)·batch_capture.py(대본 한 편 12비트 일괄 촬영, 종목·주기 선택, Jev 보조)·conti_sheet.py(콘티.png + AE 입력 json). README 있음 |
+| `tools/mt5` | MT5 촬영 파이프라인(D) — mcp.py(MCP 클라이언트)·scenes.py(대본 docx → 비트 → 사건 → 실제 봉 구간 선정, 팀장 차10 기준 5)·capture_scene.py(ChartNavigate 후 창 캡처)·capture.py·shot.py+CMG_Shot.mq5(자체 렌더 캡처 지표)·calibrate.py(봉 격자·가격축 보정 RMS 1.93px)·batch_capture.py(대본 한 편 12비트 일괄 촬영, 종목·주기 선택, Jev 보조, 자리 붙잡기·재시도·--resume·탐색 캐시)·conti_sheet.py(콘티.png + AE 입력 json). scenes.FINDERS = 장면마다 전용 함수(미등록은 오류, 09-22). README 있음 |
 | `tools/photoshop` | 포토샵 COM+ExtendScript 로 템플릿 .psd 를 직접 편집한다 — 썸네일은 이 경로가 최신 |
 | `tools/photoshop/build_thumb.jsx` | 회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg |
 | `tools/photoshop/config.json` | 템플릿·차트·출력 경로와 회차 문구 — 컨테이너의 thumbnail_png.py 도 같은 파일을 읽는다(스펙 단일화, decision 21) |
