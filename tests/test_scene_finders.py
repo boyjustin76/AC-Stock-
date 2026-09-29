@@ -224,9 +224,7 @@ BAD = {
     'trend_burst': (line(100, 124, 110),
                     [series(_box(100, 74, 1.2), line(100, 124, 36)[1:]),
                      series(_box(100, 54, 1.0), [112], _box(112, 55, 1.0))]),          # 한 봉이 12 를 뛴다
-    # 누운 이평선: 구간 끝이 박스를 벗어나면 '누웠다' 가 아니다 (검수 3차: 5-7·5-8 끝부분 이탈)
-    'ma_flat_box': ([100 + 3 * math.sin(2 * math.pi * k / 22) for k in range(132)],
-                    [100 + 3 * math.sin(2 * math.pi * k / 22) + 8 * math.sin(2 * math.pi * k / 90) for k in range(132)]),
+    # (누운 이평선 'ma_flat_box' 는 위에 한 번 있다 — 같은 내용이 두 번 적혀 있던 것을 총괄이 09-29 에 하나로, ruff F601)
 }
 # 위 BAD 에 이어 붙이는 미끼들 (한 장면에 여러 모양)
 BAD['chop_box'] = (BAD['chop_box'][0], list(BAD['chop_box'][1]) + [
