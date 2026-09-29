@@ -23,6 +23,7 @@ input datetime InpStartDate          = D'2026.01.01 00:00'; // Fallback Default 
 input int      InpBaseTimerMS        = 200;                 // Base Play Speed (ms) @ 1x
 input int      InpDownloadTimeoutSec = 30;                  // Data Download Timeout (sec)
 input int      InpMinVisibleBars     = 50;                  // Minimum Visible Bars
+input bool     InpAnchorView         = true;               // 차트명가: 되감을 때 화면을 고정한다 (오른쪽이 그만큼 비어 간다)
 input int      InpShiftPercent       = 50;                 // 차트명가: 오른쪽 여백 % (0=끔, 최대 50 → 봉이 화면 가운데서 끝난다)
 
 //====================================================================
@@ -42,6 +43,8 @@ int      g_totalBars         = 0;
 int      g_currentDisplay    = 0;
 bool     g_isPlaying         = false;
 bool     g_isCustomMode      = false;
+bool     g_anchorView        = true;
+bool     g_forceRecenter     = true;   // 차트명가: 처음·점프에서만 화면을 다시 맞춘다   // 차트명가: 한 봉 움직여도 화면을 따라 옮기지 않는다
 int      g_baseTimerMS       = 200;
 double   g_speedMult         = 1.0;
 int      g_lastRenderedCount = 0;   
@@ -218,6 +221,8 @@ int OnInit()
       //== 차트명가 추가: 마지막 봉을 화면 가운데에 두고 오른쪽을 비운다 (2026-09-29) ==
       //  기본값이면 마지막 봉이 오른쪽 끝에 붙어 '그냥 과거로 스크롤한 화면' 처럼 보인다.
       //  MT5 의 차트 이동(CHART_SHIFT)은 최대 50% 까지 밀 수 있다 — 50 이면 딱 절반이 빈다.
+      g_anchorView = InpAnchorView;
+      ChartSetInteger(0, CHART_AUTOSCROLL, false);   // 새 봉이 와도 화면이 끌려가지 않게
       if(InpShiftPercent > 0)
       {
          ChartSetInteger(0, CHART_SHIFT, true);
@@ -856,6 +861,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       ObjectSetInteger(0, "rep_btn_play", OBJPROP_BGCOLOR, clrForestGreen);
 
       g_currentDisplay = ClampIndex(idx) + 1; 
+      g_forceRecenter = true;
       RenderCurrentView(true); 
 
       datetime actualTime = g_allRates[g_currentDisplay - 1].time;
@@ -1028,7 +1034,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          if(initialDisplay > g_totalBars) initialDisplay = g_totalBars;
          g_currentDisplay = initialDisplay;
 
-         RenderCurrentView(true);
+         g_forceRecenter = true; RenderCurrentView(true);
          if(g_currentDisplay > 0 && g_currentDisplay <= g_totalBars)
             MoveStartLine(g_allRates[g_currentDisplay - 1].time);
 
@@ -1061,7 +1067,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          if(initialDisplay > g_totalBars) initialDisplay = g_totalBars;
          g_currentDisplay = initialDisplay;
 
-         RenderCurrentView(true);
+         g_forceRecenter = true; RenderCurrentView(true);
          MoveStartLine(g_allRates[g_currentDisplay - 1].time);
          ObjectSetInteger(0, "rep_btn_reset", OBJPROP_STATE, false);
       }
@@ -1295,7 +1301,25 @@ void RenderCurrentView(bool resetView = false)
    UpdateProgress();
    UpdateStatusLabel();
 
-   ChartNavigate(0, CHART_END, 0);
+   //== 차트명가 고침 (2026-09-29) ==================================
+   //  원본은 한 봉 움직일 때마다 화면을 끝에 맞춘다 → 되감아도 경계가 늘 같은 자리다.
+   //  화면은 그대로 두고 **데이터 경계만** 움직이게 한다. 되감으면 오른쪽이 그만큼 빈다.
+   //  경계가 화면 밖으로 나갈 때만 다시 맞춘다.
+   if(!g_anchorView || g_forceRecenter)
+   {
+      ChartNavigate(0, CHART_END, 0);      // 처음 붙였을 때·날짜로 점프했을 때만
+      g_forceRecenter = false;
+   }
+   else
+   {
+      //  한 봉씩 움직일 때는 화면을 그대로 둔다 → 되감을수록 오른쪽이 비어 간다.
+      //  경계가 화면 밖으로 나갈 때만 되돌린다.
+      long fv    = ChartGetInteger(0, CHART_FIRST_VISIBLE_BAR);  // 왼쪽 끝 봉 (0 = 마지막 봉)
+      long width = ChartGetInteger(0, CHART_WIDTH_IN_BARS);      // 화면에 들어가는 칸 수
+      long blank = width - (fv + 1);                             // 마지막 봉 오른쪽의 빈 칸
+      if(blank <= 1 || blank >= width * 9 / 10)
+         ChartNavigate(0, CHART_END, 0);
+   }
 
    long currentBarTimeLong = (long)g_allRates[g_currentDisplay - 1].time;
    GlobalVariableSet("RepLastTime_" + g_customSymbol, (double)currentBarTimeLong);
