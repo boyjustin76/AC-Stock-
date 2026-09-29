@@ -16,8 +16,9 @@
       실패     모달 그림·글자 + 문구 분류 + 로그 마지막 30줄을 <로그자리>/<잡>_fail.txt 로 남긴다
 
     전송로는 둘이다.
-      bridge (ae·premiere)          PowerShell → Photoshop.Application(COM) → bridge.jsx → BridgeTalk → 대상 앱
-                                    프리미어·AE 에는 자동화 ProgID 가 없어 검증된 포토샵 COM 을 길로 쓴다.
+      bridge (ae·premiere)          PowerShell → 전송로 앱(COM) → bridge.jsx → BridgeTalk → 대상 앱
+                                    프리미어·AE 에는 자동화 ProgID 가 없어 남의 COM 을 길로 쓴다.
+                                    길은 포토샵이 먼저, 안 되면 일러스트레이터 (09-28: 포토샵이 '스크래치 디스크 공간 부족' 으로 멈췄다).
                                     잡은 <앱>/jobs/<잡>.jsx.
       direct (illustrator·photoshop) PowerShell → <앱>.Application(COM) → DoJavaScriptFile(잡)
                                     제 ProgID 가 있으니 남의 앱을 거치지 않는다. 잡은 <앱>/<잡>.jsx.
@@ -105,6 +106,40 @@ function Get-Proc([string]$name) { Get-Process -Name $name -ErrorAction Silently
     잡은 AE 에 닿지도 못한 채 BridgeTalk 이 약 70초 뒤 FAIL TIMEOUT 을 낸다(09-22 D 실측).
     **누르지 않는다** — 빗나간 좌표 클릭이 남의 앱을 띄웠다(총괄 판단 09-22). 보이면 말하고 멈춘다. #>
 $AE_RECOVERY_MSG = "AE 가 '충돌 복구 옵션' 창에서 멈춰 있습니다 (지난번에 강제로 닫혀서 뜨는 창, constraint 71).`n   AE 화면에서 '계속' 을 눌러 AE 가 다 뜬 뒤 다시 부르세요. 실행기는 이 창을 누르지 않습니다."
+<#  bridge 의 길(전송로). 포토샵이 기본이지만 **포토샵이 못 뜨는 날이 있다** —
+    09-28: 디스크가 4.8% 남아 포토샵이 '스크래치 디스크 공간 부족' 대화상자에서 멈췄고, COM 이 답하지 않아
+    bridge.jsx 가 아예 안 돌았다(실행기는 120초를 태우고 '판정 줄 없음' 으로 실패). COM 으로 띄우면 창도 없이 죽기도 한다.
+    그래서 ① 떠 있으면 그대로 ② 없으면 직접 띄우고 **COM 이 답할 때까지** 기다린다(창으로 보면 닫히는 중인 옛 창에 속는다)
+    ③ 그래도 안 되면 **일러스트레이터로 길을 바꾼다** — BridgeTalk 은 어느 어도비 앱에서 보내도 같다(09-28 실측 18초). #>
+$BRIDGE_HOSTS = @(
+    @{ Proc = 'Photoshop';   ProgId = 'Photoshop.Application';   Exe = 'Photoshop.exe' },
+    @{ Proc = 'Illustrator'; ProgId = 'Illustrator.Application'; Exe = 'Illustrator.exe' }
+)
+function Test-Com([string]$progId) {
+    try { $o = New-Object -ComObject $progId; $null = $o.Version; return $true } catch { return $false }
+}
+function Get-BridgeHost {
+    foreach ($h in $BRIDGE_HOSTS) {
+        if ((Get-Proc $h.Proc) -and (Test-Com $h.ProgId)) { Write-Host "  전송로: $($h.Proc) (이미 떠 있음)"; return $h }
+    }
+    foreach ($h in $BRIDGE_HOSTS) {
+        $exe = Get-ChildItem 'C:\Program Files\Adobe' -Directory -Recurse -Depth 3 -Filter $h.Exe -ErrorAction SilentlyContinue |
+            Select-Object -First 1 -ExpandProperty FullName
+        if (-not $exe) {
+            $exe = (Get-ChildItem 'C:\Program Files\Adobe' -Recurse -Filter $h.Exe -ErrorAction SilentlyContinue |
+                Select-Object -First 1).FullName
+        }
+        if (-not $exe) { continue }
+        Write-Host "  전송로 $($h.Proc) 을 띄웁니다"
+        if (-not (Get-Proc $h.Proc)) { Start-Process $exe }
+        $t0 = Get-Date
+        do { Start-Sleep 3; $ready = Test-Com $h.ProgId } until ($ready -or ((Get-Date) - $t0).TotalSeconds -gt 120)
+        if ($ready) { Write-Host "  전송로: $($h.Proc) 준비됨 ($([math]::Round(((Get-Date) - $t0).TotalSeconds))s)"; return $h }
+        Write-Host "  $($h.Proc) 이 COM 에 답하지 않습니다 — 다음 길을 봅니다 (화면에 대화상자가 떠 있을 수 있습니다)" -ForegroundColor Yellow
+    }
+    throw "bridge 전송로를 못 얻었습니다(포토샵·일러스트레이터 둘 다 COM 무응답). 화면의 대화상자를 확인하세요 — 09-28 에는 포토샵 '스크래치 디스크 공간 부족' 이었습니다."
+}
+
 function Test-AeRecovery {
     if ($App -ne 'ae' -or -not (Get-Proc 'AfterFX')) { return $false }
     & python (Join-Path $PSScriptRoot 'modal_text.py') --ae-recovery 2>$null | Out-Null
@@ -121,6 +156,8 @@ if (-not $SkipPreflight) {
         }
     }
     if (Test-AeRecovery) { throw $AE_RECOVERY_MSG }
+
+    if ($s.Transport -eq 'bridge') { $bridgeHost = Get-BridgeHost }
     $mine = Get-Proc $s.Proc
     if ($mine) { Write-Host "  $($s.Proc) 이미 떠 있음 (PID $($mine.Id))" }
     else       { Write-Host "  $($s.Proc) 안 떠 있음 — COM 이 띄웁니다. 첫 실행은 화면을 보세요(모달)" }
@@ -177,13 +214,14 @@ if ($s.Transport -eq 'bridge') {
 # ── 실행 (시간 제한) ───────────────────────────────────────────────────
 $started = Get-Date
 if ($s.Transport -eq 'bridge') {
+    if (-not $bridgeHost) { $bridgeHost = Get-BridgeHost }      # -SkipPreflight 로 와도 길은 있어야 한다
     $runner = {
-        param($bridgePath)
-        $ps = New-Object -ComObject Photoshop.Application
-        $ps.DisplayDialogs = 3      # psDisplayNoDialogs
-        [pscustomobject]@{ Version = $ps.Version; Result = $ps.DoJavaScriptFile($bridgePath) }
+        param($progId, $bridgePath)
+        $host_ = New-Object -ComObject $progId
+        if ($progId -like 'Photoshop*') { $host_.DisplayDialogs = 3 }   # psDisplayNoDialogs (일러에는 없다)
+        [pscustomobject]@{ Version = $host_.Version; Result = $host_.DoJavaScriptFile($bridgePath) }
     }
-    $runArg = Join-Path $here 'bridge.jsx'
+    $runArg = @($bridgeHost.ProgId, (Join-Path $here 'bridge.jsx'))
 } else {
     $runner = {
         # 잡을 그대로 던진다. 알림 끄기는 잡이 스스로 한다 —
@@ -253,7 +291,7 @@ function Read-Modal {
     # bridge 는 대상 앱 다음에 포토샵도 본다. AE 잡의 alert() 는 AE 에 떴고 포토샵은 깨끗했다(09-22 D 실측) —
     # 그래도 포토샵이 시작 화면 등에서 막히면 DoJavaScriptFile 부터 멈추니 한 번 더 본다.
     $py = Join-Path $PSScriptRoot 'modal_text.py'
-    $procs = if ($s.Transport -eq 'bridge') { @($s.Proc, 'Photoshop') } else { @($s.Proc) }
+    $procs = if ($s.Transport -eq 'bridge') { @($s.Proc, $bridgeHost.Proc) } else { @($s.Proc) }
     foreach ($p in $procs) {
         & python $py --proc $p --out $shot --json $modalJson 2>&1 | ForEach-Object { Write-Host "    modal_text($p): $_" }
         if ($LASTEXITCODE -eq 0) { return $p }
@@ -286,7 +324,7 @@ if ($timedOut) {
 
     # bridge 전송로는 포토샵을 길로 쓰므로 포토샵도 같이 죽인다. direct 는 제 앱만 죽인다 —
     # 일러스트레이터 잡이 남의 포토샵을 죽이면 안 된다.
-    $kill = if ($s.Transport -eq 'bridge') { @($s.Proc, 'Photoshop') } else { @($s.Proc) }
+    $kill = if ($s.Transport -eq 'bridge') { @($s.Proc, $bridgeHost.Proc) } else { @($s.Proc) }
     foreach ($p in $kill) {
         Get-Proc $p | ForEach-Object { taskkill /PID $_.Id /F 2>$null | Out-Null }
     }
@@ -363,8 +401,8 @@ if (-not $timedOut) {
         # 모달이 떠 있으면 그 앱은 막혀 있다. 두면 다음 잡도 같은 창에 걸린다 — 찍었으니 닫는다.
         Write-Host "  $modalProc 에 모달이 떠 있습니다 — 찍었고, 앱을 닫습니다." -ForegroundColor Yellow
         Get-Proc $modalProc | ForEach-Object { taskkill /PID $_.Id /F 2>$null | Out-Null }
-        if ($s.Transport -eq 'bridge' -and $modalProc -ne 'Photoshop') {
-            Get-Proc 'Photoshop' | ForEach-Object { taskkill /PID $_.Id /F 2>$null | Out-Null }   # 시간 초과 경로와 같게
+        if ($s.Transport -eq 'bridge' -and $modalProc -ne $bridgeHost.Proc) {
+            Get-Proc $bridgeHost.Proc | ForEach-Object { taskkill /PID $_.Id /F 2>$null | Out-Null }   # 시간 초과 경로와 같게
         }
     }
 }

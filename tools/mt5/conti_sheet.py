@@ -79,6 +79,9 @@ def sheet(conti, folder, title, out):
         d.text((x + 12, ty + 142), wrap(d, why, f_s, tw - 24)[0], font=f_s, fill=(0, 110, 100))
         if c.get('warn'):
             d.text((x + 12, ty + 165), '⚠ ' + c['warn'][:40], font=f_s, fill=(200, 0, 0))
+        if c.get('bad_capture'):                       # 못 쓰는 장 — 눈에 띄게 (다시 찍어야 한다)
+            d.rectangle((x, y, x + tw, y + th), outline=(220, 0, 0), width=6)
+            d.text((x + 20, y + 16), '못 쓰는 장 — 다시 찍을 것', font=f_b, fill=(220, 0, 0))
     im.save(out)
     return im.size
 
