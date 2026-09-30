@@ -14,9 +14,16 @@
 input int Steps    = -1;    // 한 번에 옮길 봉 수 (음수 = 뒤로)
 input int Repeat   = 1;     // 몇 번 되풀이할지
 input int DelayMs  = 250;   // 사이에 쉬는 시간 (리플레이가 다 그릴 때까지)
+input int CueIndex = -1;    // 0 이상이면 봉 감기 대신 '그 번째 장면' 으로 간다 (큐시트 순서, 0부터)
 
 void OnStart()
 {
+   if(CueIndex >= 0)
+   {
+      EventChartCustom(ChartID(), 1, (long)CueIndex, 0.0, "");
+      Print("CMG_ReplayStep: 장면 ", CueIndex, " 로 보냈다");
+      return;
+   }
    for(int i = 0; i < Repeat; i++)
    {
       EventChartCustom(ChartID(), 0, (long)Steps, 0.0, "");

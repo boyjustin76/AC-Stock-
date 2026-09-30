@@ -25,6 +25,8 @@ input int      InpDownloadTimeoutSec = 30;                  // Data Download Tim
 input int      InpMinVisibleBars     = 50;                  // Minimum Visible Bars
 input bool     InpAnchorView         = true;               // 차트명가: 되감을 때 화면을 고정한다 (오른쪽이 그만큼 비어 간다)
 input int      InpShiftPercent       = 50;                 // 차트명가: 오른쪽 여백 % (0=끔, 최대 50 → 봉이 화면 가운데서 끝난다)
+input string   InpCueFile            = "cmg_cues.csv";     // 차트명가: 촬영 큐시트 (MQL5\Files). 비우면 안 쓴다
+input bool     InpForceDarkTheme     = false;              // 차트명가: 도구가 검정 테마를 강제할까 (끄면 차트 템플릿 그대로)
 
 //====================================================================
 // [2] INPUT PENGATURAN DRAWING PANEL
@@ -46,6 +48,8 @@ bool     g_isCustomMode      = false;
 bool     g_anchorView        = true;
 bool     g_forceRecenter     = true;   // 차트명가: 처음·점프에서만 여백을 기본값으로 되돌린다
 int      g_blankBars         = 0;      // 차트명가: 마지막 봉 오른쪽에 비워 둘 칸 수 (되감으면 늘어난다)
+bool     g_cueJumping        = false;  // 차트명가: 장면 이동으로 주기·종목을 바꾸는 중인가
+ENUM_TIMEFRAMES g_loadTF     = PERIOD_M1;  // 차트명가: 원본을 어느 주기로 받아 오는가 (M1 이 모자라면 차트 주기)
 int      g_baseTimerMS       = 200;
 double   g_speedMult         = 1.0;
 int      g_lastRenderedCount = 0;   
@@ -120,6 +124,9 @@ int OnInit()
    g_customSymbol = _Symbol;
    g_isCustomMode = (bool)SymbolInfoInteger(g_customSymbol, SYMBOL_CUSTOM);
    g_baseTimerMS  = InpBaseTimerMS;
+   //  차트명가: 주기를 바꿔도 EA 는 메모리에 남아 전역값이 그대로다(09-30 실측 — H1 로 받은 뒤
+   //  M1 장면이 H1 자료로 열렸다). 그래서 매번 M1 부터 다시 따진다.
+   g_loadTF = PERIOD_M1;
 
    if(!g_isCustomMode)
    {
@@ -171,7 +178,23 @@ int OnInit()
          return(INIT_SUCCEEDED);
       }
 
-      datetime targetStart = (g_totalBars > 10000) ? g_allRates[10000].time : g_allRates[0].time; 
+      //== 차트명가 추가 (2026-09-30) ==================================
+      //  M1 자료는 브로커가 최근 것만 준다(여기선 약 100,000봉 = 70 거래일).
+      //  그보다 **앞선 장면**을 부르면 맨 처음으로 튕겼다 (09-30 실측: 04.11 H1 장면 → 06.18 로).
+      //  그럴 때는 M1 대신 **차트 주기 그대로** 받아 온다. 그 주기 자료는 훨씬 멀리까지 있다.
+      {
+         double wantD = GlobalVariableGet("RepLastTime_" + g_customSymbol);
+         if(wantD <= 0.0) wantD = GlobalVariableGet("RepStartDate_" + g_customSymbol);
+         if(wantD > 0.0 && (datetime)wantD < g_allRates[0].time && _Period > PERIOD_M1)
+         {
+            PrintFormat("M1 자료가 %s 까지밖에 없다 → %s 자료로 바꿔 받는다",
+                        TimeToString(g_allRates[0].time), EnumToString((ENUM_TIMEFRAMES)_Period));
+            g_loadTF = (ENUM_TIMEFRAMES)_Period;
+            LoadSelectedData();
+         }
+      }
+
+      datetime targetStart = (g_totalBars > 10000) ? g_allRates[10000].time : g_allRates[0].time;
       double savedStartD = GlobalVariableGet("RepStartDate_" + g_customSymbol);
       if(savedStartD > 0.0) targetStart = (datetime)savedStartD;
       if(targetStart < g_allRates[0].time) targetStart = g_allRates[0].time;
@@ -232,7 +255,17 @@ int OnInit()
       else ChartSetInteger(0, CHART_SHIFT, false);
 
       RenderCurrentView(true);
-      
+
+      //== 차트명가 추가: 촬영 큐시트 (2026-09-30) ==
+      LoadCues();
+      double savedCue = GlobalVariableGet("CmgCueIdx");
+      if(g_cueCount > 0 && savedCue >= 0.0 && (int)savedCue < g_cueCount)
+      {
+         g_cueIdx = (int)savedCue;
+         UpdateStatusLabel(StringFormat("장면 %s (%d/%d) %s", g_cues[g_cueIdx].id,
+                                        g_cueIdx + 1, g_cueCount, g_cues[g_cueIdx].note));
+      }
+
       g_initialized = true;
       g_lastPlayMs = GetTickCount64();
       
@@ -249,7 +282,10 @@ void OnDeinit(const int reason)
 
    if(g_isCustomMode)
    {
-      if(g_currentDisplay > 0 && g_currentDisplay <= g_totalBars) 
+      //  차트명가: 장면 이동으로 주기를 바꾸는 중이면 지금 자리를 저장하지 않는다.
+      //  (저장하면 방금 넣어 둔 '장면 시작 시각' 을 덮어써서 제자리에 그대로 선다 — 09-30 실측)
+      if(g_cueJumping) { g_cueJumping = false; }
+      else if(g_currentDisplay > 0 && g_currentDisplay <= g_totalBars)
       {
          long lastTimeLong = (long)g_allRates[g_currentDisplay - 1].time;
          GlobalVariableSet("RepLastTime_" + g_customSymbol, (double)lastTimeLong);
@@ -790,6 +826,11 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       if(n != 0) SkipBars(n);
       return;
    }
+   if(id == CHARTEVENT_CUSTOM + 1)   // 장면 번호로 바로 가기
+   {
+      GoToCue((int)lparam);
+      return;
+   }
 
    if(id == CHARTEVENT_KEYDOWN)
    {
@@ -798,6 +839,8 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       if(key == 'Z')      { SkipBars(-1);  return; }
       if(key == 'S')      { SkipBars(10);  return; }
       if(key == 'A')      { SkipBars(-10); return; }
+      if(key == 'N')      { GoToCue(g_cueIdx + 1); return; }   // 다음 장면 (큐시트)
+      if(key == 'B')      { GoToCue(g_cueIdx - 1); return; }   // 이전 장면
       if(key == 32)  // 스페이스
       {
          if(g_currentDisplay >= g_totalBars) return;
@@ -1151,6 +1194,8 @@ int CurrentIntervalMS()
 
 void ApplyGreenOnBlackTheme()
 {
+   //  차트명가: 촬영용 차트 모양은 템플릿으로 정한다. 도구가 색을 덮어쓰지 않게 막는다.
+   if(!InpForceDarkTheme) { ChartSetInteger(0, CHART_MODE, CHART_CANDLES); ChartRedraw(0); return; }
    ChartSetInteger(0, CHART_MODE, CHART_CANDLES);
    ChartSetInteger(0, CHART_COLOR_BACKGROUND, clrBlack);
    ChartSetInteger(0, CHART_COLOR_FOREGROUND, clrWhite);
@@ -1196,7 +1241,7 @@ datetime GetGuiStartDate()
 void LoadSelectedData()
 {
    MqlRates rawM1[];
-   bool ok = EnsureSymbolHistoryRates(g_sourceSymbol, PERIOD_M1, 1000000, InpDownloadTimeoutSec * 1000, rawM1);
+   bool ok = EnsureSymbolHistoryRates(g_sourceSymbol, g_loadTF, 1000000, InpDownloadTimeoutSec * 1000, rawM1);
    if(ok)
    {
       int total = ArraySize(rawM1);
@@ -1230,6 +1275,156 @@ int GetMinDisplayBars()
    if(minNeeded > g_totalBars) minNeeded = g_totalBars;
    if(minNeeded < 20) minNeeded = 20;
    return (int)minNeeded;
+}
+
+//====================================================================
+//  차트명가 추가 (2026-09-30) — 촬영 큐시트
+//    비트마다 "어느 종목·주기를 언제부터" 가 적힌 표를 읽어 두고,
+//    N(다음 장면) · B(이전 장면) 한 번으로 그 자리로 간다.
+//    표는 MQL5\Files\cmg_cues.csv (UTF-16), 한 줄에
+//        비트, 종목, 주기, 시작시각(YYYY.MM.DD HH:MM), 메모
+//    tools/mt5/cue_sheet.py 가 콘티에서 만들어 준다. # 로 시작하는 줄은 건너뛴다.
+//====================================================================
+struct CmgCue
+{
+   string   id;
+   string   symbol;
+   string   period;
+   datetime start;
+   string   note;
+};
+CmgCue g_cues[];
+int    g_cueCount = 0;
+int    g_cueIdx   = -1;
+
+ENUM_TIMEFRAMES PeriodFromText(string s)
+{
+   StringToUpper(s);
+   if(s == "M1")  return PERIOD_M1;
+   if(s == "M2")  return PERIOD_M2;
+   if(s == "M3")  return PERIOD_M3;
+   if(s == "M5")  return PERIOD_M5;
+   if(s == "M10") return PERIOD_M10;
+   if(s == "M15") return PERIOD_M15;
+   if(s == "M30") return PERIOD_M30;
+   if(s == "H1")  return PERIOD_H1;
+   if(s == "H4")  return PERIOD_H4;
+   if(s == "D1")  return PERIOD_D1;
+   return (ENUM_TIMEFRAMES)_Period;
+}
+
+void LoadCues()
+{
+   g_cueCount = 0;
+   ArrayResize(g_cues, 0);
+   if(StringLen(InpCueFile) == 0) return;
+
+   int fh = FileOpen(InpCueFile, FILE_READ | FILE_TXT);      // UTF-16 (한글 메모 때문)
+   if(fh == INVALID_HANDLE) { Print("큐시트를 못 열었다: ", InpCueFile); return; }
+
+   ushort sep = StringGetCharacter(",", 0);
+   while(!FileIsEnding(fh))
+   {
+      string line = FileReadString(fh);
+      StringTrimLeft(line); StringTrimRight(line);
+      if(StringLen(line) == 0) continue;
+      if(StringGetCharacter(line, 0) == '#') continue;
+
+      string f[];
+      int n = StringSplit(line, sep, f);
+      if(n < 4) continue;
+      for(int j = 0; j < n; j++) { StringTrimLeft(f[j]); StringTrimRight(f[j]); }
+      datetime when = StringToTime(f[3]);
+      if(when <= 0) continue;
+
+      int k = g_cueCount;
+      ArrayResize(g_cues, k + 1);
+      g_cues[k].id     = f[0];
+      g_cues[k].symbol = f[1];
+      g_cues[k].period = f[2];
+      g_cues[k].start  = when;
+      string note = "";
+      for(int j = 4; j < n; j++) note += (j > 4 ? "," : "") + f[j];
+      g_cues[k].note = note;
+      g_cueCount = k + 1;
+   }
+   FileClose(fh);
+   Print("큐시트 ", g_cueCount, "줄 읽었다: ", InpCueFile);
+}
+
+//  큐시트의 종목이 지금 차트와 다르면 그 종목의 리플레이 심볼을 만들어 둔다.
+bool EnsureReplaySymbol(string src)
+{
+   string tgt = src + "_REPLAY";
+   if(!SymbolInfoInteger(tgt, SYMBOL_CUSTOM))
+   {
+      if(!SymbolSelect(src, true)) return false;
+      if(!CustomSymbolCreate(tgt, "Custom\\Replay", src)) return false;
+      CustomSymbolSetInteger(tgt, SYMBOL_DIGITS, (int)SymbolInfoInteger(src, SYMBOL_DIGITS));
+      CustomSymbolSetDouble(tgt, SYMBOL_POINT, SymbolInfoDouble(src, SYMBOL_POINT));
+      CustomSymbolSetDouble(tgt, SYMBOL_TRADE_CONTRACT_SIZE, SymbolInfoDouble(src, SYMBOL_TRADE_CONTRACT_SIZE));
+   }
+   SymbolSelect(tgt, true);
+
+   MqlRates rates[];
+   if(!EnsureSymbolHistoryRates(src, PERIOD_M1, 1000000, InpDownloadTimeoutSec * 1000, rates)) return false;
+   int copied = ArraySize(rates);
+   if(copied <= 0) return false;
+   CustomRatesDelete(tgt, D'1970.01.01 00:00', D'2099.01.01 00:00');
+   CustomRatesUpdate(tgt, rates, copied);
+   return true;
+}
+
+void GoToCue(int i)
+{
+   if(g_cueCount <= 0) { UpdateStatusLabel("Status: 큐시트가 없다"); return; }
+   if(i < 0) i = 0;
+   if(i >= g_cueCount) i = g_cueCount - 1;
+   g_cueIdx = i;
+   GlobalVariableSet("CmgCueIdx", (double)i);     // 차트를 바꿔도 이어지게
+
+   string          want = g_cues[i].symbol + "_REPLAY";
+   ENUM_TIMEFRAMES p    = PeriodFromText(g_cues[i].period);
+   datetime        t    = g_cues[i].start;
+
+   //  리플레이 도구는 붙는 순간 이 전역값을 읽는다 → 차트를 바꿔도 그 시각에서 시작한다.
+   GlobalVariableSet("RepStartDate_" + want, (double)t);
+   GlobalVariableSet("RepLastTime_"  + want, (double)t);
+   GlobalVariableSet("RepIsPlaying_" + want, 0.0);
+
+   if(want != _Symbol)
+   {
+      if(!EnsureReplaySymbol(g_cues[i].symbol))
+      {
+         UpdateStatusLabel("Status: " + want + " 준비 실패");
+         return;
+      }
+      g_cueJumping = true;
+      ChartSetSymbolPeriod(0, want, p);           // EA 가 다시 초기화되며 위 시각에서 선다
+      return;
+   }
+   if(p != (ENUM_TIMEFRAMES)_Period)
+   {
+      g_cueJumping = true;
+      ChartSetSymbolPeriod(0, _Symbol, p);
+      return;
+   }
+
+   //  M1 자료가 거기까지 없으면 차트 주기 자료로 바꿔 받는다 (위 OnInit 과 같은 이유)
+   if(g_totalBars > 0 && t < g_allRates[0].time && _Period > PERIOD_M1 && g_loadTF != (ENUM_TIMEFRAMES)_Period)
+   {
+      g_loadTF = (ENUM_TIMEFRAMES)_Period;
+      LoadSelectedData();
+      g_lastRenderedCount = 0;
+   }
+
+   g_isPlaying = false;
+   g_currentDisplay = ClampIndex(TFBarEndIndex((long)t)) + 1;
+   g_forceRecenter = true;
+   RenderCurrentView(true);
+   MoveStartLine(g_allRates[g_currentDisplay - 1].time);
+   UpdateStatusLabel(StringFormat("장면 %s (%d/%d) %s", g_cues[i].id, i + 1, g_cueCount, g_cues[i].note));
+   ChartRedraw(0);
 }
 
 int FindBarIndexAtOrAfterLong(const long targetTime)
