@@ -164,6 +164,44 @@ int OnInit()
       SymbolSelect(targetCustom, true);
 
       LoadSelectedDataInternal(targetCustom);
+
+      //== 차트명가 추가 (2026-09-30) ==================================
+      //  원본은 여기서 끝났다 — 리플레이 종목만 만들고 화면에는 아무 변화가 없어서
+      //  "새 차트에서는 적용이 안 된다" 로 보였다(이정찬). 사람이 그 종목 차트를 손으로 열고
+      //  EA 를 한 번 더 끌어다 놓아야 했다. 그 단계를 없앤다 —
+      //  **리플레이 차트를 열고, 지금 차트 모양 그대로(EA 포함) 옮겨 붙인 뒤, 나는 빠진다.**
+      int bars = Bars(g_sourceSymbol, PERIOD_M1);
+      if(bars <= 0)
+      {
+         Comment("리플레이: " + g_sourceSymbol + " 의 1분봉 자료가 없습니다.\n"
+                 "이 차트를 1분봉으로 바꾸고 Home 키를 몇 번 눌러 과거를 내려받은 뒤 다시 붙이세요.");
+         Print("1분봉 자료가 없다: ", g_sourceSymbol);
+         return(INIT_SUCCEEDED);
+      }
+
+      long newChart = ChartOpen(targetCustom, (ENUM_TIMEFRAMES)_Period);
+      if(newChart <= 0)
+      {
+         Comment("리플레이 종목 " + targetCustom + " 을 만들었습니다.\n"
+                 "그 종목 차트를 열고 이 도구를 다시 끌어다 놓으세요.");
+         return(INIT_SUCCEEDED);
+      }
+
+      //  지금 차트를 템플릿으로 저장하면 **EA 와 그 설정값까지** 들어간다 → 새 차트에 그대로 옮긴다.
+      string boot = "cmg_replay_boot.tpl";
+      if(ChartSaveTemplate(0, boot) && ChartApplyTemplate(newChart, boot))
+      {
+         ChartRedraw(newChart);
+         Print("리플레이 차트를 열었다: ", targetCustom);
+         Comment("");
+         ExpertRemove();          // 원본 차트에서는 빠진다 (할 일 끝)
+      }
+      else
+      {
+         Print("템플릿 옮기기 실패 — 새 차트에 손으로 붙여야 한다. 오류 ", GetLastError());
+         Comment("리플레이 차트 " + targetCustom + " 을 열었습니다.\n"
+                 "그 차트에 이 도구를 끌어다 놓으세요.");
+      }
       return(INIT_SUCCEEDED);
    }
    else
