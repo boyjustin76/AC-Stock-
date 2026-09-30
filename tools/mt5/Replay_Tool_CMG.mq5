@@ -44,7 +44,8 @@ int      g_currentDisplay    = 0;
 bool     g_isPlaying         = false;
 bool     g_isCustomMode      = false;
 bool     g_anchorView        = true;
-bool     g_forceRecenter     = true;   // 차트명가: 처음·점프에서만 화면을 다시 맞춘다   // 차트명가: 한 봉 움직여도 화면을 따라 옮기지 않는다
+bool     g_forceRecenter     = true;   // 차트명가: 처음·점프에서만 여백을 기본값으로 되돌린다
+int      g_blankBars         = 0;      // 차트명가: 마지막 봉 오른쪽에 비워 둘 칸 수 (되감으면 늘어난다)
 int      g_baseTimerMS       = 200;
 double   g_speedMult         = 1.0;
 int      g_lastRenderedCount = 0;   
@@ -195,13 +196,13 @@ int OnInit()
       if(savedTimeD > 0.0)
       {
          long savedTime = (long)savedTimeD;
-         int idx = FindNearestBarIndex(savedTime);
+         int idx = TFBarEndIndex(savedTime);          // 차트명가: 봉 끝에서 시작
          g_currentDisplay = idx + 1;
       }
       else
       {
          long startLong = (long)guiStart;
-         int idx = FindBarIndexAtOrAfterLong(startLong);
+         int idx = TFBarEndIndex(startLong);          // 차트명가: 봉 끝에서 시작
          g_currentDisplay = idx + 1;
       }
 
@@ -300,11 +301,18 @@ void OnTimer()
       long currentBarOpenTF = currentM1Time - (currentM1Time % tfSec);
       long targetTime = currentBarOpenTF + (long)tfSec;
 
-      int idx = FindBarIndexAtOrAfterLong(targetTime);
+      int idx = TFBarEndIndex(targetTime);          // 차트명가: 재생도 봉 끝에서 끊는다
+      int cur = g_currentDisplay - 1;
+      if(idx <= cur)                                // 빈 구간이면 다음 있는 봉으로
+      {
+         int j = FindBarIndexAtOrAfterLong(currentM1Time + 1);
+         if(j < g_totalBars) idx = TFBarEndIndex((long)g_allRates[j].time);
+      }
       int nextDisplay = ClampIndex(idx) + 1;
 
       if(nextDisplay > g_currentDisplay && nextDisplay <= g_totalBars)
       {
+         g_blankBars -= 1;        // 차트명가: 재생도 한 칸씩 오른쪽을 메운다
          g_currentDisplay = nextDisplay;
          RenderCurrentView(false); 
       }
@@ -773,6 +781,16 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
    //  촬영 중에는 손이 차트 위에 있어야 하므로 키로 넘긴다.
    //    Z / X  한 봉 뒤·앞     A / S  열 봉 뒤·앞     스페이스  재생·정지
    //  (화살표는 MT5 가 차트 스크롤에 쓰므로 피했다)
+   //== 차트명가 추가 (2026-09-30) ==================================
+   //  MT5 안에서 도는 스크립트(CMG_ReplayStep)가 보내는 신호로도 감는다.
+   //  lparam = 옮길 봉 수(음수면 뒤로). 키를 흉내 내지 않고 확인·자동화하기 위한 통로다.
+   if(id == CHARTEVENT_CUSTOM + 0)
+   {
+      int n = (int)lparam;
+      if(n != 0) SkipBars(n);
+      return;
+   }
+
    if(id == CHARTEVENT_KEYDOWN)
    {
       int key = (int)lparam;
@@ -855,7 +873,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          return;
       }
 
-      int idx = FindNearestBarIndex(lineTime);
+      int idx = TFBarEndIndex(lineTime);             // 차트명가: 끌어다 놓아도 봉 끝에서 끊는다
       g_isPlaying = false;
       ObjectSetString(0, "rep_btn_play", OBJPROP_TEXT, "PLAY");
       ObjectSetInteger(0, "rep_btn_play", OBJPROP_BGCOLOR, clrForestGreen);
@@ -1027,7 +1045,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          }
 
          long startLong = (long)guiStart;
-         int idx = FindBarIndexAtOrAfterLong(startLong);
+         int idx = TFBarEndIndex(startLong);          // 차트명가: 봉 끝에서 시작
          int initialDisplay = idx + 1;
          int minDisp = GetMinDisplayBars();
          if(initialDisplay < minDisp && g_totalBars >= minDisp) initialDisplay = minDisp;
@@ -1060,7 +1078,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          }
 
          long startLong = (long)guiStart;
-         int idx = FindBarIndexAtOrAfterLong(startLong);
+         int idx = TFBarEndIndex(startLong);          // 차트명가: 봉 끝에서 시작
          int initialDisplay = idx + 1;
          int minDisp = GetMinDisplayBars();
          if(initialDisplay < minDisp && g_totalBars >= minDisp) initialDisplay = minDisp;
@@ -1227,6 +1245,22 @@ int FindBarIndexAtOrAfterLong(const long targetTime)
    return result; 
 }
 
+//== 차트명가 추가 (2026-09-30) ==================================
+//  화면 끝을 '다 만들어진 봉' 에 맞춘다.
+//  원본은 TF 봉이 시작하는 **첫 M1 봉**에서 끊었다 → 마지막 봉이 1분짜리 미완성 봉이라
+//  종가가 아니라 엉뚱한 중간값에서 끊긴 것처럼 보였다 (이정찬 09-29).
+//  주어진 시각이 속한 TF 봉의 **마지막 M1 봉** 자리를 돌려준다.
+int TFBarEndIndex(const long anyTime)
+{
+   int tfSec = PeriodSeconds(_Period);
+   if(tfSec <= 0) tfSec = 60;
+   long barOpen = anyTime - (anyTime % tfSec);
+   int  endIdx  = FindBarIndexAtOrAfterLong(barOpen + (long)tfSec) - 1;  // 다음 TF 봉 첫 M1 의 한 칸 앞
+   if(endIdx < 0) endIdx = 0;
+   if(endIdx >= g_totalBars) endIdx = g_totalBars - 1;
+   return endIdx;
+}
+
 int FindNearestBarIndex(const long targetTime)
 {
    int left = 0; int right = g_totalBars - 1; int best = 0;
@@ -1267,6 +1301,30 @@ void UpdateCloseLine(double closePrice)
    else ObjectMove(0, "rep_closeline", 0, 0, closePrice);
 }
 
+//== 차트명가 추가 (2026-09-30) ==================================
+//  밖에서 확인할 수 있게 상태를 파일로 적는다 — MQL5\Files\cmg_replay_<차트ID>.txt
+//  (키를 흉내 내 확인하다 남의 창에 글자가 찍힌 사고가 있었다. 확인은 데이터로 한다.)
+//    1줄  마지막으로 보이는 봉의 시각
+//    2줄  END=<끝봉시각> CLOSE=<종가> FV=<왼쪽끝봉> WIDTH=<화면칸수> BLANK=<오른쪽빈칸> POS=<몇/몇>
+void WriteReplayStatus()
+{
+   long fv    = ChartGetInteger(0, CHART_FIRST_VISIBLE_BAR);
+   long width = ChartGetInteger(0, CHART_WIDTH_IN_BARS);
+   datetime endT = (g_currentDisplay > 0) ? g_allRates[g_currentDisplay - 1].time : 0;
+   double   endC = (g_currentDisplay > 0) ? g_allRates[g_currentDisplay - 1].close : 0.0;
+
+   int fh = FileOpen("cmg_replay_" + IntegerToString(ChartID()) + ".txt",
+                     FILE_WRITE | FILE_TXT | FILE_ANSI);
+   if(fh == INVALID_HANDLE) return;
+   FileWrite(fh, TimeToString(endT, TIME_DATE | TIME_SECONDS));
+   FileWrite(fh, StringFormat("END=%s CLOSE=%s FV=%d WIDTH=%d BLANK=%d WANT=%d POS=%d/%d",
+                              TimeToString(endT, TIME_DATE | TIME_SECONDS),
+                              DoubleToString(endC, (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS)),
+                              (int)fv, (int)width, (int)(width - (fv + 1)), g_blankBars,
+                              g_currentDisplay, g_totalBars));
+   FileClose(fh);
+}
+
 void RenderCurrentView(bool resetView = false)
 {
    if(resetView) g_lastRenderedCount = 0;
@@ -1301,25 +1359,36 @@ void RenderCurrentView(bool resetView = false)
    UpdateProgress();
    UpdateStatusLabel();
 
-   //== 차트명가 고침 (2026-09-29) ==================================
-   //  원본은 한 봉 움직일 때마다 화면을 끝에 맞춘다 → 되감아도 경계가 늘 같은 자리다.
-   //  화면은 그대로 두고 **데이터 경계만** 움직이게 한다. 되감으면 오른쪽이 그만큼 빈다.
-   //  경계가 화면 밖으로 나갈 때만 다시 맞춘다.
-   if(!g_anchorView || g_forceRecenter)
+   //== 차트명가 고침 (2026-09-30, 두 번째) =========================
+   //  09-29 판(화면을 그대로 두는 방식)은 안 먹혔다 — 되감을 때 데이터를 통째로 다시 쓰므로
+   //  MT5 가 스스로 화면을 끝에 도로 맞췄고, 오른쪽 빈 칸이 늘 50% 에 붙어 있었다 (실측 09-30).
+   //  그래서 빈 칸 수를 우리가 세어 두고, 그릴 때마다 **오른쪽 여백을 직접 지정**한다.
+   //  되감으면 빈 칸이 늘고, 앞으로 가면 줄어든다.
+   //  한계: MT5 는 마지막 봉을 화면 한가운데(여백 50%)보다 왼쪽에 두지 못한다.
+   //        10~50% 안에서만 움직이고, 한계에 닿으면 그때부터 화면이 따라간다.
+   if(g_anchorView)
    {
-      ChartNavigate(0, CHART_END, 0);      // 처음 붙였을 때·날짜로 점프했을 때만
-      g_forceRecenter = false;
+      long width = ChartGetInteger(0, CHART_WIDTH_IN_BARS);
+      if(width < 10) width = 10;
+      int minBlank = (int)(width * 10 / 100);
+      int maxBlank = (int)(width * 50 / 100);
+
+      if(g_forceRecenter)                       // 처음 붙였을 때·날짜로 점프했을 때
+      {
+         g_blankBars = (int)(width * MathMin(50, MathMax(10, InpShiftPercent)) / 100);
+         g_forceRecenter = false;
+      }
+      if(g_blankBars < minBlank) g_blankBars = minBlank;
+      if(g_blankBars > maxBlank) g_blankBars = maxBlank;
+
+      ChartSetInteger(0, CHART_SHIFT, true);
+      ChartSetDouble(0, CHART_SHIFT_SIZE, 100.0 * (double)g_blankBars / (double)width);
+      ChartNavigate(0, CHART_END, 0);
    }
    else
-   {
-      //  한 봉씩 움직일 때는 화면을 그대로 둔다 → 되감을수록 오른쪽이 비어 간다.
-      //  경계가 화면 밖으로 나갈 때만 되돌린다.
-      long fv    = ChartGetInteger(0, CHART_FIRST_VISIBLE_BAR);  // 왼쪽 끝 봉 (0 = 마지막 봉)
-      long width = ChartGetInteger(0, CHART_WIDTH_IN_BARS);      // 화면에 들어가는 칸 수
-      long blank = width - (fv + 1);                             // 마지막 봉 오른쪽의 빈 칸
-      if(blank <= 1 || blank >= width * 9 / 10)
-         ChartNavigate(0, CHART_END, 0);
-   }
+      ChartNavigate(0, CHART_END, 0);
+
+   WriteReplayStatus();
 
    long currentBarTimeLong = (long)g_allRates[g_currentDisplay - 1].time;
    GlobalVariableSet("RepLastTime_" + g_customSymbol, (double)currentBarTimeLong);
@@ -1392,9 +1461,20 @@ void SkipBars(int n)
    long currentBarOpenTF = currentM1Time - (currentM1Time % tfSec);
    long targetTime = currentBarOpenTF + (long)n * tfSec;
 
-   int idx = FindBarIndexAtOrAfterLong(targetTime);
+   int idx = TFBarEndIndex(targetTime);            // 차트명가: 다 만들어진 봉의 끝에서 끊는다
+   int cur = g_currentDisplay - 1;
+   //  주말·장 마감처럼 빈 구간이면 제자리일 수 있다 → 한 칸이라도 움직이게 한다.
+   if(n > 0 && idx <= cur)
+   {
+      int j = FindBarIndexAtOrAfterLong(currentM1Time + 1);
+      if(j < g_totalBars) idx = TFBarEndIndex((long)g_allRates[j].time);
+   }
+   else if(n < 0 && idx >= cur && cur > 0)
+      idx = TFBarEndIndex((long)g_allRates[cur - 1].time);
+
+   g_blankBars -= n;              // 차트명가: 뒤로 가면 오른쪽이 그만큼 비고, 앞으로 가면 메워진다
    g_currentDisplay = ClampIndex(idx) + 1;
-   RenderCurrentView(true); 
+   RenderCurrentView(true);
 
    if(wasPlaying && g_currentDisplay < g_totalBars)
    {
