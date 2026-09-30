@@ -918,6 +918,16 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       GoToCue((int)lparam);
       return;
    }
+   if(id == CHARTEVENT_CUSTOM + 2)   // 지금 시각까지 다시 받기
+   {
+      Resync();
+      return;
+   }
+   if(id == CHARTEVENT_CUSTOM + 3)   // 조작판 숨기기·보이기
+   {
+      SetPanelHidden(lparam != 0);
+      return;
+   }
 
    if(id == CHARTEVENT_KEYDOWN)
    {
@@ -929,6 +939,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       if(key == 'N')      { GoToCue(g_cueIdx + 1); return; }   // 다음 장면 (큐시트)
       if(key == 'B')      { GoToCue(g_cueIdx - 1); return; }   // 이전 장면
       if(key == 'H')      { SetPanelHidden(!g_panelHidden); return; }   // 조작판 숨기기·보이기
+      if(key == 'R')      { Resync(); return; }                        // 지금 시각까지 다시 받기
       if(key == 32)  // 스페이스
       {
          if(g_currentDisplay >= g_totalBars) return;
@@ -1465,22 +1476,91 @@ bool EnsureReplaySymbol(string src)
 }
 
 //  촬영할 때는 조작판이 화면에 나오면 안 된다. 지우지 않고 **숨긴다**(값은 그대로 쓴다).
+//  두 번 헤맨 자리다(09-30).
+//   ① OBJPROP_TIMEFRAMES 로 숨기면 버튼·글자는 사라지는데 **판 바탕(OBJ_RECTANGLE_LABEL)은 남는다**
+//      → 검은 네모 두 개만 덩그러니 (이정찬 사진).
+//   ② 그래서 x 를 화면 밖으로 밀었더니 되돌릴 때 **오른쪽 아래 LONG/SHORT 가 안 돌아왔다**.
+//  결론: 좌표는 건드리지 않는다. 글자·버튼은 TIMEFRAMES 로, 바탕판은 **크기를 1×1 로** 줄인다.
+//  원래 크기는 숨기기 시작할 때 적어 둔다.
+string g_hidName[];
+long   g_hidW[];
+long   g_hidH[];
+
+bool IsPanelObject(string name)
+{
+   if(name == "" || name == MASK_NAME || name == "rep_startline") return false;
+   return (StringFind(name, "rep_") == 0 || StringFind(name, panelPrefix) == 0);
+}
+
 void SetPanelHidden(bool hide)
 {
-   g_panelHidden = hide;
-   int flag = hide ? OBJ_NO_PERIODS : OBJ_ALL_PERIODS;
    int total = ObjectsTotal(0, 0, -1);
-   for(int i = total - 1; i >= 0; i--)
+
+   if(hide && !g_panelHidden)          // 처음 숨길 때만 바탕판 크기를 적어 둔다
    {
-      string name = ObjectName(0, i, 0, -1);
-      if(name == "") continue;
-      if(StringFind(name, "rep_") == 0 || StringFind(name, panelPrefix) == 0)
+      ArrayResize(g_hidName, 0); ArrayResize(g_hidW, 0); ArrayResize(g_hidH, 0);
+      for(int i = total - 1; i >= 0; i--)
       {
-         if(name == "rep_startline") continue;           // 시작선은 남겨 둔다
-         ObjectSetInteger(0, name, OBJPROP_TIMEFRAMES, flag);
+         string nm = ObjectName(0, i, 0, -1);
+         if(!IsPanelObject(nm)) continue;
+         if(ObjectGetInteger(0, nm, OBJPROP_TYPE) != OBJ_RECTANGLE_LABEL) continue;
+         int k = ArraySize(g_hidName);
+         ArrayResize(g_hidName, k + 1); ArrayResize(g_hidW, k + 1); ArrayResize(g_hidH, k + 1);
+         g_hidName[k] = nm;
+         g_hidW[k] = ObjectGetInteger(0, nm, OBJPROP_XSIZE);
+         g_hidH[k] = ObjectGetInteger(0, nm, OBJPROP_YSIZE);
       }
    }
+
+   for(int i = total - 1; i >= 0; i--)
+   {
+      string nm = ObjectName(0, i, 0, -1);
+      if(!IsPanelObject(nm)) continue;
+      ObjectSetInteger(0, nm, OBJPROP_TIMEFRAMES, hide ? OBJ_NO_PERIODS : OBJ_ALL_PERIODS);
+      if(hide && ObjectGetInteger(0, nm, OBJPROP_TYPE) == OBJ_RECTANGLE_LABEL)
+      {
+         ObjectSetInteger(0, nm, OBJPROP_XSIZE, 1);
+         ObjectSetInteger(0, nm, OBJPROP_YSIZE, 1);
+      }
+   }
+
+   if(!hide)                            // 바탕판 크기를 되돌린다
+   {
+      for(int k = 0; k < ArraySize(g_hidName); k++)
+      {
+         if(ObjectFind(0, g_hidName[k]) < 0) continue;
+         ObjectSetInteger(0, g_hidName[k], OBJPROP_XSIZE, g_hidW[k]);
+         ObjectSetInteger(0, g_hidName[k], OBJPROP_YSIZE, g_hidH[k]);
+      }
+   }
+
+   g_panelHidden = hide;
    ChartRedraw(0);
+}
+
+//== 차트명가 추가 (2026-09-30) — 지금 시각까지 자료 다시 받기 ==========
+//  리플레이 종목은 붙을 때 받아 둔 과거로 만든다. 그 뒤에 생긴 봉은 안 들어온다
+//  (이정찬: "현 시각 차트로 동기화됐으면"). R 키로 다시 받는다. 보던 자리는 그대로 둔다.
+void Resync()
+{
+   datetime keep = (g_currentDisplay > 0 && g_currentDisplay <= g_totalBars)
+                   ? g_allRates[g_currentDisplay - 1].time : 0;
+   UpdateStatusLabel("Status: 지금 시각까지 다시 받는 중...");
+   ChartRedraw(0);
+
+   int before = g_totalBars;
+   LoadSelectedData();                       // 받아 오는 주기(g_loadTF)는 그대로
+   g_fullLoaded = false;                     // 가림막 방식이면 전체를 다시 넣게
+   g_lastRenderedCount = 0;
+
+   if(keep > 0) g_currentDisplay = ClampIndex(TFBarEndIndex((long)keep)) + 1;
+   RenderCurrentView(true);
+   PrintFormat("다시 받았다: %d봉 → %d봉 (마지막 %s)", before, g_totalBars,
+               TimeToString(g_totalBars > 0 ? g_allRates[g_totalBars - 1].time : 0,
+                            TIME_DATE | TIME_MINUTES));
+   UpdateStatusLabel(StringFormat("Status: 다시 받음 — 마지막 %s",
+                                  TimeToString(g_totalBars > 0 ? g_allRates[g_totalBars - 1].time : 0,
+                                               TIME_DATE | TIME_MINUTES)));
 }
 
 void GoToCue(int i)
@@ -1805,6 +1885,7 @@ void RenderCurrentView(bool resetView = false)
       g_lastRenderedCount = g_currentDisplay;
       UpdateProgress();
       UpdateStatusLabel();
+      if(g_panelHidden) SetPanelHidden(true);   // 다시 그려도 숨긴 채로 (여러 번 불러도 안전)
       UpdateMask();
       ChartRedraw(0);
       WriteReplayStatus();
@@ -1841,6 +1922,7 @@ void RenderCurrentView(bool resetView = false)
 
    UpdateProgress();
    UpdateStatusLabel();
+   if(g_panelHidden) SetPanelHidden(true);
 
    //== 차트명가 고침 (2026-09-30, 두 번째) =========================
    //  09-29 판(화면을 그대로 두는 방식)은 안 먹혔다 — 되감을 때 데이터를 통째로 다시 쓰므로

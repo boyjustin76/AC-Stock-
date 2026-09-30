@@ -16,6 +16,7 @@ input int Repeat   = 1;     // 몇 번 되풀이할지
 input int DelayMs  = 250;   // 사이에 쉬는 시간 (리플레이가 다 그릴 때까지)
 input int CueIndex = -1;    // 0 이상이면 봉 감기 대신 '그 번째 장면' 으로 간다 (큐시트 순서, 0부터)
 input int ProbeK   = -1;    // 0 이상이면 ChartNavigate(CHART_END,-K) 를 걸고 결과를 파일에 적는다 (확인용)
+input int Action   = 0;     // 2 = 지금 시각까지 다시 받기 · 3 = 조작판 숨김 · 4 = 조작판 보임
 
 void OnStart()
 {
@@ -38,6 +39,10 @@ void OnStart()
       }
       return;
    }
+   if(Action == 2) { EventChartCustom(ChartID(), 2, 0, 0.0, ""); Print("다시 받기 신호"); return; }
+   if(Action == 3) { EventChartCustom(ChartID(), 3, 1, 0.0, ""); Print("조작판 숨김 신호"); return; }
+   if(Action == 4) { EventChartCustom(ChartID(), 3, 0, 0.0, ""); Print("조작판 보임 신호"); return; }
+
    if(CueIndex >= 0)
    {
       EventChartCustom(ChartID(), 1, (long)CueIndex, 0.0, "");
