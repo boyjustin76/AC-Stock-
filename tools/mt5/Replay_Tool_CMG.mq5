@@ -30,6 +30,7 @@ input bool     InpForceDarkTheme     = false;              // 차트명가: 도�
 input int      InpChartScale         = 4;                  // 차트명가: 봉 굵기 0~5 (5=제일 굵다, -1=건드리지 않음)
 input bool     InpHidePanel          = false;              // 차트명가: 촬영용 — 조작판·버튼을 숨긴다 (H 로 껐다 켰다)
 input bool     InpMaskFuture         = false;              // 차트명가: 미래를 '가리는' 방식 (화면이 안 움직인다·50% 한계 없음). 아직 시험 중 — 기본은 끔
+input bool     InpLockChartKeys      = true;               // 차트명가: MT5 자체 키 조작(Home/End/PageUp/화살표)을 막는다 — 촬영 중 화면이 튀는 것 방지
 
 //====================================================================
 // [2] INPUT PENGATURAN DRAWING PANEL
@@ -254,6 +255,17 @@ int OnInit()
       //== 차트명가 추가: 마지막 봉을 화면 가운데에 두고 오른쪽을 비운다 (2026-09-29) ==
       //  기본값이면 마지막 봉이 오른쪽 끝에 붙어 '그냥 과거로 스크롤한 화면' 처럼 보인다.
       //  MT5 의 차트 이동(CHART_SHIFT)은 최대 50% 까지 밀 수 있다 — 50 이면 딱 절반이 빈다.
+      //== 차트명가 추가 (2026-09-30): MT5 가 키를 가로채지 못하게 한다 =========
+      //  증상: Z/X 를 누르다 보면 화면이 갑자기 확 감기고, 멈추는 자리가 늘 비슷하다(이정찬).
+      //  원인으로 보는 것 둘 — 둘 다 MT5 자체 기능이라 우리 코드에선 안 보인다.
+      //   ① **빠른 탐색 창**: 차트에서 Space/Enter 를 누르면 왼쪽 아래에 입력칸이 열리고,
+      //      거기에 날짜를 넣으면 차트가 그 날짜로 날아간다. 우리 재생 키가 하필 Space 다.
+      //   ② **키보드 조작**: Home(맨 처음)·End(맨 끝)·PageUp/Down(한 화면씩)·화살표.
+      //      Home 을 한 번 누르면 맨 앞으로 간다 — "멈추는 자리가 비슷하다" 와 맞는다.
+      //  둘을 끈다. EA 의 CHARTEVENT_KEYDOWN 은 계속 들어오므로 Z/X/A/S/스페이스는 그대로 쓴다.
+      ChartSetInteger(0, CHART_QUICK_NAVIGATION, false);
+      if(InpLockChartKeys) ChartSetInteger(0, CHART_KEYBOARD_CONTROL, false);
+
       g_anchorView = InpAnchorView;
       g_maskMode   = InpMaskFuture;
       g_fullLoaded = false;
@@ -307,6 +319,8 @@ void OnDeinit(const int reason)
    {
       ObjectDelete(0, MASK_NAME);                  // 차트명가: 가림막을 치운다
       ChartSetInteger(0, CHART_SCALEFIX, false);   // 세로 눈금 고정도 푼다
+      ChartSetInteger(0, CHART_QUICK_NAVIGATION, true);   // 빌려 쓴 설정은 돌려놓는다
+      ChartSetInteger(0, CHART_KEYBOARD_CONTROL, true);
       //  차트명가: 장면 이동으로 주기를 바꾸는 중이면 지금 자리를 저장하지 않는다.
       //  (저장하면 방금 넣어 둔 '장면 시작 시각' 을 덮어써서 제자리에 그대로 선다 — 09-30 실측)
       if(g_cueJumping) { g_cueJumping = false; }
@@ -1552,6 +1566,7 @@ void WriteReplayStatus()
 {
    long fv    = ChartGetInteger(0, CHART_FIRST_VISIBLE_BAR);
    long width = ChartGetInteger(0, CHART_WIDTH_IN_BARS);
+   datetime vt = iTime(_Symbol, _Period, (int)fv);      // 화면 왼쪽 끝 봉의 시각
    datetime endT = (g_currentDisplay > 0) ? g_allRates[g_currentDisplay - 1].time : 0;
    double   endC = (g_currentDisplay > 0) ? g_allRates[g_currentDisplay - 1].close : 0.0;
 
@@ -1559,11 +1574,11 @@ void WriteReplayStatus()
                      FILE_WRITE | FILE_TXT | FILE_ANSI);
    if(fh == INVALID_HANDLE) return;
    FileWrite(fh, TimeToString(endT, TIME_DATE | TIME_SECONDS));
-   FileWrite(fh, StringFormat("MODE=%s MASKX=%d MASKW=%d SHIFT=%d VFV=%d END=%s CLOSE=%s FV=%d WIDTH=%d BLANK=%d WANT=%d POS=%d/%d",
+   FileWrite(fh, StringFormat("MODE=%s MASKX=%d MASKW=%d SHIFT=%d VFV=%d LEFT=[%s] END=%s CLOSE=%s FV=%d WIDTH=%d BLANK=%d WANT=%d POS=%d/%d",
                               g_maskMode ? "mask" : "cut",
                               (int)ObjectGetInteger(0, MASK_NAME, OBJPROP_XDISTANCE),
                               (int)ObjectGetInteger(0, MASK_NAME, OBJPROP_XSIZE),
-                              g_dbgShift, g_dbgFv,
+                              g_dbgShift, g_dbgFv, TimeToString(vt, TIME_DATE | TIME_MINUTES),
                               TimeToString(endT, TIME_DATE | TIME_SECONDS),
                               DoubleToString(endC, (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS)),
                               (int)fv, (int)width, (int)(width - (fv + 1)), g_blankBars,
@@ -1739,6 +1754,12 @@ void RenderCurrentView(bool resetView = false)
    }
    else
    {
+      //== 차트명가 고침 (2026-09-30) ==================================
+      //  뒤로 갈 때 원본은 **전체를 지우고 다시 넣었다**(8만 봉). 그 사이 차트가 잠깐 비어
+      //  화면 위치가 엉뚱한 데로 튀는 일이 있었다(이정찬: "가끔 확 감겨 버린다").
+      //  이제 **지금 자리 뒤쪽만** 지운다 — 빠르고, 차트가 비지 않는다.
+      datetime tCut = g_allRates[g_currentDisplay - 1].time;
+      CustomRatesDelete(g_customSymbol, tCut + 1, D'2099.01.01 00:00');
       MqlRates singleRate[1]; singleRate[0] = g_allRates[g_currentDisplay - 1];
       CustomRatesUpdate(g_customSymbol, singleRate);
    }
