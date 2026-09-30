@@ -170,6 +170,17 @@ def build(spec, source_root=None):
                 f"<sourcetrack><mediatype>audio</mediatype>"
                 f"<trackindex>{ch}</trackindex></sourcetrack>{link(x)}</clipitem>")
 
+    # 시퀀스 마커 — 컷리스트의 "markers": [{"at": 초, "name": "박수", "comment": "…", "dur": 초}]
+    # 프리미어는 <marker> 를 시퀀스 바로 아래에서 읽는다. 시작 프레임만 있으면 점 마커가 된다.
+    def 마커(m):
+        s = frames(float(m["at"]), fps)
+        끝 = s + frames(float(m.get("dur", 0)), fps)
+        return ("<marker>"
+                f"<name>{html.escape(str(m.get('name', '')))}</name>"
+                f"<comment>{html.escape(str(m.get('comment', '')))}</comment>"
+                f"<in>{s}</in><out>{끝 if 끝 > s else -1}</out></marker>")
+    마커들 = "".join(마커(m) for m in spec.get("markers", []))
+
     nv = max([t for kind, t in tracks if kind == "v"] or [1])
     vtracks = {t: tracks.get(("v", t), []) for t in range(1, nv + 1) if ("v", t) in tracks}
     vxml = "".join("<track>" + "".join(vclip(x) for x in tracks.get(("v", t), [])) + "</track>"
@@ -193,7 +204,7 @@ def build(spec, source_root=None):
         "<format><samplecharacteristics><depth>16</depth>"
         "<samplerate>48000</samplerate></samplecharacteristics></format>"
         + atrack(1) + atrack(2) +
-        "</audio></media></sequence>\n</xmeml>\n"), vtracks
+        "</audio></media>" + 마커들 + "</sequence>\n</xmeml>\n"), vtracks
 
 
 def main():
