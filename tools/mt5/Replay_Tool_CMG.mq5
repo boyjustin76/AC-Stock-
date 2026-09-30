@@ -29,7 +29,7 @@ input string   InpCueFile            = "cmg_cues.csv";     // 차트명가: 촬�
 input bool     InpForceDarkTheme     = false;              // 차트명가: 도구가 검정 테마를 강제할까 (끄면 차트 템플릿 그대로)
 input int      InpChartScale         = 4;                  // 차트명가: 봉 굵기 0~5 (5=제일 굵다, -1=건드리지 않음)
 input bool     InpHidePanel          = false;              // 차트명가: 촬영용 — 조작판·버튼을 숨긴다 (H 로 껐다 켰다)
-input bool     InpMaskFuture         = false;              // 차트명가: 미래를 '가리는' 방식 (화면이 안 움직인다·50% 한계 없음). 아직 시험 중 — 기본은 끔
+input bool     InpMaskFuture         = true;               // 차트명가: 미래를 '가리는' 방식 — 화면이 전혀 안 움직이고 50% 한계도 없다 (끄면 옛 방식)
 input bool     InpLockChartKeys      = true;               // 차트명가: MT5 자체 키 조작(Home/End/PageUp/화살표)을 막는다 — 촬영 중 화면이 튀는 것 방지
 
 //====================================================================
@@ -357,6 +357,16 @@ void OnTimer()
    if(!g_isCustomMode) return;
 
    RunWatchdog();
+
+   //  차트명가: 우리가 시키지도 않았는데 화면이 움직이면 그 순간을 잡는다 (09-30 추적).
+   if(g_initialized && g_isCustomMode)
+   {
+      static long s_lastFv = -1;
+      long fvNow = ChartGetInteger(0, CHART_FIRST_VISIBLE_BAR);
+      if(s_lastFv >= 0 && MathAbs(fvNow - s_lastFv) > 3)
+         LogLine("VIEW-MOVED", s_lastFv, fvNow, 0.0);
+      s_lastFv = fvNow;
+   }
 
    if(!g_isPlaying || g_totalBars == 0) return;
 
@@ -1716,6 +1726,30 @@ void UpdateMask()
    ObjectSetInteger(0, MASK_NAME, OBJPROP_COLOR, bg);
 }
 
+//  차트명가 (2026-09-30): 그릴 때마다 한 줄씩 **쌓아** 적는다.
+//  화면이 한 번씩 튀는데 덮어쓰는 상태 파일로는 그 순간을 못 잡는다 (튄 뒤 다음 누름에 제자리로 온다).
+//  MQL5\Files\cmg_replay_log.csv — 시각ms,무슨일,위치,끝봉,이동전왼쪽봉,이동후왼쪽봉,왼쪽시각,여백%
+void LogLine(string why, long fvBefore, long fvAfter, double pct)
+{
+   int fh = FileOpen("cmg_replay_log.csv", FILE_READ | FILE_WRITE | FILE_TXT | FILE_ANSI);
+   if(fh == INVALID_HANDLE) return;
+   FileSeek(fh, 0, SEEK_END);
+   datetime endT = (g_currentDisplay > 0 && g_currentDisplay <= g_totalBars)
+                   ? g_allRates[g_currentDisplay - 1].time : 0;
+   datetime leftT = iTime(_Symbol, _Period, (int)fvAfter);
+   //  BARS·LAST 는 **차트가 실제로 들고 있는 봉**이다. 우리 위치(END)와 어긋나면
+   //  MT5 가 주기 자료를 다시 만드는 중이라는 뜻 — 화면이 옛날로 보이는 순간을 이걸로 잡는다.
+   FileWrite(fh, StringFormat("%I64u,%s,%d,%s,%d,%d,%s,%.1f,%d,%d,%s",
+                              GetTickCount64(), why, g_currentDisplay,
+                              TimeToString(endT, TIME_DATE | TIME_MINUTES),
+                              (int)fvBefore, (int)fvAfter,
+                              TimeToString(leftT, TIME_DATE | TIME_MINUTES), pct,
+                              (int)ChartGetInteger(0, CHART_WIDTH_IN_BARS),
+                              Bars(_Symbol, _Period),
+                              TimeToString(iTime(_Symbol, _Period, 0), TIME_DATE | TIME_MINUTES)));
+   FileClose(fh);
+}
+
 void RenderCurrentView(bool resetView = false)
 {
    if(resetView) g_lastRenderedCount = 0;
@@ -1792,9 +1826,13 @@ void RenderCurrentView(bool resetView = false)
       if(g_blankBars < minBlank) g_blankBars = minBlank;
       if(g_blankBars > maxBlank) g_blankBars = maxBlank;
 
+      long fvBefore = ChartGetInteger(0, CHART_FIRST_VISIBLE_BAR);
+      double pct = 100.0 * (double)g_blankBars / (double)width;
       ChartSetInteger(0, CHART_SHIFT, true);
-      ChartSetDouble(0, CHART_SHIFT_SIZE, 100.0 * (double)g_blankBars / (double)width);
+      ChartSetDouble(0, CHART_SHIFT_SIZE, pct);
       ChartNavigate(0, CHART_END, 0);
+      LogLine(resetView ? "cut-reset" : "cut-step", fvBefore,
+              ChartGetInteger(0, CHART_FIRST_VISIBLE_BAR), pct);
    }
    else
       ChartNavigate(0, CHART_END, 0);
