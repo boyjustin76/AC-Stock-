@@ -29,6 +29,7 @@ input string   InpCueFile            = "cmg_cues.csv";     // 차트명가: 촬�
 input bool     InpForceDarkTheme     = false;              // 차트명가: 도구가 검정 테마를 강제할까 (끄면 차트 템플릿 그대로)
 input int      InpChartScale         = 4;                  // 차트명가: 봉 굵기 0~5 (5=제일 굵다, -1=건드리지 않음)
 input bool     InpHidePanel          = false;              // 차트명가: 촬영용 — 조작판·버튼을 숨긴다 (H 로 껐다 켰다)
+input bool     InpMaskFuture         = false;              // 차트명가: 미래를 '가리는' 방식 (화면이 안 움직인다·50% 한계 없음). 아직 시험 중 — 기본은 끔
 
 //====================================================================
 // [2] INPUT PENGATURAN DRAWING PANEL
@@ -53,6 +54,11 @@ int      g_blankBars         = 0;      // 차트명가: 마지막 봉 오른쪽�
 bool     g_cueJumping        = false;  // 차트명가: 장면 이동으로 주기·종목을 바꾸는 중인가
 ENUM_TIMEFRAMES g_loadTF     = PERIOD_M1;  // 차트명가: 원본을 어느 주기로 받아 오는가 (M1 이 모자라면 차트 주기)
 bool     g_panelHidden       = false;  // 차트명가: 조작판을 숨긴 상태인가 (촬영용)
+bool     g_maskMode          = false;  // 차트명가: 가림막 방식으로 도는 중인가
+bool     g_fullLoaded        = false;  // 차트명가: 커스텀 심볼에 전체 자료를 이미 넣었는가
+string   MASK_NAME           = "cmg_mask";
+int      g_dbgShift          = -1;     // 차트명가: 확인용 — '지금' 봉이 끝에서 몇 번째인가
+int      g_dbgFv             = -1;     // 차트명가: 확인용 — 화면 왼쪽 끝 봉
 int      g_baseTimerMS       = 200;
 double   g_speedMult         = 1.0;
 int      g_lastRenderedCount = 0;   
@@ -249,11 +255,20 @@ int OnInit()
       //  기본값이면 마지막 봉이 오른쪽 끝에 붙어 '그냥 과거로 스크롤한 화면' 처럼 보인다.
       //  MT5 의 차트 이동(CHART_SHIFT)은 최대 50% 까지 밀 수 있다 — 50 이면 딱 절반이 빈다.
       g_anchorView = InpAnchorView;
+      g_maskMode   = InpMaskFuture;
+      g_fullLoaded = false;
+      if(g_maskMode)
+      {
+         ChartSetInteger(0, CHART_SHIFT, false);       // 가림막 방식은 여백을 안 쓴다
+         ChartSetInteger(0, CHART_AUTOSCROLL, false);
+      }
       //  봉 굵기 — 템플릿의 scale 값은 차트가 이미 열려 있으면 안 먹는다(09-30 실측). 여기서 정한다.
       if(InpChartScale >= 0 && InpChartScale <= 5)
          ChartSetInteger(0, CHART_SCALE, InpChartScale);
       ChartSetInteger(0, CHART_AUTOSCROLL, false);   // 새 봉이 와도 화면이 끌려가지 않게
-      if(InpShiftPercent > 0)
+      //  가림막 방식은 오른쪽 여백을 쓰지 않는다 — 여백이 켜져 있으면 화면 위치 계산이 밀린다(09-30 실측).
+      if(g_maskMode) ChartSetInteger(0, CHART_SHIFT, false);
+      else if(InpShiftPercent > 0)
       {
          ChartSetInteger(0, CHART_SHIFT, true);
          ChartSetDouble(0, CHART_SHIFT_SIZE, (double)MathMin(50, MathMax(10, InpShiftPercent)));
@@ -290,6 +305,8 @@ void OnDeinit(const int reason)
 
    if(g_isCustomMode)
    {
+      ObjectDelete(0, MASK_NAME);                  // 차트명가: 가림막을 치운다
+      ChartSetInteger(0, CHART_SCALEFIX, false);   // 세로 눈금 고정도 푼다
       //  차트명가: 장면 이동으로 주기를 바꾸는 중이면 지금 자리를 저장하지 않는다.
       //  (저장하면 방금 넣어 둔 '장면 시작 시각' 을 덮어써서 제자리에 그대로 선다 — 09-30 실측)
       if(g_cueJumping) { g_cueJumping = false; }
@@ -867,6 +884,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       g_chartBusy = true;
       g_lastSyncMs = GetTickCount64();
       ScanExistingTrades();
+      if(g_maskMode && g_initialized) UpdateMask();   // 차트명가: 창 크기·확대가 바뀌면 가림막도 맞춘다
       return;
    }
 
@@ -1444,6 +1462,7 @@ void GoToCue(int i)
       g_loadTF = (ENUM_TIMEFRAMES)_Period;
       LoadSelectedData();
       g_lastRenderedCount = 0;
+      g_fullLoaded = false;
    }
 
    g_isPlaying = false;
@@ -1540,12 +1559,146 @@ void WriteReplayStatus()
                      FILE_WRITE | FILE_TXT | FILE_ANSI);
    if(fh == INVALID_HANDLE) return;
    FileWrite(fh, TimeToString(endT, TIME_DATE | TIME_SECONDS));
-   FileWrite(fh, StringFormat("END=%s CLOSE=%s FV=%d WIDTH=%d BLANK=%d WANT=%d POS=%d/%d",
+   FileWrite(fh, StringFormat("MODE=%s MASKX=%d MASKW=%d SHIFT=%d VFV=%d END=%s CLOSE=%s FV=%d WIDTH=%d BLANK=%d WANT=%d POS=%d/%d",
+                              g_maskMode ? "mask" : "cut",
+                              (int)ObjectGetInteger(0, MASK_NAME, OBJPROP_XDISTANCE),
+                              (int)ObjectGetInteger(0, MASK_NAME, OBJPROP_XSIZE),
+                              g_dbgShift, g_dbgFv,
                               TimeToString(endT, TIME_DATE | TIME_SECONDS),
                               DoubleToString(endC, (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS)),
                               (int)fv, (int)width, (int)(width - (fv + 1)), g_blankBars,
                               g_currentDisplay, g_totalBars));
    FileClose(fh);
+}
+
+//====================================================================
+//  차트명가 추가 (2026-09-30) — **가림막 방식**
+//
+//  왜 바꾸는가: 원래 방식은 미래 봉을 지운다. 그러면 차트의 '끝' 이 왼쪽으로 오고,
+//  MT5 는 화면을 그 끝에 다시 맞춘다. 마지막 봉을 화면 한가운데(여백 50%)보다 왼쪽에
+//  둘 수 없으므로(CHART_SHIFT_SIZE 10~50), 되감아도 절반에서 멈추고 화면이 따라왔다.
+//
+//  이 방식은 자료를 **그대로 두고**, '지금' 오른쪽을 배경색 판으로 덮는다.
+//    - 화면이 전혀 안 움직인다. 되감으면 덮개가 왼쪽으로 가며 차트가 그만큼 가려진다.
+//    - 이평선도 함께 가려진다(미래 값이 안 보인다).
+//    - 세로 눈금은 **보이는 과거 봉만** 보고 고정한다. 안 그러면 가려진 미래까지 셈해 눈금이 튄다.
+//====================================================================
+
+//  커스텀 심볼에 전체 자료를 한 번만 넣는다.
+void EnsureFullRates()
+{
+   if(g_fullLoaded || g_totalBars <= 0) return;
+   CustomRatesDelete(g_customSymbol, D'1970.01.01 00:00', D'2099.01.01 00:00');
+   CustomRatesUpdate(g_customSymbol, g_allRates, g_totalBars);
+   g_fullLoaded = true;
+}
+
+//  차트 봉 한 칸의 화면 폭(px)과 왼쪽 끝 봉의 x 를 잰다. 실패하면 false.
+bool MeasurePitch(double price, double &pitch, int &xLeft, int &xRightEdge, long fv, long widthBars)
+{
+   if(widthBars < 2) return false;
+
+   int lastVis = (int)MathMax(0, fv - widthBars + 1);
+   datetime tL = iTime(_Symbol, _Period, (int)fv);
+   datetime tR = iTime(_Symbol, _Period, lastVis);
+   if(tL <= 0 || tR <= 0) return false;
+
+   int yL = 0, yR = 0;
+   if(!ChartTimePriceToXY(0, 0, tL, price, xLeft, yL)) return false;
+   if(!ChartTimePriceToXY(0, 0, tR, price, xRightEdge, yR)) return false;
+
+   int span = (int)(fv - lastVis);
+   if(span <= 0) return false;
+   pitch = (double)(xRightEdge - xLeft) / (double)span;
+   if(pitch <= 0.5) return false;
+   xRightEdge += (int)(pitch / 2.0);          // 마지막 칸의 오른쪽 경계
+   return true;
+}
+
+//  가림막을 '지금' 자리에 맞춘다. 화면 밖으로 나갔으면 그때만 화면을 옮긴다.
+void UpdateMask()
+{
+   if(g_currentDisplay <= 0 || g_currentDisplay > g_totalBars) return;
+   datetime tNow  = g_allRates[g_currentDisplay - 1].time;
+   double   pNow  = g_allRates[g_currentDisplay - 1].close;
+
+   long fv = 0, widthBars = 0;
+   double pitch = 0.0;
+   int xLeft = 0, xRightEdge = 0;
+
+   int nowShift = iBarShift(_Symbol, _Period, tNow, false);
+   if(nowShift < 0) return;
+
+   //  '지금' 이 화면 가장자리에 너무 붙었을 때**만** 가운데로 다시 잡는다.
+   fv        = ChartGetInteger(0, CHART_FIRST_VISIBLE_BAR);
+   widthBars = ChartGetInteger(0, CHART_WIDTH_IN_BARS);
+   int margin = (int)MathMax(3, widthBars / 12);
+   bool tooLeft  = (nowShift > fv - margin);                  // 왼쪽 끝에 붙었다
+   bool tooRight = (nowShift < fv - widthBars + margin);      // 오른쪽 끝에 붙었다
+   if(g_forceRecenter || tooLeft || tooRight)
+   {
+      //  실측(09-30): ChartNavigate(CHART_END, -k) 는 **오른쪽 끝 칸을 shift=k** 로 맞춘다
+      //  → 왼쪽 끝 봉 = k + 화면칸수 - 1 (오른쪽 여백을 끈 경우).
+      //  '지금' 을 한가운데 두려면 왼쪽 끝이 지금 + 반 화면이어야 하므로 k = 지금 - 반 화면 + 1.
+      int half = (int)(widthBars / 2);
+      int k = nowShift - half + 1;
+      if(k < 0) k = 0;
+      ChartNavigate(0, CHART_END, -k);
+      g_forceRecenter = false;
+      ChartRedraw(0);
+      fv = k + widthBars - 1;   // 바로 읽으면 이전 값이 나온다(실측) — 정한 값으로 센다
+   }
+   g_dbgShift = nowShift;
+   g_dbgFv    = (int)fv;
+
+   if(!MeasurePitch(pNow, pitch, xLeft, xRightEdge, fv, widthBars)) return;
+
+   //--- 세로 눈금: 보이는 **과거** 봉만 보고 고정한다
+   int from = (int)fv;
+   int to   = (int)MathMax(nowShift, fv - widthBars + 1);
+   double hi = -DBL_MAX, lo = DBL_MAX;
+   for(int s = from; s >= to; s--)
+   {
+      double h = iHigh(_Symbol, _Period, s), l = iLow(_Symbol, _Period, s);
+      if(h > hi) hi = h;
+      if(l < lo && l > 0) lo = l;
+   }
+   if(hi > lo && lo < DBL_MAX)
+   {
+      double pad = (hi - lo) * 0.08;
+      if(pad <= 0) pad = hi * 0.001;
+      ChartSetInteger(0, CHART_SCALEFIX, true);
+      ChartSetDouble(0, CHART_FIXED_MAX, hi + pad);
+      ChartSetDouble(0, CHART_FIXED_MIN, lo - pad);
+   }
+
+   //--- 가림막
+   //  '지금' 봉의 x 는 왼쪽 끝 봉에서 몇 칸 떨어졌는지로 센다.
+   //  (ChartTimePriceToXY 에 M1 시각을 그대로 넣으면 봉 자리와 안 맞는다 — 09-30 실측)
+   int xNow = xLeft + (int)MathRound((double)(fv - nowShift) * pitch);
+   int x0 = xNow + (int)(pitch / 2.0) + 1;                 // '지금' 봉 바로 오른쪽부터
+   int w  = xRightEdge - x0;
+   int h  = (int)ChartGetInteger(0, CHART_HEIGHT_IN_PIXELS);
+   if(w < 0) w = 0;
+
+   color bg = (color)ChartGetInteger(0, CHART_COLOR_BACKGROUND);
+   if(ObjectFind(0, MASK_NAME) < 0)
+   {
+      ObjectCreate(0, MASK_NAME, OBJ_RECTANGLE_LABEL, 0, 0, 0);
+      ObjectSetInteger(0, MASK_NAME, OBJPROP_CORNER, CORNER_LEFT_UPPER);
+      ObjectSetInteger(0, MASK_NAME, OBJPROP_BORDER_TYPE, BORDER_FLAT);
+      ObjectSetInteger(0, MASK_NAME, OBJPROP_SELECTABLE, false);
+      ObjectSetInteger(0, MASK_NAME, OBJPROP_SELECTED, false);
+      ObjectSetInteger(0, MASK_NAME, OBJPROP_HIDDEN, true);
+      ObjectSetInteger(0, MASK_NAME, OBJPROP_BACK, false);
+      ObjectSetInteger(0, MASK_NAME, OBJPROP_ZORDER, 0);
+   }
+   ObjectSetInteger(0, MASK_NAME, OBJPROP_XDISTANCE, x0);
+   ObjectSetInteger(0, MASK_NAME, OBJPROP_YDISTANCE, 0);
+   ObjectSetInteger(0, MASK_NAME, OBJPROP_XSIZE, w);
+   ObjectSetInteger(0, MASK_NAME, OBJPROP_YSIZE, h);
+   ObjectSetInteger(0, MASK_NAME, OBJPROP_BGCOLOR, bg);
+   ObjectSetInteger(0, MASK_NAME, OBJPROP_COLOR, bg);
 }
 
 void RenderCurrentView(bool resetView = false)
@@ -1556,6 +1709,20 @@ void RenderCurrentView(bool resetView = false)
    if(g_currentDisplay > g_totalBars) g_totalBars = g_totalBars;
 
    int delta = g_currentDisplay - g_lastRenderedCount;
+
+   //== 차트명가: 가림막 방식이면 자료를 건드리지 않는다 ==
+   if(g_maskMode)
+   {
+      EnsureFullRates();
+      UpdateCloseLine(g_allRates[g_currentDisplay - 1].close);
+      g_lastRenderedCount = g_currentDisplay;
+      UpdateProgress();
+      UpdateStatusLabel();
+      UpdateMask();
+      ChartRedraw(0);
+      WriteReplayStatus();
+      return;
+   }
 
    if(g_lastRenderedCount <= 0 || resetView)
    {

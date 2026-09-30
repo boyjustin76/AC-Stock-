@@ -15,10 +15,29 @@ input int Steps    = -1;    // 한 번에 옮길 봉 수 (음수 = 뒤로)
 input int Repeat   = 1;     // 몇 번 되풀이할지
 input int DelayMs  = 250;   // 사이에 쉬는 시간 (리플레이가 다 그릴 때까지)
 input int CueIndex = -1;    // 0 이상이면 봉 감기 대신 '그 번째 장면' 으로 간다 (큐시트 순서, 0부터)
+input int ProbeK   = -1;    // 0 이상이면 ChartNavigate(CHART_END,-K) 를 걸고 결과를 파일에 적는다 (확인용)
 
 void OnStart()
 {
    ChartSetInteger(ChartID(), CHART_BRING_TO_TOP, true);   // 차트를 앞으로 (시장 탭 등에 가려져 있을 때)
+
+   if(ProbeK >= 0)
+   {
+      //  화면을 어디에 두는지 직접 재 본다 — 문서만 보고 짐작하다 두 번 틀렸다(09-30).
+      long before = ChartGetInteger(0, CHART_FIRST_VISIBLE_BAR);
+      ChartNavigate(0, CHART_END, -ProbeK);
+      ChartRedraw(0);
+      Sleep(700);
+      long fv = ChartGetInteger(0, CHART_FIRST_VISIBLE_BAR);
+      long w  = ChartGetInteger(0, CHART_WIDTH_IN_BARS);
+      int fh = FileOpen("cmg_nav_probe.txt", FILE_WRITE | FILE_TXT | FILE_ANSI);
+      if(fh != INVALID_HANDLE)
+      {
+         FileWrite(fh, StringFormat("K=%d BEFORE=%d FV=%d W=%d", ProbeK, (int)before, (int)fv, (int)w));
+         FileClose(fh);
+      }
+      return;
+   }
    if(CueIndex >= 0)
    {
       EventChartCustom(ChartID(), 1, (long)CueIndex, 0.0, "");
