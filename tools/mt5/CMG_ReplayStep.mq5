@@ -18,6 +18,7 @@ input int CueIndex = -1;    // 0 이상이면 봉 감기 대신 '그 번째 장�
 
 void OnStart()
 {
+   ChartSetInteger(ChartID(), CHART_BRING_TO_TOP, true);   // 차트를 앞으로 (시장 탭 등에 가려져 있을 때)
    if(CueIndex >= 0)
    {
       EventChartCustom(ChartID(), 1, (long)CueIndex, 0.0, "");

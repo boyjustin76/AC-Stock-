@@ -27,6 +27,8 @@ input bool     InpAnchorView         = true;               // 차트명가: 되�
 input int      InpShiftPercent       = 50;                 // 차트명가: 오른쪽 여백 % (0=끔, 최대 50 → 봉이 화면 가운데서 끝난다)
 input string   InpCueFile            = "cmg_cues.csv";     // 차트명가: 촬영 큐시트 (MQL5\Files). 비우면 안 쓴다
 input bool     InpForceDarkTheme     = false;              // 차트명가: 도구가 검정 테마를 강제할까 (끄면 차트 템플릿 그대로)
+input int      InpChartScale         = 4;                  // 차트명가: 봉 굵기 0~5 (5=제일 굵다, -1=건드리지 않음)
+input bool     InpHidePanel          = false;              // 차트명가: 촬영용 — 조작판·버튼을 숨긴다 (H 로 껐다 켰다)
 
 //====================================================================
 // [2] INPUT PENGATURAN DRAWING PANEL
@@ -50,6 +52,7 @@ bool     g_forceRecenter     = true;   // 차트명가: 처음·점프에서만 
 int      g_blankBars         = 0;      // 차트명가: 마지막 봉 오른쪽에 비워 둘 칸 수 (되감으면 늘어난다)
 bool     g_cueJumping        = false;  // 차트명가: 장면 이동으로 주기·종목을 바꾸는 중인가
 ENUM_TIMEFRAMES g_loadTF     = PERIOD_M1;  // 차트명가: 원본을 어느 주기로 받아 오는가 (M1 이 모자라면 차트 주기)
+bool     g_panelHidden       = false;  // 차트명가: 조작판을 숨긴 상태인가 (촬영용)
 int      g_baseTimerMS       = 200;
 double   g_speedMult         = 1.0;
 int      g_lastRenderedCount = 0;   
@@ -246,6 +249,9 @@ int OnInit()
       //  기본값이면 마지막 봉이 오른쪽 끝에 붙어 '그냥 과거로 스크롤한 화면' 처럼 보인다.
       //  MT5 의 차트 이동(CHART_SHIFT)은 최대 50% 까지 밀 수 있다 — 50 이면 딱 절반이 빈다.
       g_anchorView = InpAnchorView;
+      //  봉 굵기 — 템플릿의 scale 값은 차트가 이미 열려 있으면 안 먹는다(09-30 실측). 여기서 정한다.
+      if(InpChartScale >= 0 && InpChartScale <= 5)
+         ChartSetInteger(0, CHART_SCALE, InpChartScale);
       ChartSetInteger(0, CHART_AUTOSCROLL, false);   // 새 봉이 와도 화면이 끌려가지 않게
       if(InpShiftPercent > 0)
       {
@@ -265,6 +271,8 @@ int OnInit()
          UpdateStatusLabel(StringFormat("장면 %s (%d/%d) %s", g_cues[g_cueIdx].id,
                                         g_cueIdx + 1, g_cueCount, g_cues[g_cueIdx].note));
       }
+
+      if(InpHidePanel) SetPanelHidden(true);
 
       g_initialized = true;
       g_lastPlayMs = GetTickCount64();
@@ -841,6 +849,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       if(key == 'A')      { SkipBars(-10); return; }
       if(key == 'N')      { GoToCue(g_cueIdx + 1); return; }   // 다음 장면 (큐시트)
       if(key == 'B')      { GoToCue(g_cueIdx - 1); return; }   // 이전 장면
+      if(key == 'H')      { SetPanelHidden(!g_panelHidden); return; }   // 조작판 숨기기·보이기
       if(key == 32)  // 스페이스
       {
          if(g_currentDisplay >= g_totalBars) return;
@@ -1373,6 +1382,25 @@ bool EnsureReplaySymbol(string src)
    CustomRatesDelete(tgt, D'1970.01.01 00:00', D'2099.01.01 00:00');
    CustomRatesUpdate(tgt, rates, copied);
    return true;
+}
+
+//  촬영할 때는 조작판이 화면에 나오면 안 된다. 지우지 않고 **숨긴다**(값은 그대로 쓴다).
+void SetPanelHidden(bool hide)
+{
+   g_panelHidden = hide;
+   int flag = hide ? OBJ_NO_PERIODS : OBJ_ALL_PERIODS;
+   int total = ObjectsTotal(0, 0, -1);
+   for(int i = total - 1; i >= 0; i--)
+   {
+      string name = ObjectName(0, i, 0, -1);
+      if(name == "") continue;
+      if(StringFind(name, "rep_") == 0 || StringFind(name, panelPrefix) == 0)
+      {
+         if(name == "rep_startline") continue;           // 시작선은 남겨 둔다
+         ObjectSetInteger(0, name, OBJPROP_TIMEFRAMES, flag);
+      }
+   }
+   ChartRedraw(0);
 }
 
 void GoToCue(int i)
