@@ -341,6 +341,7 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 | `log/inbox/2026-09-29_D_리플레이_남은문제.md` | 기록 | D — MT5 리플레이 지적 둘: 종가 끊김 고침(TFBarEndIndex 실측), 되감기 화면 따라옴은 CHART_SHIFT_SIZE 50% 한계(constraint 80) → 가림막 방식으로 09-30 해결. 상태 파일·CMG_ReplayStep |
 | `log/inbox/2026-09-29_총괄_D·E_병합_답.md` | 기록 | 총괄 — D 26 커밋(45 ③·검수 3차·B 에게 문서)·E 9 커밋(김직선 말투 조립·작업기록) 병합 답: issue 52·53, constraint 72·73, next_step 45·55 갱신(55 는 B 담당), E 는 .md·.py 만 얹음, E 옆가지 되돌리기 재요청 |
 | `log/inbox/2026-10-01_E_마01_오류모음_총괄검증요청.md` | 기록 | E — 마이노 마01 캠 롱폼 컷편집에서 난 오류 15: ① 지어낸 규칙 ⑨ XML 거부(pathurl, D 해결) ⑩ 자막 규칙 재발 ⑫ 말투 모델 베끼기 ⑮ PDF 프롬프터 오독(오탈자 12·누락 1). 총괄에게 질문 넷 → 2026-10-01_총괄_D·E_마01_답.md |
+| `log/inbox/2026-10-01_총괄_D·E_마01_답.md` | 기록 | 총괄 — D 32·E 14 커밋 답: issue 54~57, constraint 74~80, decision 40(막혔을 때 순서·양식에 원본과 맞댔나), next_step 56~58, runbook 26 에 x1_import_xml, split.mjs 같은 pathurl 버그 고침, E 질문 넷 답, ruff·경로 래칫 결과 |
 | `log/차12_더블볼린저_새판_김직선말투.md` | 기록 | 차12 새판 — Pool 정보 + 김직선 말투 조립(decision 39). 검사 층: 참조 문장 difflib 0.55·7-gram·남의 지표 목록·1.8배 상한. 이정찬 지시로 '우리 글 베끼기·문장 늘리기' 는 막지 않음 (E 10-01) |
 | `log/차12_더블볼린저_워크플로우판.md` | 기록 | 차12 A/B 대조용 — 피드백 없이 pipeline.py 관문 미달만 근거로 고친 판(이음·닫기·인터럽트·흐름 z). 규칙 출처 06_외부스킬 (E, 09-21) |
 | `log/차12_더블볼린저_이정찬판.md` | 기록 | 차12 이정찬이 직접 고친 판(팀장은 3구간까지 봄) — 대조용 .md. 6차↔이 판의 INTRO~3구간 차이가 next_step 47 의 첫 문장 쌍 자료다 (E, 09-21) |
@@ -1952,3 +1953,4 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 | 207 | `160c74a0` | 세이브 기록 save/2026-10-01-1821 | 5파일 +11/-3 |
 | 208 | `1027828f` | 병합: worktree-D_Video (09-28~10-01 — 차11 검수 4회, MT5 리플레이, 프리미어 XML 가져오기 검증 잡 x1_import_xml, 마01 컷 다듬기 cam_tighten) | 19파일 +5250/-1253 |
 | 209 | `022c704f` | E 09-30~10-01 얹음 — 마01 캠 롱폼 컷편집 도구(cam_*·pdf_script·ko_clause·pr_xml·obs_*·채점대), 시험 2, SCRIPT-LAB §18, 차12 새판, 오류 모음 (원문 txt 는 저장소 밖) | 29파일 +2919/-14 |
+| 210 | `32461769` | 세이브 save/2026-10-01-1836 — D 32·E 14 병합 — issue 54~57, constraint 74~80, decision 40(막혔을 때 순서·양식 원본과 맞댔나), next_step 56~58, runbook 26 x1_import_xml, split.mjs pathurl 프리미어 꼴, E ruff 정리 | 18파일 +231/-34 |
