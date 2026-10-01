@@ -75,6 +75,29 @@ var LAB = labDirPath();
     probe("seq0_end", function () {
         return app.project.sequences[0].end;
     });
+    //  마커가 시퀀스에 들어왔는지 (E 요청 2026-10-01)
+    probe("seq0_markers", function () {
+        var s = app.project.sequences[0], m = s.markers, a = [];
+        var n = m.numMarkers;
+        var cur = m.getFirstMarker();
+        while (cur && a.length < 20) {
+            a.push(cur.name + "@" + Math.round(cur.start.seconds * 100) / 100 + "초");
+            cur = m.getNextMarker(cur);
+        }
+        return n + "개 — " + a.join(" / ");
+    });
+    //  꺼둔 클립(enabled=FALSE)이 살아 들어왔는지
+    probe("disabled_clips", function () {
+        var s = app.project.sequences[0], off = 0, on = 0;
+        for (var i = 0; i < s.videoTracks.numTracks; i++) {
+            var t = s.videoTracks[i];
+            for (var j = 0; j < t.clips.numItems; j++) {
+                if (t.clips[j].isSelected === undefined) { }
+                try { (t.clips[j].disabled ? off++ : on++); } catch (e) { on++; }
+            }
+        }
+        return "켠 것 " + on + " · 끈 것 " + off;
+    });
     //  미디어가 실제로 붙었는지 (오프라인이면 '미디어 연결' 창이 뜬다)
     probe("media", function () {
         var r = app.project.rootItem, a = [];
