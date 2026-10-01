@@ -43,6 +43,13 @@ def frames(sec, fps):
     return int(round(sec * fps))
 
 
+# 프리미어가 **스스로 내보낸** XML 의 pathurl 에서 그대로 두는 글자 (차트설명_이정찬.xml 실측).
+# 괄호·대괄호·& 를 퍼센트로 바꾸면 프리미어가 그 경로를 못 찾고, 그 상태에서 clipitem 이 여럿이면
+# 임시 .prproj 변환이 깨진다 → "프로젝트가 손상되어 열 수 없습니다". 컷이 적을 때만 통과해서
+# 클립 수 문제로 보였다 (D 세션이 프리미어 27.10.0 에 직접 넣어 확정, 2026-10-01).
+_SAFE = "/()[]&~!$'*+,;=@_-."
+
+
 def pathurl(p):
     """프리미어가 내보내는 형태 그대로 — 퍼센트 인코딩한 file URL."""
     # 드라이브 문자로 시작하는 윈도우 경로는 abspath 를 거치지 않는다 — 리눅스(총괄 컨테이너)에서 abspath 가
@@ -50,7 +57,11 @@ def pathurl(p):
     if not re.match(r"^[A-Za-z]:[\\/]", p):
         p = os.path.abspath(p)
     p = p.replace("\\", "/")
-    return "file://localhost/" + quote(p.lstrip("/"), safe="/:")
+    # 드라이브 콜론도 인코딩한다 — 프리미어는 `C%3a/` 로 쓴다 (safe 에 ':' 를 넣지 않는다)
+    u = quote(p.lstrip("/"), safe=_SAFE)
+    # 16진은 **소문자**다 — 프리미어 표기 그대로
+    u = re.sub(r"%[0-9A-F]{2}", lambda m: m.group(0).lower(), u)
+    return "file://localhost/" + u
 
 
 def build(spec, source_root=None):
@@ -144,12 +155,13 @@ def build(spec, source_root=None):
         vid, a1id, a2id = f"cv{i}", f"ca{i}a", f"ca{i}b"
         linked = (vid, a1id, a2id) if has_audio and has_video else None
         base = {"s": s, "e": e, "in": i_f, "out": o_f, "k": k, "label": label, "linked": linked}
+        en = "TRUE" if c.get("enabled", True) else "FALSE"       # 꺼 둔 클립 = 골라 쓸 참고 소스
         if has_video:
-            en = "TRUE" if c.get("enabled", True) else "FALSE"   # 꺼 둔 클립 = 골라 쓸 참고 소스
             tracks.setdefault(("v", tr), []).append(dict(base, id=vid, en=en))
         if has_audio:
+            # 소리도 영상과 같이 끈다 — 안 쓰는 테이크 소리가 울리면 안 된다
             for ch, aid in ((1, a1id), (2, a2id)):
-                tracks.setdefault(("a", ch), []).append(dict(base, id=aid, en="TRUE"))
+                tracks.setdefault(("a", ch), []).append(dict(base, id=aid, en=en))
 
     for v in tracks.values():
         v.sort(key=lambda x: x["s"])
@@ -192,7 +204,7 @@ def build(spec, source_root=None):
                 f"{'' if 얇게 else link(x)}</clipitem>")
 
     def aclip(x, ch):
-        return (f'<clipitem id="{x["id"]}"><name>{x["label"]}</name><enabled>TRUE</enabled>'
+        return (f'<clipitem id="{x["id"]}"><name>{x["label"]}</name><enabled>{x["en"]}</enabled>'
                 f"<duration>{sfr[x['k']]}</duration>{클립박자(x['k'])}"
                 f"<start>{x['s']}</start><end>{x['e']}</end><in>{x['in']}</in><out>{x['out']}</out>"
                 f"{file_ref(x['k'])}"

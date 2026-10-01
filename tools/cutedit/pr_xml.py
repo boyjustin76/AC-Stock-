@@ -26,7 +26,8 @@ def 경로url(p):
     p = p.replace("\\", "/")
     꼴 = []
     for ch in p:
-        if ch in "/()[]~-_.!*'" or ch.isalnum() and ord(ch) < 128:
+        # & 를 빼먹으면 `캠용(얼굴&대본)[확보]` 같은 폴더에서 프리미어가 경로를 못 찾는다
+        if ch in "/()[]&~!$'*+,;=@_-." or ch.isalnum() and ord(ch) < 128:
             꼴.append(ch)
         elif ch == " ":
             꼴.append("%20")
