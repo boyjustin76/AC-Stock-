@@ -1864,3 +1864,4 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 | 171 | `71b83ac3` | 세이브 기록 save/2026-09-29-1527 | 5파일 +1246/-1236 |
 | 172 | `9e0e9846` | 세이브 save/2026-09-29-1528 — test_scene_finders ma_flat_box 중복 키 하나로(F601), 답 문서에 적음 | 5파일 +5/-4 |
 | 173 | `9cd01550` | 세이브 기록 save/2026-09-29-1528 | 5파일 +11/-3 |
+| 174 | `6aa65d7b` | 세이브 save/2026-10-01-1528 — runbook 26 — 롱폼 컷편집 합본(XML+자막) 절차, 기록 위치 SCRIPT-LAB §17 | 4파일 +10/-2 |

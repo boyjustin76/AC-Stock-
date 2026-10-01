@@ -1244,5 +1244,12 @@
   "utc": "2026-09-29 06:28",
   "sha": "9e0e984",
   "summary": "test_scene_finders ma_flat_box 중복 키 하나로(F601), 답 문서에 적음"
+ },
+ {
+  "tag": "save/2026-10-01-1528",
+  "kst": "2026-10-01 15:28",
+  "utc": "2026-10-01 06:28",
+  "sha": "6aa65d7",
+  "summary": "runbook 26 — 롱폼 컷편집 합본(XML+자막) 절차, 기록 위치 SCRIPT-LAB §17"
  }
 ]
