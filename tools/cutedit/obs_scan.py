@@ -11,7 +11,7 @@ ffmpeg 실행파일 없이 PyAV 로 소리를 직접 읽는다 (이 PC 에 ffmpe
 박수 판정 — 앞 0.2초보다 갑자기 크게 튀고(+20dB), 그 자체가 아주 큰(상위 1%) 자리.
   차트 설명을 새로 시작할 때 손뼉을 치는 습관을 신호로 쓴다 (이정찬 2026-09-30).
 """
-import io, os, sys, json, math
+import io, os, sys, json
 import numpy as np
 import av
 

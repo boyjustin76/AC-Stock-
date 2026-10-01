@@ -4,7 +4,7 @@
 경계 일치율만 보면 안 된다 — 끊는 자리를 늘리면 우연히 맞는 것도 늘어난다.
 그래서 **맞춘 경계 / 내가 끊은 경계**(정밀)와 **맞춘 경계 / 이정찬 경계**(재현)를 같이 본다.
 """
-import io, os, re, sys, difflib, importlib
+import io, os, sys, difflib
 
 레포 = r"C:/Users/user/Desktop/이정찬/스크립트_컷편집_통합/01_저장소/E_Script"
 sys.path.insert(0, os.path.join(레포, "tools", "cutedit"))

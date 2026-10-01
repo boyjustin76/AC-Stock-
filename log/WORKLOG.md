@@ -273,9 +273,9 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 
 **26. 롱폼 컷편집 합본 — 캠 + PD 나레이션 + 시연 화면 → 프리미어 XML + 자막 (E, L08 2026-09-11 성공)** — 캠 녹화(형광 줄)와 PD 설명 녹화(일반 줄 소리 · 뒤 시연 화면)를 대본 순서로 한 시퀀스에 잇고, 같은 타임라인에 자막을 얹는다. L08 로 검증: 합본 49컷 582.82초 · 자막 233큐, 이정찬이 프리미어에서 열어 확인
 ```
-python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · align_take.py (캠·PD 각각)  →  python3 tools/cutedit/assemble_longform.py <캠폴더> <PD폴더> <대본.txt> --pd-src <PD설명.mp4> …  →  python3 tools/cutedit/make_xml.py cuts.json out.xml [--source-root]  →  python3 tools/cutedit/srt_rules.py check <srt>
+python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · align_take.py (캠·PD 각각)  →  python3 tools/cutedit/assemble_longform.py <캠폴더> <PD폴더> <대본.txt> --pd-src <PD설명.mp4> …  →  python3 tools/cutedit/make_xml.py cuts.json out.xml [--source-root]  →  python3 tools/cutedit/srt_rules.py check <srt>  →  (가져오기 검증, 프리미어 PC) echo <xml> > <실험실>/x1_input.txt ; .\tools\_com\run.ps1 -App premiere -Job x1_import_xml → x1_report.txt(시퀀스·클립 수·오프라인·캡션 트랙)
 ```
-기록은 log/SCRIPT-LAB.md §17 과 tools/theone/README.md 'L08 에서 확인한 것'. 첫 납품 불량 다섯(트랙 순서·V2 겹침·자막 끝<시작·0.08초 늦음·검사 미비)과 고친 도구가 §17 표에. 자막 진본은 프리미어에서 방금 내보낸 srt(constraint 31). 숏폼은 runbook 18
+기록은 log/SCRIPT-LAB.md §17 과 tools/theone/README.md 'L08 에서 확인한 것'. 캠 한 파일 롱폼(마01 꼴, PDF 프롬프터 대본)은 tools/cutedit/cam_all.py 가 정렬→컷→자막→XML 을 한 번에(SCRIPT-LAB §18). XML 거부는 pathurl 표기부터 본다(constraint 74). 첫 납품 불량 다섯(트랙 순서·V2 겹침·자막 끝<시작·0.08초 늦음·검사 미비)과 고친 도구가 §17 표에. 자막 진본은 프리미어에서 방금 내보낸 srt(constraint 31). 숏폼은 runbook 18
 
 
 ### 파일 지도
@@ -336,8 +336,12 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 | `log/inbox/2026-09-22_월요일_전달묶음.md` | 기록 | 이정찬이 월요일에 B·D·E 에게 전할 것 한 장 — 토큰 재발급(5분, 첫째)·완료 보고 두 줄·guard 4·save.py 기본값·경로 래칫·파트별 할 일 |
 | `log/inbox/2026-09-22_총괄_E_자료정리_답.md` | 기록 | 총괄 — E 402 파일 푸시에 대한 답 + 09-23 덧붙임: E·이정찬이 막힌 자리 일곱(양식 오독·docx 자작 버그·도구 전부틀림·피드백 네 통로/색 범례·판본 14개·A/B/C·402 푸시) 원인·판단·장치, 잘한 것 넷, 이정찬 할 것 다섯(next_step 54, issue 49~51) |
 | `log/inbox/2026-09-22_총괄_실행기_마감_답.md` | 기록 | 총괄 — B·D 09-22 답: 공용 실행기 완료(next_step 46), constraint 69 낮춤·71 신설, 복구 창은 자동 클릭 안 함(53), decision 36 보강 |
+| `log/inbox/2026-09-28_D_차11_네번_검수반복.md` | 기록 | D — 차11 35비트를 찍고→서브에이전트 검수→고치기 네 번: 맞음 20→28, 대본 적합 20→31. 고친 아홉(자리 붙잡기·규칙 Jev 뒤집기·추세/횡보 먼저·네 토막·급락 상한·지표는 장면 뒤·누운 이평 상한·박스 공통 조건·이평선 네 색). '눈이 있어야 고칠 수 있었다' |
 | `log/inbox/2026-09-28_D_최적화_정리_B에게.md` | 기록 | D → B — 자가발전하며 굳힌 방법 7절: 결과를 다시 읽는다(constraint 73), 래칫 시험(전용 함수·미끼·불변식·되살리기), Jev 쓰는 자리·문, 서브에이전트 그림 판독, 속도(캐시·resume), 외부 앱 사고, 도구 목록 + B↔D 접점(프레임 규격 JSON). 이정찬 09-28 지시(디자인 카피 = B) 기록 |
+| `log/inbox/2026-09-29_D_리플레이_남은문제.md` | 기록 | D — MT5 리플레이 지적 둘: 종가 끊김 고침(TFBarEndIndex 실측), 되감기 화면 따라옴은 CHART_SHIFT_SIZE 50% 한계(constraint 80) → 가림막 방식으로 09-30 해결. 상태 파일·CMG_ReplayStep |
 | `log/inbox/2026-09-29_총괄_D·E_병합_답.md` | 기록 | 총괄 — D 26 커밋(45 ③·검수 3차·B 에게 문서)·E 9 커밋(김직선 말투 조립·작업기록) 병합 답: issue 52·53, constraint 72·73, next_step 45·55 갱신(55 는 B 담당), E 는 .md·.py 만 얹음, E 옆가지 되돌리기 재요청 |
+| `log/inbox/2026-10-01_E_마01_오류모음_총괄검증요청.md` | 기록 | E — 마이노 마01 캠 롱폼 컷편집에서 난 오류 15: ① 지어낸 규칙 ⑨ XML 거부(pathurl, D 해결) ⑩ 자막 규칙 재발 ⑫ 말투 모델 베끼기 ⑮ PDF 프롬프터 오독(오탈자 12·누락 1). 총괄에게 질문 넷 → 2026-10-01_총괄_D·E_마01_답.md |
+| `log/차12_더블볼린저_새판_김직선말투.md` | 기록 | 차12 새판 — Pool 정보 + 김직선 말투 조립(decision 39). 검사 층: 참조 문장 difflib 0.55·7-gram·남의 지표 목록·1.8배 상한. 이정찬 지시로 '우리 글 베끼기·문장 늘리기' 는 막지 않음 (E 10-01) |
 | `log/차12_더블볼린저_워크플로우판.md` | 기록 | 차12 A/B 대조용 — 피드백 없이 pipeline.py 관문 미달만 근거로 고친 판(이음·닫기·인터럽트·흐름 z). 규칙 출처 06_외부스킬 (E, 09-21) |
 | `log/차12_더블볼린저_이정찬판.md` | 기록 | 차12 이정찬이 직접 고친 판(팀장은 3구간까지 봄) — 대조용 .md. 6차↔이 판의 INTRO~3구간 차이가 next_step 47 의 첫 문장 쌍 자료다 (E, 09-21) |
 | `log/차12_더블볼린저_초안.md` | 기록 | 차12 더블 볼린저밴드 촬영용 대본 초안(E) — 레퍼런스 사슬대로 재구성, 기간값 20, 규격 채점 통과. 7차(09-21): INTRO~3구간은 이정찬 수정본 그대로, 4구간~OUTRO 에 같은 로직 적용. 일상 작업(총괄은 상태만) |
@@ -446,6 +450,7 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 | `log/build_readme.py` | 기타 |  |
 | `log/save.py` | 기타 |  |
 | `log/차12_더블볼린저_뼈대.md` | 기타 |  |
+| `log/차12_더블볼린저_새판_뼈대.md` | 기타 |  |
 | `package-lock.json` | 기타 |  |
 | `scenes/cmg12-cross.scenes.js` | 기타 |  |
 | `scenes/cmg12-layer-candle.scenes.js` | 기타 |  |
@@ -511,8 +516,15 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 | `tools/ae/trad_rr_mogrt_check.py` | 도구 | mogrt zip 안 definition.json 누락 자산 검사 → 실패 이름을 _only.txt 로 (반환값 true 는 증거가 아니다) |
 | `tools/ae/trad_rr_preview.py` | 도구 | 손익비 전통 AE 캡처 vs 합성 기준 픽셀 대조 · 차트 위 움직임 GIF·연속 사진 |
 | `tools/cutedit` | 도구 | 컷편집 파이프라인(E 소유) — transcribe(전사)·align_take(테이크 정렬)·cut_and_srt(컷·자막, 실측 무음 경계)·make_xml(프리미어 XML)·prlinks(prproj 경로 검사)·srt_rules(14자 큐)·verify_text·grade/(채점대). build_cuts.py 는 2026-09-17 tools/legacy 로 |
+| `tools/cutedit/cam_all.py` | 도구 | 캠 한 파일 → 정렬 → 컷리스트 → 자막 → 프리미어 XML 한 번에 (E 10-01, 마01). 전제: 29.97 고정 .mp4 한 개, 얇은 XML. cam_prep·cam_takes·cam_cutlist·cam_merge·cam_srt 가 단계 |
+| `tools/cutedit/cam_tighten.py` | 도구 | 컷 경계를 말에 딱 붙여 다시 잡기 — 대본 글자 맞대기 + 소리 무음(0.35초+) + 조각 사이 0.30초면 컷 나눔, 헛말·재촬영 구절 버림, 숨틈이 다음 낱말 침범 금지 (D 10-01, 마01 69컷 436.63초, tests/test_cam_tighten.py) |
+| `tools/cutedit/ko_clause.py` | 도구 | 자막 큐를 글자 수가 아니라 형태소 태그로 구·절 단위 가르기. 모두의 말뭉치에서 뽑은 data/ko_tags.json.gz(0.4MB, 어절 사전·끝꼴·앞꼴·보조용언·의존명사). 값은 이정찬 손수정본 99줄로 맞춤(재현 0.768·정밀 0.760). split_cue 는 손 안 댐 (E 10-01, tests/test_ko_clause.py) |
+| `tools/cutedit/obs_scan.py` | 도구 | OBS 화면녹화 훑기 — PyAV 로 무음·박수(짝 소리)·소리 크기. obs_pen(펜 움직임)·obs_cue·obs_cutlist·obs_stt 가 짝 (E 09-30, 마이노 차트설명 테이크 찾기) |
+| `tools/cutedit/pdf_script.py` | 도구 | 촬영 대본 PDF(프롬프터) → 구간별 낭독 문장. 빈 줄 1=줄바꿈·2+=문단, 양끝맞추기 이어짐은 --받아쓰기 로 가름, 괄호 지시문 제거, 숫자·조사 붙임 (E 10-01, constraint 75, issue 55) |
+| `tools/cutedit/pr_xml.py` | 도구 | 프리미어가 내보낸 XML 을 틀로 삼아 클립·마커 값만 갈아 끼우는 생성기 (E 10-01). pathurl 은 make_xml 과 같은 규칙으로 고침 |
 | `tools/cutedit/srt_rules.py` | 도구 | 숏폼 자막 규칙의 진본 — split_cue(14자 상한·절/구 선호·의존명사 분리 금지 DP) + check CLI. build_cuts.py 가 위임. E 세션 소유(2026-09-01 이관) |
 | `tools/cutedit/textnorm.py` | 도구 | 한글 정규화 한 벌 — 7곳(align_cut·align_take·cut_and_srt·verify_text·cuetune·banner_model·pairs)이 쓴다 (E, ea36a4a) |
+| `tools/cutedit/xml_l08mold.py` | 도구 | 컷리스트 → FCP7 XML 을 L08·차12 성공본과 같은 얇은 꼴로(link 세 줄, masterclipid 없음), pathurl 은 프리미어 표기 (D 10-01) |
 | `tools/grade_draft.py` | 도구 | 대본 초안 채점기(E) — 낭독분만 골라 분량·문장 길이·금지어(부정문·낱말 속 오탐 제외)·근거·수치·반말을 잰다. 차12·차13 초안이 통과 |
 | `tools/hf` | 도구 | HyperFrames HTML 합성 3벌(D) — ab_pnl(A/B 판)·mt5_frame(MT5 틀 합성)·mt5_calib(좌표 계산 합성)·hyperframes.json. 우리 렌더러에 없는 모양용 |
 | `tools/illustrator` | 도구 | 일러스트레이터 COM 자동화 — 라이브화면구성.ai 를 짓고 OBS 용 8000x4500 을 뽑는다. tools/photoshop 과 같은 구조로 경로를 안 박는다 |
@@ -528,6 +540,7 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 | `tools/mcp_probe.py` | 도구 | MCP 자가점검(E) — initialize → tools/list → tools/call 까지 그 자리에서 띄워 본다. 별 수 믿지 말고 띄워 보고 판단(external_tool 10 전례) |
 | `tools/md_to_script_docx.py` | 도구 | 초안 .md → 촬영용 스크립트 .docx (E). 표지 줄은 L<번호> (이정찬 09-21) |
 | `tools/mt5` | 도구 | MT5 촬영 파이프라인(D) — mcp.py(MCP 클라이언트)·scenes.py(대본 docx → 비트 → 사건 → 실제 봉 구간 선정, 팀장 차10 기준 5)·capture_scene.py(ChartNavigate 후 창 캡처)·capture.py·shot.py+CMG_Shot.mq5(자체 렌더 캡처 지표)·calibrate.py(봉 격자·가격축 보정 RMS 1.93px)·batch_capture.py(대본 한 편 12비트 일괄 촬영, 종목·주기 선택, Jev 보조, 자리 붙잡기·재시도·--resume·탐색 캐시)·conti_sheet.py(콘티.png + AE 입력 json). scenes.FINDERS = 장면마다 전용 함수(미등록은 오류, 09-22). README 있음 |
+| `tools/mt5/Replay_Tool_CMG.mq5` | 도구 | MT5 리플레이 도구(EA) — 커스텀 심볼에 M1 을 넣고 감기(Z/X·A/S)·재생·날짜 점프, 가림막 방식으로 오른쪽 '미래' 를 덮음, 상태 파일. CMG_ReplayStep(자동화 통로)·CMG_SetReplay(시작 시각)·CMG_NavProbe 가 짝. 큐시트는 cue_sheet.py, 템플릿은 make_template.py(김직선 화면 색), 꾸러미는 pack_portable.py (D 09-29~30) |
 | `tools/photoshop` | 도구 | 포토샵 COM+ExtendScript 로 템플릿 .psd 를 직접 편집한다 — 썸네일은 이 경로가 최신 |
 | `tools/photoshop/build_thumb.jsx` | 도구 | 회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg |
 | `tools/photoshop/dump_episodes.jsx` | 도구 | 완성 회차를 한 장씩 뽑고 레이어 트리를 받아 적는다 — 규칙을 뽑을 때 |
@@ -538,6 +551,7 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 | `tools/premiere` | 도구 | 프리미어 자동화 (D 영역) — run.ps1(BridgeTalk 드라이버)·jobs/*.jsx·verify.py(되읽기 검사기)·presets/30fps sqpreset |
 | `tools/premiere/_labdir.jsx` | 도구 | 프리미어 실험실 폴더를 박지 않고 찾는다 (ExtendScript · 잡들이 $.evalFile 로 불러 쓴다) |
 | `tools/premiere/jobs/save_quit.jsx` | 도구 | 열린 프리미어 프로젝트 전부 저장 후 종료 (경로 없는 프로젝트가 있으면 끄지 않는다) |
+| `tools/premiere/jobs/x1_import_xml.jsx` | 도구 | FCP7 XML 을 프리미어에 실제로 가져와 본다(importFiles, BridgeTalk) — 시퀀스 수·트랙별 클립 수·미디어 오프라인·마커·꺼둔 클립·캡션 트랙·자막 넣기까지 x1_report.txt 로. 명령줄로는 .xml 을 못 연다. 한 판 1분 (D 10-01, issue 56) |
 | `tools/premiere/labdir.ps1` | 도구 | 같은 것의 PowerShell 판 — run.ps1 이 점으로 불러 쓴다 |
 | `tools/psdedit.py` | 도구 | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
 | `tools/radar.py` | 도구 | 오류 레이더 — 오류 문장에서 서명을 뽑아 worklog.db(issue·constraint_note)·TRAPS·inbox → Stack Overflow(키 없음 300/일) → GitHub Issues(비인증 10/분) 순으로 찾는다. 의존성 0. --save 로 log/inbox/radar/ 에 남김 |
@@ -587,6 +601,7 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 | `tests/test_batch_choose.py` | 시험 | batch_capture.choose 의 종목·주기·동점 처리 (D 09-22, 4개) |
 | `tests/test_modal_known.py` | 시험 | B-1 원문 여섯이 modal_known.json 조각에 걸려 정답 처리로 가는지(6/6). 원문과 조각이 어긋나면 깨진다 (B, 09-21) |
 | `tests/test_scene_finders.py` | 시험 | 장면 탐색 함수마다 가짜 차트에 진짜 + 예전 구멍 미끼를 심어 진짜를 고르는지, 점수 비율·0~1·몰림 없음 (D 09-22, 42개). 새 장면을 RULES 에 넣고 시험을 안 보태면 깨진다 |
+| `tools/cutedit/grade` | 시험 | 컷편집 채점대 — 숏폼 큐 가름 + 마01 캠자막_전수검증(글자·경계·소리 싱크·시각 규칙 넷)·가름값맞추기·가름대조. 정답_자막/ 의 손수정본 txt 는 저장소 밖(README 만) |
 | `scenes/cmg-20ma-runner.scenes.js` | 씬 | 차트명가 20일선 4컷. 새 대본은 이 파일을 본떠 만든다 |
 | `scenes/cmg12-bridge.scenes.js` | 씬 | 차12 말 구간 설명 카드 2클립 — bridge-intro(워시 리스트, 프레임 860)·bridge-scalp(종이 배경+버튼 반복, 프레임 2939). 스타일은 차명#4 실측 카피, 룰북 §E |
 | `scenes/cmg12-buy.scenes.js` | 씬 | 차12 매수 관점 5컷 — seed161, 55선 재돌파 bar52, 1:2·분할·러너 |
@@ -822,6 +837,13 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 | AE 를 강제 종료하면 다음 기동 때 '충돌 복구 옵션' 창(534x365)이 뜨고 잡이 닿지 못한다 — 자동으로 누르지 않는다 (D 실측 2026-09-22) | 버튼 넷(안전 모드·환경 설정 재설정·플러그인 관리·계속). Enter(SendKeys) 안 먹음. 마우스 클릭은 먹지만(SetProcessDPIAware+SetForegroundWindow 뒤 두 번 재현) DPI 인식 없이 누른 첫 시도가 빗나가 옆의 탐색기로 가서 프리미어를 띄웠다. 어도비 자작 창이라 글자는 OS_ViewContainer 뿐 → 분류 '모름'. 일러스트레이터는 이 창이 없다(B 재현). BridgeTalk 이 왜 약 70초에서 끊는지는 미확인(bridge.jsx 는 600초) | 실행기가 창을 누르게 하지 않는다(빗나가면 남의 앱이 뜬다 — 총괄 결정 09-22). 시작 전 검사에서 이 창(대상 앱 #32770 534x365, 주창 없음)을 보면 '충돌 복구 창 — 계속을 누르고 다시 부르세요' 로 바로 멈춘다(next_step 53, D 완료 09-22). 판별은 크기가 아니라 자식 창 뼈대: 복구 창 = #32770 + OS_ViewContainer×2 + OS_EditTextContainer, AE 주창 없음 / 시작 화면 = OS_ViewContainer 하나(크기는 배율 따라 달라 조건에서 뺌). 시작 전 + 대기 중 5초마다(COM 이 AE 를 띄울 때 뜨므로). 멈출 때 아무것도 죽이지 않는다. 죽인 뒤 _fail.txt 에 '다음 실행 때 복구 창이 뜹니다' 한 줄. BridgeTalk ~70초 원인은 못 찾음(네 번 68~74초). 원문 log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md §2 · 2026-09-22_D_next53_AE복구창_멈춤.md |
 | 장면 탐색에서 1등 점수만 쓰면 봉이 많은 M1 이 늘 이긴다 — 후보 구간이 많아 최고점이 우연히 높다 (D 실측 2026-09-22, 근본 해결 안 됨) | 차11: 팀장 그림은 M15·H1·D1·W1(M1 0장)인데 D 처음 결과는 M1·M5 34/35. 1등의 90% 안을 동점으로 보고 회차 성격 순서(주제가 N일선이면 US100 H1·M15 먼저)를 따르게 했더니 종목은 맞고 주기는 반만(H1 이 90% 안에 잘 안 든다) | 값을 짐작으로 더 내리지 않는다(D). 근본은 표본 수 보정(후보 수에 따른 최고점 기대값 보정). 손댈 때 next_step 45. 원문 log/inbox/2026-09-22_D_장면탐색_재발방지·차11검증·방향.md §3 |
 | MT5 MCP 로 옮긴 차트가 장중에 최신 봉으로 되돌아간다 — 로그는 옮겼다는데 찍힌 그림은 다른 날짜 (D 실측 2026-09-28) | ChartNavigate 뒤 자동 스크롤이 최신으로 돌아감. 지표도 장면 확정 전에 붙이면 사라짐(4-4 MA20 소실) | 자리 붙잡기(Hold): 화면 오른쪽 끝 봉 시각을 파일로 받아 목표와 같아질 때까지 기다렸다 찍고, 찍은 뒤 또 확인. 지표는 장면 확정 뒤에 붙이고 덜 붙으면 한 번 더. 이력 미도착이면 다시 받기. 촬영 한 장을 통째로 재시도하는 구조. 원문 log/inbox/2026-09-28_D_최적화_정리_B에게.md §1 · D 세이브 09-28 |
+| 프리미어 FCP7 XML 의 pathurl 은 프리미어가 내보내는 표기 그대로여야 한다 — C%3a · 16진 소문자 · ()[]& 는 그대로 (D·E 실측 2026-10-01) | 괄호·대괄호·& 를 퍼센트로 바꾸면 프리미어가 경로를 못 찾고, clipitem 이 여럿이면 '프로젝트가 손상' 으로 거부한다(1컷이면 '미디어 연결' 창). 구조·클립 수·마커·미디어 종류는 무관(전부 실측 배제) | make_xml.pathurl(safe="/()[]&~!$'*+,;=@_-." + 소문자) · pr_xml.py · src/render/split.mjs 같은 규칙. 가져오기 검증은 tools/premiere/jobs/x1_import_xml.jsx(BridgeTalk importFiles, 시퀀스·클립 수·오프라인·캡션 트랙을 파일로). Adobe Premiere Pro.exe <xml> 은 안 된다(.prproj 만). 원문 SCRIPT-LAB §18 ① · issue 56·57 |
+| 프롬프터 대본 PDF 는 빈 줄 하나가 문단 끝이 아니다 — 1개=줄바꿈, 2개 이상=문단, 쪽 머리말 앞뒤는 0개 (E 실측 마01 2026-10-01) | 양끝맞추기 문단은 낱말 중간에서 줄이 바뀐다('절대'+'적인'). 붙일지 띄울지는 글자·품사 규칙으로 못 가른다. PDF 가 숫자와 조사를 뗀다('표준편차 2 의') | pdf_script.py: 빈 줄 개수로 가르고, 이어짐은 받아쓰기(cam_transcript)의 띄어쓰기 빈도로 가른다(12곳 전부 정확), 둘 다 없으면 사람에게. 새 PDF 양식은 먼저 빈 줄 개수 분포를 센다. 원문 issue 55 |
+| 받아쓰기(whisper) 함정 셋 — 음량 −45dBFS 면 결과가 빈다 · small 모델은 긴 문장 뒤 절반을 흘린다 · 낱말 끝 시각이 실제보다 길다(1.2초) (E·D 실측 2026-10-01) | 마01 캠: 정규화 전 빈 결과. 16초 구간 한 문장의 뒤 절반이 통째로 없음(재촬영 두 번 말한 자리). '알려드리겠습니다' 67.21 적힘 / 66.04 실제 | 0.9 피크로 정규화 뒤 받아쓰기 · 정렬이 못 붙은 문장이 있으면 그 구간만 medium 으로 다시 · 큐 끝과 컷 끝은 소리.json 무음으로 다듬되 0.35초 이상만(다 빼면 토막). 원문 E 오류 모음 ⑦·⑮ · cam_tighten.py 머리말 |
+| 자막 큐 시각을 글자 수 비례로 나누면 말 속도가 바뀌는 대목에서 밀린다 — 낱말 타임스탬프로 (E 실측 마01 2026-10-01) | 6큐가 받아쓴 말과 겹침 0.45 아래. 긴 문장(11조각)에서 특히. 같은 비례 분배가 cut_and_srt.py(L08 롱폼)에도 있다 — 거기도 밀릴 것 | 대본 문장과 받아쓴 말을 글자 단위로 맞춘 뒤 조각의 글자 자리를 낱말로 되짚는다 → 안 맞는 큐 0·겹침 중앙 0.76. 덜어낸 자리에 떨어진 큐는 버리지 말고 가장 가까운 컷 경계로. cut_and_srt.py 는 next_step 56 |
+| 윈도우 파이썬·PowerShell 경로 함정 셋 — Copy-Item 은 [ ] 를 와일드카드로 읽어 조용히 실패 · cv2.imwrite 는 한글 경로에 못 쓴다 · PyAV seek 단위는 stream.time_base (E 실측 2026-10-01) | '[확보]' 가 든 폴더에서 Copy-Item 이 아무 말 없이 안 복사. cv2 는 비ASCII 경로 실패. av.time_base 로 seek 하면 소리를 못 가져옴 | Copy-Item -LiteralPath 또는 bash cp · cv2.imencode 로 바이트를 만들어 파이썬이 쓴다 · int(초/stream.time_base). constraint 56(끝 공백·마침표)·38(heredoc) 과 같은 묶음. 원문 E 오류 모음 ④⑤⑥ |
+| 클로드 코드 배경 작업은 10분에 죽는다 (하네스 제한, E 실측 2026-10-01) | 긴 받아쓰기·정렬이 중간에 끊김 | --범위 로 토막 내어 여러 번 돌리고 한 장마다 저장(D 의 --resume 과 같은 꼴). 원문 E 오류 모음 ⑧ |
+| MT5 CHART_SHIFT_SIZE 는 10~50% 만 받는다 — 리플레이 되감기에서 오른쪽 빈 칸을 절반 넘게 못 넓힌다 (D 실측 2026-09-30, MQL5 공식 문서) | 데이터를 지우고 다시 쓰면(CustomRatesDelete+Update) MT5 가 화면을 끝에 도로 맞춘다. 빈 칸을 세어 CHART_SHIFT_SIZE 로 지정해도 50% 에서 멈춘다 | 가림막 방식(데이터를 다 두고 '지금' 오른쪽을 배경색 사각형으로 덮음)이 화면 안 움직이고 한계 없음 — 09-30 완성해 기본으로(D 57150cd). 종가 끊김은 TFBarEndIndex 로 그 TF 봉의 마지막 M1 봉에서. 상태 파일 cmg_replay_<차트ID>.txt 로 숫자 확인. 원문 log/inbox/2026-09-29_D_리플레이_남은문제.md |
 
 ## 다음에 할 일
 
@@ -880,6 +902,9 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 53. **공용 실행기 — AE 충돌 복구 창 감지·즉시 멈춤 — D 완료 (09-22: 시작 전 0.2초·대기 중 5초마다 15.5초, 정상 잡 1.7초 안 막힘)** — 강제 종료된 AE 를 다시 띄우면 복구 창(534x365, 대상 앱 #32770, 주창 없음)이 뜨고 잡은 70초 뒤 FAIL TIMEOUT 으로 끝난다. 자동 클릭은 안 한다(constraint 71 — 빗나가면 남의 앱이 뜬다). ① 시작 전 검사에 그 창 감지 → '충돌 복구 창이 떠 있습니다 — 계속을 누르고 다시 부르세요' 로 exit ② 앱을 죽인 실패의 _fail.txt 에 '다음 실행 때 복구 창이 뜹니다' 한 줄. 급하지 않다 — 손댈 때. 완료: modal_text.py --ae-recovery 가 자식 창 뼈대(OS_ViewContainer×2+OS_EditTextContainer, 주창 없음)로 알아본다. 원문 log/inbox/2026-09-22_D_next53_AE복구창_멈춤.md  _(대기: 완료)_
 54. **E 대본 작업의 이정찬 몫 넷 — LibreOffice·판본 이름·완성본 동봉·피드백 범위 한 줄 (09-23)** — ① E PC 에 LibreOffice → skeleton_docx 결과를 png 로 눈 확인(issue 50) ② docx 판본 이름 차12_vN_<누가>, 복사본·_1 금지(지금 14개) ③ 양식 넘길 때 완성본 1편 동봉(issue 49) ④ 팀장 피드백 받을 때 '몇 구간까지 보셨나' 한 줄. 별도 결정: A/B/C 세 판을 팀장에게 보일지, B(김직선 말투) 판을 쓸지. 원문 log/inbox/2026-09-22_총괄_E_자료정리_답.md 덧붙임  _(대기: 이정찬)_
 55. **차트명가New 비주얼 기준 재실측 — 김직선 영상에서 (B 가 규격을 재고, 총괄·D 가 그 규격에 맞춘다 — decision 39)** — 이정찬 09-28: 디자인 카피는 B 담당, D 는 자가발전 계속(D 문서 2026-09-28_D_최적화_정리_B에게.md). 역할: ① B — 김직선 영상 프레임 실측(안쪽 차트 영역 x·y·폭·높이, 배경색, 여백, 폰트, 버튼·틀·로고 요소, 썸네일 규격)을 JSON 한 장 + md 로. 방법은 D 문서 §2·§4(규격마다 검사 함수 + 틀렸던 모양 미끼, 캡처 수십 장은 서브에이전트 판독 + 픽셀 실측 검증) ② 총괄 — 그 JSON 으로 STYLE.md 를 'STYLE-New.md' 로 새로 쓰고(옛 STYLE.md 는 Old 로 보존) 렌더러 cmg12s-* 룩·차트 소스 규격(지금 1920×915) 갱신 ③ D — 같은 JSON 으로 MT5 촬영 규격 맞춤(D 접점 제안). 이정찬은 기준 회차 3편(김직선 영상 ID)만 B 에게 준다. 짐작 금지, 프레임 실측  _(대기: B — 기준 회차 받으면 시작 · 총괄·D 는 B 의 JSON 뒤)_
+56. **E 컷편집 도구 — 마01 에서 배운 것을 L08 도구와 공용 함수에 되돌리기** — ① cut_and_srt.py 의 글자 수 비례 분배(cs, ce = s0+(e0-s0)*acc/n) → 낱말 타임스탬프(constraint 77 과 같은 식) ② 자막 프레임 셈·0.15초 당김을 srt_rules(또는 textnorm 같은 공용 자리)로 빼서 cut_and_srt·cam_srt 둘이 같은 함수를 쓰게(issue 54 재발 방지) ③ 얇은 XML 에 A/V link 다시 붙이기(xml_l08mold 의 link 세 줄 꼴) ④ 새 도구 10개를 L08 채점대로 재기 ⑤ ruff F 남은 것(pr_xml F841 등) ⑥ tests/test_no_path_literals BASELINE 에 오른 cutedit 파일의 절대 경로를 인자·paths 로  _(대기: E — 손댈 때)_
+57. **E 옆가지 되돌리기 — 세 번째 요청 (09-22 답·09-29 답·10-01 답)** — worktree-E_Script 에 402 파일 커밋(63cd70e)이 아직 있고 본류를 그 위에 병합까지 했다(090548b). 총괄은 E 푸시마다 .md·.py 만 골라 얹고 있다(45734ee·6f87425·022c704). 절차: git fetch origin → git reset --hard origin/claude/futures-youtube-video-edit-fhio4s → git push --force-with-lease origin worktree-E_Script. 로컬 자료는 그대로 남는다. 이정찬이 E 에게 직접 전달해야 한다 — 인박스 문서는 두 번 안 닿았다  _(대기: 이정찬 전달 → E)_
+58. **README·CLAUDE·log 의 '…하지 않는다' 꼴 규칙 문장에 번호 붙이기 (총괄, E 질문 ①)** — E 가 05_대본자료/README 의 '올리지 않는다' 를 이정찬 지시로 읽은 사고(issue 48). 번호 없는 '않는다' 문장이 README·CLAUDE·log/*.md 에 87줄. 대부분은 CLAUDE.md 의 실측 사실(자막 안 넣음·모션 짐작 안 함)이라 규칙이 맞지만 출처가 없다. 할 것: 결정이면 decision/constraint 번호를 붙이고, 세션이 스스로 적은 메모면 '메모' 로 낮춘다. 규칙: 번호 없는 '않는다' 는 지시가 아니라 메모다  _(대기: 총괄 — 손댈 때)_
 
 ## 대본과 컷 싱크
 
@@ -1509,6 +1534,30 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 - 조치: 촬영 전 차트 폭 < 1900px 이면 멈춤. 찍은 그림 한 장씩 폭 확인. shot_window --check
 - 확인: 최대화 뒤 35장 1920px 경고 0. 원문 같은 문서 §4
 
+### 54. L08 에서 확정한 자막 규칙(초가 아니라 프레임으로 셈·0.15초 당김)이 새 도구 cam_srt.py 에 안 따라옴 — 같은 오류 재발 (E 10-01)  `fixed`
+- 증상: 마01 자막이 XML 보다 늦음. SCRIPT-LAB §17 에 이미 적혀 있던 것
+- 원인: 규칙이 cut_and_srt.py 안에만 있고 공용 함수가 아니다. 새 도구를 만들면 규칙이 안 따라온다
+- 조치: cam_srt.py 에 다시 넣음. 공용 함수로 빼는 것은 next_step 56(srt_rules 에 frame_align·pull 같은 자리)
+- 확인: 마01 소리 싱크 검사 통과(안 맞는 큐 0). 원문 log/inbox/2026-10-01_E_마01_오류모음_총괄검증요청.md ⑩
+
+### 55. 프롬프터 PDF 의 빈 줄 하나를 문단 끝으로 읽어 57문장이 106토막 — 자막 오탈자 12·문장 누락 1·큐 경계 깨짐·지시문 누출 3 (E 10-01)  `fixed`
+- 증상: 낱말 중간 줄바꿈이 '절대 적인' 처럼 띄어 들어감. '대본에서 뽑았으니 맞다' 고 추론하고 맞대지 않음. 이정찬이 '자막 pdf 와 비교했어?' 로 잡음
+- 원인: 입력 구조를 세지 않고 눈으로 몇 줄 보고 규칙을 정함(빈 줄 1개 97곳·2개+ 26곳·0개 25곳을 처음에 셌으면 보였다). 산출물을 원본과 맞대지 않음
+- 조치: pdf_script.py 다시 씀(빈 줄 1=줄바꿈·2+=문단, 양끝맞추기 이어짐은 받아쓰기 띄어쓰기로 가름, 괄호 지시문 제거). cam_srt.py 낱말 타임스탬프. 전수 검증 스크립트(grade/캠자막_전수검증.py). 양식에 '원본과 맞댔나' 추가(decision 40)
+- 확인: 대본 2007자 = 자막 2007자 닮음 1.0, 빠진 문장 0, 안 맞는 큐 0. 원문 같은 문서 ⑮
+
+### 56. 프리미어가 우리 FCP7 XML 을 '프로젝트가 손상되어 열 수 없습니다' 로 거부 — 원인은 구조가 아니라 pathurl 표기 (E 마01 캠, D 가 10-01 17시 해결)  `fixed`
+- 증상: 3·5컷은 되고 9컷부터 깨짐. 결함 여섯(V2 1프레임 겹침·end-start≠out-in·timebase 240·id 충돌·out 이 미디어 끝 넘음·마커 자리)을 다 고쳐도 안 됨. 차트설명 344클립은 들어가고 캠 9컷은 안 들어감
+- 원인: 경로를 괄호·대괄호·& 까지 퍼센트로 바꿔 프리미어가 경로를 못 찾았고, 그 상태에서 clipitem 이 여럿이면 임시 .prproj 변환이 깨진다. 캠 폴더 이름이 '캠용(얼굴&대본)[확보]'. E 는 성공본(프리미어가 내보낸 XML)을 손에 들고도 맞대지 않고 짐작으로 하나씩 고쳤다
+- 조치: make_xml.pathurl: safe="/()[]&~!$'*+,;=@_-." · 콜론 %3a · 16진 소문자(constraint 74). pr_xml.py 도. 시험 2. D 의 방법: ① BridgeTalk 로 가져오기를 자동화(x1_import_xml, 한 판 1분) ② 성공본·실패본 태그 경로 Counter 비교로 '구조 무죄' 먼저 ③ 캠 1컷에서 '미디어 연결' 창 → 경로 쪽으로 ④ ASCII 하드링크로 범인 확정
+- 확인: 캠 17컷 + 한글 경로 + 프리미어 표기 → OK·미디어 오프라인 false. 107 시험 통과. 원문 같은 문서 ⑨ · SCRIPT-LAB §18 ①
+
+### 57. src/render/split.mjs 의 pathurl 이 encodeURI — 같은 표기 버그 (총괄 10-01, E 질문 1 에 답하며 발견)  `fixed`
+- 증상: encodeURI 는 [ ] 를 %5B%5D 로, 16진을 대문자로, 콜론을 그대로 둔다. 지금까지 통한 건 렌더 출력 경로에 괄호가 없어서
+- 원인: make_xml 과 같은 뿌리 — 프리미어 표기를 안 재고 '퍼센트 인코딩' 이라는 일반 규칙을 씀
+- 조치: 프리미어 꼴로 직접 인코딩(TextEncoder 바이트 → 소문자 16진, ()[]& 그대로). tools/legacy/premiere_xml.py 는 레거시라 안 고침
+- 확인: node 로 괄호·대괄호·한글 경로 셋 변환 확인. 원문 log/inbox/2026-10-01_총괄_D·E_마01_답.md
+
 ## 판단과 근거
 
 - **렌더 방식** — 실시간 재생이 아니라 프레임 번호를 받아 그린다
@@ -1617,6 +1666,9 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 - **차트명가New 의 방향 = 김직선 카피캣 — 디자인·비주얼(이정찬 통보 09-28) + 대본 말투(팀장이 B판 지목 09-22)** — 차트명가New 는 김직선(나스닥 트레이더 채널) 을 본뜬다. 비주얼·디자인이 그쪽으로 바뀌었다(이정찬 2026-09-28). 대본은 'Pool=정보 + 김직선=말투, 레고 조립' 로 확정(E 2dc770f, 팀장이 A/B/C 중 B판을 본보기로 지목). 결과: brand/STYLE.md·EDIT-RULEBOOK·thumbnail_rule 은 옛 차트명가 실측이라 New 의 기준이 아니다 — 김직선 영상에서 다시 잰다(next_step 55). 총괄 답 문서 ⑥의 'B판은 브랜드·저작권 판단 필요' 는 팀장이 그 판을 골랐으니 브랜드 쪽은 닫힌다. 저작권(타 채널 문장·룩 차용) 은 회사 판단으로 남긴다
   - 이유: 팀장 결정을 이정찬이 전달. 근거 문서는 없다(구두). 어느 김직선 회차를 기준으로 재는지는 미정 — E 가 김직선 롱폼 72편 자막·목록을 로컬에 갖고 있다(data/대본자료/메이저자막, 저장소 밖). 역할(이정찬 09-28, D 문서로 확인): 디자인 카피는 B, D 는 자가발전·촬영 파이프라인 계속, 대본 말투는 E(Pool=정보+김직선=말투 조립, 차13 106문장 중 89 바뀜). B↔D 접점은 프레임 규격 JSON 한 장(파일을 서로 안 건드린다)
   - 다시 볼 때: 팀장이 방향을 다시 바꿀 때 · 김직선 측 문제 제기 시
+- **막혔을 때의 순서 — ① 입력 구조를 세어서 확인 ② 산출물은 원본과 맞대야 완료 ③ 안 되면 성공본과 실패본을 맞댄다 ④ 재현은 자동화한다 (총괄 2026-10-01, 마01 사고 셋에서)** — 완료 보고 양식에 '원본과 맞댔나' 를 붙인다(log/inbox/_완료보고_양식.md). 짐작으로 하나씩 고치는 것은 ③ 뒤에만. 사람에게 '넣어 보고 스샷 주세요' 를 부탁하기 전에 자동 재현 길(x1_import_xml 같은)을 먼저 찾는다
+  - 이유: issue 55: 빈 줄 개수를 10초면 셌는데 눈으로 몇 줄 보고 규칙을 정해 정렬·컷·자막·XML 을 다 틀리게 만듦. issue 56: E 가 결함 여섯을 짐작으로 고친 뒤에도 안 됐고, D 가 성공본(프리미어 내보내기)과 맞대자 한 번에 pathurl. E 는 가르기를 8판, D 는 자동화해 한 판 1분. decision 33(일부를 보고 전체를 판단) 의 앞단·뒷단
+  - 다시 볼 때: 같은 종류 사고가 다시 나면 양식을 또 고친다
 
 ## 브랜드 스펙 (실측)
 
@@ -1864,4 +1916,39 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 | 171 | `71b83ac3` | 세이브 기록 save/2026-09-29-1527 | 5파일 +1246/-1236 |
 | 172 | `9e0e9846` | 세이브 save/2026-09-29-1528 — test_scene_finders ma_flat_box 중복 키 하나로(F601), 답 문서에 적음 | 5파일 +5/-4 |
 | 173 | `9cd01550` | 세이브 기록 save/2026-09-29-1528 | 5파일 +11/-3 |
-| 174 | `6aa65d7b` | 세이브 save/2026-10-01-1528 — runbook 26 — 롱폼 컷편집 합본(XML+자막) 절차, 기록 위치 SCRIPT-LAB §17 | 4파일 +10/-2 |
+| 174 | `f63f2fed` | 세이브 save/2026-09-29-1758 — 리플레이 도구 — 커스텀 심볼 방식(지표까지 되감김) 검증, 단축키 Z/X·A/S·스페이스 추가판, 시작시각 주입 스크립트, 촬영 큐시트 | 11파일 +1770/-1 |
+| 175 | `85155e07` | 세이브 기록 save/2026-09-29-1758 | 5파일 +11/-3 |
+| 176 | `407fe9ea` | 세이브 save/2026-09-29-1804 — 리플레이 — 되감을 때 화면 고정(데이터 다시쓰기와 화면 재배치를 분리) | 4파일 +29/-4 |
+| 177 | `db323cc8` | 세이브 기록 save/2026-09-29-1804 | 5파일 +11/-3 |
+| 178 | `cee4788f` | 세이브 save/2026-09-30-1005 — 리플레이 — 봉 종가에서 끊기게 고침(실측), 오른쪽 여백 직접 지정, 상태 파일·안에서 감는 스크립트 | 6파일 +188/-26 |
+| 179 | `34c8258d` | 세이브 기록 save/2026-09-30-1005 | 5파일 +11/-3 |
+| 180 | `574aa27e` | 세이브 save/2026-09-30-1018 — 리플레이 — 큐시트 연결(N/B 한 번에 다음 장면), 자료 없는 옛 구간은 차트 주기로 받기, 테마 강제 끄기 | 6파일 +254/-10 |
+| 181 | `acfda13e` | 세이브 기록 save/2026-09-30-1018 | 5파일 +11/-3 |
+| 182 | `5c1e70d1` | 세이브 save/2026-09-30-1026 — 촬영용 차트 템플릿 생성기, 조작판 숨김(H)·봉 굵기 입력, 전문가용 사용법 한 장 | 7파일 +283/-1 |
+| 183 | `347b4ae2` | 세이브 기록 save/2026-09-30-1026 | 5파일 +11/-3 |
+| 184 | `3937cb1b` | 세이브 save/2026-09-30-1032 — 촬영 차트 색을 김직선 화면 실측값으로 맞춤(픽셀 재확인), MT5 문서 갱신 | 5파일 +65/-12 |
+| 185 | `de51bc75` | 세이브 기록 save/2026-09-30-1032 | 5파일 +11/-3 |
+| 186 | `14962b81` | 세이브 save/2026-09-30-1116 — 리플레이 — 다른 PC용 포터블 꾸러미 만들기, 가림막 방식 시험판(기본 꺼짐), ChartNavigate 위치 실측 | 7파일 +369/-3 |
+| 187 | `9c852a73` | 세이브 기록 save/2026-09-30-1116 | 5파일 +11/-3 |
+| 188 | `a76159f2` | 세이브 save/2026-09-30-1219 — 리플레이 — 되감기를 뒤쪽만 지우게(전체 재작성 제거), MT5 자체 키 조작·빠른탐색 차단, 화면 위치 기록 | 4파일 +25/-3 |
+| 189 | `89824351` | 세이브 기록 save/2026-09-30-1219 | 5파일 +11/-3 |
+| 190 | `57150cdd` | 세이브 save/2026-09-30-1318 — 리플레이 — 가림막 방식 완성(화면 안 움직임·50% 한계 없음) 기본으로, 그림마다 기록 남기기 | 6파일 +49/-10 |
+| 191 | `fdb02150` | 세이브 기록 save/2026-09-30-1318 | 5파일 +11/-3 |
+| 192 | `a69c3b0d` | 세이브 save/2026-09-30-1330 — 리플레이 — 보통 차트에 붙이면 리플레이 차트가 저절로 열리게(두 단계 없앰), 문서 갱신 | 6파일 +48/-9 |
+| 193 | `cc402bb1` | 세이브 기록 save/2026-09-30-1330 | 5파일 +11/-3 |
+| 194 | `281746f1` | 세이브 save/2026-09-30-1353 — 리플레이 — 조작판 숨김 제대로(바탕판까지), R 로 지금 시각까지 다시 받기 | 6파일 +98/-8 |
+| 195 | `db5bb9a9` | 세이브 기록 save/2026-09-30-1353 | 5파일 +11/-3 |
+| 196 | `6aa65d7b` | 세이브 save/2026-10-01-1528 — runbook 26 — 롱폼 컷편집 합본(XML+자막) 절차, 기록 위치 SCRIPT-LAB §17 | 4파일 +10/-2 |
+| 197 | `aafb0c5c` | 세이브 기록 save/2026-10-01-1528 | 5파일 +11/-3 |
+| 198 | `6a0f1901` | 세이브 save/2026-10-01-1656 — 프리미어 XML 거부 해결 — 경로 표기를 프리미어 실측 꼴로(괄호 그대로·C%3a·소문자), L08 틀 생성기와 가져오기 검증 잡 | 5파일 +279/-1 |
+| 199 | `687e6000` | 세이브 기록 save/2026-10-01-1656 | 5파일 +11/-3 |
+| 200 | `d2d6466e` | 세이브 save/2026-10-01-1721 — 가져오기 검증 잡에 마커·꺼둔 클립 세는 줄 추가 (E 두 벌 검증) | 4파일 +25/-1 |
+| 201 | `3d92b6af` | 세이브 기록 save/2026-10-01-1721 | 5파일 +11/-3 |
+| 202 | `14316f38` | 세이브 save/2026-10-01-1727 — 가져오기 검증 잡 — 자막(.srt) 넣기·캡션 트랙 만들기·시퀀스 열기까지 | 4파일 +85/-7 |
+| 203 | `646ebbe4` | 세이브 기록 save/2026-10-01-1727 | 5파일 +11/-3 |
+| 204 | `f6bc476d` | 세이브 save/2026-10-01-1805 — 마01 컷 다듬기 — 말에 붙여 경계 재설정(무음·박수·헛말·재촬영 제거), 피드백 11곳 전부 해소·대본 손실 0 | 5파일 +386/-1 |
+| 205 | `77111f7f` | 세이브 기록 save/2026-10-01-1805 | 5파일 +11/-3 |
+| 206 | `32adf14e` | 세이브 save/2026-10-01-1821 — 마01 컷 — 이음매에서 같은 말 두 번 들리는 것 제거(숨틈이 다음 낱말 침범 금지 + 중복 낱말 떼기), 69컷 436.63초 | 4파일 +49/-4 |
+| 207 | `160c74a0` | 세이브 기록 save/2026-10-01-1821 | 5파일 +11/-3 |
+| 208 | `1027828f` | 병합: worktree-D_Video (09-28~10-01 — 차11 검수 4회, MT5 리플레이, 프리미어 XML 가져오기 검증 잡 x1_import_xml, 마01 컷 다듬기 cam_tighten) | 19파일 +5250/-1253 |
+| 209 | `022c704f` | E 09-30~10-01 얹음 — 마01 캠 롱폼 컷편집 도구(cam_*·pdf_script·ko_clause·pr_xml·obs_*·채점대), 시험 2, SCRIPT-LAB §18, 차12 새판, 오류 모음 (원문 txt 는 저장소 밖) | 29파일 +2919/-14 |

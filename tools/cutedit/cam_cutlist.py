@@ -38,7 +38,6 @@ def 묶기(행들):
 def 만들기(작업, 대본, 소리, 이름, fps=30.0, w=1920, h=1080):
     파일들 = json.load(io.open(os.path.join(작업, "cam_files.json"), encoding="utf-8"))
     정렬 = json.load(io.open(os.path.join(작업, "aligned.json"), encoding="utf-8"))
-    구간이름 = [g["구간"] for g in 대본]
     # aligned 행에 구간 꼬리표를 붙인다 — 머리글 줄이 나오면 그 뒤 문장은 그 구간
     행들 = []
     for r in 정렬:
@@ -68,7 +67,6 @@ def 만들기(작업, 대본, 소리, 이름, fps=30.0, w=1920, h=1080):
             쓴구간.append(c["구간"])
         cuts.append({"src": f["파일"][:8], "in": round(a, 2), "out": round(b, 2),
                      "label": "%s %s" % (c["구간"], f["파일"][4:8])})
-        쓴것 = (f["파일"], a, b, 시간)
         시간 += b - a
     # 안 쓴 구간 — 파일마다 쓴 자리를 빼고 남는 것
     쓴자리 = {}

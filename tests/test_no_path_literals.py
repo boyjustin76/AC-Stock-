@@ -16,6 +16,9 @@ SKIP_FILES = ("labdir", "_labdir")          # 폴백으로 옛 자리를 적는 
 BASELINE = {                                 # 파일: 허용 개수 (고치면 줄인다)
     "tools/theone/pairs.py": 2,              # EXTRA_SRT — E (검토 ⑦)
     "tools/style/trad.py": 1,                # C:\Windows\Fonts\batang.ttc — 시스템 폰트, 이 PC 전용 (D)
+    "tools/cutedit/grade/캠자막_전수검증.py": 2,   # 마01 채점 스크립트 — 레포·마01 폴더 (E 10-01, next_step 56 ⑥)
+    "tools/cutedit/grade/가름대조.py": 3,          # 같은 것 + 업로드 txt 경로
+    "tools/cutedit/grade/가름값맞추기.py": 3,
 }
 
 

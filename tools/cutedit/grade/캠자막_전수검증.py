@@ -8,7 +8,7 @@ import io, os, re, sys, json, difflib
 
 레포 = r"C:/Users/user/Desktop/이정찬/스크립트_컷편집_통합/01_저장소/E_Script"
 sys.path.insert(0, os.path.join(레포, "tools", "cutedit"))
-import srt_rules, pdf_script
+import srt_rules
 
 M = r"C:/Users/user/Desktop/이정찬/마이노_0930~/마01"
 작업 = os.path.join(M, "_작업")

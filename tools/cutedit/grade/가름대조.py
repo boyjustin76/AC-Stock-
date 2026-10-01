@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """이정찬이 손으로 나눈 자막과 내 가름을 맞댄다 — 경계가 몇 개나 같은가."""
-import io, os, re, sys
+import io, os, sys
 
 레포 = r"C:/Users/user/Desktop/이정찬/스크립트_컷편집_통합/01_저장소/E_Script"
 sys.path.insert(0, os.path.join(레포, "tools", "cutedit"))

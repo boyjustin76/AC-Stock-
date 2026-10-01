@@ -49,10 +49,18 @@ export function planPasses(scene, groups = null) {
 }
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-/** 윈도우 경로 → FCP7 pathurl. 한글·공백은 퍼센트 인코딩한다 */
+/** 윈도우 경로 → FCP7 pathurl, **프리미어가 스스로 내보내는 꼴 그대로** (2026-10-01, issue 57, constraint 74).
+ *  드라이브 콜론은 %3a, 16진은 소문자, 괄호·대괄호·& 는 그대로. encodeURI 는 [ ] 를 %5B%5D 로 바꾸고
+ *  대문자 16진을 쓰는데, 그 경로를 프리미어가 못 찾으면 clipitem 이 여럿일 때 '프로젝트 손상' 으로 거부한다
+ *  (E 마01 캠, D 가 성공본과 맞대 찾음). tools/cutedit/make_xml.py pathurl() 과 같은 규칙. */
 const WINSEP = String.fromCharCode(92);   /* 역슬래시. 정규식 이스케이프를 피한다 */
-const pathurl = (p) => 'file://localhost/'
-  + encodeURI(p.split(WINSEP).join('/').replace(/^[/]+/, ''));
+const PATHURL_SAFE = new Set("/()[]&~!$'*+,;=@_-.".split(''));
+const pathurl = (p) => 'file://localhost/' + Array.from(
+  new TextEncoder().encode(p.split(WINSEP).join('/').replace(/^[/]+/, '')),
+  (b) => {
+    const ch = String.fromCharCode(b);
+    return (/[A-Za-z0-9]/.test(ch) || PATHURL_SAFE.has(ch)) ? ch : '%' + b.toString(16).padStart(2, '0');
+  }).join('');
 /* xmeml 의 timebase 는 정수, 59.94·29.97 같은 NTSC 값은 반올림 + ntsc TRUE 로 적는다
    (tools/cutedit/make_xml.py rate() 와 같은 규칙). 59.94005994 를 그대로 쓰면 프리미어가 못 읽는다 — 2026-09-17 검토 */
 const rate = (fps) => {

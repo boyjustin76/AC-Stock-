@@ -9,7 +9,7 @@
 내놓는 것
   [{"파일": …, "박수": 초, "글": "…", "시작멘트": true/false}, …]
 """
-import io, os, sys, json, re
+import io, os, sys, json
 import numpy as np
 import av
 

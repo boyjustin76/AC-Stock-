@@ -186,12 +186,12 @@ git restore --source=<해시> -- .              # 되돌리기
 
 | 시각 (KST) | 슬롯 | 커밋 | 어디까지 |
 |---|---|---|---|
+| 2026-10-01 18:21 | `save/2026-10-01-1821` | `32adf14` | 마01 컷 — 이음매에서 같은 말 두 번 들리는 것 제거(숨틈이 다음 낱말 침범 금지 + 중복 낱말 떼기), 69컷 436.63초 |
+| 2026-10-01 18:05 | `save/2026-10-01-1805` | `f6bc476` | 마01 컷 다듬기 — 말에 붙여 경계 재설정(무음·박수·헛말·재촬영 제거), 피드백 11곳 전부 해소·대본 손실 0 |
+| 2026-10-01 17:27 | `save/2026-10-01-1727` | `14316f3` | 가져오기 검증 잡 — 자막(.srt) 넣기·캡션 트랙 만들기·시퀀스 열기까지 |
+| 2026-10-01 17:21 | `save/2026-10-01-1721` | `d2d6466` | 가져오기 검증 잡에 마커·꺼둔 클립 세는 줄 추가 (E 두 벌 검증) |
+| 2026-10-01 16:56 | `save/2026-10-01-1656` | `6a0f190` | 프리미어 XML 거부 해결 — 경로 표기를 프리미어 실측 꼴로(괄호 그대로·C%3a·소문자), L08 틀 생성기와 가져오기 검증 잡 |
 | 2026-10-01 15:28 | `save/2026-10-01-1528` | `6aa65d7` | runbook 26 — 롱폼 컷편집 합본(XML+자막) 절차, 기록 위치 SCRIPT-LAB §17 |
-| 2026-09-29 15:28 | `save/2026-09-29-1528` | `9e0e984` | test_scene_finders ma_flat_box 중복 키 하나로(F601), 답 문서에 적음 |
-| 2026-09-29 15:27 | `save/2026-09-29-1527` | `1496201` | D 20·E 5 병합 — 45 ③ 완료, issue 52·53, constraint 72·73, 55 는 B 담당, E 는 md·py 만, 답 문서 |
-| 2026-09-28 18:48 | `save/2026-09-28-1848` | `a556a7e` | 촬영 한 장을 통째로 다시 시도하는 구조(자리·지표 확인 후 재시도), 이력 미도착 때 다시 받기 |
-| 2026-09-28 18:37 | `save/2026-09-28-1837` | `b895496` | 이평선을 CMG_Shot 이 색 달리해 직접 그림(1-1 네 선 구분), 지표 나열 읽기(5일·20일·60일선), 박스 공통 조건(급락·끝 이탈), 추세 토막 하한 |
-| 2026-09-28 18:27 | `save/2026-09-28-1827` | `066271e` | 지표가 덜 붙으면 한 번 더 붙이기(3-4 MA20 누락) |
 
 ---
 
@@ -289,11 +289,15 @@ git restore --source=<해시> -- .              # 되돌리기
 | `log/inbox/2026-09-22_월요일_전달묶음.md` | 이정찬이 월요일에 B·D·E 에게 전할 것 한 장 — 토큰 재발급(5분, 첫째)·완료 보고 두 줄·guard 4·save.py 기본값·경로 래칫·파트별 할 일 |
 | `log/inbox/2026-09-22_총괄_E_자료정리_답.md` | 총괄 — E 402 파일 푸시에 대한 답 + 09-23 덧붙임: E·이정찬이 막힌 자리 일곱(양식 오독·docx 자작 버그·도구 전부틀림·피드백 네 통로/색 범례·판본 14개·A/B/C·402 푸시) 원인·판단·장치, 잘한 것 넷, 이정찬 할 것 다섯(next_step 54, issue 49~51) |
 | `log/inbox/2026-09-22_총괄_실행기_마감_답.md` | 총괄 — B·D 09-22 답: 공용 실행기 완료(next_step 46), constraint 69 낮춤·71 신설, 복구 창은 자동 클릭 안 함(53), decision 36 보강 |
+| `log/inbox/2026-09-28_D_차11_네번_검수반복.md` | D — 차11 35비트를 찍고→서브에이전트 검수→고치기 네 번: 맞음 20→28, 대본 적합 20→31. 고친 아홉(자리 붙잡기·규칙 Jev 뒤집기·추세/횡보 먼저·네 토막·급락 상한·지표는 장면 뒤·누운 이평 상한·박스 공통 조건·이평선 네 색). '눈이 있어야 고칠 수 있었다' |
 | `log/inbox/2026-09-28_D_최적화_정리_B에게.md` | D → B — 자가발전하며 굳힌 방법 7절: 결과를 다시 읽는다(constraint 73), 래칫 시험(전용 함수·미끼·불변식·되살리기), Jev 쓰는 자리·문, 서브에이전트 그림 판독, 속도(캐시·resume), 외부 앱 사고, 도구 목록 + B↔D 접점(프레임 규격 JSON). 이정찬 09-28 지시(디자인 카피 = B) 기록 |
+| `log/inbox/2026-09-29_D_리플레이_남은문제.md` | D — MT5 리플레이 지적 둘: 종가 끊김 고침(TFBarEndIndex 실측), 되감기 화면 따라옴은 CHART_SHIFT_SIZE 50% 한계(constraint 80) → 가림막 방식으로 09-30 해결. 상태 파일·CMG_ReplayStep |
 | `log/inbox/2026-09-29_총괄_D·E_병합_답.md` | 총괄 — D 26 커밋(45 ③·검수 3차·B 에게 문서)·E 9 커밋(김직선 말투 조립·작업기록) 병합 답: issue 52·53, constraint 72·73, next_step 45·55 갱신(55 는 B 담당), E 는 .md·.py 만 얹음, E 옆가지 되돌리기 재요청 |
+| `log/inbox/2026-10-01_E_마01_오류모음_총괄검증요청.md` | E — 마이노 마01 캠 롱폼 컷편집에서 난 오류 15: ① 지어낸 규칙 ⑨ XML 거부(pathurl, D 해결) ⑩ 자막 규칙 재발 ⑫ 말투 모델 베끼기 ⑮ PDF 프롬프터 오독(오탈자 12·누락 1). 총괄에게 질문 넷 → 2026-10-01_총괄_D·E_마01_답.md |
 | `log/inbox/_완료보고_양식.md` | 완료 보고 두 줄 — 확인한 것 / 안 본 것 (decision 33). 검증 범위 오류 여덟 건의 처방 |
 | `log/worklog.db` | 작업 로그 원본 (SQLite) |
 | `log/worklog.html` | 브라우저로 보는 작업 로그 |
+| `log/차12_더블볼린저_새판_김직선말투.md` | 차12 새판 — Pool 정보 + 김직선 말투 조립(decision 39). 검사 층: 참조 문장 difflib 0.55·7-gram·남의 지표 목록·1.8배 상한. 이정찬 지시로 '우리 글 베끼기·문장 늘리기' 는 막지 않음 (E 10-01) |
 | `log/차12_더블볼린저_워크플로우판.md` | 차12 A/B 대조용 — 피드백 없이 pipeline.py 관문 미달만 근거로 고친 판(이음·닫기·인터럽트·흐름 z). 규칙 출처 06_외부스킬 (E, 09-21) |
 | `log/차12_더블볼린저_이정찬판.md` | 차12 이정찬이 직접 고친 판(팀장은 3구간까지 봄) — 대조용 .md. 6차↔이 판의 INTRO~3구간 차이가 next_step 47 의 첫 문장 쌍 자료다 (E, 09-21) |
 | `log/차12_더블볼린저_초안.md` | 차12 더블 볼린저밴드 촬영용 대본 초안(E) — 레퍼런스 사슬대로 재구성, 기간값 20, 규격 채점 통과. 7차(09-21): INTRO~3구간은 이정찬 수정본 그대로, 4구간~OUTRO 에 같은 로직 적용. 일상 작업(총괄은 상태만) |
@@ -386,8 +390,16 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/ae/trad_rr_mogrt_check.py` | mogrt zip 안 definition.json 누락 자산 검사 → 실패 이름을 _only.txt 로 (반환값 true 는 증거가 아니다) |
 | `tools/ae/trad_rr_preview.py` | 손익비 전통 AE 캡처 vs 합성 기준 픽셀 대조 · 차트 위 움직임 GIF·연속 사진 |
 | `tools/cutedit` | 컷편집 파이프라인(E 소유) — transcribe(전사)·align_take(테이크 정렬)·cut_and_srt(컷·자막, 실측 무음 경계)·make_xml(프리미어 XML)·prlinks(prproj 경로 검사)·srt_rules(14자 큐)·verify_text·grade/(채점대). build_cuts.py 는 2026-09-17 tools/legacy 로 |
+| `tools/cutedit/cam_all.py` | 캠 한 파일 → 정렬 → 컷리스트 → 자막 → 프리미어 XML 한 번에 (E 10-01, 마01). 전제: 29.97 고정 .mp4 한 개, 얇은 XML. cam_prep·cam_takes·cam_cutlist·cam_merge·cam_srt 가 단계 |
+| `tools/cutedit/cam_tighten.py` | 컷 경계를 말에 딱 붙여 다시 잡기 — 대본 글자 맞대기 + 소리 무음(0.35초+) + 조각 사이 0.30초면 컷 나눔, 헛말·재촬영 구절 버림, 숨틈이 다음 낱말 침범 금지 (D 10-01, 마01 69컷 436.63초, tests/test_cam_tighten.py) |
+| `tools/cutedit/grade` | 컷편집 채점대 — 숏폼 큐 가름 + 마01 캠자막_전수검증(글자·경계·소리 싱크·시각 규칙 넷)·가름값맞추기·가름대조. 정답_자막/ 의 손수정본 txt 는 저장소 밖(README 만) |
+| `tools/cutedit/ko_clause.py` | 자막 큐를 글자 수가 아니라 형태소 태그로 구·절 단위 가르기. 모두의 말뭉치에서 뽑은 data/ko_tags.json.gz(0.4MB, 어절 사전·끝꼴·앞꼴·보조용언·의존명사). 값은 이정찬 손수정본 99줄로 맞춤(재현 0.768·정밀 0.760). split_cue 는 손 안 댐 (E 10-01, tests/test_ko_clause.py) |
+| `tools/cutedit/obs_scan.py` | OBS 화면녹화 훑기 — PyAV 로 무음·박수(짝 소리)·소리 크기. obs_pen(펜 움직임)·obs_cue·obs_cutlist·obs_stt 가 짝 (E 09-30, 마이노 차트설명 테이크 찾기) |
+| `tools/cutedit/pdf_script.py` | 촬영 대본 PDF(프롬프터) → 구간별 낭독 문장. 빈 줄 1=줄바꿈·2+=문단, 양끝맞추기 이어짐은 --받아쓰기 로 가름, 괄호 지시문 제거, 숫자·조사 붙임 (E 10-01, constraint 75, issue 55) |
+| `tools/cutedit/pr_xml.py` | 프리미어가 내보낸 XML 을 틀로 삼아 클립·마커 값만 갈아 끼우는 생성기 (E 10-01). pathurl 은 make_xml 과 같은 규칙으로 고침 |
 | `tools/cutedit/srt_rules.py` | 숏폼 자막 규칙의 진본 — split_cue(14자 상한·절/구 선호·의존명사 분리 금지 DP) + check CLI. build_cuts.py 가 위임. E 세션 소유(2026-09-01 이관) |
 | `tools/cutedit/textnorm.py` | 한글 정규화 한 벌 — 7곳(align_cut·align_take·cut_and_srt·verify_text·cuetune·banner_model·pairs)이 쓴다 (E, ea36a4a) |
+| `tools/cutedit/xml_l08mold.py` | 컷리스트 → FCP7 XML 을 L08·차12 성공본과 같은 얇은 꼴로(link 세 줄, masterclipid 없음), pathurl 은 프리미어 표기 (D 10-01) |
 | `tools/grade_draft.py` | 대본 초안 채점기(E) — 낭독분만 골라 분량·문장 길이·금지어(부정문·낱말 속 오탐 제외)·근거·수치·반말을 잰다. 차12·차13 초안이 통과 |
 | `tools/hf` | HyperFrames HTML 합성 3벌(D) — ab_pnl(A/B 판)·mt5_frame(MT5 틀 합성)·mt5_calib(좌표 계산 합성)·hyperframes.json. 우리 렌더러에 없는 모양용 |
 | `tools/illustrator` | 일러스트레이터 COM 자동화 — 라이브화면구성.ai 를 짓고 OBS 용 8000x4500 을 뽑는다. tools/photoshop 과 같은 구조로 경로를 안 박는다 |
@@ -404,6 +416,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/mcp_probe.py` | MCP 자가점검(E) — initialize → tools/list → tools/call 까지 그 자리에서 띄워 본다. 별 수 믿지 말고 띄워 보고 판단(external_tool 10 전례) |
 | `tools/md_to_script_docx.py` | 초안 .md → 촬영용 스크립트 .docx (E). 표지 줄은 L<번호> (이정찬 09-21) |
 | `tools/mt5` | MT5 촬영 파이프라인(D) — mcp.py(MCP 클라이언트)·scenes.py(대본 docx → 비트 → 사건 → 실제 봉 구간 선정, 팀장 차10 기준 5)·capture_scene.py(ChartNavigate 후 창 캡처)·capture.py·shot.py+CMG_Shot.mq5(자체 렌더 캡처 지표)·calibrate.py(봉 격자·가격축 보정 RMS 1.93px)·batch_capture.py(대본 한 편 12비트 일괄 촬영, 종목·주기 선택, Jev 보조, 자리 붙잡기·재시도·--resume·탐색 캐시)·conti_sheet.py(콘티.png + AE 입력 json). scenes.FINDERS = 장면마다 전용 함수(미등록은 오류, 09-22). README 있음 |
+| `tools/mt5/Replay_Tool_CMG.mq5` | MT5 리플레이 도구(EA) — 커스텀 심볼에 M1 을 넣고 감기(Z/X·A/S)·재생·날짜 점프, 가림막 방식으로 오른쪽 '미래' 를 덮음, 상태 파일. CMG_ReplayStep(자동화 통로)·CMG_SetReplay(시작 시각)·CMG_NavProbe 가 짝. 큐시트는 cue_sheet.py, 템플릿은 make_template.py(김직선 화면 색), 꾸러미는 pack_portable.py (D 09-29~30) |
 | `tools/photoshop` | 포토샵 COM+ExtendScript 로 템플릿 .psd 를 직접 편집한다 — 썸네일은 이 경로가 최신 |
 | `tools/photoshop/build_thumb.jsx` | 회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg |
 | `tools/photoshop/config.json` | 템플릿·차트·출력 경로와 회차 문구 — 컨테이너의 thumbnail_png.py 도 같은 파일을 읽는다(스펙 단일화, decision 21) |
@@ -415,6 +428,7 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/premiere` | 프리미어 자동화 (D 영역) — run.ps1(BridgeTalk 드라이버)·jobs/*.jsx·verify.py(되읽기 검사기)·presets/30fps sqpreset |
 | `tools/premiere/_labdir.jsx` | 프리미어 실험실 폴더를 박지 않고 찾는다 (ExtendScript · 잡들이 $.evalFile 로 불러 쓴다) |
 | `tools/premiere/jobs/save_quit.jsx` | 열린 프리미어 프로젝트 전부 저장 후 종료 (경로 없는 프로젝트가 있으면 끄지 않는다) |
+| `tools/premiere/jobs/x1_import_xml.jsx` | FCP7 XML 을 프리미어에 실제로 가져와 본다(importFiles, BridgeTalk) — 시퀀스 수·트랙별 클립 수·미디어 오프라인·마커·꺼둔 클립·캡션 트랙·자막 넣기까지 x1_report.txt 로. 명령줄로는 .xml 을 못 연다. 한 판 1분 (D 10-01, issue 56) |
 | `tools/premiere/labdir.ps1` | 같은 것의 PowerShell 판 — run.ps1 이 점으로 불러 쓴다 |
 | `tools/psdedit.py` | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
 | `tools/radar.py` | 오류 레이더 — 오류 문장에서 서명을 뽑아 worklog.db(issue·constraint_note)·TRAPS·inbox → Stack Overflow(키 없음 300/일) → GitHub Issues(비인증 10/분) 순으로 찾는다. 의존성 0. --save 로 log/inbox/radar/ 에 남김 |

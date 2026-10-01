@@ -25,7 +25,6 @@
   동적 계획법으로 ②+③ 합이 가장 작은 가름을 고른다.
 """
 import gzip
-import io
 import json
 import os
 import re
@@ -166,7 +165,7 @@ def 경계벌점(어절들, i):
     for 짝 in ("'", '"'):
         if 글.count(짝) % 2: return None
 
-    앞태, 뒤태 = 끝태그(앞), 끝태그(뒤)
+    앞태 = 끝태그(앞)
     if 앞맨 in _한음절관형: return None                  # `두 | 개를`, `이 | 검정색`
     # 관형사 태그는 MM·MMD(지시)·MMA(성상)·MMN(수) 로 갈린다 — 앞가지로 한꺼번에 막는다
     if 앞태 and (앞태.startswith("MM") or 앞태 in ("JKG", "ETN", "NNB", "XPN", "MAJ")):

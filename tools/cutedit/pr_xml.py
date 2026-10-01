@@ -12,7 +12,7 @@
 
     python3 tools/cutedit/pr_xml.py <컷리스트.json> <결과.xml> --틀 <프리미어내보내기.xml>
 """
-import io, os, re, sys, json, copy
+import io, os, sys, json, copy
 import xml.etree.ElementTree as ET
 
 틱 = 254016000000          # 프리미어 1초 = 254,016,000,000 틱
@@ -198,7 +198,6 @@ def 만들기(spec, 틀길):
     끝 = max([프레임(s초 + 길이, fps) for 목록 in 트랙컷.values() for _, _, _, s초, 길이 in 목록] or [0])
     글(시퀀스, "duration", 끝)
     # 마커
-    자리찾기 = {}
     for m in spec.get("markers", []):
         e = copy.deepcopy(본보기마커)
         글(e, "name", m.get("name", "")); 글(e, "comment", m.get("comment", ""))

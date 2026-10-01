@@ -18,7 +18,7 @@
 
 내놓는 것 (json)  [{"파일":…, "구간":"2", "시작":초, "끝":초, "닮음":0.52, "글":"…"}, …]
 """
-import io, os, re, sys, json, difflib
+import io, re, sys, json, difflib
 
 머리말 = re.compile(r"(시작하겠습니다|시작할게요|시작합니다|들어가겠습니다|가보겠습니다|찍겠습니다)")
 한글 = re.compile(r"[^가-힣]")
