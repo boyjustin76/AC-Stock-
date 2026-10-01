@@ -271,6 +271,12 @@ cd "<통합>\03_저장소\AC-Stock-"  ;  git fetch origin  ;  git worktree add "
 ```
 upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B 는 .claude/worktrees/ps 안에 뒀던 것을 같은 방식으로 밖으로 옮긴다. E 는 clone 하나를 혼자 쓰니 worktree 없이 폴더 이름만 E_Script 로 (git switch -c worktree-E_Script origin/<본류>). 옛 이름 세 개(ae·ps·script)는 09-17 본류에 다 들어갔으니 지워도 된다
 
+**26. 롱폼 컷편집 합본 — 캠 + PD 나레이션 + 시연 화면 → 프리미어 XML + 자막 (E, L08 2026-09-11 성공)** — 캠 녹화(형광 줄)와 PD 설명 녹화(일반 줄 소리 · 뒤 시연 화면)를 대본 순서로 한 시퀀스에 잇고, 같은 타임라인에 자막을 얹는다. L08 로 검증: 합본 49컷 582.82초 · 자막 233큐, 이정찬이 프리미어에서 열어 확인
+```
+python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · align_take.py (캠·PD 각각)  →  python3 tools/cutedit/assemble_longform.py <캠폴더> <PD폴더> <대본.txt> --pd-src <PD설명.mp4> …  →  python3 tools/cutedit/make_xml.py cuts.json out.xml [--source-root]  →  python3 tools/cutedit/srt_rules.py check <srt>
+```
+기록은 log/SCRIPT-LAB.md §17 과 tools/theone/README.md 'L08 에서 확인한 것'. 첫 납품 불량 다섯(트랙 순서·V2 겹침·자막 끝<시작·0.08초 늦음·검사 미비)과 고친 도구가 §17 표에. 자막 진본은 프리미어에서 방금 내보낸 srt(constraint 31). 숏폼은 runbook 18
+
 
 ### 파일 지도
 
@@ -1857,3 +1863,4 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | 170 | `14962019` | 세이브 save/2026-09-29-1527 — D 20·E 5 병합 — 45 ③ 완료, issue 52·53, constraint 72·73, 55 는 B 담당, E 는 md·py 만, 답 문서 | 7파일 +139/-26 |
 | 171 | `71b83ac3` | 세이브 기록 save/2026-09-29-1527 | 5파일 +1246/-1236 |
 | 172 | `9e0e9846` | 세이브 save/2026-09-29-1528 — test_scene_finders ma_flat_box 중복 키 하나로(F601), 답 문서에 적음 | 5파일 +5/-4 |
+| 173 | `9cd01550` | 세이브 기록 save/2026-09-29-1528 | 5파일 +11/-3 |
