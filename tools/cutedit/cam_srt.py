@@ -10,7 +10,7 @@ aligned.json 은 대본 문장마다 '이어 붙인 캠 타임라인'에서의 �
 import io, os, re, sys, json, difflib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from srt_rules import LONG_MAX_LEN, LONG_MIN_LEN, split_cue
+import ko_clause
 
 군더더기 = re.compile(r"[\s'\"‘’“”.,!?()\[\]/·…~\-+:;]")
 맨글 = lambda t: 군더더기.sub("", t)
@@ -57,7 +57,7 @@ def 낱말시각(문장, 낱말, 토막들):
         결과.append((들[자리[a]][1], 들[자리[b]][2]))
     return 결과
 
-줄당기본 = LONG_MAX_LEN   # 롱폼 큐 상한 21자 (srt_rules 가 진본)
+줄당기본 = ko_clause.최대기본   # 큐 글자 수는 **기준이 아니라 한계**다 — ko_clause 가 진본
 당김 = 0.15           # 자막은 말보다 조금 먼저 뜬다 (L08 실측: 0.15초가 사람 수정본과 가장 가깝다)
 
 
@@ -107,8 +107,9 @@ def 만들기(작업, 컷리스트, 줄당=줄당기본, fps=29.97):
         if not 글 or 글.startswith("("): continue        # (차트를 보며 …) 같은 지시문은 뺀다
         시, 끝 = 옮기기(r["s"]), 옮기기(r["e"])
         if 시 is None or 끝 is None or 끝 <= 시: continue
-        # 한 문장이 길면 **큐로 쪼갠다**. 안 쪼개면 90자 큐가 나온다 (마01 첫판 실측).
-        조각 = [c for c in split_cue(글, max_len=줄당, min_len=LONG_MIN_LEN) if c.strip()]
+        # 한 문장이 길면 **구·절 단위로 쪼갠다**(ko_clause). 글자 수로 쪼개면 `알려 | 주는` 처럼
+        # 말이 안 되는 자리에서 끊긴다 (이정찬 지적 2026-10-01). 안 쪼개면 90자 큐가 나온다.
+        조각 = [c for c in ko_clause.조각내기(글, 최대=줄당) if c.strip()]
         # 조각마다의 시각은 **받아쓴 낱말**에서 가져온다 (비례 분배는 말이 빨라지면 밀린다)
         안 = [w for w in 모든낱말 if float(w["s"]) < r["e"] + 0.4 and float(w["e"]) > r["s"] - 0.4]
         때 = 낱말시각(글, 안, 조각)
