@@ -51,9 +51,21 @@ def test_rate_ntsc():
 
 def test_pathurl_percent_encodes_korean_and_spaces():
     u = make_xml.pathurl(r"C:\Users\user\Desktop\이정찬\L08_PD에게 설명.mp4")
-    assert u.startswith("file://localhost/C:/Users/user/Desktop/")
-    assert "%EC%9D%B4%EC%A0%95%EC%B0%AC" in u and "%20" in u
+    # 프리미어가 내보내는 표기다 — 드라이브 콜론은 %3a, 16진은 소문자
+    assert u.startswith("file://localhost/C%3a/Users/user/Desktop/")
+    assert "%ec%9d%b4%ec%a0%95%ec%b0%ac" in u and "%20" in u
     assert "\\" not in u and "이" not in u
+
+
+def test_pathurl_leaves_brackets_and_amp_as_is():
+    """괄호·대괄호·& 를 퍼센트로 바꾸면 프리미어가 경로를 못 찾고, clipitem 이 여럿이면
+    임시 .prproj 변환이 깨진다 (D 세션이 프리미어 27.10.0 에서 확정, 2026-10-01).
+    마01 캠이 '컷 5개는 되고 9개는 안 되는' 것으로 보였던 진짜 원인이다."""
+    u = make_xml.pathurl(r"C:\Users\user\마01\캠용(얼굴&대본)[확보]\캠모음.mp4")
+    for ch in "()[]&":
+        assert ch in u, ch
+    for bad in ("%28", "%29", "%5b", "%5d", "%26"):
+        assert bad not in u, bad
 
 
 def test_fmt_and_sec_round_trip():
