@@ -15,17 +15,22 @@ var LAB = labDirPath();
     function say(k, v) { out.push(k + "\t" + v); }
     function probe(k, fn) { try { say(k, String(fn())); } catch (e) { say(k + "_ERR", e.toString()); } }
 
-    function readFirstLine(p) {
-        var f = new File(p);
-        if (!f.exists) return "";
+    function readLines(p) {
+        var f = new File(p), a = [];
+        if (!f.exists) return a;
         f.encoding = "UTF-8";
         f.open("r");
-        var s = f.readln();
+        while (!f.eof) {
+            var s = f.readln();
+            if (s) { s = String(s).replace(/^\s+|\s+$/g, ""); if (s) a.push(s); }
+        }
         f.close();
-        return s ? String(s).replace(/^\s+|\s+$/g, "") : "";
+        return a;
     }
 
-    var xml = readFirstLine(LAB + "/x1_input.txt");
+    var lines = readLines(LAB + "/x1_input.txt");
+    var xml = lines.length > 0 ? lines[0] : "";
+    var srt = lines.length > 1 ? lines[1] : "";   // 둘째 줄이 있으면 자막도 넣는다
     say("xml", xml);
     say("xml_exists", String(new File(xml).exists));
 
@@ -112,6 +117,78 @@ var LAB = labDirPath();
         }
         return a.join(" / ");
     });
+
+    //== 자막(.srt) — 둘째 줄이 있으면 같은 프로젝트에 넣고 캡션으로 들어왔는지 본다 =====
+    if (srt) {
+        say("srt", srt);
+        say("srt_exists", String(new File(srt).exists));
+        var itemsBefore = app.project.rootItem.children.numItems;
+        probe("importSRT", function () {
+            return app.project.importFiles([srt], true, app.project.rootItem, false);
+        });
+        $.sleep(2000);
+        probe("rootItems_srt", function () {
+            return itemsBefore + " → " + app.project.rootItem.children.numItems;
+        });
+        probe("srt_item", function () {
+            var r = app.project.rootItem, a = [];
+            for (var i = 0; i < r.children.numItems; i++) {
+                var it = r.children[i];
+                if (String(it.name).toLowerCase().indexOf(".srt") >= 0 ||
+                    String(it.name).indexOf("캠_컷") >= 0) {
+                    var t = "?";
+                    try { t = it.type; } catch (e) {}
+                    a.push(it.name + "(type=" + t + ")");
+                }
+            }
+            return a.join(" / ");
+        });
+        //  시퀀스에 캡션 트랙이 생기는 길이 있는지 — 버전마다 이름이 다르다. 있는 것만 적는다.
+        probe("caption_api", function () {
+            var s = app.project.sequences[0], a = [];
+            var names = ["captionTracks", "createCaptionTrack", "getCaptionTrackCount",
+                         "addCaptionTrack", "captions"];
+            for (var i = 0; i < names.length; i++) {
+                a.push(names[i] + "=" + (typeof s[names[i]]));
+            }
+            return a.join(" ");
+        });
+        probe("seq_members", function () {
+            var s = app.project.sequences[0], a = [];
+            for (var k in s) a.push(k);
+            a.sort();
+            return a.join(",");
+        });
+        probe("caption_count", function () {
+            var s = app.project.sequences[0];
+            if (s.captionTracks) return "captionTracks.numTracks=" + s.captionTracks.numTracks;
+            if (typeof s.getCaptionTrackCount === "function") return "getCaptionTrackCount=" + s.getCaptionTrackCount();
+            return "(캡션 트랙 API 없음)";
+        });
+
+        //  실제로 캡션 트랙을 만들어 붙여 본다 (createCaptionTrack 이 있다 — 2026-10-01 실측)
+        probe("createCaptionTrack", function () {
+            var s = app.project.sequences[0], r = app.project.rootItem, item = null;
+            for (var i = 0; i < r.children.numItems; i++) {
+                if (String(r.children[i].name).toLowerCase().indexOf(".srt") >= 0) item = r.children[i];
+            }
+            if (!item) return "자막 항목을 못 찾음";
+            say("createCaptionTrack_arity", String(s.createCaptionTrack.length));
+            return String(s.createCaptionTrack(item, 0));
+        });
+        $.sleep(2000);
+        probe("after_caption", function () {
+            var s = app.project.sequences[0];
+            return "V" + s.videoTracks.numTracks + "/A" + s.audioTracks.numTracks +
+                   " · 시퀀스 멤버에 caption 있나: " + (typeof s.captionTracks);
+        });
+    }
+
+    //  사람이 눈으로 볼 수 있게 시퀀스를 타임라인에 열고 저장해 둔다
+    probe("openSequence", function () {
+        return String(app.project.openSequence(app.project.sequences[0].sequenceID));
+    });
+    probe("save", function () { app.project.save(); return "saved"; });
 
     var ok = (seqs > before);
     var verdict = (ok ? "OK 가져오기 성공" : "FAIL 시퀀스가 안 생겼다") + " · 시퀀스 " + seqs + "개";
