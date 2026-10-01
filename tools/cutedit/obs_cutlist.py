@@ -100,6 +100,12 @@ def 만들기(소리, 펜, 폴더, 이름, fps=30.0, w=1920, h=1080):
             markers.append({"at": round(옮기기(a), 2), "dur": round(옮기기(b) - 옮기기(a), 2),
                             "name": "★ 읽고 그리기",
                             "comment": "%s 원본 %.0f~%.0f초 · 테이크 %d개" % (키, a, b, len(묶))})
+    # 꺼 둔 클립(V2)은 **V1 이 끝난 뒤부터** 차례로 — 0초부터 깔면 시퀀스가 원본 전체 길이로
+    # 늘어나 편집에 걸리적거린다 (이정찬 화면 확인 2026-10-01).
+    자리 = sum(c["out"] - c["in"] for c in cuts if c.get("track", 1) == 1)
+    for c in cuts:
+        if c.get("track", 1) == 2:
+            c["at"] = round(자리, 2); 자리 += c["out"] - c["in"]
     markers.sort(key=lambda m: m["at"])
     return {"name": 이름, "fps": fps, "width": w, "height": h,
             "sources": sources, "cuts": cuts, "markers": markers}

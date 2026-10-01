@@ -26,8 +26,11 @@ def 받아적기(경로, 모델):
 
 if __name__ == "__main__":
     낼곳 = sys.argv[1]
-    영상 = [a for a in sys.argv[2:] if not a.startswith("--")]
-    이름 = sys.argv[sys.argv.index("--모델") + 1] if "--모델" in sys.argv else "small"
+    인자 = sys.argv[2:]
+    이름 = "small"
+    if "--모델" in 인자:                                  # 값까지 같이 빼야 한다 ('small' 을 영상으로 넘겼었다)
+        k = 인자.index("--모델"); 이름 = 인자[k + 1]; del 인자[k:k + 2]
+    영상 = [a for a in 인자 if not a.startswith("--")]
     from faster_whisper import WhisperModel
     모델 = WhisperModel(이름, device="cpu", compute_type="int8", cpu_threads=4)
     결과 = []
