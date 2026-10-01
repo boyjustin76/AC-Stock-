@@ -141,12 +141,15 @@ def retake_spans(a, segs, words):
     def span_of(seg, limit_chars=None):
         ws = [w for w in words if w[1] > seg['s'] - 0.05 and w[0] < seg['e'] + 0.05]
         if limit_chars is not None:
+            #  **넘기기 전에 멈춘다.** 넘겨서 담으면 뒤 테이크가 다시 말하는 첫 낱말을 앞에서도
+            #  가져가 같은 말이 두 번 들린다 (E 지적 10-01: '변동성이' 가 0.2초 간격으로 두 번).
             keep, n = [], 0
             for w in ws:
-                n += len(norm(w[2]))
-                keep.append(w)
-                if n >= limit_chars:
+                ln = len(norm(w[2]))
+                if keep and n + ln > limit_chars:
                     break
+                n += ln
+                keep.append(w)
             ws = keep
         return (ws[0][0], ws[-1][1]) if ws else None
 
@@ -196,6 +199,11 @@ def chunks(al, words, sil, gap, lead, tail, minlen, segs=None,
         next_start = out[k + 1]['start'] if k + 1 < len(out) else 1e9
         c['start'] = max(c['start'] - lead, prev_end, c.get('lo', c['start']) - lead, 0.0)
         c['end'] = min(c['end'] + tail, next_start, c.get('hi', c['end']) + tail)
+        #  숨 쉴 틈이 **다음 낱말 머리를 물면** 안 된다 — 이어 붙인 자리에서 같은 말이 두 번 들린다
+        #  (E 지적 10-01: '변동성이' 가 앞 테이크 꼬리와 뒤 테이크 머리에 겹쳤다).
+        nxt = next((w[0] for w in words if w[0] >= c['end'] - tail - 0.01), None)
+        if nxt is not None and nxt < c['end']:
+            c['end'] = max(c['start'] + 0.05, nxt - 0.02)
 
     #  짧으면서 받아쓰기 확신이 낮은 조각은 버린다 — 헛말·재촬영 알림("아 다시 하겠습니다")이 여기 걸린다
     kept = []
@@ -221,6 +229,21 @@ def chunks(al, words, sil, gap, lead, tail, minlen, segs=None,
             tidy.append(c)
     kept = tidy
 
+    #  이어 붙인 자리에서 **같은 말이 두 번** 들리지 않게 — 앞 컷 꼬리의 그 낱말을 떼어낸다.
+    #  (말을 더듬어 되풀이한 자리·재촬영 이음매에서 나온다. E 지적 10-01 뒤 전수로 네 군데 더 나왔다.)
+    for _ in range(3):            # 세 번까지 되풀이 — 같은 말을 두 번 넘게 더듬은 자리가 있다
+        changed = False
+        for c1, c2 in zip(kept, kept[1:]):
+            w1 = [w for w in words if w[1] > c1['start'] + 0.02 and w[0] < c1['end'] - 0.02]
+            w2 = [w for w in words if w[1] > c2['start'] + 0.02 and w[0] < c2['end'] - 0.02]
+            if w1 and w2 and norm(w1[-1][2]) == norm(w2[0][2]) and norm(w1[-1][2]):
+                cut_at = w1[-1][0] - 0.02
+                if cut_at - c1['start'] >= 0.4:
+                    c1['end'] = cut_at
+                    changed = True
+        if not changed:
+            break
+
     #  너무 잔 조각은 **도로 붙인다** — 0.4초짜리 컷은 화면에서 번쩍이기만 한다.
     #  사이의 침묵을 살리더라도 이어 붙이는 쪽이 보기 낫다.
     merged = []
@@ -231,6 +254,27 @@ def chunks(al, words, sil, gap, lead, tail, minlen, segs=None,
             merged[-1]['sent'] |= c['sent']
         else:
             merged.append(c)
+
+    #  붙이고 나서 한 번 더 — 되풀이한 말이 다시 맞붙을 수 있다.
+    #  떼어내면 너무 짧아지는 조각(말 더듬은 토막)은 통째로 버린다.
+    for _ in range(3):
+        out2, changed = [], False
+        for k, c in enumerate(merged):
+            nxt = merged[k + 1] if k + 1 < len(merged) else None
+            w1 = [w for w in words if w[1] > c['start'] + 0.02 and w[0] < c['end'] - 0.02]
+            w2 = ([w for w in words if w[1] > nxt['start'] + 0.02 and w[0] < nxt['end'] - 0.02]
+                  if nxt else [])
+            if w1 and w2 and norm(w1[-1][2]) and norm(w1[-1][2]) == norm(w2[0][2]):
+                cut_at = w1[-1][0] - 0.02
+                changed = True
+                if cut_at - c['start'] >= 0.4:
+                    c['end'] = cut_at
+                else:
+                    continue                      # 토막째 버린다
+            out2.append(c)
+        merged = out2
+        if not changed:
+            break
     return merged
 
 
