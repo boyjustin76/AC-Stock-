@@ -30,3 +30,8 @@ deliver/script/**/*.docx
 deliver/script/**/*.pdf
 deliver/script/**/*.txt
 deliver/script/**/*.json
+
+# 표준국어대사전 MCP 가 내려받는 자료 (205MB) — 저장소에 넣지 않는다
+data/db/
+data/downloads/
+data/state.json
