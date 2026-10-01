@@ -169,7 +169,7 @@ def 경계벌점(어절들, i):
     앞태, 뒤태 = 끝태그(앞), 끝태그(뒤)
     if 앞맨 in _한음절관형: return None                  # `두 | 개를`, `이 | 검정색`
     # 관형사 태그는 MM·MMD(지시)·MMA(성상)·MMN(수) 로 갈린다 — 앞가지로 한꺼번에 막는다
-    if 앞태 and (앞태.startswith("MM") or 앞태 in ("ETM", "JKG", "ETN", "NNB", "XPN", "MAJ")):
+    if 앞태 and (앞태.startswith("MM") or 앞태 in ("JKG", "ETN", "NNB", "XPN", "MAJ")):
         return None
     if _의존명사인가(뒤): return None                    # `두 | 개를`, `확대될 | 수 있다는`
     if 알만(뒤) in 의존용언: return None                 # `매수했음에도 | 불구하고`, `밴드에 | 비해`
@@ -177,20 +177,24 @@ def 경계벌점(어절들, i):
         return None                                      # `알려 | 주는`, `머물지 | 않고`, `받아들여야 | 합니다`
 
     # ② 좋은 자리
-    if re.search(r"[.?!…]$", 앞.strip()): return 0
-    if re.search(r"[,;:]$", 앞.strip()): return 0
+    # 구두점 뒤는 **거의 늘 끊는다** — 이정찬 수정본 99개 경계 가운데 쉼표·마침표 뒤를
+    # 안 끊은 자리가 없었다. 값으로 상을 줘서 길이 때문에 지나치지 않게 한다.
+    if re.search(r"[.?!…]$", 앞.strip()): return -6
+    if re.search(r"[,;:]$", 앞.strip()): return -6
     if 앞태 == "EF": return 1
     if 앞태 == "EC":
-        return 1 if re.search(r"(면서|지만|는데|니까|거나|더라도|도록|므로|다가|고|며|면)$", 앞맨) else 5
+        return 1 if re.search(r"(면서|지만|는데|니까|거나|더라도|도록|므로|다가|고|며|면)$", 앞맨) else 2
     if 앞태 == "EC_대등": return 1
-    if 앞태 == "EC_보조": return 5
+    if 앞태 == "EC_보조": return 2                      # `닿아 | 매수했음에도`, `청산하여 | 수익을`
+    # **관형절이 끝난 자리**는 절 경계다 — 이정찬 수정본이 여기서 자주 끊는다
+    # (`접촉했다는 | 단일 사실`, `회귀하는 | 20일 중심선`, `아닌 | 두 개를`). 막으면 안 된다.
+    if 앞태 == "ETM": return 2
     뒤첫 = 첫태그(뒤)
     if 앞태 in ("JX", "JKB", "JC"):
         # 부사어와 그 서술어는 단단히 묶인다 — `지속적으로 | 움직이는`, `밴드에 | 닿았다는`
         return 8 if (앞태 == "JKB" and 뒤첫 in ("VV", "VA", "VX", "VCP", "VCN")) else 3
-    # 주어와 서술어도 떼면 주어가 떠 보인다 — `제가 | 운영하는`
-    if 앞태 == "JKS":
-        return 8 if 뒤첫 in ("VV", "VA", "VX", "VCP", "VCN") else 4
+    # 주어 뒤는 괜찮다 — 이정찬 수정본도 `20일 중심선이 | 우상향이면` 처럼 끊는다
+    if 앞태 == "JKS": return 4
     if 앞태 in ("JKO", "JKC"): return 6                  # 목적어는 서술어와 더 단단히 묶인다
     # 조사가 없는 체언 뒤 — `경고 | 신호로` 처럼 복합명사·명사구를 가를 위험이 크다.
     # 태그를 못 찾은 것(None)도 체언으로 본다 — 말뭉치에 없는 전문어(볼린저·휩소)가 대부분이다
@@ -205,8 +209,11 @@ def 경계벌점(어절들, i):
     return 7
 
 
-def 조각내기(문장, 최대=최대기본, 최소=최소기본, 이상=이상기본):
+def 조각내기(문장, 최대=None, 최소=None, 이상=None):
     """문장 → 구·절 단위 자막 조각들."""
+    최대 = 최대기본 if 최대 is None else 최대
+    최소 = 최소기본 if 최소 is None else 최소
+    이상 = 이상기본 if 이상 is None else 이상
     어절들 = [w for w in 문장.split() if w]
     if not 어절들: return []
     n = len(어절들)
