@@ -1,0 +1,814 @@
+{
+ "episode": "차11",
+ "source": "G:\\내 드라이브\\트레이딩팩토리\\02_영상_소스_롱폼\\차트명가(롱)\\차명11_20일선의 비밀\\소스\\",
+ "items": [
+  {
+   "file": "01_20일 제대로 사용하는 법 관련\\숏_1-1.png",
+   "folder_topic": "01_20일 제대로 사용하는 법 관련",
+   "symbol": "US100",
+   "tf": "H1",
+   "indicators": [
+    "MA(?) 빨강",
+    "MA20(주황, 추정)",
+    "MA(?) 초록",
+    "MA(?) 분홍",
+    "MA(?) 보라"
+   ],
+   "movement": "급락 뒤 이평 리본 아래 하락, 바닥 후 리본 상향 돌파 V자 반등",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5",
+   "note": "이평 5개(빨강·주황·초록·분홍·보라). 기간 라벨 없음 — 주황=MA20 은 숏_1-3(같은 구간, 주황만 남김)으로 추정"
+  },
+  {
+   "file": "01_20일 제대로 사용하는 법 관련\\숏_1-2.png",
+   "folder_topic": "01_20일 제대로 사용하는 법 관련",
+   "symbol": "US100",
+   "tf": "H1",
+   "indicators": [
+    "MA(?) 빨강",
+    "MA20(주황, 추정)",
+    "MA(?) 초록",
+    "MA(?) 분홍",
+    "MA(?) 보라"
+   ],
+   "movement": "장대음봉 급락 뒤 저점 다지기, 리본 상향 돌파 후 상승 추세",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "01_20일 제대로 사용하는 법 관련\\숏_1-3.png",
+   "folder_topic": "01_20일 제대로 사용하는 법 관련",
+   "symbol": "US100",
+   "tf": "H1",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "20일선 하향 이탈 뒤 하락, 20일선 재돌파 후 20일선 지지 상승 추세",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5",
+   "note": "숏_1-1 과 같은 구간에서 주황선만 남김"
+  },
+  {
+   "file": "01_20일 제대로 사용하는 법 관련\\숏_2.png",
+   "folder_topic": "01_20일 제대로 사용하는 법 관련",
+   "symbol": "US100",
+   "tf": "H1",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "20일선 하향 이탈·하락 뒤 20일선 회복, 20일선 타고 상승 후 고점 횡보",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5",
+   "note": "숏_1-2 와 같은 구간"
+  },
+  {
+   "file": "01_20일 제대로 사용하는 법 관련\\안보임.png",
+   "folder_topic": "01_20일 제대로 사용하는 법 관련",
+   "symbol": "US100",
+   "tf": "M5",
+   "indicators": [
+    "MA(?) 빨강",
+    "MA20(주황, 추정)",
+    "MA(?) 초록",
+    "MA(?) 분홍",
+    "MA(?) 보라"
+   ],
+   "movement": "이평 리본 뒤엉킨 구간(방향 불명확) 뒤 상방 정배열",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5",
+   "note": "파일명 '안보임' — 선이 많아 안 보인다는 예시로 추정"
+  },
+  {
+   "file": "01_20일 제대로 사용하는 법 관련\\스크린샷 2026-07-03 172007.png",
+   "folder_topic": "01_20일 제대로 사용하는 법 관련",
+   "symbol": "US100",
+   "tf": "H1",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "20일선 위 눌림 지지 받으며 상승, 고점 뒤 20일선 하향 이탈",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "01_20일 제대로 사용하는 법 관련\\스크린샷 2026-07-03 172033.png",
+   "folder_topic": "01_20일 제대로 사용하는 법 관련",
+   "symbol": "US100",
+   "tf": "M15",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "20일선 지지 받으며 완만한 상승 추세, 눌림마다 20일선에서 반등",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "01_20일 제대로 사용하는 법 관련\\스크린샷 2026-07-03 172055.png",
+   "folder_topic": "01_20일 제대로 사용하는 법 관련",
+   "symbol": "US100",
+   "tf": "M5",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "20일선 하향 이탈 뒤 하락, 20일선 근처 횡보 후 재상승 시도",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "01_20일 제대로 사용하는 법 관련\\스크린샷 2026-07-03 172120.png",
+   "folder_topic": "01_20일 제대로 사용하는 법 관련",
+   "symbol": "US100",
+   "tf": "M5",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "20일선 상향 돌파 뒤 20일선 위 꾸준한 상승 추세(눌림 뒤 반등)",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "01_20일 제대로 사용하는 법 관련\\스크린샷 2026-07-03 172135.png",
+   "folder_topic": "01_20일 제대로 사용하는 법 관련",
+   "symbol": "US100",
+   "tf": "M5",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "20일선 아래 하락 추세, 바닥 뒤 20일선 회복하고 반등",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "03_30일선 관련\\비트코인 20일.png",
+   "folder_topic": "03_30일선 관련",
+   "symbol": "BTCUSD",
+   "tf": "W1",
+   "indicators": [
+    "MA20(주황, 파일명 기준)"
+   ],
+   "movement": "20일선 위 장기 상승 뒤 20일선 하향 이탈, 20일선 아래 하락 추세",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "03_30일선 관련\\비트코인 20+30일.png",
+   "folder_topic": "03_30일선 관련",
+   "symbol": "BTCUSD",
+   "tf": "W1",
+   "indicators": [
+    "MA20(주황)",
+    "MA30(초록)"
+   ],
+   "movement": "상승 추세 뒤 20·30일선 하향 이탈, 데드크로스 후 하락 추세",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "03_30일선 관련\\비트코인 30일.png",
+   "folder_topic": "03_30일선 관련",
+   "symbol": "BTCUSD",
+   "tf": "W1",
+   "indicators": [
+    "MA30(초록, 파일명 기준)"
+   ],
+   "movement": "30일선 위 상승 뒤 30일선 하향 이탈, 30일선 저항 받으며 하락",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "03_30일선 관련\\비트코인 20+30일 비교.png",
+   "folder_topic": "03_30일선 관련",
+   "symbol": "BTCUSD",
+   "tf": "D1",
+   "indicators": [
+    "MA20(주황)",
+    "MA30(초록)"
+   ],
+   "movement": "20·30일선 위 강한 상승 추세, 고점 뒤 20일선 부근까지 조정",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "03_30일선 관련\\20일선 중요 반등.png",
+   "folder_topic": "03_30일선 관련",
+   "symbol": "US100",
+   "tf": "D1",
+   "indicators": [
+    "MA20(주황, 추정)",
+    "MA30(초록, 추정)",
+    "MA(?) 분홍",
+    "MA(?) 보라"
+   ],
+   "movement": "20일선 지지 받으며 장기 상승, 막판 급락으로 20·30일선 하향 이탈",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5",
+   "note": "2019-09~2020-02 코로나 직전 구간"
+  },
+  {
+   "file": "03_30일선 관련\\20선 반등 비교(전체).png",
+   "folder_topic": "03_30일선 관련",
+   "symbol": "US100",
+   "tf": "D1",
+   "indicators": [
+    "MA(?) 빨강",
+    "MA20(주황, 추정)",
+    "MA30(초록, 추정)",
+    "MA(?) 분홍",
+    "MA(?) 보라"
+   ],
+   "movement": "20일선 눌림 반등 반복하는 상승 추세, 고점 뒤 20일선 이탈·30일선 부근 반등",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "03_30일선 관련\\20선 반등 비교(20일 기준).png",
+   "folder_topic": "03_30일선 관련",
+   "symbol": "US100",
+   "tf": "D1",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "20일선 위 눌림 뒤 반등 반복하는 상승 추세, 고점 후 20일선 하향 이탈",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "03_30일선 관련\\스크린샷 2026-07-10 145350.png",
+   "folder_topic": "03_30일선 관련",
+   "symbol": "BTCUSD",
+   "tf": "D1",
+   "indicators": [
+    "MA20(주황)",
+    "MA30(초록)"
+   ],
+   "movement": "20·30일선 엉킨 횡보 뒤 골든크로스, 20일선 지지 강한 상승",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "03_30일선 관련\\스크린샷 2026-07-10 150956.png",
+   "folder_topic": "03_30일선 관련",
+   "symbol": "ETHUSD",
+   "tf": "H1",
+   "indicators": [
+    "MA(?) 빨강",
+    "MA20(주황, 추정)",
+    "MA30(초록, 추정)"
+   ],
+   "movement": "이평 정배열 상승 추세, 20일선 눌림 지지 반복",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "03_30일선 관련\\스크린샷 2026-07-10 151113.png",
+   "folder_topic": "03_30일선 관련",
+   "symbol": "ETHUSD",
+   "tf": "H1",
+   "indicators": [
+    "MA(?) 빨강",
+    "MA20(주황, 추정)",
+    "MA(?) 파랑(굵음, 장기선)"
+   ],
+   "movement": "정배열 상승 추세, 막판 20일선 부근 조정",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5",
+   "note": "150956 과 같은 구간인데 초록 대신 굵은 파랑선 — 기간 읽을 수 없음"
+  },
+  {
+   "file": "스크린샷 2026-07-10 165740.png",
+   "folder_topic": "(root)",
+   "symbol": "ETHUSD",
+   "tf": "H1",
+   "indicators": [
+    "MA(?) 빨강",
+    "MA20(주황, 추정)",
+    "MA(?) 초록",
+    "MA(?) 분홍",
+    "MA(?) 보라"
+   ],
+   "movement": "장기선 아래 박스권 횡보 뒤 급등, 장기선 저항 후 조정·재돌파",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "스크린샷 2026-07-10 172342.png",
+   "folder_topic": "(root)",
+   "symbol": "ETHUSD",
+   "tf": "H1",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "20일선 위 상승 뒤 20일선 부근 횡보(이탈·회복 반복)",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "스크린샷 2026-07-10 172441.png",
+   "folder_topic": "(root)",
+   "symbol": "ETHUSD",
+   "tf": "H1",
+   "indicators": [],
+   "movement": "상승 뒤 넓은 박스권 등락(이평 없음 원본)",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5",
+   "note": "172342 와 같은 구간, 이평 끈 상태"
+  },
+  {
+   "file": "3. 실전 매매법_③ 돌파 진입2.png",
+   "folder_topic": "(root)",
+   "symbol": "US100",
+   "tf": "H1",
+   "indicators": [
+    "MA(?) 검정(단기)",
+    "MA(?) 주황",
+    "MA(?) 초록",
+    "거래량"
+   ],
+   "movement": "이평 수렴 뒤 상향 돌파, 계단식 상승 추세 후 급락",
+   "annotations": "세로 점선(일 구분)",
+   "platform": "MT5",
+   "kind": "chart_mt5",
+   "note": "헤더 'US100.,H1 US Tech 100 Index Cash' — 흰 바탕 파랑/분홍 캔들(다른 MT5 프로필). 2024-06~07"
+  },
+  {
+   "file": "2. 설명_지수 이평선1.png",
+   "folder_topic": "(root)",
+   "symbol": "US100",
+   "tf": "M15",
+   "indicators": [
+    "MA(?) 빨강(단기)",
+    "MA(?) 주황",
+    "MA(?) 초록(장기)",
+    "거래량"
+   ],
+   "movement": "이평 엉킨 횡보 뒤 역배열 급락",
+   "annotations": "세로 점선(일 구분)",
+   "platform": "MT5",
+   "kind": "chart_mt5",
+   "note": "파일명상 지수이동평균(EMA) 설명용 — 기간 라벨 없음. 2025-06"
+  },
+  {
+   "file": "추세이탈 꼬리만 1.jpg",
+   "folder_topic": "(root)",
+   "symbol": "US100",
+   "tf": "D1",
+   "indicators": [],
+   "movement": "상승 추세 뒤 장대음봉 급락, 반등 후 고점 박스권",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5",
+   "note": "데모 Netting 계정. 이평 없음"
+  },
+  {
+   "file": "US100.M2.png",
+   "folder_topic": "(root)",
+   "symbol": "US100(파일명)",
+   "tf": "M2(파일명)",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "20일선 아래 하락 추세 뒤 20일선 돌파 V자 반등, 상승 후 20일선 부근 등락",
+   "annotations": "",
+   "platform": "MT5(추정, 창 테두리 없는 내보내기)",
+   "kind": "chart_export"
+  },
+  {
+   "file": "20일 이탈 음봉.png",
+   "folder_topic": "(root)",
+   "symbol": "?",
+   "tf": "?",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "20일선 하향 이탈 뒤 하락, 바닥 후 20일선 돌파 상승",
+   "annotations": "",
+   "platform": "MT5(추정, 창 테두리 없는 내보내기)",
+   "kind": "chart_export"
+  },
+  {
+   "file": "횡보장.png",
+   "folder_topic": "(root)",
+   "symbol": "?",
+   "tf": "?",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "급등 뒤 20일선이 평평한 좁은 박스권 횡보, 이후 하향 이탈 하락",
+   "annotations": "",
+   "platform": "MT5(추정, 창 테두리 없는 내보내기)",
+   "kind": "chart_export"
+  },
+  {
+   "file": "윗꼬리 추세선.png",
+   "folder_topic": "(root)",
+   "symbol": "?",
+   "tf": "?",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "박스권 횡보(윗꼬리 상단 저항) 뒤 하향 이탈",
+   "annotations": "빨강 수평선 1개(윗꼬리 상단)",
+   "platform": "MT5(추정, 창 테두리 없는 내보내기)",
+   "kind": "chart_export",
+   "note": "횡보장.png 와 같은 차트"
+  },
+  {
+   "file": "윗+아랫꼬리 추세선.png",
+   "folder_topic": "(root)",
+   "symbol": "?",
+   "tf": "?",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "박스권 횡보(상·하단 꼬리 라인) 뒤 하단 이탈 하락",
+   "annotations": "빨강 수평선 2개(박스 상단·하단)",
+   "platform": "MT5(추정, 창 테두리 없는 내보내기)",
+   "kind": "chart_export"
+  },
+  {
+   "file": "윗꼬리~아랫꼬리 수평라인들.png",
+   "folder_topic": "(root)",
+   "symbol": "?",
+   "tf": "?",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "박스권 안 여러 수평 지지·저항 뒤 하향 이탈",
+   "annotations": "빨강 추세선 2개 + 얇은 수평선 2개(몸통 기준)",
+   "platform": "MT5(추정, 창 테두리 없는 내보내기)",
+   "kind": "chart_export"
+  },
+  {
+   "file": "[롱폼].00_04_22_28.스틸 001.png.png",
+   "folder_topic": "(root)",
+   "symbol": "?",
+   "tf": "?",
+   "indicators": [
+    "MA(?) 초록 굵게 강조",
+    "MA(?) 주황 얇게"
+   ],
+   "movement": "지지선·이평 지지 눌림마다 매수, 이후 급등 상승 추세",
+   "annotations": "'매수' 버튼 3개, '지지선' 라벨+검붉은 수평선, 눌림 구간 보라 타원, 분홍 배경 영역",
+   "platform": "편집본 스틸(원본 MT5 추정)",
+   "kind": "edited_still"
+  },
+  {
+   "file": "화살표_글씨_5.png",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [],
+   "movement": "(차트 아님) 손글씨 곡선 화살표 소스",
+   "annotations": "",
+   "platform": "other",
+   "kind": "asset"
+  },
+  {
+   "file": "매수 버튼(좌우).png",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [],
+   "movement": "(차트 아님) 빨강 '매수' 버튼 좌/우 방향",
+   "annotations": "",
+   "platform": "other",
+   "kind": "asset"
+  },
+  {
+   "file": "20220525_5_336146.jpg",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [],
+   "movement": "(차트 아님) 아마존 독일 베스트셀러 책 10권 표",
+   "annotations": "",
+   "platform": "other",
+   "kind": "asset"
+  },
+  {
+   "file": "코리앤트-그래프-떡락-바닥-뚫고-지하로-개미-주식-코인.jpg",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [],
+   "movement": "(차트 아님) 개미 밈 — 떡락 캔들이 바닥 뚫음",
+   "annotations": "",
+   "platform": "other",
+   "kind": "meme"
+  },
+  {
+   "file": "이거-잡주네-주식-투자-코인-개미-개미짤.jpg",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [],
+   "movement": "(차트 아님) 개미 밈 '이거 잡주네'",
+   "annotations": "",
+   "platform": "other",
+   "kind": "meme"
+  },
+  {
+   "file": "개미짤-도망챠-하한가-떡락-개미-주식-투자-도망쳐-코인.jpg",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [],
+   "movement": "(차트 아님) 개미 밈 '도망챠~'",
+   "annotations": "",
+   "platform": "other",
+   "kind": "meme"
+  },
+  {
+   "file": "개미-개미짤-주식-투자-주식짤-어개-걸어.jpg",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [],
+   "movement": "(차트 아님) 개미 밈 '어깨 걸어!'",
+   "annotations": "",
+   "platform": "other",
+   "kind": "meme"
+  },
+  {
+   "file": "Gemini_Generated_Image_ydfhpgydfhpgydfh.png",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [],
+   "movement": "(개념도) 눌림목 정의 — 1차 상승 뒤 눌림(조정) 후 재상승",
+   "annotations": "Trading Factory 로고, 한글 설명 박스",
+   "platform": "other(Gemini 생성)",
+   "kind": "infographic"
+  },
+  {
+   "file": "Gemini_Generated_Image_fm5zphfm5zphfm5z.png",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [],
+   "movement": "(개념도) 눌림목 정의 — 로고 없는 판",
+   "annotations": "",
+   "platform": "other(Gemini 생성)",
+   "kind": "infographic"
+  },
+  {
+   "file": "Gemini_Generated_Image_whkkgbwhkkgbwhkk.png",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [
+    "20 MA(도식)"
+   ],
+   "movement": "(개념도) 상승추세 20MA 눌림 진입 / 하락추세 20MA 되돌림 진입",
+   "annotations": "ENTRY POINT 조준경, 화살표",
+   "platform": "other(Gemini 생성)",
+   "kind": "infographic"
+  },
+  {
+   "file": "Gemini_Generated_Image_hjqgzrhjqgzrhjqg.png",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [
+    "20MA(도식)"
+   ],
+   "movement": "(개념도) 박스권 횡보장에서 20MA 가짜 돌파·가짜 붕괴(휩소)",
+   "annotations": "",
+   "platform": "other(Gemini 생성)",
+   "kind": "infographic"
+  },
+  {
+   "file": "Gemini_Generated_Image_w0izvew0izvew0iz.png",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [
+    "20MA(도식)"
+   ],
+   "movement": "(개념도) 박스권 횡보장·휩소 — hjqg 와 거의 같음(로고 없음)",
+   "annotations": "",
+   "platform": "other(Gemini 생성)",
+   "kind": "infographic"
+  },
+  {
+   "file": "Gemini_Generated_Image_bz9ootbz9ootbz9o.png",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [
+    "20 MA(도식)"
+   ],
+   "movement": "(개념도) 20일선 눌림 진입은 하지만 1:2 짧은 구간에서 익절하는 심리",
+   "annotations": "4컷, 캐릭터",
+   "platform": "other(Gemini 생성)",
+   "kind": "infographic"
+  },
+  {
+   "file": "Gemini_Generated_Image_ikcrrwikcrrwikcr.png",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [],
+   "movement": "(개념도) 눌림목 정의 16:9 판 — 문구 오타('일정7간', 중복 문장) 있음",
+   "annotations": "",
+   "platform": "other(Gemini 생성)",
+   "kind": "infographic"
+  },
+  {
+   "file": "Gemini_Generated_Image_2il6c42il6c42il6.png",
+   "folder_topic": "(root)",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [
+    "20MA(도식)"
+   ],
+   "movement": "(개념도) 박스권 횡보장·휩소 16:9 판",
+   "annotations": "",
+   "platform": "other(Gemini 생성)",
+   "kind": "infographic"
+  },
+  {
+   "file": "45885772_MotionElements_stock-market-buy-sell-concept-eps\\InvestmentAsset (2).jpg",
+   "folder_topic": "45885772_MotionElements_stock-market-buy-sell-concept-eps",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [],
+   "movement": "(차트 아님) BUY/SELL 화살표 스톡 일러스트",
+   "annotations": "",
+   "platform": "other",
+   "kind": "asset"
+  },
+  {
+   "file": "40847429_MotionElements_speech-bubble-open-book-and-stock-market-chart-r-eps\\67531427eb475b39c7f63e93.jpg",
+   "folder_topic": "40847429_MotionElements_speech-bubble-open-book-and-stock-market-chart-r-eps",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [],
+   "movement": "(차트 아님) 물음표 말풍선+책+차트 창 스톡 일러스트",
+   "annotations": "",
+   "platform": "other",
+   "kind": "asset"
+  },
+  {
+   "file": "추가\\스크린샷 2026-08-27 153324.png",
+   "folder_topic": "추가",
+   "symbol": "US100",
+   "tf": "M15",
+   "indicators": [],
+   "movement": "저점 횡보 뒤 계단식 강한 상승 추세(이평 없음 원본)",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5",
+   "note": "HedgeHoodMU-1 다크 테마 계정"
+  },
+  {
+   "file": "추가\\스크린샷 2026-08-27 153344.png",
+   "folder_topic": "추가",
+   "symbol": "US100",
+   "tf": "M15",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "(캔들 숨김) 20일선만 — 완만 횡보 뒤 우상향",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5",
+   "note": "153324 와 같은 구간에서 선만 남김"
+  },
+  {
+   "file": "추가\\스크린샷 2026-08-28 140810.png",
+   "folder_topic": "추가",
+   "symbol": "US100",
+   "tf": "M15",
+   "indicators": [
+    "MA(?) 빨강",
+    "MA20(주황, 추정)",
+    "MA(?) 초록",
+    "MA(?) 분홍",
+    "MA(?) 보라"
+   ],
+   "movement": "이평 수렴 뒤 정배열 전환, 강한 상승 추세",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "추가\\스크린샷 2026-08-28 140822.png",
+   "folder_topic": "추가",
+   "symbol": "US100",
+   "tf": "M15",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "20일선 상향 돌파 뒤 20일선 지지 상승 추세, 고점 후 20일선 터치",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "추가\\스크린샷 2026-08-28 142727.png",
+   "folder_topic": "추가",
+   "symbol": "US100",
+   "tf": "M15",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "급락 뒤 20일선 돌파 반등, 20일선 부근 횡보 후 상방 이탈",
+   "annotations": "",
+   "platform": "MT5",
+   "kind": "chart_mt5"
+  },
+  {
+   "file": "추가\\[롱폼].00_11_48_02.스틸 004.png",
+   "folder_topic": "추가",
+   "symbol": "US100(추정)",
+   "tf": "M15(추정)",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "20일선 돌파 뒤 20일선 지지 상승 추세",
+   "annotations": "",
+   "platform": "편집본 스틸(원본 MT5)",
+   "kind": "edited_still",
+   "note": "캔들 모양이 추가/140822 와 동일 구간"
+  },
+  {
+   "file": "추가\\[롱폼].00_10_01_11.스틸 006.png",
+   "folder_topic": "추가",
+   "symbol": "?",
+   "tf": "?",
+   "indicators": [
+    "MA20(주황, 추정)"
+   ],
+   "movement": "박스권 횡보 뒤 하단 이탈 하락",
+   "annotations": "빨강 박스 상·하단선 + 수평선 2개",
+   "platform": "편집본 스틸(원본 MT5)",
+   "kind": "edited_still",
+   "note": "루트 '윗꼬리~아랫꼬리 수평라인들' 과 같은 차트 확대"
+  },
+  {
+   "file": "추가\\[롱폼].00_00_59_08.스틸 007.png",
+   "folder_topic": "추가",
+   "symbol": "BTCUSD(추정)",
+   "tf": "W1(추정)",
+   "indicators": [
+    "MA20(주황, 굵게 강조)"
+   ],
+   "movement": "20일선 위 상승 뒤 20일선 하향 이탈, 20일선 아래 하락 추세",
+   "annotations": "'20일선' 주황 라벨",
+   "platform": "편집본 스틸(원본 MT5)",
+   "kind": "edited_still",
+   "note": "캔들 모양이 03/비트코인 20일.png 와 같음"
+  },
+  {
+   "file": "추가\\[롱폼].00_00_53_07.스틸 008.png",
+   "folder_topic": "추가",
+   "symbol": "BTCUSD(추정)",
+   "tf": "W1(추정)",
+   "indicators": [
+    "MA20(주황, 굵게 강조)"
+   ],
+   "movement": "20일선 위 상승 뒤 20일선 하향 이탈, 하락 추세",
+   "annotations": "'20일선' 라벨, 제목 '20일 이평선 초단타 매매법', 차트명가 로고",
+   "platform": "편집본 스틸(원본 MT5)",
+   "kind": "edited_still",
+   "note": "스틸 007 + 타이틀·로고가 얹힌 완성 프레임"
+  },
+  {
+   "file": "추가\\Gemini_Generated_Image_itsaitsaitsaitsa.png",
+   "folder_topic": "추가",
+   "symbol": "-",
+   "tf": "-",
+   "indicators": [
+    "20일선(손그림)"
+   ],
+   "movement": "(개념도) 스틸 007 차트를 색연필 손그림풍으로 재현",
+   "annotations": "'20일선' 라벨, 연필깎이 부스러기",
+   "platform": "other(Gemini 생성)",
+   "kind": "infographic"
+  }
+ ]
+}

@@ -25,7 +25,9 @@ AE 는 26.3 이므로 BridgeTalk 타깃은 `aftereffects-26.0` **일 것으로 �
 ### 드라이버 — 프리미어 것을 베끼되 한 군데 고쳤다
 
 ```
-tools/ae/run.ps1      tools/premiere/run.ps1 을 베낌. -Job <이름>
+tools/ae/run.ps1      -Job <이름>. 알맹이는 tools/_com/run.ps1 (프리미어와 공용, next_step 46)
+                      공용 쪽이 봐 주는 것 — 프리미어 떠 있으면 중단(TRAPS 7) · 시간 제한 넘으면 앱 종료
+                      · 반환값 말고 로그의 '판정' 줄로 성공 판정 · 실패하면 화면+로그 30줄을 <잡>_fail 로
 tools/ae/bridge.jsx   포토샵 안에서 돌며 BridgeTalk 으로 AE 에 전달
 tools/ae/config.json  labDir C:/aelab · target "" (비우면 실측)
 tools/ae/jobs/        a1_smoke.jsx …

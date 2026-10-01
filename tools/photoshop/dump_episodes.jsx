@@ -104,6 +104,11 @@ doc.activeHistoryState = doc.historyStates[0];       // 템플릿은 건드리�
 app.preferences.rulerUnits = _ru;
 app.preferences.typeUnits = _tu;
 
+/* 공용 실행기(tools/_com/run.ps1)는 반환값이 아니라 이 줄로 성공을 정한다 — issue 28 · decision 36.
+   맨 앞에 둬야 실행기가 첫 줄에서 바로 찾는다. */
+var nLines = out.length;                             // 판정 줄을 넣기 전에 센다 — 반환값과 같은 수를 쓴다
+out.unshift("판정: OK — 회차 " + eps.length + "개 · " + nLines + "줄");
+
 var f = new File(CFG.outDir + "/ref_tree.txt");
 f.encoding = "UTF-8"; f.open("w"); f.write(out.join(String.fromCharCode(10))); f.close();
-"OK 회차 " + eps.length + "개 · " + out.length + "줄";
+"OK 회차 " + eps.length + "개 · " + nLines + "줄";

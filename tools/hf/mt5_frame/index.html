@@ -1,0 +1,70 @@
+<!doctype html>
+<!--
+  MT5 차트 화면 + 차트명가 NEW 에셋 — 아주 짧은 시험 (3초 · 1920×1080 · 59.94fps)
+  배경: MT5 창(HedgeHood, US100. M2)을 PrintWindow 로 그대로 찍어 틀 뚫린 자리(1758×918)에 맞춘 것
+  틀:   01_납품_차트명가NEW/틀만_완성/B_병풍_틀만.png (뚫린 자리 x81~1839 · y81~999)
+  얹은 것: 종목 배지 · 급락 구간 강조 밴드 · 로고
+-->
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #f3eee3; }
+      #root { width: 100%; height: 100%; position: relative; }
+      img { position: absolute; display: block; }
+
+      /* 1) MT5 차트 — 틀 뚫린 자리에 정확히 */
+      #chart { left: 81px; top: 81px; width: 1758px; height: 918px; }
+      /* 2) 차트명가 NEW 틀 (한지 + 쪽빛 병풍) */
+      #frame { left: 0; top: 0; width: 1920px; height: 1080px; }
+      /* 3) 로고 */
+      #logo { right: 120px; bottom: 120px; width: 96px; height: 96px; opacity: 0; }
+
+      /* 종목 배지 */
+      #badge {
+        position: absolute; left: 130px; top: 130px;
+        padding: 14px 26px; border-radius: 8px;
+        background: #EF2767; color: #fff;
+        font: 700 40px "Malgun Gothic", sans-serif; letter-spacing: -1px;
+        opacity: 0;
+      }
+      /* 급락 구간 강조 — 청록 테두리 상자 */
+      #zone {
+        position: absolute; left: 980px; top: 300px; width: 420px; height: 430px;
+        border: 6px solid #0D9488; border-radius: 14px;
+        background: rgba(13, 148, 136, 0.10);
+        opacity: 0;
+      }
+      #zoneLabel {
+        position: absolute; left: 980px; top: 240px;
+        color: #0D9488; font: 700 46px "Malgun Gothic", sans-serif;
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="3"
+         data-width="1920" data-height="1080" data-fps="60000/1001">
+      <img id="chart" class="clip" src="assets/mt5_chart.png" data-start="0" data-duration="3" data-track-index="0" />
+      <img id="frame" class="clip" src="assets/frame.png" data-start="0" data-duration="3" data-track-index="1" />
+      <div id="badge" class="clip" data-start="0" data-duration="3" data-track-index="2">US100 · 2분</div>
+      <div id="zone" class="clip" data-start="0" data-duration="3" data-track-index="3"></div>
+      <div id="zoneLabel" class="clip" data-start="0" data-duration="3" data-track-index="4">급락</div>
+      <img id="logo" class="clip" src="assets/logo.png" data-start="0" data-duration="3" data-track-index="5" />
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#badge", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 0.2);
+      tl.fromTo("#zone", { opacity: 0, scaleY: 0.6, transformOrigin: "center bottom" },
+                         { opacity: 1, scaleY: 1, duration: 0.5, ease: "power2.out" }, 0.9);
+      tl.fromTo("#zoneLabel", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.2);
+      tl.fromTo("#logo", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "none" }, 1.7);
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

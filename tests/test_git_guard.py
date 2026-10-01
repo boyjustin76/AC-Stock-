@@ -121,3 +121,22 @@ def test_hook_main_survives_cp949_console():
     assert r.returncode == 0, r.stderr
     out = json.loads(r.stdout.decode("ascii"))
     assert out["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+# 4. heredoc 역슬래시 (킴 지적 2026-09-18 — 세 세션이 다 밟은 것을 습관에만 맡겨 뒀다)
+def test_unquoted_heredoc_with_backslash_blocked():
+    cmd = 'cat > a.py <<EOF\nx = "C:\\\\Users"\nEOF'
+    assert chk(cmd)
+
+
+def test_quoted_heredoc_with_backslash_depends_on_platform(monkeypatch):
+    cmd = "cat > a.py <<'EOF'\nx = r'\\d+'\nEOF"
+    monkeypatch.setattr(gg.os, "name", "posix")
+    assert chk(cmd) is None
+    monkeypatch.setattr(gg.os, "name", "nt")
+    assert chk(cmd)
+
+
+def test_heredoc_without_backslash_allowed():
+    assert chk("cat > a.md <<'EOF'\n# 제목\n본문\nEOF") is None
+    assert chk("python3 - <<'PYEOF'\nprint(1)\nPYEOF") is None

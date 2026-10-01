@@ -434,6 +434,10 @@ def main():
     ap.add_argument('--theme', default='hanji', choices=tuple(THEMES),
                     help='hanji = 한지 바탕 · lacquer = 옻칠 판을 띠 전체로')
     a = ap.parse_args()
+    # 윈도우는 경로 끝의 공백·마침표를 조용히 떼어 낸다 — 만들 때 떼지 않으면
+    # 끝 공백은 그 뒤 파일 쓰기가 FileNotFoundError 로 터지고, 끝 마침표는
+    # 아무 소리 없이 다른 이름의 폴더에 쌓인다 (B·E 실측 + D 재현 2026-09-18).
+    a.out = a.out.rstrip(' .')
     global TH
     TH = THEMES[a.theme]
     dl = os.path.join(a.out, '원본(방송 라이브 버전)_long')

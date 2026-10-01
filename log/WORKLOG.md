@@ -41,6 +41,9 @@
 | Node.js (로컬 PC) | 24.19.0 | `C:/Program Files/nodejs` | winget install OpenJS.NodeJS.LTS | 설치 후 PATH 갱신이 필요하다 |
 | Python (로컬 PC) | 3.11.9 | `-` | winget install Python.Python.3.11 | log/save.py · build_worklog_db.py 실행용. PYTHONUTF8=1 필요 |
 | Chromium (로컬 PC) | 151 headless shell | `%LOCALAPPDATA%/ms-playwright` | npx playwright install chromium | npm install 만으로는 브라우저가 안 받아진다 |
+| yt-dlp (로컬 PC) | 2026.08.19 | `pip` | pip install -U yt-dlp | 월 1회 갱신 — 유튜브가 추출 경로를 자주 바꾼다. --js-runtimes node |
+| kiwipiepy (로컬 PC) | - | `pip` | pip install kiwipiepy | 형태소·문장 분리. 용어 add_user_word |
+| KURE-v1 (로컬 PC) | nlpai-lab/KURE-v1 · 1024차원 | `huggingface 캐시(첫 회 2.2GB)` | pip install sentence-transformers (torch cpu) · tiktoken sentencepiece protobuf | 한국어 유사도. v2 는 3.7배 느려 안 쓴다. tools/theone/banner_model.py 가 쓴다 |
 
 ### 명령어
 
@@ -230,11 +233,11 @@ pip install faster-whisper  →  tools/cutedit/transcribe.py → align_take.py �
 ```
 python3 tools/cutedit/prlinks.py find "<경로조각>" "<검색 루트>"   →  옮긴다  →  python3 tools/cutedit/prlinks.py check "<회차 폴더>"
 ```
-검사 범위에서 목적지 폴더를 빼지 않는다. 자동저장본까지 보려면 --all. 2026-09-16 L08 사고 두 번(issue 20)의 재발 방지
+검사 범위에서 목적지 폴더를 빼지 않는다. 자동저장본까지 보려면 --all. 옮긴 뒤 **옛 자리는 최소 일주일 지우지 않는다**(킴 지적 09-18 — 늦게 발견되는 참조가 있다). 2026-09-16 L08 사고 두 번(issue 20)의 재발 방지
 
 **20. 오류 레이더 — 벽에 두 번째 부딪히면** — 혼자 우회법을 짜기 전에 이미 나온 답을 찾는다 (우리 기록 → Stack Overflow → GitHub)
 ```
-python3 tools/radar.py "<오류 붙여넣기>"   ·   --file err.txt --repo owner/name --save   ·   --no-web (오프라인)
+python3 tools/radar.py "<오류 붙여넣기>"   ·   --jev (Jev 가 우리 벽 중 상위 3, 키 필요)   ·   --file err.txt --repo owner/name --save   ·   --no-web (오프라인)
 ```
 스킬 .claude/skills/radar. 총괄 컨테이너는 GitHub 검색 API 가 막혀 MCP search_issues 로. 답은 우리 환경(cp949·ES3·COM)에 맞는지 확인 후 적용
 
@@ -248,7 +251,7 @@ pyproject.toml 이 설정. ruff 기본 규칙 전체는 333건(09-17 기준)이�
 ```
 python3 log/save.py --status   ·   python3 log/save.py "한 줄" --only tools/illustrator log/inbox   ·   AC_SAVE_SCOPE="tools/photoshop tools/illustrator"
 ```
-로그 산출물(worklog.db·WORKLOG.md·worklog.html·README.md·checkpoints.json)은 항상 들어간다. 근본 해법은 세션마다 git worktree(인박스 개선안 §2-A). 로컬은 save.py 대신 git add -- <내 경로> + commit 으로 올려도 된다(E 방식 — DB 재빌드는 총괄 병합 때 한다)
+로그 산출물(worklog.db·WORKLOG.md·worklog.html·README.md·checkpoints.json)은 항상 들어간다. 푸시는 현재 브랜치로 간다(09-18, issue 41) — 옆가지에서 세이브하면 그 가지로. 본류는 ac.role=총괄 만. 로컬은 save.py 대신 git add -- <내 경로> + commit 으로 올려도 된다(E 방식 — DB 재빌드는 총괄 병합 때 한다)
 
 **23. 옆가지 → 본류 병합 (총괄)** — worktree-* 를 본류에 합친다. 겹침을 먼저 재고, 합친 뒤 검사 셋을 돌린다
 ```
@@ -268,16 +271,81 @@ cd "<통합>\03_저장소\AC-Stock-"  ;  git fetch origin  ;  git worktree add "
 ```
 upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B 는 .claude/worktrees/ps 안에 뒀던 것을 같은 방식으로 밖으로 옮긴다. E 는 clone 하나를 혼자 쓰니 worktree 없이 폴더 이름만 E_Script 로 (git switch -c worktree-E_Script origin/<본류>). 옛 이름 세 개(ae·ps·script)는 09-17 본류에 다 들어갔으니 지워도 된다
 
+**26. 롱폼 컷편집 합본 — 캠 + PD 나레이션 + 시연 화면 → 프리미어 XML + 자막 (E, L08 2026-09-11 성공)** — 캠 녹화(형광 줄)와 PD 설명 녹화(일반 줄 소리 · 뒤 시연 화면)를 대본 순서로 한 시퀀스에 잇고, 같은 타임라인에 자막을 얹는다. L08 로 검증: 합본 49컷 582.82초 · 자막 233큐, 이정찬이 프리미어에서 열어 확인
+```
+python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · align_take.py (캠·PD 각각)  →  python3 tools/cutedit/assemble_longform.py <캠폴더> <PD폴더> <대본.txt> --pd-src <PD설명.mp4> …  →  python3 tools/cutedit/make_xml.py cuts.json out.xml [--source-root]  →  python3 tools/cutedit/srt_rules.py check <srt>
+```
+기록은 log/SCRIPT-LAB.md §17 과 tools/theone/README.md 'L08 에서 확인한 것'. 첫 납품 불량 다섯(트랙 순서·V2 겹침·자막 끝<시작·0.08초 늦음·검사 미비)과 고친 도구가 §17 표에. 자막 진본은 프리미어에서 방금 내보낸 srt(constraint 31). 숏폼은 runbook 18
+
 
 ### 파일 지도
 
 | 경로 | 역할 | 설명 |
 |---|---|---|
 | `tests` | 검증 | pytest 단위 시험 — test_git_guard(훅 규칙 11)·test_radar(서명·우리 기록·응답 파싱 5). python3 -m pytest |
+| `tests/test_cutedit.py` | 검증 | 컷편집 시험 8 — split_cue(14자·글자 보존)·read_srt(번호 없음·여러 줄·깨진 타임코드)·make_xml rate/pathurl·fmt·S015 컷 12·check 겹침. 저장소 안 자료만 (E) |
+| `tests/test_no_path_literals.py` | 검증 | 절대경로 리터럴 래칫 — 코드(tools·src·scenes·log/*.py)에 C:/ 나 /c/Users 문자열이 새로 박히면 실패. BASELINE 은 줄이기만 (decision 34) |
+| `tests/test_save.py` | 검증 | save.py 푸시 대상 규칙 3 — 옆가지는 자기 가지로, 본류는 총괄만, detached 는 안 민다 |
+| `tests/test_shortform_names.py` | 검증 | shortform 이름 왕복 시험 4 — safe_tail 로 끝 공백·마침표 뗀 뒤 folder_name↔check_name 왕복 (E) |
+| `tests/test_verdict_lines.py` | 검증 | 판정 줄 없는 어도비 잡 수 래칫(기준 46, 줄이기만). 공용 실행기의 '경고 통과' 완화를 장치로 묶는다 (decision 36) |
+| `deliver/script/차트명가New` | 기록 | E 납품물 중 .md 만(decision 38): 차12 ABC 비교표·인과사슬 팀장로직·팀장 피드백 모음·팀장스타일 레퍼런스 도구 공식·차12/차13 뼈대·초안. .docx 는 로컬·드라이브에만 |
+| `deliver/script/차트명가New/차12_더블볼린저밴드_261020/작업기록` | 기록 | 차12 작업기록 중 저장소에 두는 것(.md·.py): 초안~6차 md, 7차·8차 빌드 스크립트, 인과사슬 measure.py, README. 원문 txt·docx·pdf·json(대본 본문·팀장 피드백 원문·판정 json)은 로컬에만(.gitignore, decision 38) (E 09-22) |
+| `deliver/script/차트명가New/차13_테스타칼만ATR_261027/차13_문장대조_김직선말투.md` | 기록 | 차13 문장별 원문 ↔ 김직선 말투 대조표 (E 09-23) |
 | `lab/cutedit` | 기록 | CAM 촬영본 전사 원본(cam_transcript.json) — 컷 재현·재검증용 |
 | `lab/finalscan` | 기록 | 최종본 #1~#10 기계 실측 원자료 — 콘택트시트·프레임별 YDIF/장면점수 csv·freeze·단일 프레임·카피맵 후보 23장·prproj 드라이브 지도. FX-WHITELIST 의 원천 (2026-09-11 등재) |
 | `log/E-회신-260916.md` | 기록 | E 가 총괄 문의서(09-16)에 답한 것 — srt_rules 회귀 확인·build_cuts 레거시·채점 일치·배너 모델 홀드아웃·L08 사고 두 번·DB 등재 조건 |
+| `log/data/jev` | 기록 | B 시험 정답 자료 — B1_모달문구(일러 모달 원문 → 처리 종류)·B3_오류분류_정답(20건, 허용 목록). 원문 그대로 (B, 09-21) |
+| `log/data/jev/_결과` | 기록 | B 시험 결과 원본 3 — 문항마다 두 순서의 답·confidence·상위 3 확률 |
+| `log/data/ref_cha10` | 기록 | 팀장 차10 참고자료(D) — script10.txt 대본 본문·기준측정.json 그림 실측·콘티_차트장면.json 엔진이 고른 콘티·읽어보기.md. scenes.py 규칙의 근거 |
 | `log/inbox` | 기록 | 로컬 세션 → 총괄 원자료 함 (오류·비효율 로그 원문, 판단 요청, 스킬 목록, 총괄 개선안). 이름 YYYY-MM-DD_<세션>_<주제>.md. DB 로 옮긴 뒤에도 지우지 않는다 — DB 행이 여기를 '원문' 으로 가리킨다 (decision 24) |
+| `log/inbox/2026-09-17_B_개선안회신.md` | 기록 | B 회신 — 2-A worktree-ps 채택, B-1·2·3 적용(a75d139·84367a5), D-6 반려, labdir 11단계, 라이브화면 6→10 아트보드·잉크 비율 배치 |
+| `log/inbox/2026-09-17_D_개선안회신.md` | 기록 | D 회신 — worktree-ae 채택, git_guard 실측 6경우·구멍 2개 수정, D-1 반려(evalFile 실측), D-5 실제 버그, 세션 시작 폴더 문제 제기, 총괄 질문 3 |
+| `log/inbox/2026-09-17_E_개선안회신.md` | 기록 | E 회신 — worktree-script(가지만 전환), E-1 실제 버그 재현·E-2 방식 변경(ffprobe 없이)·E-3 정규화 7벌→textnorm·E-4 srt 파싱→read_srt/sec·E-5 prlinks 표식·E-6 시험 8·E-7 문구, 회귀 45항목 동일, 오류 원자료 2 |
+| `log/inbox/2026-09-17_총괄_개선안회신답.md` | 기록 | 총괄 답 — 세션 시작 폴더는 이정찬 결정(next_step 41), guard 경로 한정·삭제 포함·인자 없는 push 차단(decision 31), 옆가지 worktree-*(decision 30), 채택 현황표 |
+| `log/inbox/2026-09-17_총괄_작업체계·도구품질_개선안.md` | 기록 | 총괄 → B·D·E 개선안 — 이미 적용(§1)·워크트리·훅 이관·레이더·소유자별 코드 품질·User 역할 피드백. 주류 근거 §6. 회신은 항목별 채택/보류/반려 |
+| `log/inbox/2026-09-18_B_세션폴더_이전완료.md` | 기록 | B — worktree-B_Image 이전 완료, labdir 실측, PYTHONUTF8=1 확인, 옛 ps 정리 |
+| `log/inbox/2026-09-18_B·E_경로끝공백_constraint후보.md` | 기록 | B·E 공동 — 윈도우 경로 끝 공백·마침표 실측표(파이썬·PowerShell, 두 사람이 따로 재현), 사례 셋, 처방 strip(' .'). constraint_note 56 |
+| `log/inbox/2026-09-18_D_AB시험_우리렌더러_대_HyperFrames.md` | 기록 | D — A/B 시험: ov-pnl 컷을 우리 렌더러와 HyperFrames 로 각각 300장, 속도 6.9초 vs 31.0초·줄수·픽셀 대조 |
+| `log/inbox/2026-09-18_D_MT5_MCP연동_시험.md` | 기록 | D — MT5 MCP 연동 시험: 도구 50종 확인, 창 캡처로 차트 배경, 틀·배지·로고 얹어 3초 렌더 |
+| `log/inbox/2026-09-18_D_대본에서_차트장면_뽑기.md` | 기록 | D — 대본에서 차트장면 뽑기 보고: 팀장 차10 기준 5가지와 실측 함정 5가지 |
+| `log/inbox/2026-09-18_D_아스트라_인수인계.md` | 기록 | D → 아스트라 인수인계 — 이 PC 경로 지도(저장소·키·MT5·HyperFrames·시험 결과물)·하던 일과 남은 일 4·실측 함정 11(MT5 7·렌더 3·윈도우 1)·팀장 기준 5. 세션은 worktree 폴더에서 |
+| `log/inbox/2026-09-18_D_외부도구_HyperFrames·Remotion_실측.md` | 기록 | D — HyperFrames·Remotion 실측: 59.94 유리수 fps·ProRes4444 알파·PNG 시퀀스 확인, 색 정확도 차이 |
+| `log/inbox/2026-09-18_D_훅연결_실측.md` | 기록 | D — 훅 저장소 연결 완료. ${CLAUDE_PROJECT_DIR} 펼침·exec form args·env 실측, 차단 2종 확인, save.py 본류 푸시 버그 발견(issue 41), heredoc 오탐 요령 |
+| `log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md` | 기록 | E → D·B 도구 공유 — 키 자리(.secrets), yt-dlp 명령 7종·함정 4, YouTube API 한도, 한국어 도구 3종·함정, MCP 자가점검, 안 쓰기로 한 것. constraint_note 57~59 · external_tool 4~10 · env_tool 13~15 |
+| `log/inbox/2026-09-18_E_세션시작폴더_적용.md` | 기록 | E — E_Script 폴더·가지 전환, pathurl 윈도우 회귀 4개 동일, 배너 공식 문서 저장소로, 로컬만 남은 문서 둘 |
+| `log/inbox/2026-09-18_총괄_공용실행기_제안.md` | 기록 | 총괄 → B·D — 어도비 공용 실행기(pre-flight·watchdog·판정 줄) 제안, next_step 46 |
+| `log/inbox/2026-09-18_총괄_등재번호.md` | 기록 | 총괄 → B·E — 09-18 오후 등재 번호(constraint_note 56~59 · decision 32 · external_tool 4~10 · env_tool 13~15 · next_step 43·44) |
+| `log/inbox/2026-09-21_B_Jev시험.md` | 기록 | B — Jev 시험: B-1 5/6(실제 모달 5/5 정확, 함정 문항만 낮은 확신으로 틀림)·B-2 9/11(#10 을 확신하며 틀림 → 규칙 22 설명이 틀렸던 것)·B-3 14/20(틀린 6건이 전부 모달 — DB 에 없고 TRAPS 에 있음). 자리 치우침 2/37. 제안 5 |
+| `log/inbox/2026-09-21_B_constraint56_일러스트레이터_실측.md` | 기록 | B — 일러 saveAs 끝 공백·마침표 네 경우 실측(파이썬과 동일), 오류 문구 the operation was cancelled, TRAPS ⑨-4 pdfCompatible·⑨-5 PrintWindow 모달 읽기 |
+| `log/inbox/2026-09-21_B_공용실행기_2단계.md` | 기록 | B — 공용 실행기 2단계: 일러·포토샵 direct 갈래, 1단계 버그 셋(찍은 뒤 죽이기·Remove-Job 165s·남의 포토샵 죽임), 모달 문구 표→Jev 문 0.8, build_live 회귀(png 10장 md5 동일), TRAPS ⑨-4·⑨-5 정정, constraint 후보 셋(68~70), D 에게 bridge 갈래 셋 인계 |
+| `log/inbox/2026-09-21_D_Jev시험.md` | 기록 | D — Jev 시험: D-3 오류 분류 11/12(상위 2~3 제안), D-2 분류 기준에 따라 6/9↔9/9, D-1 생존 편향으로 미실시(줄 단위 제안), scenes.py 규칙 2 절반만 맞음. §6 자리 치우침 검사 — 분류에선 0 뒤집힘. §7 D-4 로그 줄 판정 17/20 < 규칙 18/20, 수 견주는 줄에서 0.91 로 틀림 → 실행기 판정에 안 붙임 |
+| `log/inbox/2026-09-21_D_공용실행기_1단계.md` | 기록 | D — 공용 실행기 1단계 보고: 4단계 반영, 판정 줄 없는 잡 완화(decision 36), 실측 4(성공·통과·실패 경로), PS 5.1 BOM 함정(constraint 63) |
+| `log/inbox/2026-09-21_D_공용실행기_남은둘_실측.md` | 기록 | D — 공용 실행기 남은 둘 실측: 프리미어 probe·save_quit 실행(경고 통과·엄격 성공·정상 종료), 프리미어 떠 있을 때 AE 잡 차단(AE 안 뜸 — TRAPS ⑦ 막음), 실패 캡처를 창 단위로 |
+| `log/inbox/2026-09-21_E_Jev_판정관_시험결과.md` | 기록 | E — Jev 판정관 시험: 한국어 통과, 순위 9/13(자리 바꿔 두 번), 자리 치우침 3/13, 방송본 1/6(참고), S016 에서 틀리며 confidence 낮음, 조건부 제안 → decision 37 |
+| `log/inbox/2026-09-21_총괄_B2단계_답.md` | 기록 | 총괄 — B 2단계 답: 병합·등재(issue 42~45, constraint 68~70, 62 정정, next_step 46 → D), D 인계 셋 그대로 |
+| `log/inbox/2026-09-21_총괄_D4_답.md` | 기록 | 총괄 — D-4 답: 실행기 판정에 Jev 안 붙임(decision 37 ⑩, constraint 67), 쓰는 자리 규칙 한 줄, next_step 50 완료 |
+| `log/inbox/2026-09-21_총괄_Jev_결정.md` | 기록 | 총괄 — Jev 결정: 순위 판정관 안 함, 거름망·분류 채택(decision 37), radar --jev, E·D·B 각각에 답 |
+| `log/inbox/2026-09-21_총괄_Jev_결정_2.md` | 기록 | 총괄 — B·D 2차 보고 답: radar 선택지에 TRAPS T①~T㉒, thumbnail_rule 22 정정, constraint 65 정정(선호 비교 vs 분류), B-1 을 공용 실행기 2단계에 |
+| `log/inbox/2026-09-21_총괄_Jev_시험_D·B.md` | 기록 | 총괄 — D·B Jev 시험 설계 각 3(정답 자료·합격선), 하지 말 것(이미지·셈·색·날짜), 알아서 하나, 보고 형식. next_step 50·51 |
+| `log/inbox/2026-09-21_총괄_Jev_판정관_시험제안.md` | 기록 | 총괄 — TypeSafe Jev 조사(문서 9쪽)와 우리 자리 판정(판정관 1순위·비트 분류 2순위·가드/글자 수 제외), E 시험 설계 4단계·합격선, 이정찬 결정(미공개 대본 외부 전송) |
+| `log/inbox/2026-09-22_B_시작화면굳음_재현안됨.md` | 기록 | B — 09-21 '시작 화면 굳음' 을 같은 절차로 재현: 9초 만에 정상, 복구 창 없음. constraint 후보 ② 를 스스로 낮춤. 모달 못 찾으면 창 전부 찍자는 제안 → D 가 넣음 |
+| `log/inbox/2026-09-22_D_next45_대본→차트장면_일괄촬영·AE세팅.md` | 기록 | D — next_step 45 ①②: 차10 대본 → 12장 → 콘티 → AE 프로젝트 끝까지, 팀장 그림과 8/9 일치, 구멍 다섯(지표 쉼표 잘림·자동 떼기·창 제목·톱니 점수·지지선/쓸림 탐색), 남은 ③④ |
+| `log/inbox/2026-09-22_D_next53_AE복구창_멈춤.md` | 기록 | D — next_step 53: AE 복구 창을 자식 창 뼈대로 판별, 시작 전·대기 중 5초마다 검사해 안 죽이고 멈춤(15.5초/0.2초), 정상 잡 1.7초, 죽인 뒤 주의 줄. BridgeTalk 70초 원인 못 찾음 |
+| `log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md` | 기록 | D — bridge 갈래 셋: FAIL TIMEOUT·JOBERR 가짜 통과 고침(issue 47), AE 충돌 복구 창(constraint 71, 자동 클릭 반대·시작 전 검사 제안), 프리미어 probe·save_quit, shot_window --all |
+| `log/inbox/2026-09-22_D_장면탐색_재발방지·차11검증·방향.md` | 기록 | D — 45 ③: 재발 방지 세 겹(전용 함수·심은 시험·몰림 경고, 되살리기 4/4), 방향은 Jev 문 0.7, 차11 35비트 검증(지표·종목 일치, 주기 반만 — constraint 72), 운영 사고 둘(창 958px → 폭 가드 issue 53, 탐색 캐시 30초→11초) |
+| `log/inbox/2026-09-22_월요일_전달묶음.md` | 기록 | 이정찬이 월요일에 B·D·E 에게 전할 것 한 장 — 토큰 재발급(5분, 첫째)·완료 보고 두 줄·guard 4·save.py 기본값·경로 래칫·파트별 할 일 |
+| `log/inbox/2026-09-22_총괄_E_자료정리_답.md` | 기록 | 총괄 — E 402 파일 푸시에 대한 답 + 09-23 덧붙임: E·이정찬이 막힌 자리 일곱(양식 오독·docx 자작 버그·도구 전부틀림·피드백 네 통로/색 범례·판본 14개·A/B/C·402 푸시) 원인·판단·장치, 잘한 것 넷, 이정찬 할 것 다섯(next_step 54, issue 49~51) |
+| `log/inbox/2026-09-22_총괄_실행기_마감_답.md` | 기록 | 총괄 — B·D 09-22 답: 공용 실행기 완료(next_step 46), constraint 69 낮춤·71 신설, 복구 창은 자동 클릭 안 함(53), decision 36 보강 |
+| `log/inbox/2026-09-28_D_최적화_정리_B에게.md` | 기록 | D → B — 자가발전하며 굳힌 방법 7절: 결과를 다시 읽는다(constraint 73), 래칫 시험(전용 함수·미끼·불변식·되살리기), Jev 쓰는 자리·문, 서브에이전트 그림 판독, 속도(캐시·resume), 외부 앱 사고, 도구 목록 + B↔D 접점(프레임 규격 JSON). 이정찬 09-28 지시(디자인 카피 = B) 기록 |
+| `log/inbox/2026-09-29_총괄_D·E_병합_답.md` | 기록 | 총괄 — D 26 커밋(45 ③·검수 3차·B 에게 문서)·E 9 커밋(김직선 말투 조립·작업기록) 병합 답: issue 52·53, constraint 72·73, next_step 45·55 갱신(55 는 B 담당), E 는 .md·.py 만 얹음, E 옆가지 되돌리기 재요청 |
+| `log/차12_더블볼린저_워크플로우판.md` | 기록 | 차12 A/B 대조용 — 피드백 없이 pipeline.py 관문 미달만 근거로 고친 판(이음·닫기·인터럽트·흐름 z). 규칙 출처 06_외부스킬 (E, 09-21) |
+| `log/차12_더블볼린저_이정찬판.md` | 기록 | 차12 이정찬이 직접 고친 판(팀장은 3구간까지 봄) — 대조용 .md. 6차↔이 판의 INTRO~3구간 차이가 next_step 47 의 첫 문장 쌍 자료다 (E, 09-21) |
+| `log/차12_더블볼린저_초안.md` | 기록 | 차12 더블 볼린저밴드 촬영용 대본 초안(E) — 레퍼런스 사슬대로 재구성, 기간값 20, 규격 채점 통과. 7차(09-21): INTRO~3구간은 이정찬 수정본 그대로, 4구간~OUTRO 에 같은 로직 적용. 일상 작업(총괄은 상태만) |
+| `log/차12_더블볼린저_초안_피드백적용.md` | 기록 | 차12 5차 — 이정찬 피드백 19곳 반영(화자 축 너/나, 덜어냄, 이음), pipeline.py 관문 12 중 11 통과. A/B/C 대조의 B (E, 09-21) |
+| `log/차13_테스타칼만ATR_김직선말투.md` | 기록 | 차13 을 Pool 정보 + 김직선 말투로 조립한 판 — 106문장 중 89 바뀜, '입니다' 91%→51%, '~요/죠' 2%→47%, 뜻 0.78 (E 09-23, decision 39) |
+| `log/차13_테스타칼만ATR_뼈대.md` | 기록 | 차13 뼈대 7구간 — Pool 조각 49개를 출처 앵커로 적고 tools/pool_pieces.py 로 기계 대조 (E, 09-22). 일상 작업 |
+| `log/차13_테스타칼만ATR_뼈대_회사양식.md` | 기록 | 차13 뼈대의 회사 기본폼 원고(표 한 줄·줄글 란) — tools/skeleton_docx.py 로 .docx (팀장 검사용, E 09-22) |
+| `log/차13_테스타칼만ATR_초안.md` | 기록 | 차13 테스타 칼만 이평선+ATR 촬영용 대본 초안(E) — 새 사슬(일정표→레퍼런스 자막→Pool→완성) 적용, 4차(09-21). 뼈대는 차13_테스타칼만ATR_뼈대.md |
 | `.gitignore` | 기타 |  |
 | `CLAUDE.md` | 기타 |  |
 | `brand/FX-WHITELIST.md` | 기타 |  |
@@ -377,6 +445,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `log/REDTEAM-BRIEF.md` | 기타 |  |
 | `log/build_readme.py` | 기타 |  |
 | `log/save.py` | 기타 |  |
+| `log/차12_더블볼린저_뼈대.md` | 기타 |  |
 | `package-lock.json` | 기타 |  |
 | `scenes/cmg12-cross.scenes.js` | 기타 |  |
 | `scenes/cmg12-layer-candle.scenes.js` | 기타 |  |
@@ -403,23 +472,86 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `data/synth/newch-trad.json` | 데이터 | seed 11 합성 시장 앞에 워밍업 60봉 — 이평선이 첫 화면 봉부터 그려지게 (tools/style/trad-bars.mjs) |
 | `log/worklog.db` | 데이터 | 작업 로그 원본 (SQLite) |
 | `.claude/hooks/git_guard.py` | 도구 | PreToolUse 훅 — 본류 push·전체 스테이징(add -A/commit -a)·prlinks 없는 이동을 막고 이유를 돌려준다. D 의 로컬 훅 3규칙 이식. 미연결 — 켜는 법은 파일 머리. 시험 tests/test_git_guard.py |
+| `data/대본자료/도구` | 도구 | E 의 대본 파이프라인 도구 41 .py — pipeline.py(관문 12), skeleton2·pool·cohesion·wordy·flow_check·novel_words·grade 등, paths.py 가 자료 위치 한 곳. 문체실험/ 은 실험 코드. ruff 대상 밖(E 의 일상 코드). 자료 파일(json·txt)은 안 올린다 |
 | `src/tools/exp-capture.mjs` | 도구 | 캡처 경로 4가지를 실전 루프로 재고 픽셀·mp4 md5 동일성을 대조한다 |
 | `src/tools/find-events.mjs` | 도구 | MA 교차·배열 + RSI 레벨 교차·70+ 유지 구간 실측 (find-cross 확장판) |
 | `src/tools/probe-labels.mjs` | 도구 | 렌더 없이 라벨 클리핑 전수 감사 — 등장~퇴장 0.25초 간격으로 앵커 y 를 계산해 잘림 구간을 표로 |
 | `src/tools/profile-render.mjs` | 도구 | 한 프레임이 어디에 시간을 쓰는지 쪼개서 잰다 |
 | `tools` | 도구 | 숏폼 대본 규칙(shortform.py) 등 대본·자료용 스크립트 |
+| `tools/_com/modal_class.py` | 도구 | 모달 글자 → 처리 한 줄. 표(modal_known.json) 조각이 걸리면 그대로, 아니면 Jev 두 순서 일치 + confidence ≥ 0.8, 아니면 '모름'. 판정은 _fail.txt 의 한 줄만 바꾸고 처리(죽이고 기록)는 안 바꾼다. stdout ASCII (B, 09-21) |
+| `tools/_com/modal_text.py` | 도구 | 시간 초과 때 앱의 #32770 모달 창을 찾아 Win32 EnumChildWindows+GetWindowTextW 로 글자를 읽어 modal.json 으로 (B, 09-21). UIA 는 못 읽고 이건 읽힌다(constraint 70). --ae-recovery 는 AE 충돌 복구 창을 자식 창 뼈대로 알아본다 (D, 09-22, constraint 71) |
+| `tools/_com/run.ps1` | 도구 | 어도비 공용 실행기(D 1단계·B 2단계) — 표 한 줄로 앱 넷: Transport bridge(ae·premiere, 포토샵 COM→bridge.jsx)·direct(illustrator·photoshop, 제 ProgId). 시작 전 앱·문서(DocGuard)·프리미어·COM 응답 검사, Wait-Job 시간 제한→모달 글자+그림 먼저→taskkill(direct 는 제 앱만)→Remove-Job, 로그 '판정' 줄로 성공, 실패 시 <잡>_fail.png/.txt + 모달 분류 한 줄. 껍데기 넷(ae·premiere·illustrator·photoshop/run.ps1)이 얹혀 있다 |
+| `tools/_com/shot_window.py` | 도구 | 대상 프로세스의 보이는 최상위 창 중 가장 큰 것을 PrintWindow(PW_RENDERFULLCONTENT) 로 찍는다(가려져 있어도). --all 이면 크기로 거르지 않고 전부 <잡>_fail_all_<앱>_N.png (모달 못 찾은 실패용, B 제안·D 09-22). MainWindowHandle 은 안 믿는다(constraint 64). 못 찾으면 exit 2 (D) |
+| `tools/ae/_labdir.jsx` | 도구 | AE 작업실 찾기 공용 aeLabDir(start, cfgLabDir) — bridge.jsx(포토샵 쪽)·jobs/_lib.jsx(AE 잡 35개)가 부른다. 복붙 10벌 중 AE 쪽 통일 (D, 44efdf5) |
+| `tools/ae/jobs/_trap_alert.jsx` | 도구 | AE 판 alert 함정 잡 — bridge 갈래 실패 경로 회귀용. 밑줄이라 래칫 제외 (D, 09-22) |
+| `tools/ae/jobs/_trap_throw.jsx` | 도구 | AE 예외 함정 잡 — 모달 없는 실패(JOBERR) 경로 회귀용 (D, 09-22) |
+| `tools/ae/jobs/c10_trad_motion_export_one.jsx` | 도구 | trad_motion 템플릿 하나만 같은 이름으로 다시 내보내기 (저장 안 함 · 팩 밖으로 낸 뒤 검사하고 교체) |
+| `tools/ae/jobs/c11_relink_check.jsx` | 도구 | 작업실을 옮긴 뒤 .aep 5개가 푸티지를 스스로 찾는지 실측 (저장 안 함) |
+| `tools/ae/jobs/c1_trad_build.jsx` | 도구 | 전통 층 PNG 65장 → 컴포지션 4개 (trad.aep) |
+| `tools/ae/jobs/c2_trad_check.jsx` | 도구 | trad.aep 재열기 검사 + 0프레임 캡처 |
+| `tools/ae/jobs/c3_trad_motion.jsx` | 도구 | 애니메이션 소스 20개 → 컴포지션 + mogrt (낙관 '쾅'·붓 원·족자 펼침) |
+| `tools/ae/jobs/c4_trad_motion_check.jsx` | 도구 | trad_motion.aep 재열기 검사 + 프레임 캡처 (캡처가 다 떨어질 때까지 다른 잡 금지) |
+| `tools/ae/jobs/c5_trad_rr.jsx` | 도구 | 손익비 전통 — 소스 컴포지션 12 + 전체 1 짓고 aep 저장 (mogrt 는 c5x) |
+| `tools/ae/jobs/c5b_ess_probe.jsx` | 도구 | 실측 1회용 — 소스 필수 속성이 부모 템플릿에 canAdd=false 인 구조 확인 |
+| `tools/ae/jobs/c5c_state_probe.jsx` | 도구 | 실측 1회용 — 열린 프로젝트 상태 읽기만 (내보낸 뒤 줄어든 프로젝트 확인) |
+| `tools/ae/jobs/c5t_export_trial.jsx` | 도구 | 실측 1회용 — mogrt 누락 원인 시험 4종 (주의: 내보내기가 수정된 프로젝트를 저장해 aep 를 오염시켰다) |
+| `tools/ae/jobs/c5x_trad_rr_export.jsx` | 도구 | 손익비 전통 mogrt 내보내기 — 하나마다 aep 새로 열기 · 저장 안 함 · _only.txt 에 적힌 것만 다시 |
+| `tools/ae/jobs/c6_trad_rr_check.jsx` | 도구 | trad_rr.aep 재열기 검사 + 전체 f150·소스 f30·움직임 캡처 |
+| `tools/ae/jobs/c7_trad_rr_stretch.jsx` | 도구 | 문구를 바꾸면 판이 따라 늘어나는지 시험 캡처 (저장 안 함) |
+| `tools/ae/jobs/c8_close_nosave.jsx` | 도구 | 열린 AE 프로젝트를 저장 없이 닫기 (시험 문구가 남은 채 저장되는 사고 방지) |
+| `tools/ae/jobs/c8q_close_quit.jsx` | 도구 | 열린 AE 프로젝트를 저장 없이 닫고 scheduleTask 로 AE 를 스스로 종료 (프리미어 다이내믹 링크가 남긴 AE 정리 · 강제 종료 대신) |
+| `tools/ae/jobs/c9_trad_rr_set_aep.jsx` | 도구 | 버튼-선 세트 5개(익절선&박스·손절선&박스·진입선·지지선·저항선)를 세트마다 aep 로 저장·재열기 (c5 빌더 차용) |
+| `tools/ae/jobs/d1_conti_build.jsx` | 도구 | 콘티 json → AE 프로젝트(비트 컴포지션 12 + 전체, 1920x1080·59.94fps, 가이드 레이어에 대본·고른 이유). 공용 실행기로 20초 (D, 09-22) |
+| `tools/ae/labdir.mjs` | 도구 | 같은 것의 Node 판 — pack.mjs·diff.mjs·anchors.mjs·scene-export.mjs 가 쓴다 |
+| `tools/ae/labdir.ps1` | 도구 | 같은 것의 PowerShell 판 — run.ps1·trad_rr_export.ps1 이 점으로 불러 쓴다 |
+| `tools/ae/labdir.py` | 도구 | AE 작업실 폴더를 박지 않고 찾는다 (파이썬) — AELAB_DIR → config.labDir → 위로 탐색 → 옛 자리 |
+| `tools/ae/trad_motion_pack.py` | 도구 | anim 메타가 붙은 층만 골라 AE 모션 꾸러미 재료로 (중복 제외) |
+| `tools/ae/trad_motion_preview.py` | 도구 | AE 캡처로 움직임 GIF·등장 끝 프레임 대조 (프리멀티 알파 처리) |
+| `tools/ae/trad_rr_export.ps1` | 도구 | 내보내기 → 검사 → 누락분만 재내보내기(최대 3회) → 전부 통과 + aep 그대로일 때만 팩으로 (UTF-8 BOM) |
+| `tools/ae/trad_rr_mogrt_check.py` | 도구 | mogrt zip 안 definition.json 누락 자산 검사 → 실패 이름을 _only.txt 로 (반환값 true 는 증거가 아니다) |
+| `tools/ae/trad_rr_preview.py` | 도구 | 손익비 전통 AE 캡처 vs 합성 기준 픽셀 대조 · 차트 위 움직임 GIF·연속 사진 |
 | `tools/cutedit` | 도구 | 컷편집 파이프라인(E 소유) — transcribe(전사)·align_take(테이크 정렬)·cut_and_srt(컷·자막, 실측 무음 경계)·make_xml(프리미어 XML)·prlinks(prproj 경로 검사)·srt_rules(14자 큐)·verify_text·grade/(채점대). build_cuts.py 는 2026-09-17 tools/legacy 로 |
+| `tools/cutedit/srt_rules.py` | 도구 | 숏폼 자막 규칙의 진본 — split_cue(14자 상한·절/구 선호·의존명사 분리 금지 DP) + check CLI. build_cuts.py 가 위임. E 세션 소유(2026-09-01 이관) |
+| `tools/cutedit/textnorm.py` | 도구 | 한글 정규화 한 벌 — 7곳(align_cut·align_take·cut_and_srt·verify_text·cuetune·banner_model·pairs)이 쓴다 (E, ea36a4a) |
+| `tools/grade_draft.py` | 도구 | 대본 초안 채점기(E) — 낭독분만 골라 분량·문장 길이·금지어(부정문·낱말 속 오탐 제외)·근거·수치·반말을 잰다. 차12·차13 초안이 통과 |
+| `tools/hf` | 도구 | HyperFrames HTML 합성 3벌(D) — ab_pnl(A/B 판)·mt5_frame(MT5 틀 합성)·mt5_calib(좌표 계산 합성)·hyperframes.json. 우리 렌더러에 없는 모양용 |
 | `tools/illustrator` | 도구 | 일러스트레이터 COM 자동화 — 라이브화면구성.ai 를 짓고 OBS 용 8000x4500 을 뽑는다. tools/photoshop 과 같은 구조로 경로를 안 박는다 |
+| `tools/illustrator/_trap_alert.jsx` | 도구 | 일부러 alert 모달을 띄우는 잡 — 실행기의 시간 초과·모달 캡처 경로 회귀용. 이름 앞 밑줄이라 판정 줄 래칫이 건너뛴다 (B, 09-21) |
+| `tools/illustrator/_trap_pdf_modal.jsx` | 도구 | pdfCompatible=false 저장 모달 재현용 — 빈 문서에선 안 뜬다(3.1s 저장). 조건을 좁힐 때 쓴다 (B, 09-21) |
+| `tools/jev` | 도구 | TypeSafe Jev 얇은 클라이언트 jev.py(choice·score·noul·ask·pick, 키는 .secrets) + D 시험(run_d2·run_d3·run_d4·run_order_check, 결과 json, 팀장 그림 14장 판독표, 선택지 63). run_d4 = 잡 로그 줄 20건 정답표(어려운 줄 셋 포함). radar --jev 가 jev.py 를 쓴다 (D, 09-21) |
+| `tools/jev/run_order_check.py` | 도구 | D 자리 치우침 검사 — D-3·D-2 를 선택지 차례 뒤집어 한 번 더(42호출). 결과 order_check.json: 12/12·9/9 안정 (D, 09-21) |
+| `tools/jev_b_test.py` | 도구 | B Jev 시험 도구 — b1(모달 문구→처리)·b2(썸네일 빨강 대상)·b3(오류→constraint), 문항마다 선택지 순서 뒤집어 두 번, --dry. 키는 .secrets (B, 09-21) |
 | `tools/legacy` | 도구 | 1세대 도구 격리(실행 금지) — psdwrite.py·thumbnail.py(썸네일 효과 손그림·폭 역산, 2026-08-28)·build_cuts.py(컷편집 1세대, 2026-09-17) |
+| `tools/legacy/build_cuts.py` | 도구 | 레거시(2026-09-17 격리) — 1세대 컷편집 스크립트. 실행 금지. 도구는 tools/cutedit/cut_and_srt.py (decision 27) |
+| `tools/legacy/premiere_xml.py` | 도구 | 레거시(2026-09-17 격리) — 08-31 숏폼 FCP7 XML 생성기. XML 은 tools/cutedit/make_xml.py(컷편집)·src/render/split.mjs(렌더 배치) |
+| `tools/legacy/roll_ad_check.py` | 도구 | 레거시(2026-09-17 격리) — 지운 한지판 전용 롤링광고 검사기 (D) |
+| `tools/mcp_probe.py` | 도구 | MCP 자가점검(E) — initialize → tools/list → tools/call 까지 그 자리에서 띄워 본다. 별 수 믿지 말고 띄워 보고 판단(external_tool 10 전례) |
+| `tools/md_to_script_docx.py` | 도구 | 초안 .md → 촬영용 스크립트 .docx (E). 표지 줄은 L<번호> (이정찬 09-21) |
+| `tools/mt5` | 도구 | MT5 촬영 파이프라인(D) — mcp.py(MCP 클라이언트)·scenes.py(대본 docx → 비트 → 사건 → 실제 봉 구간 선정, 팀장 차10 기준 5)·capture_scene.py(ChartNavigate 후 창 캡처)·capture.py·shot.py+CMG_Shot.mq5(자체 렌더 캡처 지표)·calibrate.py(봉 격자·가격축 보정 RMS 1.93px)·batch_capture.py(대본 한 편 12비트 일괄 촬영, 종목·주기 선택, Jev 보조, 자리 붙잡기·재시도·--resume·탐색 캐시)·conti_sheet.py(콘티.png + AE 입력 json). scenes.FINDERS = 장면마다 전용 함수(미등록은 오류, 09-22). README 있음 |
 | `tools/photoshop` | 도구 | 포토샵 COM+ExtendScript 로 템플릿 .psd 를 직접 편집한다 — 썸네일은 이 경로가 최신 |
 | `tools/photoshop/build_thumb.jsx` | 도구 | 회차 그룹 복제 → 차트 교체 → 타이틀 교체 → 다른 회차 제거 → .psd/.png/.jpg |
 | `tools/photoshop/dump_episodes.jsx` | 도구 | 완성 회차를 한 장씩 뽑고 레이어 트리를 받아 적는다 — 규칙을 뽑을 때 |
 | `tools/photoshop/dump_layer_fx.jsx` | 도구 | 레이어 효과(lfx2)를 ActionManager 로 값까지 읽는다 |
 | `tools/photoshop/dump_text_runs.jsx` | 도구 | 타이틀을 문자 단위로 읽어 한 줄 안에서 색·크기가 갈리는 곳을 찾는다. config 에 runsTarget 을 넣으면 결과물 .psd 도 검사한다 |
 | `tools/photoshop/run.ps1` | 도구 | 포토샵을 COM 으로 띄워 .jsx 를 실행하는 드라이버 |
+| `tools/pool_pieces.py` | 도구 | 뼈대의 조각 출처(앵커)를 Pool 원문 173편에 대고 검사·글자수 채우기 — 눈대중 대신 기계 대조 (E, 09-22) |
 | `tools/premiere` | 도구 | 프리미어 자동화 (D 영역) — run.ps1(BridgeTalk 드라이버)·jobs/*.jsx·verify.py(되읽기 검사기)·presets/30fps sqpreset |
+| `tools/premiere/_labdir.jsx` | 도구 | 프리미어 실험실 폴더를 박지 않고 찾는다 (ExtendScript · 잡들이 $.evalFile 로 불러 쓴다) |
+| `tools/premiere/jobs/save_quit.jsx` | 도구 | 열린 프리미어 프로젝트 전부 저장 후 종료 (경로 없는 프로젝트가 있으면 끄지 않는다) |
+| `tools/premiere/labdir.ps1` | 도구 | 같은 것의 PowerShell 판 — run.ps1 이 점으로 불러 쓴다 |
 | `tools/psdedit.py` | 도구 | 템플릿 .psd 를 편집한다 — 그룹 복제·텍스트 교체·픽셀 교체 |
+| `tools/radar.py` | 도구 | 오류 레이더 — 오류 문장에서 서명을 뽑아 worklog.db(issue·constraint_note)·TRAPS·inbox → Stack Overflow(키 없음 300/일) → GitHub Issues(비인증 10/분) 순으로 찾는다. 의존성 0. --save 로 log/inbox/radar/ 에 남김 |
 | `tools/render-cmg12-layers.mjs` | 도구 | 차12 병합 인트로(intro-hook)를 5층으로 렌더 — 1_candle(mp4 바닥)/2_ma/3_mark/4_text/5_tag(QT RLE 알파). tag 최상위(규칙 ⑭). AE/프리미어 조립 소스 |
+| `tools/skeleton_docx.py` | 도구 | 뼈대_회사양식.md → 회사 기본폼 .docx(6단계 퍼널 표 + 줄글 란). 표 칸은 한 줄, 대본은 줄글 (E, 09-22) |
+| `tools/style/frame.py` | 도구 | 새 채널 v1~v4 합성기 — 브라우저 창 크롬·타이틀 블록·툴킷 |
+| `tools/style/frames_clean.py` | 도구 | 틀만 조립 완성본 — 가운데 뚫은 투명 PNG 2종(브라우저창·병풍) |
+| `tools/style/pixel.py` | 도구 | 영역 픽셀 실측 (검정·흰색 걸러 대표색) |
+| `tools/style/roll_ad.py` | 도구 | 라이브 롤링 광고 배너 11장 — 트팩 원본 좌표 실측 + 전통 톤 (문구는 COPY 한 곳) |
+| `tools/style/trad-bars.mjs` | 도구 | newch-trad 봉 데이터 생성기 (워밍업 60봉) |
+| `tools/style/trad.py` | 도구 | 새 채널 v2 전통 합성기 — 한지(실사 닥종이 결)·병풍·창호 띠·낙관·족자. --split 으로 층 PNG+manifest(anim 메타) |
+| `tools/style/trad_bands.py` | 도구 | 박스권 세트·더블 볼린저밴드 시안 합성기 (요청 83 보류 — AE 소스화 전 단계) |
+| `tools/style/trad_rr.py` | 도구 | 차11-4 손익비 모션 전통판 재료 — 낙관 면·담채·점선·빗금·붓 밑줄 PNG + rr.json/jsx + 요소별 대조 기준(refs) |
+| `tools/style/vision.mjs` | 도구 | Gemini/OpenAI 비전 판독 스크립트 (키는 환경변수·레지스트리에서) |
 | `tools/thumbnail_png.py` | 도구 | 롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장 |
 | `log/AE-LAB-MANUAL.md` | 매뉴얼 | AE .aep/.mogrt 파일럿(sl-11-4 컷② 손익비) — D 세션용 마일스톤 A1~A6 + 사용자 단계. 보고는 log/AE-LAB.md, 잡은 tools/ae/jobs/, 옆가지 local/ae-lab |
 | `README.md` | 문서 | 렌더러 사용법 · 포맷 선택 기준 · 씬 설정 레퍼런스 |
@@ -428,6 +560,7 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `brand/SHORTFORM-FX-POOL.md` | 문서 | 숏폼 1:1 박스 효과 pool 실측 22종 + 팀장 규칙 4개 (최종본 6편 전수 조사) |
 | `brand/STYLE.md` | 문서 | 차트명가 브랜드 스펙. 색·레이아웃·폰트·스크립트 6단 구조 |
 | `lab/ae/AEP-MOGRT-조사보고.txt` | 문서 | .aep/.mogrt 납품 가능성 조사 — 공식 자료 vs 우리 실측, 결론: 파일 직접 쓰기 배제, ExtendScript 로 AE 가 굽게 한다 (next_step 27) |
+| `log/LIVE-SCREEN-MANUAL.md` | 문서 | 라이브화면·롤링광고 매뉴얼(B 세션용, 09-18) — 실제로 겪어 확인한 것만, 값은 build_live.jsx 가 최신 |
 | `log/PREMIERE-LAB-MANUAL.md` | 문서 | 프리미어 직접 편집 실험(D 세션) 매뉴얼 — 경로·마일스톤·함정·병합 프로토콜 |
 | `log/PREMIERE-LAB-REPORT.md` | 문서 | D 의 M2~M6 총괄 보고 — 판정표·매뉴얼 정정·등재 요청·판단 요청 4건 |
 | `log/RENDER-REVIEW.md` | 문서 | 렌더 속도 리뷰 의뢰서 — 코드 지도·실측·열린 질문 |
@@ -436,6 +569,9 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `log/THUMBNAIL-REVIEW.md` | 문서 | 썸네일 코드 검토 보고서 + 로컬 푸시 확인 절차 (2026-08-27) |
 | `log/WORKLOG.md` | 문서 | 이 DB 에서 뽑은 작업 로그 |
 | `log/worklog.html` | 문서 | 브라우저로 보는 작업 로그 |
+| `tools/theone/상단배너_공식.md` | 문서 | 더원 상단 배너 공식 2판 — 대본 첫 문장을 두 도막으로 쪼개 뒤집는다(앞도막→아랫줄 7~11자, 뒷도막→윗줄 8~14자). 증거표 8편(두 줄 다 뒤집힌 5/8, 예외 S009·S008), 1판이 틀린 이유, 꼬리·화행 슬롯. 09-18 로컬에서 저장소로 (E, 519625b) |
+| `tools/theone/상단배너_로직.md` | 문서 | 더원 배너 1판(낡음 표시 있음) — 배너 12편 실측표, 규격(윗줄 8~14·아랫줄 7~11), 윗줄 5유형(개수 약속·통념 도발·대비·조건·행동), S016 3안. '아랫줄=최다 출현어' 는 폐기, 유형·규격만 유효. 09-18 총괄이 E 대신 등재 |
+| `tools/theone/상단배너_임베딩분석.md` | 문서 | 더원 배너 임베딩 채점(KURE-v1·Chroma) — prproj 텍스트+srt 쌍 53개, 아랫줄이 대본 전체에 +0.051 더 가깝다, 아랫줄 띠 0.496~0.592(6편)·윗줄 0.403~0.685, 후보 채점 5개, 다시 돌리는 명령. 대본→인덱스→임베딩→로직 수치 원문. 09-18 총괄 등재 |
 | `deliver/shortform` | 산출물 | 납품한 숏폼 자막·컷리스트 (영상·음성은 드라이브/전달분에만) |
 | `deliver/thumbnail` | 산출물 | 채택된 썸네일. out/ 은 .gitignore 라 여기에 따로 둔다 |
 | `scripts/shortform` | 산출물 | 숏폼 대본 초안. 규칙대로 쓴 것 |
@@ -448,6 +584,9 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `log/build_worklog_db.py` | 스크립트 | 로그 DB 생성. 내용을 고칠 때 여기만 고친다 |
 | `log/build_worklog_page.py` | 스크립트 | DB → HTML 페이지 |
 | `src/tools/install-fonts.mjs` | 스크립트 | 폰트를 시스템에 등록 |
+| `tests/test_batch_choose.py` | 시험 | batch_capture.choose 의 종목·주기·동점 처리 (D 09-22, 4개) |
+| `tests/test_modal_known.py` | 시험 | B-1 원문 여섯이 modal_known.json 조각에 걸려 정답 처리로 가는지(6/6). 원문과 조각이 어긋나면 깨진다 (B, 09-21) |
+| `tests/test_scene_finders.py` | 시험 | 장면 탐색 함수마다 가짜 차트에 진짜 + 예전 구멍 미끼를 심어 진짜를 고르는지, 점수 비율·0~1·몰림 없음 (D 09-22, 42개). 새 장면을 RULES 에 넣고 시험을 안 보태면 깨진다 |
 | `scenes/cmg-20ma-runner.scenes.js` | 씬 | 차트명가 20일선 4컷. 새 대본은 이 파일을 본떠 만든다 |
 | `scenes/cmg12-bridge.scenes.js` | 씬 | 차12 말 구간 설명 카드 2클립 — bridge-intro(워시 리스트, 프레임 860)·bridge-scalp(종이 배경+버튼 반복, 프레임 2939). 스타일은 차명#4 실측 카피, 룰북 §E |
 | `scenes/cmg12-buy.scenes.js` | 씬 | 차12 매수 관점 5컷 — seed161, 55선 재돌파 bar52, 1:2·분할·러너 |
@@ -477,13 +616,20 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | `brand/texture` | 애셋 | 종이 배경, 모눈종이·땡땡이 패턴, 점선 |
 | `brand/thumbnail` | 애셋 | 템플릿에서 뽑은 로고·종이 배경 |
 | `brand/ui` | 애셋 | 매수·매도 버튼, 시네마스코프, 댓글 유도 |
+| `tools/style/fonts/NanumBrushScript.ttf` | 애셋 | 나눔손글씨 붓 (OFL) — 붓 물음표 |
+| `tools/style/tex/hanji_mulberry.jpg` | 애셋 | 실사 닥종이 사진 (Magnific 무료 53876-102589, 출처 표기 조건) |
 | `brand/thumbnail/btn_매수.png` | 에셋 | 템플릿에서 뜯은 매수 버튼 원본 픽셀 (189x90) |
 | `brand/thumbnail/btn_익절.png` | 에셋 | 매수 버튼을 좌우 반전해 #00FF24 로 칠하고 익절 글자를 얹은 것 (185x90) |
 | `brand/thumbnail/로고.png` | 에셋 | 템플릿 로고 원본 픽셀 (209x52) |
 | `brand/thumbnail/종이배경.png` | 에셋 | 템플릿 종이 텍스처 원본 픽셀 |
 | `brand/thumbnail/틀.png` | 에셋 | 템플릿 '틀' 도형 원본 픽셀 (안쪽 투명) |
+| `data/대본자료` | 자료 | E 의 대본 작업 자료 중 저장소에 두는 것만(decision 38): README(로컬 05_대본자료 구조 설명)·워크플로우.md(단계 12·관문·도구)·팀장쌍/pairs.jsonl. Pool·자막·레퍼런스·방송본·양식은 로컬에만(.gitignore) |
 | `log/data` | 자료 | 롱폼 대본 인덱스·숏폼 대본·세이브 슬롯 (JSON) |
+| `tools/_com/modal_known.json` | 자료 | 아는 모달 문구 표 — 조각·처리·왜(TRAPS ⑨-2·⑨-3·⑨-4 출처) 5행 + 힌트표 2행. B1_모달문구.json(원문)과 tests/test_modal_known.py 로 묶여 있다. '새 시퀀스' 행은 조각이 비어 있다 — 겪으면 채운다 |
+| `tools/jev/ch11_labels.json` | 자료 | 팀장 차11 그림 60장 판독표(서브에이전트) — 차트 42·개념도·밈 18, 종목·주기·지표·움직임 (D 09-22) |
 | `.claude/skills/radar/SKILL.md` | 지침 | 오류 레이더 스킬 — 같은 오류 두 번째·10분 넘게 막히면 tools/radar.py 로 우리 기록→Stack Overflow→GitHub 를 먼저 본다 |
+| `AGENTS.md` | 지침 | Claude Code 바깥 에이전트(Codex 등)용 — 훅이 대신 막아 주던 규칙(본류 push·이름 없는 push·add -A·작업폴더 이동/삭제·DB 원본·키 자리)을 글로. CLAUDE.md 가 본문이고 이 파일은 차이점만 (2026-09-18) |
+| `log/inbox/_완료보고_양식.md` | 지침 | 완료 보고 두 줄 — 확인한 것 / 안 본 것 (decision 33). 검증 범위 오류 여덟 건의 처방 |
 | `src/cli.mjs` | 코어 | 렌더 CLI. --all --scene --format --stills --reel |
 | `src/market/candles.js` | 코어 | 시드 고정 캔들 생성기. 추세/박스권/돌파/눌림/급등락 |
 | `src/render/anim.js` | 코어 | 이징·타임라인·cue. in 을 생략하면 처음부터 떠 있는 것으로 본다 |
@@ -656,6 +802,26 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 | ExtendScript 함정 ①~㉒ 는 brand/EXTENDSCRIPT-TRAPS.md 가 원문 — DB 로 옮기지 않는다 | 코드 주석이 번호로 가리킨다(run.ps1 ⑥, build_rollad.jsx ⑮). 번호가 정리 안 됨(⑫ 두 번, ⑭→⑮ 건너뜀). 남의 실측을 요약해 옮기면 틀린다(⑦⑩⑪ 전례) | DB 는 '원문 ⑯' 처럼 번호만 가리킨다. 새 함정은 문서에 먼저 적고 DB 는 그 번호. 총괄 결정 2026-09-17 (decision 23). 원문 log/inbox/2026-09-17_B_EXTENDSCRIPT-TRAPS_이관판단.md |
 | ExtendScript $.evalFile 은 BOM 없는 UTF-8 한글을 정상으로 읽는다 — TRAPS ③ 은 File.read 얘기다 | 코드 검토 세션이 scene-export.mjs 의 한글 .jsx 를 TRAPS ③ 위반으로 지적했으나 D 실측(AE 26.5)에서 코드포인트 일치. _lib.jsx 도 BOM 없는 한글 파일로 35개 잡이 써 왔다 | evalFile 은 그대로. File.read() 로 읽을 때만 encoding='UTF-8' 을 먼저 준다(TRAPS ③). 남의 지적도 실측으로 되돌린다. 원문 log/inbox/2026-09-17_D_개선안회신.md §4 D-1 |
 | ffmpeg stderr 를 그대로 담은 파일(silences.txt)은 실행마다 메모리 주소가 바뀐다 | 줄 머리 `[silencedetect @ 000001650716bc00]` — 해시 회귀에서 '다름' 으로 뜬다. 도구 결과에는 영향 없음(read_silences 는 숫자만 읽는다) | 내용 비교는 주소를 빼고 한다. 원문 log/inbox/2026-09-17_E_개선안회신.md 오류 원자료 2 |
+| git_guard 는 명령 텍스트만 본다 — 문서를 heredoc 으로 쓰면 본문의 'git push …' 줄에 걸린다 | D 보고서(본류 이름+push 낱말 포함)를 heredoc 으로 덧붙이는 명령이 차단됐다. 옛 로컬 훅도 같았다. 규칙을 느슨하게 하면 진짜를 놓친다 | 문서는 셸 heredoc 이 아니라 Write/Edit 도구로 쓴다(역슬래시 문제와 같은 처방). 조각을 파일 도구로 만들고 cat 으로 잇는다. 원문 log/inbox/2026-09-18_D_훅연결_실측.md §6 |
+| make_xml.pathurl — 드라이브 문자 경로는 abspath 를 안 거치니 정규화도 안 된다 | C:/Users/../Users/user/x.mp4 같은 경로가 그대로 URL 에 박힌다. cuts.json 의 source 는 전부 정규화된 절대경로라 지금은 영향 없음 | 상대·리눅스 경로는 전처럼 abspath. 필요해지면 os.path.normpath 만 추가. E 윈도우 회귀 4개 바이트 동일. 원문 log/inbox/2026-09-18_E_세션시작폴더_적용.md |
+| 윈도우는 경로 조각 끝의 공백·마침표를 조용히 떼어낸다 — 공백은 나중에 터지고, 마침표는 이름만 달라진다 (B 정리 → E 재현 → D 가 마침표를 갈라냄 → B 재확인, 세 사람 실측 09-18) | 폴더 '끝공백 ' → 디스크 '끝공백', 그 경로로 쓰기·listdir 은 FileNotFoundError(공백은 만들 때만 떨어지고 풀 때는 안 떨어진다). 폴더 '끝점.' → 디스크 '끝점', 쓰기·읽기 다 성공 — 이름이 달라진 걸 아무도 모른다(마침표는 풀 때도 떨어진다). 파일은 둘 다 이름만 달라진다. isdir('끝공백 ') 는 True 라 검사로 안 걸린다. 조용한 쪽(마침표)이 더 골치다 — 납품·회차 폴더 이름이 지시서와 달라져도 소리가 안 난다. 사례: E yt-dlp 채널 폴더(실제) | 경로 조각을 만들 때 뗀다 — 파이썬 rstrip(' .') · ExtendScript name.replace(/[ .]+$/, ''). 반영 완료(이정찬 승인 09-18): E shortform.py safe_tail(6bb8b0e, 왕복 시험 tests/test_shortform_names.py) · B 일러스트레이터 safeName(aed48bd) · D tools/style 6개 --out rstrip(2a7eddd). **일러스트레이터 saveAs 도 같다(2026-09-21 B 실측, Illustrator 30.8.1, 네 경우 전부 파이썬과 동일)** — 부모 폴더 끝이 공백이면 `오류: the operation was cancelled` 로 실패한다. 폴더가 없다는 말이 아니라 원인을 찾기 어렵다. new File("…ai ") 은 만들기 전부터 .name 이 공백 없는 이름이라 디버깅에서 더 헷갈린다. 원문 log/inbox/2026-09-21_B_constraint56_일러스트레이터_실측.md · log/inbox/2026-09-18_B·E_경로끝공백_constraint후보.md |
+| yt-dlp 함정 넷 (E 실측 09-18, 2026.08.19) | ① --print 는 --simulate 를 함축 → 자막·썸네일 안 받아진다 ② --convert-subs 는 ffmpeg 를 부른다(이 PC 에 없음) ③ --js-runtimes node 없으면 JS 런타임 경고 ④ 자막 트랙 ko-orig 와 ko 가 따로 있는 영상이 있다 | ① --no-simulate 를 같이 ② --sub-format srt 로 유튜브가 주는 SRT 를 그대로(json3 130KB → srt 18KB) ③ --js-runtimes node ④ ko-orig 먼저, 없으면 ko. 월 1회 pip install -U. 남의 영상 다운로드는 약관 위반 — 참고용과 재배포는 다르고, 로그인 쿠키는 안 쓴다. 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §2 |
+| YouTube Data API 한도·제약 (E 09-18) | videos·channels·commentThreads·playlistItems 는 1유닛/하루 10,000. search.list 만 하루 100콜 별도. 남의 채널 자막은 못 받는다(403 이 정상). 남의 채널 데이터는 30일 넘게 원본 보관 금지 | 검색은 yt-dlp ytsearchN: 으로 대신. API 는 좋아요 수처럼 yt-dlp 가 못 주는 것만. 키는 C:/Users/user/.secrets/ac_keys.env (decision 32). 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §3 |
+| 한국어 도구는 과교정한다 — 자동 파이프라인에 넣지 않는다 (E 실측 09-18) | 맞춤법 MCP(@winterjung/mcp-korean-spell)는 네이버 검사기 비공식 사용이고 우리 용어도 고친다(메인밴드→메인 밴드). Kiwi space() 도 과교정(매매 법·21 기간). j5ng/et5-typos-corrector 는 '하락 구조'를 '상승 구조'로 바꿔 놓는다. KURE-v2 는 리더보드 1위지만 11편 인코딩 v1 68초 · v2 250초 | 맞춤법은 사람이 볼 때만, 고유 용어는 예외 목록. Kiwi 는 고칠 자리 찾는 용도로만(add_user_word 로 용어 등록). 뜻이 바뀌는 교정기는 안 쓴다. 임베딩은 KURE-v1. tiktoken 오류면 pip install tiktoken sentencepiece protobuf. 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §4 |
+| MT5 MCP — 인증·세션·캡처 함정 7 (D 실측 09-18) | ① 인증은 Authorization: Bearer <키> 뿐, initialize 의 Mcp-Session-Id 를 계속 싣고 notifications/initialized 는 id 없이 ② ChartScreenShot 은 스크롤 자리를 무시하고 늘 최신 구간 — 크기를 키우면 봉이 더 들어올 뿐 ③ ChartNavigate 는 자동스크롤 끄고 CopyRates 로 그 날짜 이력을 먼저 ④ chart_apply_template 은 지표를 통째로 갈아 끼움(3초 쉬고 붙인다) ⑤ 지표 목록은 터미널 시작 때 한 번 — 새 지표는 재시작 ⑥ PrintWindow 는 자식 핸들을 줘도 본 창 — 차트 판은 그림에서 찾는다 ⑦ trade_* 7종은 부르지 않는다 | 과거 장면은 ChartNavigate 로 옮긴 뒤 창을 PrintWindow 로 찍는다(tools/mt5/capture_scene.py). 키는 .secrets/ac_keys.env MT5_MCP_KEY. 09-22 D 추가: ⑧ chart_add_indicator 는 인자 문자열을 쉼표로 나눈다 — 'EMA200,EMA20,ADX' 는 EMA200 만 달리고 오류 없음 → '+' 로 잇고 찍기 직전 실제 달린 지표 수를 센다 ⑨ CMG_Shot 이 4.8초 뒤 스스로 지표를 떼서 밖에서 찍으면 떼는 도중이 찍힘 → KeepInds ⑩ HedgeHood 창 제목엔 'MetaTrader' 가 없다 → terminal64 프로세스로 찾는다. 원문 log/inbox/2026-09-18_D_아스트라_인수인계.md §3 · 2026-09-18_D_MT5_MCP연동_시험.md · 2026-09-22_D_next45_대본→차트장면_일괄촬영·AE세팅.md |
+| 렌더 색·속도 — ProRes 4444 는 YUV 라 1 어긋난다, 차트 컷씬은 우리 렌더러가 4.5배 빠르다 (D A/B 실측 09-18) | #0D9488 이 ProRes4444 에서 (12,148,135). ov-pnl 같은 컷: 우리 렌더러 6.9초 vs HyperFrames 31.0초(300장). 이 PC PATH 에 ffmpeg 없음 | 색을 보증해야 하면 PNG 시퀀스. HyperFrames 는 우리 레이어에 없는 모양을 새로 만들 때만. ffmpeg 는 06_실험실/hf_smoke/node_modules 것을 PATH 앞에. 원문 log/inbox/2026-09-18_D_AB시험_우리렌더러_대_HyperFrames.md · log/inbox/2026-09-18_D_외부도구_HyperFrames·Remotion_실측.md |
+| 일러스트레이터 저장·모달 함정 둘 — TRAPS ⑨-4·⑨-5 가 원문 (B 실측 2026-09-21) | ⑨-4 pdfCompatible=false 로 saveAs 하면 'Acrobat PDF 파일 포맷에 문제가 있습니다' 모달이 뜨고 COM 이 멈춘다(CPU 증분 0.41s). ⑨-5 화면 캡처는 다른 창에 가려지면 헛장, UIA 는 어도비 자작 창 속을 못 읽는다(OS_ViewContainer 하나) | pdfCompatible 은 true 로 둔다(파일 커져도). 모달 판별은 메인 창 IsWindowEnabled=False, 내용은 프로세스의 #32770 창에 PrintWindow(h,hdc,2). 닫을 땐 좌표 클릭보다 PostMessage(VK_RETURN) — 그래도 닫기보다 죽이고 기록(next_step 46). 정정(B 09-21 저녁): ⑨-4 는 늘 뜨지는 않는다 — 새 200x200 빈 문서에선 창 없이 3.1s 저장. 조건은 미확인, 재현 잡 tools/illustrator/_trap_pdf_modal.jsx. ⑨-5 글자는 Win32 로 읽힌다(constraint 70). 원문 brand/EXTENDSCRIPT-TRAPS.md ⑨-4·⑨-5 |
+| PowerShell 5.1 은 BOM 없는 .ps1 의 한글을 cp949 로 읽는다 (D 실측 2026-09-21) | 새로 쓴 run.ps1 이 'The string is missing the terminator: \"' 로 죽었다. 파일은 멀쩡했고 한글이 깨지며 따옴표가 먹혔다. 저장소의 기존 .ps1 넷은 전부 BOM 이 있어 안 겪던 일 | 한글이 든 .ps1 은 UTF-8 with BOM 으로 쓴다(.jsx 가 읽는 JSON 은 반대로 BOM 없이 — constraint 38·B-1 과 구분). 원문 log/inbox/2026-09-21_D_공용실행기_1단계.md |
+| Windows MainWindowHandle 은 못 믿는다 — 일러스트레이터가 160×28 짜리 엉뚱한 창을 돌려줬다 (D 실측 2026-09-21) | Process.MainWindowHandle 로 창을 잡아 PrintWindow 하면 빈 조각이 찍힌다. PowerShell Add-Type P/Invoke 는 System.Drawing.Rectangle 참조를 못 찾아 컴파일이 깨진다 | 프로세스의 보이는 최상위 창 중 가장 큰 것을 고른다 — tools/_com/shot_window.py 한 벌(파이썬). 못 찾으면 종료코드 2, 실행기는 화면 전체로 물러선다. 원문 log/inbox/2026-09-21_D_공용실행기_남은둘_실측.md §3 |
+| Jev 는 자리 치우침이 있다 — 같은 쌍을 A·B 바꿔 물으면 3/13 이 뒤집힌다 (E 실측 2026-09-21) | 확정본을 앞에 놓고 한 번만 물으면 12/13(92%)로 보이지만, 자리를 바꿔 둘 다 맞아야 인정하면 9/13(69%). 26번 중 앞자리를 고른 것이 16(62%). 틀리면서 confidence 0.73 인 경우 1건(S002) | **선호 비교(둘 중 나은 것)** 에서 난다 — 자리를 바꿔 두 번 묻고 갈리면 사람에게. **분류(여럿 중 무엇)** 에서는 거의 없다: D 21문항 0 뒤집힘, B 37문항 2 뒤집힘(둘 다 confidence 0.5 아래라 문에 걸림). 분류는 한 번 + confidence 문(0.7, 자동 실행이면 0.8)으로 충분하고, 두 번 묻기는 값이 싸니 해도 된다. 원문 log/inbox/2026-09-21_E_Jev_판정관_시험결과.md §2 |
+| 어도비 잡 로그는 생존 편향이 있다 — 실패한 잡은 로그를 안 남긴다 (D 09-21) | 작업실 로그 66개(AE 33·프리미어 33)가 거의 다 성공. 이걸로 성공/실패 판정을 재면 '무조건 성공' 모델이 17/20 을 받는다 | 판정 시험은 파일 단위가 아니라 줄 단위(한 로그 안의 ERR 줄과 true 줄, m5_frames2·a3_frame2)로. 공용 실행기가 _fail.txt 를 남기기 시작했으니 표본은 앞으로 쌓인다. 원문 log/inbox/2026-09-21_D_Jev시험.md §3 |
+| Jev 는 수를 견줘야 답이 갈리는 자리에서 높은 confidence 로 틀린다 — confidence 문이 안 걸러진다 (D-4 실측 2026-09-21) | 잡 로그 한 줄 성공/실패 20건: Jev 17/20, 지금 규칙(ERR·throw·false 낱말) 18/20. 틀린 셋 중 둘은 '반환 true 인데 실제로 안 된 줄'(폴더 목록이 앞 줄과 같음, 시퀀스 0 -> 0)을 confidence 0.91·0.86 으로 성공이라 했다. 문(≥0.7)을 걸어도 통과한다. 셋째(0.05)만 문에 걸린다 | 수를 견주는 일(같은가·늘었는가·0 인가)에는 안 쓴다 — 문서에 셈 못 한다고 명시돼 있고 실측이 그대로다. 뜻만으로 갈리는 자리(오류 분류 D-3, 모달 문구 B-1)에만. 잡의 성공/실패는 잡이 스스로 '판정:' 한 줄을 쓰게 한다(래칫 tests/test_verdict_lines.py). 원문 log/inbox/2026-09-21_D_Jev시험.md §7 · tools/jev/run_d4.py |
+| PowerShell Remove-Job -Force 는 COM 호출에 붙잡힌 잡을 한참(120초) 기다린다 (B 실측 2026-09-21) | 45초 제한을 걸었는데 165.3s. COM 이 답할 때까지 잡이 안 끝나고 Remove-Job 이 그걸 기다린다 | 시간은 Wait-Job 직후에 잰다. Remove-Job 은 앱을 taskkill 한 뒤에(COM 이 풀려 바로 끝남). tools/_com/run.ps1 · issue 43 |
+| 어도비 앱이 떠 있는데 COM 이 안 답하는 상태가 있다 — 원인 미확정, 규칙 아님 (B 09-21 한 번 겪음 → 09-22 재현 실패) | 09-21 일러를 taskkill 뒤 재기동하자 시작 화면인 채 COM 무응답, 600초를 태움. 09-22 같은 절차로 재현하니 9초 만에 정상(복구 창 없음). 그때와 다른 점: 연달아 두 번 죽였고 뜨는 중에 COM 호출 하나가 CO_E_SERVER_EXEC_FAILURE 로 실패했다. 당시 캡처가 가장 큰 창 하나라 작은 창이 있었는지 모른다 | '한 번 겪은 것을 규칙처럼 적지 않는다' 의 사례로 남긴다(B 스스로 낮춤). 실행기의 '떠 있는데 COM 이 안 답하면 말하고 멈춘다(죽이지 않는다)' 검사는 원인과 무관하게 유효하니 그대로. 모달 못 찾은 실패는 보이는 창을 전부 찍는다(shot_window --all, D). 원문 log/inbox/2026-09-22_B_시작화면굳음_재현안됨.md |
+| 어도비 모달의 글자는 Win32 로 읽힌다 — UIA 가 못 읽는 것이지 EnumChildWindows+GetWindowTextW 는 그대로 나온다 (B 실측 2026-09-21) | TRAPS ⑨-5 '속을 못 읽는다' 는 UIA 얘기. #32770 창의 자식(버튼·정적 텍스트)에서 "확인(&O)"·본문이 읽혔다. 자식 창이 없는 자작 창도 있다 | tools/_com/modal_text.py 가 글자를, shot_window.py 가 그림을 — 둘 다 남긴다. 글자가 나오면 modal_class.py(표 → Jev 두 순서·문 0.8)로 한 줄 분류. TRAPS ⑨-5 갱신됨 |
+| AE 를 강제 종료하면 다음 기동 때 '충돌 복구 옵션' 창(534x365)이 뜨고 잡이 닿지 못한다 — 자동으로 누르지 않는다 (D 실측 2026-09-22) | 버튼 넷(안전 모드·환경 설정 재설정·플러그인 관리·계속). Enter(SendKeys) 안 먹음. 마우스 클릭은 먹지만(SetProcessDPIAware+SetForegroundWindow 뒤 두 번 재현) DPI 인식 없이 누른 첫 시도가 빗나가 옆의 탐색기로 가서 프리미어를 띄웠다. 어도비 자작 창이라 글자는 OS_ViewContainer 뿐 → 분류 '모름'. 일러스트레이터는 이 창이 없다(B 재현). BridgeTalk 이 왜 약 70초에서 끊는지는 미확인(bridge.jsx 는 600초) | 실행기가 창을 누르게 하지 않는다(빗나가면 남의 앱이 뜬다 — 총괄 결정 09-22). 시작 전 검사에서 이 창(대상 앱 #32770 534x365, 주창 없음)을 보면 '충돌 복구 창 — 계속을 누르고 다시 부르세요' 로 바로 멈춘다(next_step 53, D 완료 09-22). 판별은 크기가 아니라 자식 창 뼈대: 복구 창 = #32770 + OS_ViewContainer×2 + OS_EditTextContainer, AE 주창 없음 / 시작 화면 = OS_ViewContainer 하나(크기는 배율 따라 달라 조건에서 뺌). 시작 전 + 대기 중 5초마다(COM 이 AE 를 띄울 때 뜨므로). 멈출 때 아무것도 죽이지 않는다. 죽인 뒤 _fail.txt 에 '다음 실행 때 복구 창이 뜹니다' 한 줄. BridgeTalk ~70초 원인은 못 찾음(네 번 68~74초). 원문 log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md §2 · 2026-09-22_D_next53_AE복구창_멈춤.md |
+| 장면 탐색에서 1등 점수만 쓰면 봉이 많은 M1 이 늘 이긴다 — 후보 구간이 많아 최고점이 우연히 높다 (D 실측 2026-09-22, 근본 해결 안 됨) | 차11: 팀장 그림은 M15·H1·D1·W1(M1 0장)인데 D 처음 결과는 M1·M5 34/35. 1등의 90% 안을 동점으로 보고 회차 성격 순서(주제가 N일선이면 US100 H1·M15 먼저)를 따르게 했더니 종목은 맞고 주기는 반만(H1 이 90% 안에 잘 안 든다) | 값을 짐작으로 더 내리지 않는다(D). 근본은 표본 수 보정(후보 수에 따른 최고점 기대값 보정). 손댈 때 next_step 45. 원문 log/inbox/2026-09-22_D_장면탐색_재발방지·차11검증·방향.md §3 |
+| MT5 MCP 로 옮긴 차트가 장중에 최신 봉으로 되돌아간다 — 로그는 옮겼다는데 찍힌 그림은 다른 날짜 (D 실측 2026-09-28) | ChartNavigate 뒤 자동 스크롤이 최신으로 돌아감. 지표도 장면 확정 전에 붙이면 사라짐(4-4 MA20 소실) | 자리 붙잡기(Hold): 화면 오른쪽 끝 봉 시각을 파일로 받아 목표와 같아질 때까지 기다렸다 찍고, 찍은 뒤 또 확인. 지표는 장면 확정 뒤에 붙이고 덜 붙으면 한 번 더. 이력 미도착이면 다시 받기. 촬영 한 장을 통째로 재시도하는 구조. 원문 log/inbox/2026-09-28_D_최적화_정리_B에게.md §1 · D 세이브 09-28 |
 
 ## 다음에 할 일
 
@@ -699,7 +865,21 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 38. **더원트레이더 규칙 DB 등재 — 보류** — 컷 0.65s/−30dB/IN −0.08·OUT +0.07(표본 2편 50경계 0.051s) · 자막 14자(롱폼 21자 관측, 8편) · 배너 2판 공식(8편 중 5편). E 가 표본 병기 조건으로 동의. 새 채널로 넘어가 우선순위 낮음  _(대기: 새 정답 자료가 생길 때)_
 39. **prlinks.py 전 파트 공용 규칙 — 인박스 제안서** — 폴더 옮기기 전 find, 옮긴 뒤 check. 검사 범위에서 목적지 폴더를 빼지 않는다. 사람이 옮기는 경우는 훅이 못 막는다 — 이정찬도 옮기기 전에 돌린다 (runbook 19)  _(대기: 로컬 채택)_
 40. **개선안 회신 — B·D·E 전부 완료 (09-17 17:3x, 셋 다 본류 병합)** — B 641f4da · D 3f32389 · E e6c16b8. 채택 현황은 log/inbox/2026-09-17_총괄_개선안회신답.md 표 + E: 2-A(가지만 전환, 작업트리 두 벌은 단일화 방침으로 안 만듦)·E-1~E-7·ruff 5 적용, 회귀 45항목 동일, pytest 29. 남은 것은 next_step 41(세션 시작 폴더, 이정찬)뿐  _(대기: 완료)_
-41. **세션 시작 폴더 — 확정 (09-17 18:40 이정찬): 자기 worktree 폴더에서 띄운다 · 이름 D_Video·B_Image·E_Script** — 저장소 .claude/settings.json(env·훅·스킬)은 세션을 시작한 폴더에서만 읽힌다(공식 settings 문서, D 확인). 지금 B·D·E 는 …\이정찬\Claude 에서 시작해 아무것도 안 걸린다. 총괄 판단: 각 세션을 자기 worktree 폴더에서 띄운다(cd <worktree>; claude 또는 claude --worktree <이름>). 그러면 PYTHONUTF8·git_guard·radar 스킬이 자동으로 붙는다. 답이 오기 전엔 D 로컬 훅 유지  _(대기: 이정찬)_
+41. **세션 시작 폴더 — 완료. U-7(로컬 훅·bypass 되돌리기)도 완료 (이정찬+D 09-21)** — 저장소 .claude/settings.json(env·훅·스킬)은 세션을 시작한 폴더에서만 읽힌다(공식 settings 문서, D 확인). 지금 B·D·E 는 …\이정찬\Claude 에서 시작해 아무것도 안 걸린다. 총괄 판단: 각 세션을 자기 worktree 폴더에서 띄운다(cd <worktree>; claude 또는 claude --worktree <이름>). 그러면 PYTHONUTF8·git_guard·radar 스킬이 자동으로 붙는다. 답이 오기 전엔 D 로컬 훅 유지  _(대기: 완료)_
+42. **더원 배너 나머지 문서 둘 — 완료 (09-18, 이정찬이 파일을 건네 총괄이 등재)** — tools/theone/상단배너_공식.md 는 올라왔다(519625b). 같은 폴더에 로컬만 있는 상단배너_로직.md(7.2KB)·상단배너_임베딩분석.md(8.3KB) — 임베딩 채점기 수치(쌍 개수·유사도 분포·홀드아웃)가 거기 있다. 이정찬이 '대본~인덱스~임베딩~로직' 자료를 찾고 있어 둘 다 tools/theone/ 으로  _(대기: 완료)_
+43. **MCP 자가점검 스크립트 저장소로 — 완료 (E, 6bb8b0e → tools/mcp_probe.py)** — E 가 scratchpad/mcp_probe.py(initialize → tools/list → tools/call)를 만들어 뒀다. 별 수 믿지 말고 띄워 보는 도구라 전 파트 공용 — tools/mcp_probe.py 로 올려 달라 (radar 와 같은 자리)  _(대기: 완료)_
+44. **경로 끝 공백·마침표 가드 — 완료 (B aed48bd · E 6bb8b0e · D 2a7eddd, 이정찬 승인)** — constraint_note 56. 주석에 번호를 적는다. B 의 일러스트레이터 saveAs 는 실측 뒤 반영(미실측 추정)  _(대기: 완료)_
+45. **대본→차트장면 파이프라인 — ①②③ 완료 (③ 09-22 오후: 차11 35비트 검증 — 지표 33/35·종목 23 팀장과 일치, 주기는 반만 · 방향은 Jev 문 0.7 · 재발 방지 세 겹 + 되살리기 4/4), 남은 것 ④ + 주기 치우침 근본 해결** — ③ 완료(원문 log/inbox/2026-09-22_D_장면탐색_재발방지·차11검증·방향.md): 장면=전용 함수(scenes.FINDERS, 미등록은 오류), 장면마다 진짜+미끼 심은 시험 42+4, 실행 중 1등 몰림 경고. 09-28 검수 3차까지: 자리 붙잡기(Hold), 규칙을 Jev 가 뒤집기(0.8), 지표를 장면 확정 뒤에 붙이고 덜 붙으면 한 번 더, 촬영 한 장 통째 재시도, 전송로 이중화. 미해결: M1 주기 치우침(constraint 72). ①② 완료: batch_capture.py(규칙 먼저, 못 잡은 비트만 Jev 문 0.7 — 선택지를 '대본이 이런 말을 할 때 → 차트는 이렇게' 로 쓰니 0.46→0.97) → conti_sheet.py → ae d1_conti_build. 종목은 BTCUSD M1 우선(팀장 14장 중 9장). 구멍 다섯 잡음(constraint 60 ⑧⑨⑩, 톱니 점수 정규화, 지지선·쓸림 전용 탐색). ③ 다른 회차로 검증 ④ 회사 드라이브에 넣을지 이정찬 판단. 그 다음: 방향(상승/하락) 맞추기, 롱폼 성우 속도 실측(지금은 6.82자/초 추정), B 에게 브랜드 요소(버튼·틀·로고) 얹기 — 아직 넘길 것 없음. 원문 log/inbox/2026-09-22_D_next45_대본→차트장면_일괄촬영·AE세팅.md  _(대기: ④ 이정찬 · 주기 치우침은 D 가 손댈 때)_
+46. **어도비 공용 실행기 — 완료 (D 1단계 09-21 낮 · B 2단계 09-21 저녁 · D bridge 갈래 셋 09-22: FAIL/JOBERR 가짜 통과 고침(issue 47), 프리미어 probe·save_quit, 모달 못 찾으면 창 전부 찍기). 복구 창 검사만 53 으로** — run.ps1 네 벌을 tools/_com/run.ps1 하나로 합치면서 ① 앱·문서·프리미어 켜짐 검사 ② 타임아웃→taskkill→실패 기록 ③ 반환값 아닌 판정 줄로 성공 ④ 실패 시 **PrintWindow 로 모달 캡처**(화면 캡처는 가려지면 헛장 — B 09-21, TRAPS ⑨-5)+로그 30줄. 계기: GPT 가 WORKLOG 를 읽고 '진짜 위험은 모달·완료 판정·외부 앱 상태' — DB 로 확인(issue 28~31, TRAPS ⑦⑯). 제안서 log/inbox/2026-09-18_총괄_공용실행기_제안.md  _(대기: 완료)_
+47. **팀장 반려 문장 쌍 수동 수집 — E** — 반려·첨삭이 올 때마다 고치기 전/후 문장 쌍을 tools/theone/ 에 jsonl 로. 회차·날짜·누가 고쳤나(팀장/전문가/편집) 표시. 30쌍 넘으면 decision 35 다시 본다. 첫 자료가 이미 있다(09-21): 차12 6차 ↔ 이정찬판 INTRO~3구간(팀장 피드백을 이정찬이 적용) — 이 diff 에서 쌍을 뽑으면 된다. 09-22: E 가 뽑았다 — data/대본자료/팀장쌍/pairs.jsonl 88줄(버림/고름/꼴/회차/누가/날짜/출처). 30쌍은 넘었으나 한 회차·한 사람(이정찬)이라 decision 35 재검토는 팀장 것이 섞일 때  _(대기: 반려가 올 때마다 · 팀장 쌍이 섞이면 decision 35 재검토)_
+48. **더블볼린저 편 방송 뒤 최종본 대조 — E** — 차12 가 리믹스하는 더블볼린저 편은 아직 방송 전(09-21). 방송되면 자막을 받아 차12 초안과 대조. 방송 실물에서 볼린저 기본 20일 4회 확인(21 은 0회) — 차12 의 21→20 정정 뒷받침. 전문가 실사용은 기간 30·데비에이션 1  _(대기: 방송 뒤)_
+49. **Jev 판정관 시험 — E 완료 (09-21: 한국어 통과·순위 9/13·자리 치우침·confidence 문 제안 → decision 37)** — ① 한국어: 합격 배너 8쌍을 팀장 기준 5개 Score 로 ② 순위: S016 확정본 vs 1안, 8회차 확정본 vs 1판 문구 — 확정본이 이기는 수 ③ 방송본 5쌍 초안 vs 방송본 ④ confidence 분포. 합격선 ②에서 6/8 + ① 정상 → decision 35 갱신·채택, 아니면 external_tool 14 rejected. 미공개 대본은 안 보낸다(이정찬 결정 전). 키는 이정찬 발급 → .secrets TYPESAFE_API_KEY  _(대기: 완료)_
+50. **Jev 시험 — D 완료 (D-3 11/12 → radar 에 붙음 · D-1 줄 단위=D-4 17/20 < 규칙 18/20 → 실행기 판정에 안 붙임 · D-2 승자 없음, 팀장 분류 기준 뒤 = 52 와 함께)** — D-1 잡 로그 성공/실패 Noul(20개 중 18, 틀린 것의 confidence 낮으면 run.ps1 경고 통과 자리에) · D-2 대본 비트 분류 Choice(차10 콘티 12장 중 10) · D-3 오류 분류 Choice(30건 중 25). 이미지·좌표·날짜는 제외. E 한국어 시험이 먼저. 설계 log/inbox/2026-09-21_총괄_Jev_시험_D·B.md  _(대기: 완료 (D-2 재측정은 52 에 붙음))_
+51. **Jev 시험 — B 완료 (09-21: 5/6·9/11·14/20 미달, 그러나 틀린 9건 중 6건은 우리 자료 — 발견 둘: 선택지에 TRAPS 필요·규칙 22 설명 정정)** — B-1 모달 문구 → 처리 종류 Choice(실제 문구 5~6개 전부) · B-2 썸네일 강조 대상 Choice(규칙 22, 빨강 든 회차 전부) · B-3 오류 분류(20건 중 16). 픽셀·색 코드·캡처 판정은 제외  _(대기: 완료)_
+52. **scenes.py 규칙 2 정정 — D** — D 판독: '원리 비트는 민차트' 는 절반만 맞다(2-1(1)은 볼린저+MA). 확실한 건 규칙 3(지표 설명 비트는 그 지표를 켠다)뿐. 심볼·주기도 고정 아님. 팀장 분류 기준 확인 뒤 규칙 2 를 고치거나 뺀다. 원문 log/inbox/2026-09-21_D_Jev시험.md §2  _(대기: 팀장 기준 확인 → D)_
+53. **공용 실행기 — AE 충돌 복구 창 감지·즉시 멈춤 — D 완료 (09-22: 시작 전 0.2초·대기 중 5초마다 15.5초, 정상 잡 1.7초 안 막힘)** — 강제 종료된 AE 를 다시 띄우면 복구 창(534x365, 대상 앱 #32770, 주창 없음)이 뜨고 잡은 70초 뒤 FAIL TIMEOUT 으로 끝난다. 자동 클릭은 안 한다(constraint 71 — 빗나가면 남의 앱이 뜬다). ① 시작 전 검사에 그 창 감지 → '충돌 복구 창이 떠 있습니다 — 계속을 누르고 다시 부르세요' 로 exit ② 앱을 죽인 실패의 _fail.txt 에 '다음 실행 때 복구 창이 뜹니다' 한 줄. 급하지 않다 — 손댈 때. 완료: modal_text.py --ae-recovery 가 자식 창 뼈대(OS_ViewContainer×2+OS_EditTextContainer, 주창 없음)로 알아본다. 원문 log/inbox/2026-09-22_D_next53_AE복구창_멈춤.md  _(대기: 완료)_
+54. **E 대본 작업의 이정찬 몫 넷 — LibreOffice·판본 이름·완성본 동봉·피드백 범위 한 줄 (09-23)** — ① E PC 에 LibreOffice → skeleton_docx 결과를 png 로 눈 확인(issue 50) ② docx 판본 이름 차12_vN_<누가>, 복사본·_1 금지(지금 14개) ③ 양식 넘길 때 완성본 1편 동봉(issue 49) ④ 팀장 피드백 받을 때 '몇 구간까지 보셨나' 한 줄. 별도 결정: A/B/C 세 판을 팀장에게 보일지, B(김직선 말투) 판을 쓸지. 원문 log/inbox/2026-09-22_총괄_E_자료정리_답.md 덧붙임  _(대기: 이정찬)_
+55. **차트명가New 비주얼 기준 재실측 — 김직선 영상에서 (B 가 규격을 재고, 총괄·D 가 그 규격에 맞춘다 — decision 39)** — 이정찬 09-28: 디자인 카피는 B 담당, D 는 자가발전 계속(D 문서 2026-09-28_D_최적화_정리_B에게.md). 역할: ① B — 김직선 영상 프레임 실측(안쪽 차트 영역 x·y·폭·높이, 배경색, 여백, 폰트, 버튼·틀·로고 요소, 썸네일 규격)을 JSON 한 장 + md 로. 방법은 D 문서 §2·§4(규격마다 검사 함수 + 틀렸던 모양 미끼, 캡처 수십 장은 서브에이전트 판독 + 픽셀 실측 검증) ② 총괄 — 그 JSON 으로 STYLE.md 를 'STYLE-New.md' 로 새로 쓰고(옛 STYLE.md 는 Old 로 보존) 렌더러 cmg12s-* 룩·차트 소스 규격(지금 1920×915) 갱신 ③ D — 같은 JSON 으로 MT5 촬영 규격 맞춤(D 접점 제안). 이정찬은 기준 회차 3편(김직선 영상 ID)만 B 에게 준다. 짐작 금지, 프레임 실측  _(대기: B — 기준 회차 받으면 시작 · 총괄·D 는 B 의 JSON 뒤)_
 
 ## 대본과 컷 싱크
 
@@ -1251,6 +1431,84 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 - 조치: check=True — CalledProcessError 로 그 자리에서 멈춘다. assemble_longform.duration 도 파일 없음·길이 줄 없음을 각각 한국어로 멈추게 (ffprobe 는 이 PC 에 없어 의존성 안 늘림) (ea36a4a)
 - 확인: 정상 녹음(L08 캠 앞 400초) 28·64구간 그대로. 회귀 45항목 해시 동일. 원문 log/inbox/2026-09-17_E_개선안회신.md §4 E-1·E-2
 
+### 41. save.py 가 본류 이름을 박아 두고 있어 worktree 세션의 세이브가 본류로 향함 (09-18, D 발견)  `fixed`
+- 증상: worktree-D_Video 에서 save.py 를 돌리자 커밋은 제 가지에 됐는데 마지막에 'git push -u origin <본류> 실패 ! [rejected] (non-fast-forward)'. 막힌 건 훅이 아니라 원격이 앞서 있던 우연
+- 원인: save.py:167 git push -u origin BRANCH — worktree 로 나누기 전엔 맞던 코드. git_guard 는 python 안에서 도는 git 을 못 본다(훅은 Bash 명령줄만) → 세이브 스크립트가 가드 밖
+- 조치: 푸시는 현재 브랜치(rev-parse --abbrev-ref HEAD)로. 본류(MAINLINE)는 git config ac.role=총괄 인 clone 만 민다. upstream 도 두지 않는다. tests/test_save.py 3 (2026-09-18 총괄)
+- 확인: pytest 통과. 실제 옆가지 세이브 확인은 D·B·E 다음 세이브에서. 원문 log/inbox/2026-09-18_D_훅연결_실측.md §5
+
+### 42. 공용 실행기가 앱을 죽인 뒤에 모달을 찍고 있었다 (09-21, B 실측)  `fixed`
+- 증상: 시간 제한 → taskkill → _fail.png 순서. 앱이 죽으면 모달도 사라져 찍을 것이 없다
+- 원인: 1단계 순서 실수 — 찍기가 죽이기 뒤에 있었다
+- 조치: 찍기(Read-Modal: Win32 글자 + PrintWindow 그림)를 죽이기 앞으로. tools/_com/run.ps1
+- 확인: _trap_alert 잡으로 모달을 일부러 띄워 _fail.png(420x159 모달 창만)·글자 2줄 확인. 원문 log/inbox/2026-09-21_B_공용실행기_2단계.md
+
+### 43. Remove-Job -Force 가 COM 에 붙잡힌 잡을 120초 기다려 45초 제한이 165초로 찍힘 (09-21, B)  `fixed`
+- 증상: -TimeoutSec 45 인데 '걸린 시간: 165.3s'
+- 원인: Wait-Job 뒤에 Remove-Job -Force 를 바로 불렀다. COM 호출 중인 잡은 앱이 살아 있는 한 안 끝난다
+- 조치: 시간은 Wait-Job 직후에 재고, Remove-Job 은 앱을 죽인 뒤로(COM 이 풀려 즉시 끝남)
+- 확인: 고친 뒤 45.2s(바깥 47.6s). constraint 68
+
+### 44. 일러스트레이터 잡의 시간 초과가 사용자의 포토샵까지 죽이게 돼 있었다 (09-21, B)  `fixed`
+- 증상: 시간 초과 처리가 @($s.Proc,'Photoshop') 을 통째로 taskkill
+- 원인: 1단계는 bridge 갈래(AE·프리미어가 포토샵을 길로 씀)만 있어서 포토샵을 늘 같이 죽였다. direct 갈래(일러·포샵)에는 그 전제가 없다
+- 조치: Transport 가 bridge 면 둘, direct 면 제 앱만
+- 확인: 일러 잡이 600초에 걸려 죽는 동안 사용자 포토샵(PID 17416) 생존 확인
+
+### 45. -TimeoutSec 기본 600 이 정상 빌드(build_live 640s)와 겹쳐 성공 잡을 죽임 (09-21, B)  `fixed`
+- 증상: 일러 build_live 가 제한에 걸려 실패 처리
+- 원인: 기본값을 짐작으로 둠(실측 없이). 실행기 1단계에 실측 잡이 AE 스모크(18s)뿐이었다
+- 조치: 일러·포토샵 껍데기 기본 1800초. 짧은 잡은 부를 때 -TimeoutSec 으로 줄인다
+- 확인: build_live 640.1s 성공(미리보기 10장 md5 09-18 판과 동일)
+
+### 46. build_worklog_db 의 repo_file 이 첫 일치 키를 써서 폴더 키(tools·log/inbox)가 그 아래 파일 키를 삼킴 (09-21, 총괄 발견)  `fixed`
+- 증상: repo_file 231행. tools/_com/*·tools/jev/*·log/inbox/* 의 개별 항목이 표에 안 나오고 폴더 한 줄로 뭉개짐. 등재했다고 보고한 항목이 실제 표엔 없었다
+- 원인: dict 삽입 순서대로 훑고 startswith 첫 일치에서 break — 폴더 키가 먼저 들어 있으면 뒤의 구체 키는 못 이긴다
+- 조치: 가장 긴 키 우선(sorted(REPO_FILES, key=len, reverse=True))
+- 확인: 재빌드 뒤 repo_file 행 수·tools/_com/modal_* 존재 확인. 며칠 동안 '등재했다'가 표에 없던 것 — 확인한 것/안 본 것 규칙(decision 33)을 총괄이 어긴 사례
+
+### 47. 공용 실행기 bridge 갈래가 'FAIL TIMEOUT'·'OK JOBERR …' 반환을 통과로 냈다 (09-22, D 실측)  `fixed`
+- 증상: AE 가 alert 에 막히면 실행기 제한 전에 BridgeTalk 이 약 70초 만에 onTimeout → bridge.jsx 가 'FAIL TIMEOUT' 을 돌려주는데 완화 규칙(decision 36: 반환이 비어 있지 않으면 통과)이 exit 0. 잡 안의 예외도 'OK JOBERR …' 로 와서 통과. 모달은 안 찍히고 AE 는 alert 를 띄운 채 남음
+- 원인: 완화 규칙이 '반환 있음' 만 봤다. bridge 는 실패도 문자열로 돌려준다. B 가 고친 '죽이기 전에 찍기' 는 bridge 에선 들어가지도 않는다(BridgeTalk 이 늘 먼저 끝남)
+- 조치: bridge 는 반환이 OK 로 시작하고 JOBERR 가 없을 때만 답. 시간 초과가 아닌 실패에서도 모달을 보고 찾으면 찍고 그 앱(+포토샵)을 닫는다. Read-Modal 이 모달 가진 프로세스 이름을 돌려준다. tools/_com/run.ps1
+- 확인: alert 함정 exit 1·71초·426x159 캡처·문구 전부 읽힘, _trap_throw exit 1(모달 없음·창 전부 찍기), 프리미어 probe 통과·save_quit 판정 줄 성공. 원문 log/inbox/2026-09-22_D_공용실행기_bridge갈래_실측.md
+
+### 48. E 가 대본 원자료 402 파일(타 채널 자막 146·Pool 174·미공개 대본 docx 15·팀장 피드백)을 public 옆가지에 푸시 (09-22)  `fixed`
+- 증상: worktree-E_Script 63cd70e·f80f416, 27만 줄. 커밋 메시지: '올리지 않는다는 예전 세션이 스스로 적은 규칙이었다 — 이정찬 결정은 키만 금지'
+- 원인: 기록에 없는 결정을 추론해 실행했다. DB 에는 25(public 유지)·32(키 위치)만 있고 자료 공개 여부는 아무도 정한 적 없다. 총괄도 하루 전 차12 초안 .md 를 본류에 합치며 public 을 붙여 말하지 않았다(선례를 만든 쪽)
+- 조치: 이정찬 결정(decision 38): 원자료·자막·docx 는 저장소 밖. 총괄이 49 파일만 골라 새 커밋으로 얹고(45734ee) .gitignore 에 규칙. E 는 옆가지를 본류로 되돌려 force-push. 규칙: 기록에 없는 결정은 추론하지 않고 이정찬에게 묻는다(decision 29 의 '판단이면 판단이라고' 와 같은 선)
+- 확인: 본류 tree 에 Pool·메이저자막·레퍼런스·방송본·docx 0건(git ls-files 로 확인). 옆가지 정리는 E 몫 — 확인은 다음 fetch 에서
+
+### 49. 회사 기본폼 표 칸에 대본을 통째로 넣음 — 양식만 읽고 완성본을 안 잼 (E 09-21)  `fixed`
+- 증상: 6단계 표 칸에 400~800자. 회사 완성본은 표 칸 11~81자, 대본은 줄글 란
+- 원인: 빈 양식은 규칙을 안 말해 준다. 완성본(차명09~12)을 재기 전에 썼다. 이정찬 힌트 뒤에 실측
+- 조치: skeleton_docx.py 가 줄글 란(## 본문 N)을 받도록. 규칙: 새 양식은 완성본 3편 칸별 글자수부터 잰다. 이정찬은 양식과 완성본 1편을 같이 준다
+- 확인: 28c2f62 실측표. 원문 log/inbox/2026-09-22_총괄_E_자료정리_답.md ①
+
+### 50. skeleton_docx.py 정규식 OOXML 편집 버그 둘 — <w:t 가 <w:tcPr 까지 잡음, 머리글 소제목에 굵게 지워짐 (E 09-21~22)  `fixed`
+- 증상: 표 라벨이 XML 조각으로 출력, 표 6단계 칸이 통째로 안 채워짐. 소제목 붙이면 w:b 소실. 렌더 확인 불가(PC 에 soffice·pdftoppm·pandoc 없음)
+- 원인: docx 스킬(풀기→document.xml→묶기→validate)이 있는데 이정찬이 물을 때까지 안 씀. 정규식으로 XML 을 만짐
+- 조치: 태그 경계 못박음 + run 서식 깔기. validate.py --original 을 관문에. 규칙: 새 파일 형식은 스킬·라이브러리 먼저, 자작은 이유를 적고. 렌더 확인은 LibreOffice(next_step 54)
+- 확인: validate PASSED. 렌더는 미확인. 원문 답 문서 ②
+
+### 51. pool_pieces.py 가 조각 54개를 전부 '틀림' — 경로를 두 단계만 올라가 Pool 0편 (E 09-21)  `fixed`
+- 증상: 앵커 대조 결과 0/54
+- 원인: 도구 자체 결함인데 결과를 자료 문제로 읽을 뻔. 도구 시작 검증(정답·오답 견본) 없음
+- 조치: 세 단계로 고침. 규칙: 전부 틀림/전부 맞음은 먼저 도구를 의심. 관문 도구마다 정답 견본 1·오답 견본 1 을 시작 때 돌리고 paths.py 는 Pool 편수 0 이면 exit
+- 확인: 고친 뒤 44/49 맞음·틀림 0. 원문 답 문서 ③
+
+### 52. 장면 탐색이 남의 계산을 빌려 써서 아무 구간이나 뽑힘 — 지지선 이탈·쓸림이 '고점 뒤 하락' 점수 100% (D 09-22)  `fixed`
+- 증상: 1-2 비트가 '떨어졌다 다시 오르는 그림' 으로 찍힘. 시험을 쓰니 같은 병이 둘 더(고점 뒤 하락·박스권 — 조건만 맞으면 무조건 100%), 조용한 구간이 장면처럼 보임(비율 점수라 잔떨림÷작은 폭)
+- 원인: 장면 하나에 전용 계산이 없고 비슷한 계산을 빌려 씀. 점수가 0~1 로 포화되는 꼴. 시험 없음
+- 조치: 재발 방지 세 겹: 구조(장면=전용 함수, scenes.FINDERS, 미등록은 오류) · 시험(장면마다 가짜 차트에 진짜+예전 구멍 미끼, 점수는 비율·0~1·몰림 없음, tests/test_scene_finders.py 42 + test_batch_choose.py 4) · 실행 중(1등 점수가 사건 3곳 이상 같으면 경고). 읽히는 움직임만(구간폭 ≥ 봉 높이 중앙값×6). 이평선 닿음은 닿기 전 8% 이상 벌어져 있었어야
+- 확인: 되살리기: 잘못 넷을 일부러 다시 넣으니 전부 깨짐. 차11 35장 재촬영. 원문 log/inbox/2026-09-22_D_장면탐색_재발방지·차11검증·방향.md §1
+
+### 53. MT5 창이 958px 로 줄어 35장을 반쪽으로 찍음 — 구간 110봉 중 58봉만 (D 09-22)  `fixed`
+- 증상: 차11 2-8 은 이탈 순간이 화면 밖. 누가 창을 줄였는지 모름
+- 원인: 촬영 전 창 폭 검사 없음. 찍은 그림도 폭 확인 없음
+- 조치: 촬영 전 차트 폭 < 1900px 이면 멈춤. 찍은 그림 한 장씩 폭 확인. shot_window --check
+- 확인: 최대화 뒤 35장 1920px 경고 0. 원문 같은 문서 §4
+
 ## 판단과 근거
 
 - **렌더 방식** — 실시간 재생이 아니라 프레임 번호를 받아 그린다
@@ -1335,6 +1593,30 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 - **git_guard 설계 — 경로 한정·삭제 포함·인자 없는 push 차단** — 이동·삭제 규칙은 작업 폴더 이름(이정찬·차트명가·aelab·cmgwork·pprolab·납품·더원)이 명령에 있을 때만. rm -r·Remove-Item -Recurse·rmdir·DeleteDirectory 도 같은 규칙. 브랜치 이름 없는 push(인자 없음·HEAD)는 브랜치 확인 없이 막고 이름을 쓰게 한다. git 규칙은 명령 머리의 git 만 본다(따옴표 안 grep 은 제외)
   - 이유: D 실측 6경우 — 경로를 안 가리면 오탐이 잦아 표식을 습관적으로 만들게 되고, 09-16 에 지운 폴더도 누가 무는지 봐야 했다. 인자 없는 push 는 세션 cwd 가 저장소 밖이면 현재 브랜치를 못 읽는 설계 한계 → 단순한 쪽. 원문 log/inbox/2026-09-17_D_개선안회신.md §2-B ③④
   - 다시 볼 때: 오탐·미탐이 인박스로 보고될 때
+- **API 키·토큰 두는 자리 — 저장소 밖 C:/Users/user/.secrets/ac_keys.env** — YOUTUBE_API_KEY · HF_TOKEN 등은 이정찬이 발급해 이 파일에. 저장소(public)에도, G드라이브로 가는 꾸러미 zip 에도 넣지 않는다. 코드는 파일을 읽어 dict 로 쓴다
+  - 이유: 저장소가 public(decision 25)이고 토큰 노출 전례(issue 35)가 있다. 에이전트는 키 값을 받지 않는다는 기존 규칙과 같은 선. 원문 log/inbox/2026-09-18_E_도구공유_유튜브·한국어NLP.md §1
+  - 다시 볼 때: 키가 세 개를 넘거나 다른 PC 가 생길 때(credential manager 검토)
+- **완료 보고 양식 — '확인한 것 / 안 본 것' 두 줄 필수** — 인박스·회신·세이브 한 줄에 붙인다. 둘째 줄이 비면 보고로 안 친다. 양식 log/inbox/_완료보고_양식.md
+  - 이유: 사고 41건을 원인별로 가르면 셋 — 흩뿌려짐(20·23·25·26·39, 처방 있음: 통합 폴더·labdir·prlinks·guard) · 환경 함정(constraint_note 61, 처방 있음: radar) · **검증 범위 오류(10·13·19·21·25·27·28·37 — 일부를 보고 전체를 판단, 처방 없었음)**. 훅으로 못 막는 종류라 글로 강제한다. 주류 유사물: GitHub PR 템플릿 'Testing done / Not tested'. 진단은 이정찬이 딥시크에 물어 가져온 것(09-18), 총괄이 DB 로 확인
+  - 다시 볼 때: 양식이 형식만 남고 '안 본 것: 없음' 이 늘어날 때
+- **반복 사고는 문서가 아니라 장치로 막는다 — 킴 지적 넷 중 셋을 장치로 (2026-09-18)** — ① save.py 기본값 '전체' 폐지 — 총괄 clone 외에는 --only/AC_SAVE_SCOPE 없이 안 돈다 ② git_guard 규칙 4: 역슬래시 든 heredoc 차단(따옴표 없는 <<EOF 는 어디서나, <<'EOF' 는 Windows 에서) → Write/Edit ③ tests/test_no_path_literals.py 래칫 — 코드에 새 절대경로 리터럴이 생기면 시험 실패, 남은 것(pairs.py 2)은 BASELINE 에 적고 고치면 줄인다 ④ 옛 자리는 옮긴 뒤 일주일 안 지운다(runbook 19)
+  - 이유: 킴(이정찬이 물어 옴): '같은 실수가 두 번 나오면 환경 문제, 환경 문제는 장치로'. heredoc 은 세 세션이 다 밟고도 처방이 '습관' 이었다(constraint_note 38). 경로 리터럴은 폴더 통합 때 셋 터졌다(issue 20·23·39). 주류 유사물: 안전한 기본값 · pre-commit 훅 · 아키텍처 래칫 테스트
+  - 다시 볼 때: guard 4 가 오탐(정당한 heredoc)을 자주 내면 — 그땐 Write 도구가 답이지 규칙 완화가 아니다
+- **배너·대본 판정관 — 팀장 선택 표본 없이는 보류, 수동 수집으로 대체 (2026-09-21)** — LLM 판정관·선호 학습은 팀장이 고른/버린 쌍이 수십 개 쌓일 때까지 보류. 대신 팀장 반려가 올 때마다 고친 문장의 앞/뒤 쌍을 tools/theone/ 에 쌓는다(팀장 부담 0). 방송본 5쌍은 '나간 것의 범위' 기준선으로만 쓰고, 초안 규격을 방송 기준으로 다시 잡지 않는다
+  - 이유: E 실측 09-21: 더원 채널 방송 7편 자막(전부 ASR)을 받아 초안 5쌍과 대조 — 분량↑ 4/5·규칙어↓ 4/5 는 경향이지 법 아님(L01 한 편이 평균을 끌어올림). 이건 before/after 라 A/B 선택이 아니고, 변화 원인(첨삭·애드립·컷편집·ASR)을 팀장에게 못 돌린다. 판정관이 재는 건 취향이 아니라 '나간 것처럼 들리는가' — 그 차이를 흐리지 않는다(E). 이정찬: 팀장 직접 소통 없이는 힘들면 패스
+  - 다시 볼 때: 팀장 선택 쌍이 30개를 넘을 때
+- **공용 실행기 — 판정 줄 없는 옛 잡은 '경고 통과', 대신 수가 늘지 않게 래칫** — 판정 줄 있음 → 성공. 없음 + 시간 안 넘김 + bridge 응답 → 통과(경고). 시간 초과·응답 없음 → 실패. tests/test_verdict_lines.py 가 판정 줄 없는 잡 수(09-21 기준 46)를 상한으로 잰다 — 새 잡은 판정 줄 필수, 옛 잡은 손댈 때 넣는다
+  - 이유: 제안서는 '없으면 실패' 였으나 잡 대부분이 옛 것이라 그대로면 아무것도 못 돌린다(D). 완화는 받되 문서가 아니라 장치로 묶는다(decision 34). -StrictVerdict 스위치는 안 만든다 — 래칫이 0 이 되면 기본을 엄격으로 바꾼다. 원문 log/inbox/2026-09-21_D_공용실행기_1단계.md. 09-22 보강(issue 47): 'bridge 응답' 은 OK 로 시작하고 JOBERR 가 없는 것만 — FAIL TIMEOUT·JOBERR 는 실패
+  - 다시 볼 때: BASELINE 이 0 이 될 때 — 그때 '없으면 실패' 로
+- **Jev — 거르기·분류에 조건부 채택, 순위 판정관은 아님 (E·D 시험 2026-09-21)** — ① 순위(둘 중 나은 것) 판정관 채택 안 함 — 13편 69% ② 거름망으로만: 자리 바꿔 두 번 일치 + confidence ≥ 0.7 → 자동, 아니면 사람(13편 중 9 자동·4 사람) ③ 분류(우리 벽 중 어느 것)는 채택 — radar --jev, 상위 2~3 을 보여 주고 사람이 고른다(D-3 11/12) ④ 셈·날짜·이미지·좌표는 계속 코드 ⑤ 미공개 대본은 이정찬 승인 후 전송(09-21 승인)
+  - 이유: E: 한국어 통과, 값 $0.0014, 자리 치우침(constraint 65), S016 에서 틀리며 confidence 0.30·0.04. D: D-3 11/12(conf 맞은 것 0.97·틀린 것 0.87), D-2 는 분류 기준에 달려 승자 없음, D-1 생존 편향(constraint 66). B: '해당 없음' 선택지·허용 목록 → 둘 다 받는다. 원문 log/inbox/2026-09-21_E_Jev_판정관_시험결과.md · log/inbox/2026-09-21_D_Jev시험.md
+  - 다시 볼 때: 팀장 선택 쌍이 쌓여 판정관을 다시 재게 될 때(decision 35) · 자리 치우침이 다음 버전에서 사라질 때. B 시험(09-21 오후) 반영: 셋 다 미달(5/6·9/11·14/20)이나 틀린 9건 중 모델 3·우리 자료 6 — ⑥ 분류 선택지에 TRAPS ①~㉒ 를 넣어야 한다(radar 에 T① 으로 넣음) ⑦ 썸네일 빨강은 자리 규칙, 판정관 자리 아님(thumbnail_rule 22 정정) ⑧ 모달 문구 분류 5/5 정확(0.85~0.98) → 공용 실행기 2단계: 아는 문구면 정해진 대로 기록, 아니면 죽이고 기록, 문 0.8 ⑨ 모델은 무슨 일인지는 읽고 어느 앱인지 자주 틀린다 — 선택지를 앱별로 좁히는 건 미실측. D-4(09-21 저녁) 반영: ⑩ 공용 실행기의 성공/실패 판정에는 안 붙인다 — 규칙 18/20 > Jev 17/20 이고, 수를 견주는 줄에서 0.91·0.86 으로 틀려 confidence 문이 못 거른다(constraint 67). 쓰는 자리 한 줄 규칙: 뜻만으로 갈리면 Jev, 수를 견줘야 갈리면 코드
+- **저장소 public 유지 + 원자료는 저장소 밖 — 대본 원본·타 채널 자막·Pool·docx 는 안 올린다 (이정찬 결정 2026-09-22)** — private 으로는 못 바꾼다(이정찬). 대신 저장소에는 상황 판단에 필요한 것만: 워크플로우·README·팀장쌍 jsonl·도구 코드(.py)·문서(.md). 원본(Pool 174·타 채널 자막 121·레퍼런스 25·방송본 7·양식)과 .docx·파생 json·백업은 통째로 뺀다. .gitignore 에 같은 규칙. E 옆가지의 두 커밋(63cd70e·f80f416)은 병합하지 않고 남길 49 파일만 새 커밋(45734ee)으로 얹었다 — 지운 것이 본류 역사에 안 들어오게
+  - 이유: E 가 '이정찬 결정은 키만 금지' 라고 읽고 402 파일을 public 옆가지에 푸시했다(issue 48). DB 에 그런 결정은 없었다(25 는 public 유지, 32 는 키 위치). 타 채널 자막 146 파일은 우리 것이 아니고 저작권·평판 위험(총괄 판단). 미공개 대본·팀장 피드백은 회사 내부 자료. 옆가지에 이미 올라간 것은 E 가 자기 가지를 본류로 되돌려 force-push 로 지운다 — GitHub 에 닿지 않는 객체는 한동안 남는다
+  - 다시 볼 때: 저장소를 private 으로 바꿀 수 있게 될 때 · 자료를 저장소에 둬야 할 이유가 생길 때(그때는 private 이 먼저)
+- **차트명가New 의 방향 = 김직선 카피캣 — 디자인·비주얼(이정찬 통보 09-28) + 대본 말투(팀장이 B판 지목 09-22)** — 차트명가New 는 김직선(나스닥 트레이더 채널) 을 본뜬다. 비주얼·디자인이 그쪽으로 바뀌었다(이정찬 2026-09-28). 대본은 'Pool=정보 + 김직선=말투, 레고 조립' 로 확정(E 2dc770f, 팀장이 A/B/C 중 B판을 본보기로 지목). 결과: brand/STYLE.md·EDIT-RULEBOOK·thumbnail_rule 은 옛 차트명가 실측이라 New 의 기준이 아니다 — 김직선 영상에서 다시 잰다(next_step 55). 총괄 답 문서 ⑥의 'B판은 브랜드·저작권 판단 필요' 는 팀장이 그 판을 골랐으니 브랜드 쪽은 닫힌다. 저작권(타 채널 문장·룩 차용) 은 회사 판단으로 남긴다
+  - 이유: 팀장 결정을 이정찬이 전달. 근거 문서는 없다(구두). 어느 김직선 회차를 기준으로 재는지는 미정 — E 가 김직선 롱폼 72편 자막·목록을 로컬에 갖고 있다(data/대본자료/메이저자막, 저장소 밖). 역할(이정찬 09-28, D 문서로 확인): 디자인 카피는 B, D 는 자가발전·촬영 파이프라인 계속, 대본 말투는 E(Pool=정보+김직선=말투 조립, 차13 106문장 중 89 바뀜). B↔D 접점은 프레임 규격 JSON 한 장(파일을 서로 안 건드린다)
+  - 다시 볼 때: 팀장이 방향을 다시 바꿀 때 · 김직선 측 문제 제기 시
 
 ## 브랜드 스펙 (실측)
 
@@ -1375,22 +1657,22 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 
 | 파일 | 포맷 | 프레임 | 크기 | 비고 |
 |---|---|---|---|---|
-| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | 0.8 MB | 29.97 기준 125f |
-| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | 1.0 MB | 29.97 기준 117f |
-| `out/cmg/cut3-fear.mp4` | mp4 | 152 | 1.1 MB | 29.97 기준 76f |
-| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | 3.4 MB | 29.97 기준 160f |
-| `out/cmg/_reel.mp4` | mp4 | 956 | 6.4 MB | 4컷 이어붙임, 29.97 기준 478f |
-| `out/01-open.mp4` | mp4 | 420 | 4.4 MB |  |
-| `out/02-structure.mp4` | mp4 | 450 | 4.3 MB |  |
-| `out/03-breakdown.mp4` | mp4 | 420 | 4.9 MB |  |
-| `out/04-entry.mp4` | mp4 | 420 | 3.7 MB |  |
-| `out/05-tpsl.mp4` | mp4 | 450 | 3.6 MB |  |
-| `out/06-result.mp4` | mp4 | 540 | 4.8 MB |  |
-| `out/_reel.mp4` | mp4 | 2700 | 25.6 MB | 다크 6컷 릴 45초 |
-| `out/ov-chart.mov` | qtrle | 300 | 38.5 MB | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
-| `out/ov-chart.webm` | vp9a | 300 | 3.2 MB | 전송용 압축본 |
-| `out/ov-tpsl.mov` | qtrle | 300 | 17.1 MB |  |
-| `out/ov-pnl.mov` | qtrle | 300 | 17.0 MB |  |
+| `out/cmg/cut1-pullback-entry.mp4` | mp4 | 250 | - | 29.97 기준 125f |
+| `out/cmg/cut2-profit-runs.mp4` | mp4 | 234 | - | 29.97 기준 117f |
+| `out/cmg/cut3-fear.mp4` | mp4 | 152 | - | 29.97 기준 76f |
+| `out/cmg/cut4-early-exit.mp4` | mp4 | 320 | - | 29.97 기준 160f |
+| `out/cmg/_reel.mp4` | mp4 | 956 | - | 4컷 이어붙임, 29.97 기준 478f |
+| `out/01-open.mp4` | mp4 | 420 | - |  |
+| `out/02-structure.mp4` | mp4 | 450 | - |  |
+| `out/03-breakdown.mp4` | mp4 | 420 | - |  |
+| `out/04-entry.mp4` | mp4 | 420 | - |  |
+| `out/05-tpsl.mp4` | mp4 | 450 | - |  |
+| `out/06-result.mp4` | mp4 | 540 | - |  |
+| `out/_reel.mp4` | mp4 | 2700 | - | 다크 6컷 릴 45초 |
+| `out/ov-chart.mov` | qtrle | 300 | - | 무손실 알파. 30MB 초과라 채팅 전송 불가 |
+| `out/ov-chart.webm` | vp9a | 300 | - | 전송용 압축본 |
+| `out/ov-tpsl.mov` | qtrle | 300 | - |  |
+| `out/ov-pnl.mov` | qtrle | 300 | - |  |
 
 ## 받아 온 자료
 
@@ -1409,394 +1691,177 @@ upstream 은 두지 않는다 — push 는 git push origin worktree-D_Video. B �
 
 | # | sha | 제목 | 변경 |
 |---|---|---|---|
-| 1 | `6604e0b5` | 차트 컷씬 렌더러 추가 — 해외선물 유튜브용 모션그래픽 소스 영상 | 17파일 +2945/-0 |
-| 2 | `ddc16529` | 투명 배경 오버레이 씬 세트 추가 | 1파일 +131/-0 |
-| 3 | `b5301433` | README — 알파 채널 출력 용량과 포맷 선택 기준 정리 | 1파일 +9/-1 |
-| 4 | `b4656021` | 차트명가 브랜드 애셋과 스타일 정리 추가 | 43파일 +114/-0 |
-| 5 | `4a368e37` | 차트명가 테마와 20일선 눌림목 4컷 추가 | 8파일 +780/-12 |
-| 6 | `699684f9` | 매수 태그가 컷 경계마다 다시 튀어나오던 문제 수정 | 3파일 +56/-39 |
-| 7 | `373a719d` | 최종본 레퍼런스에 맞춰 디자인 디테일 보정 | 3파일 +157/-26 |
-| 8 | `2f39969c` | 색연필 원을 컷1 안에서 먼저 지워 컷 경계 끊김 제거 | 1파일 +2/-0 |
-| 9 | `e49d17d8` | 익절/손절 라벨을 기본 프리셋 실측값으로 복구, layers.js 중복 정의 제거 | 3파일 +28/-16 |
-| 10 | `a67d11f9` | 작업 로그를 SQLite 한 파일로 정리하고 읽는 형태 두 가지를 뽑음 | 6파일 +1427/-0 |
-| 11 | `00eaa635` | 로그에 복구용 정보 추가 — 환경·명령어·파일 지도·드라이브 ID·레이어 카탈로그 | 6파일 +937/-13 |
-| 12 | `dbc37cab` | 로그 DB에 작업 방식·렌더 실측·prproj 파싱 결과 기록 | 6파일 +332/-7 |
-| 13 | `c6566ed5` | 회차별 대본 인덱스 구축, .prproj 바이너리 파라미터 디코드 | 7파일 +1540/-10 |
-| 14 | `852c0613` | 세이브 save/2026-08-27-1007 — 대본 인덱스·prproj 디코드까지 — 세이브/로드 체계 도입 | 6파일 +270/-4 |
-| 15 | `d5d407a7` | 세이브 save/2026-08-27-1009 — 세이브/로드 체계 정리 — 슬롯 목록·되돌리기 안내 | 7파일 +104/-39 |
-| 16 | `233f2052` | 세이브 기록 save/2026-08-27-1009 | 4파일 +11/-3 |
-| 17 | `dc30b264` | 세이브 슬롯이 json에 적힌 커밋 해시를 먼저 쓰도록 수정 | 4파일 +8/-5 |
-| 18 | `bdd5a32f` | 세이브 save/2026-08-27-1040 — 파이프라인 범위 명시(롱폼 3단계) · README 대시보드 자동 생성 | 9파일 +566/-146 |
-| 19 | `c79d6c50` | 세이브 기록 save/2026-08-27-1040 | 5파일 +13/-4 |
-| 20 | `0174bd88` | 세이브 save/2026-08-27-1137 — 숏폼 대본 추출 규칙 역설계 — 25편 분석, 규칙 17개, 도구, 초안 2편 | 12파일 +2018/-48 |
-| 21 | `d9b95d47` | 세이브 기록 save/2026-08-27-1137 | 5파일 +16/-4 |
-| 22 | `ae90f685` | 세이브 save/2026-08-27-1216 — 숏폼 폴더·파일 이름 규칙 반영 — (중간) 접두, 이름 생성·검사 | 11파일 +187/-7 |
-| 23 | `72507179` | 세이브 기록 save/2026-08-27-1216 | 5파일 +11/-3 |
-| 24 | `59619c87` | 세이브 save/2026-08-27-1251 — 숏폼 자막(.srt) 실측 반영 — 목표 45초·초당 6.82자, 초안 두 편 재작성 | 12파일 +563/-113 |
-| 25 | `17c91c21` | 세이브 기록 save/2026-08-27-1251 | 5파일 +11/-3 |
-| 26 | `302bcbb2` | 세이브 save/2026-08-27-1413 — 롱폼 썸네일 2안 제작 — 템플릿 실측, PSD 직접 쓰기, 회사 드라이브 루트 등록 | 15파일 +516/-9 |
-| 27 | `b4d03a7c` | 세이브 기록 save/2026-08-27-1413 | 5파일 +16/-4 |
-| 28 | `0524b8f7` | 세이브 save/2026-08-27-1429 — 썸네일 타이틀 효과를 템플릿 fx 실측값으로 교정 (획 6px·그림자 90°) | 7파일 +2487/-20 |
-| 29 | `b52f63f8` | 세이브 기록 save/2026-08-27-1429 | 5파일 +11/-3 |
-| 30 | `c678d39e` | 세이브 save/2026-08-27-1445 — 썸네일 .psd 를 템플릿 편집 방식으로 전환 — 레이어 구성 100% 보존 | 7파일 +257/-2 |
-| 31 | `7328a860` | 세이브 기록 save/2026-08-27-1445 | 5파일 +11/-3 |
-| 32 | `c48f1293` | 세이브 save/2026-08-27-1456 — 썸네일 PSD 25.5MB로 축소·전달, 이번 세션 전체 DB 기록 | 8파일 +119/-14 |
-| 33 | `35b100c9` | 세이브 기록 save/2026-08-27-1456 | 5파일 +11/-3 |
-| 34 | `dc42e803` | 썸네일 PSD 가 포토샵에서 안 열리던 원인 수정 | 7파일 +173/-19 |
-| 35 | `47bab784` | 세이브 save/2026-08-27-1513 — 썸네일 PSD 포토샵 열기 오류 수정 (EngineData run 짝) + 타이틀 래스터 굽기 | 3파일 +2/-1 |
-| 36 | `ea0a6947` | 세이브 기록 save/2026-08-27-1513 | 5파일 +11/-3 |
-| 37 | `a377ef73` | 썸네일을 .psd 대신 .png 로 납품 — 버튼은 템플릿 원본 픽셀 사용 | 12파일 +284/-19 |
-| 38 | `c808bcc9` | 세이브 save/2026-08-27-1546 — 썸네일 PNG 납품 — 템플릿 버튼 원본 픽셀 사용, .psd 접음 | 4파일 +15/-2 |
-| 39 | `eb6fa0b1` | 세이브 기록 save/2026-08-27-1546 | 5파일 +11/-3 |
-| 40 | `0dd9de20` | 썸네일(롱폼 2.5)을 로컬 클로드에게 넘김 | 10파일 +52/-44 |
-| 41 | `e7707db9` | 세이브 save/2026-08-27-1556 — 썸네일을 로컬 클로드에게 넘김 — 이 컨테이너는 롱폼 3단계·숏폼 1단계만 | 3파일 +2/-1 |
-| 42 | `0a156068` | 세이브 기록 save/2026-08-27-1556 | 5파일 +11/-3 |
-| 43 | `83bd01ac` | 세이브 save/2026-08-27-1738 — 차11 썸네일 A·C 확정 — 포토샵 COM 편집, 버튼을 브랜드 실측 비율+에스코어드림5로 | 15파일 +433/-55 |
-| 44 | `f1d98d77` | 세이브 기록 save/2026-08-27-1738 | 5파일 +18/-4 |
-| 45 | `966df8ff` | 세이브 save/2026-08-27-1753 — 썸네일 도구 고정 — tools/photoshop(JSX+드라이버) 추가, 채택안 A·C 를 deliver/ 에 | 15파일 +689/-9 |
-| 46 | `0e0e72a2` | 세이브 기록 save/2026-08-27-1753 | 5파일 +14/-4 |
-| 47 | `72f79d56` | 세이브 save/2026-08-27-1756 — 파일 지도 정리 — tools/photoshop 항목이 넓은 tools 키에 먹히던 것 | 5파일 +21/-8 |
-| 48 | `0652cac4` | 세이브 기록 save/2026-08-27-1756 | 5파일 +11/-3 |
-| 49 | `801a6e46` | 렌더 프로파일러 추가 — 한 프레임이 어디에 시간을 쓰는지 실측 | 8파일 +290/-8 |
-| 50 | `611c4f8c` | 세이브 save/2026-08-27-1757 — 렌더 프레임 분해 실측 + 리뷰 의뢰서 | 4파일 +7/-2 |
-| 51 | `5e77609c` | 세이브 기록 save/2026-08-27-1757 | 5파일 +11/-3 |
-| 52 | `23d02104` | 세이브 save/2026-08-27-1847 — 렌더 캡처 경로 교체 — 93s→26.8s, md5 동일 증명, 병렬 폐기 | 12파일 +408/-53 |
-| 53 | `75f8f3d1` | 세이브 기록 save/2026-08-27-1847 | 5파일 +14/-4 |
-| 54 | `bbff1b6b` | 세이브 save/2026-08-27-1943 — 검토 주석 — 렌더 파이프라인 12개 파일에 검토내용·타임코드·검토자 기록 | 15파일 +62/-1 |
-| 55 | `ece8dd89` | 세이브 기록 save/2026-08-27-1943 | 5파일 +11/-3 |
-| 56 | `3565a666` | 세이브 save/2026-08-27-2009 — 썸네일 코드 검토 보고서 — 코드 무수정, 로컬 푸시 부재 확인 절차 포함 | 5파일 +109/-2 |
-| 57 | `4220f2ab` | 세이브 기록 save/2026-08-27-2009 | 5파일 +14/-4 |
-| 58 | `8315f167` | 세이브 save/2026-08-27-2037 — 로컬 대화록 반영 — 푸시 차단 원인 확정(인증), 합류 절차, ID 선제 재번호(25·26/18) | 5파일 +87/-57 |
-| 59 | `fef7a359` | 세이브 기록 save/2026-08-27-2037 | 5파일 +11/-3 |
-| 60 | `dd04e8bc` | 병합 — 로컬 썸네일 작업과 클라우드 렌더 가속을 합류 | 22파일 +952/-55 |
-| 61 | `983921c4` | 세이브 save/2026-08-28-0959 — 로컬 썸네일 + 클라우드 렌더 가속 합류 — 병합 dd04e8b, 세이브 슬롯 25개 | 3파일 +13/-1 |
-| 62 | `9a92ee90` | 세이브 기록 save/2026-08-28-0959 | 5파일 +11/-3 |
-| 63 | `735b9912` | 세이브 save/2026-08-28-1014 — 병합 후속 — request 26 정정, next_step 17 완료, 옆가지 유지 결정 기록 | 5파일 +34/-28 |
-| 64 | `4c36165e` | 세이브 기록 save/2026-08-28-1014 | 5파일 +11/-3 |
-| 65 | `496c15c7` | 세이브 save/2026-08-28-1016 — 합류 마무리 — next_step 중복 해소(로컬 16·17 -> 19·20), 옆가지 유지 결정, private 전환 기록 | 4파일 +48/-12 |
-| 66 | `288bfc59` | 세이브 기록 save/2026-08-28-1016 | 5파일 +11/-3 |
-| 67 | `dbaef6df` | 병합 2차 — 클라우드의 병합 후속과 로컬의 중복 정리를 합류 | 7파일 +25/-12 |
-| 68 | `e8e5a207` | 세이브 save/2026-08-28-1024 — 1세대 썸네일 도구 격리 — tools/legacy·brand/thumbnail/legacy, 참조 6곳 갱신, decision 20 | 12파일 +73/-49 |
-| 69 | `83f5c622` | 세이브 기록 save/2026-08-28-1024 | 5파일 +11/-3 |
-| 70 | `8a859d08` | 세이브 save/2026-08-28-1035 — 썸네일 검토 지적 ③(타이틀 캐시 spec 해시 무효화)·⑤(회차 스펙 config.json 단일화) 실행 — request 28 · decision 21 | 8파일 +127/-51 |
-| 71 | `fb84dae3` | 세이브 기록 save/2026-08-28-1035 | 5파일 +11/-3 |
-| 72 | `e5a64f17` | 세이브 save/2026-08-28-1036 — README 생성기 정정 — 렌더 문단을 v2 실측으로(재생성 때마다 병렬 권장으로 회귀하던 것) | 6파일 +24/-18 |
-| 73 | `26931264` | 세이브 기록 save/2026-08-28-1036 | 5파일 +11/-3 |
-| 74 | `1e843b0d` | 세이브 save/2026-08-28-1126 — 프리미어 실험 준비 — 로컬 보고 반영(thumbnail_rule 22~25·issue 16~17·runbook 17), D 매뉴얼 작성, request 29 | 6파일 +270/-5 |
-| 75 | `d4a96a93` | 세이브 기록 save/2026-08-28-1126 | 5파일 +14/-4 |
-| 76 | `f8411073` | 세이브 save/2026-08-28-1214 — 문자 단위 강조 — dump_text_runs.jsx 신규, build_thumb 에 emphasis(색·크기·nth), A2·C2 결과물 | 12파일 +364/-23 |
-| 77 | `e2c2c36c` | 세이브 기록 save/2026-08-28-1214 | 5파일 +11/-3 |
-| 78 | `0ca2e3b9` | 세이브 save/2026-08-28-1223 — 로컬 강조 푸시 합류(e2c2c36) — scene+emphasis 코드 가드, CRLF constraint, request 30 | 5파일 +41/-19 |
-| 79 | `9f8d3efb` | 세이브 기록 save/2026-08-28-1223 | 5파일 +11/-3 |
-| 80 | `d694fb02` | 프리미어 실험 §0~M1 — BridgeTalk 으로 뚫고 시퀀스 복제 성공 | 11파일 +761/-0 |
-| 81 | `7ed8d7a2` | 세이브 save/2026-08-28-1250 — 프리미어 M1 합류·3자 검증 통과 — 매뉴얼 정정(BridgeTalk·기준선·오프라인 M2), prproj_fact 22~23, constraint 4건, request 31 | 5파일 +111/-30 |
-| 82 | `22c8c3bd` | 세이브 기록 save/2026-08-28-1250 | 5파일 +11/-3 |
-| 83 | `0b024622` | 프리미어 M2 통과 — 소스 교체·격리 성공, 그리고 검증 기준선 정정 | 10파일 +855/-60 |
-| 84 | `2223d4f2` | 세이브 save/2026-08-28-1410 — 대본 담당 E 인수인계 매뉴얼 작성 — 자산 지도·숫자·프로토콜, tools/shortform.py 이관, request 32 | 5파일 +134/-2 |
-| 85 | `411f795c` | 세이브 기록 save/2026-08-28-1410 | 5파일 +14/-4 |
-| 86 | `1e249c76` | 프리미어 M3 통과 — 키프레임 읽기·수정·생성, qe 없이 공개 DOM 으로 | 9파일 +769/-4 |
-| 87 | `f51515e4` | 프리미어 M4-a/b 통과 — 정리(§3-9)와 격자 확정. 컷 배치는 미착수 | 6파일 +475/-7 |
-| 88 | `d2065a29` | 포인트_차 역설계 + [포인트_차]진화한 세력들 초안 — 카피 모드 2종 규명 | 2파일 +249/-0 |
-| 89 | `4c01e784` | 포인트_차 43편 내부 규격 전수 — 형식 기준을 자기 계보로 바꾸고 초안 재작성 | 2파일 +136/-83 |
-| 90 | `2016936c` | 차트명가는 라이브가 없다 — 토크편 기준선을 260514 로 바꾸고 초안 3차 | 2파일 +101/-84 |
-| 91 | `3ae14dc2` | 차명12 인트로 3컷 조립 — 차트 신규 생성 + 대본 타임코드 배치 (M4-c 테스트) | 11파일 +788/-0 |
-| 92 | `2245b999` | 기준선을 260708~261001 창으로 좁힘 — 초안 4차 | 2파일 +115/-142 |
-| 93 | `84cb30c2` | D: 경로 릴링크 + 차명12 인트로 4컷 자율 조립 (M5) | 23파일 +1171/-66 |
-| 94 | `8d81a830` | 팀장 피드백 반영 — New(260725~) 기준, 라이브톤 복원, 초안 5차 | 2파일 +135/-116 |
-| 95 | `54206855` | 대본 종결 — 촬영본 복원, 총괄 인계 보고서로 재작성 | 2파일 +262/-212 |
-| 96 | `6c81b44b` | 시퀀스를 처음부터 만들고 5층으로 쌓았다 (M6) | 22파일 +1222/-336 |
-| 97 | `c2784265` | 총괄 보고서 — M2~M6 판정 대기분 정리 | 2파일 +265/-0 |
-| 98 | `6ef287b8` | 병합 — E 대본 실험실 (포인트 촬영본 + 인계 보고서) | 2파일 +361/-0 |
-| 99 | `9428ea43` | 병합 — D 프리미어 M2~M6 (판정 대기분) | 66파일 +5134/-62 |
-| 100 | `f3871d0a` | 세이브 save/2026-08-28-1831 — E·D 합류와 판정 — 포인트 갈래 등재(규칙 6·이름 2), M2~M6 전건 통과(M2 는 플래그 정정), prproj_fact 24~27, request 33·34 | 5파일 +197/-19 |
-| 101 | `64a3778b` | 세이브 기록 save/2026-08-28-1831 | 5파일 +11/-3 |
-| 102 | `df240d51` | 세이브 save/2026-08-28-1832 — README 생성기 — 포인트 규칙을 SL 표에서 분리(별도 갈래 문단) | 5파일 +10/-7 |
-| 103 | `fc9d0094` | 세이브 기록 save/2026-08-28-1832 | 5파일 +11/-3 |
-| 104 | `d8490d63` | 세이브 save/2026-08-28-2337 — SL 차11-4·11-5 주말 편집 — STT 컷편집(무음 보정)·자막·1:1 차트 소스 렌더·납품(드라이브+전달), tools/cutedit 신설 | 17파일 +4363/-15 |
-| 105 | `af473797` | 세이브 기록 save/2026-08-28-2337 | 5파일 +11/-3 |
-| 106 | `f0a17dce` | 세이브 save/2026-08-29-0124 — SL 차11-4·11-5 v2 — 컷편집 노이즈 정밀 제거(무음 스냅·헛출발 컷), 효과 pool 실측, 씬 v2(익절 태그·1:2 색 박스·검은 박스선·cmgCross) | 15파일 +618/-326 |
-| 107 | `edf4c6f2` | 세이브 기록 save/2026-08-29-0124 | 5파일 +11/-3 |
-| 108 | `e1298821` | 세이브 save/2026-08-29-0320 — SL v3 디테일 — 놓친 구간 빗금, 컷 경계 줌 트랜지션(끊김 제거), 11-5 마켓 재튜닝(seed 73 박스 22봉), 손절 싱크·라인 유지, cmgLevel 라벨 클램프 | 7파일 +232/-190 |
-| 109 | `4444cfec` | 세이브 기록 save/2026-08-29-0320 | 5파일 +11/-3 |
-| 110 | `5762dee4` | 세이브 save/2026-08-29-0339 — SL v4 — 놓친 구간(빗금 안 대형+밑줄, 러너 기법), 엔딩 titleCard(딤+정중앙), 손절 어절 스냅 | 6파일 +63/-35 |
-| 111 | `de7cffa1` | 세이브 기록 save/2026-08-29-0339 | 5파일 +11/-3 |
-| 112 | `d530ecee` | 세이브 save/2026-08-29-0349 — 11-4 v5 — 이격 음봉 시점 재줌인, 컷5 줌 연결(1.1→0.8) | 5파일 +16/-6 |
-| 113 | `791fbc16` | 세이브 기록 save/2026-08-29-0349 | 5파일 +11/-3 |
-| 114 | `68564764` | 세이브 save/2026-08-29-0359 — 11-5 v5 — cmgTrace 신설(선 구간 접선 덧칠, 팀장 기법), 누운 이평선 강조 적용 | 7파일 +62/-2 |
-| 115 | `7257e143` | 세이브 기록 save/2026-08-29-0359 | 5파일 +11/-3 |
-| 116 | `ccde4f3a` | 세이브 save/2026-08-29-0405 — 11-4 v6 — 이격음봉 세트 컷 경계 이어받기+페이드, CTA 원 등장 순서(캔들→원) | 5파일 +53/-7 |
-| 117 | `4a9a348a` | 세이브 기록 save/2026-08-29-0405 | 5파일 +11/-3 |
-| 118 | `5dda8225` | 세이브 save/2026-08-29-0413 — 11-4 v7 — CTA 원 쌓임 순서 정정(타이틀>스크림>동그라미>차트). 두 편 최종: 11-4 v7 · 11-5 v5 | 5파일 +19/-10 |
-| 119 | `476e5215` | 세이브 기록 save/2026-08-29-0413 | 5파일 +11/-3 |
-| 120 | `a5530b29` | 세이브 save/2026-08-29-2039 — .aep/.mogrt 납품 가능성 조사 — 공식 자료 확인, 보고서 lab/ae/, DB 요청44·next_step27 | 6파일 +221/-3 |
-| 121 | `a1652c4f` | 세이브 기록 save/2026-08-29-2039 | 5파일 +11/-3 |
-| 122 | `22bcbd65` | 세이브 save/2026-08-29-2155 — AE 파일럿 매뉴얼(log/AE-LAB-MANUAL.md) + 무주석 바닥 스틸 — 확인 3개 답변 반영, DB 요청45·next_step27 갱신 | 8파일 +289/-10 |
-| 123 | `3c154c1e` | 세이브 기록 save/2026-08-29-2155 | 5파일 +11/-3 |
-| 124 | `1a0c069d` | 렌더러 RSI 서브패널 신설 — wilderRsi/formingRsi, 패널 분할·기준선·라인, rsiLevel/rsiZone 레이어, ma별 등장 알파 | 5파일 +312/-10 |
-| 125 | `811bacf4` | 차12 본편 씬 6파일 20컷 — srt 30.0격자 동기, RSI 패널·실측 색, 시장 7종 find-events 실측 | 8파일 +1259/-2 |
-| 126 | `953ae0fe` | 차12 컷리스트_본편 + DB 기록(요청46·repo_file·constraint·next_step 28) 준비 | 2파일 +86/-0 |
-| 127 | `176018c3` | 세이브 save/2026-08-30-2005 — 차12 본편 20컷 납품 — RSI 패널 신설, 씬 6파일, 실측 색·시장, 프레임 22/22 검증, zip 4개+미리보기 전달, 배치표 드라이브 업로드 | 5파일 +30/-5 |
-| 128 | `0648f46c` | 세이브 기록 save/2026-08-30-2005 | 5파일 +11/-3 |
-| 129 | `bac8b161` | AE 실험 준비 — BridgeTalk 드라이버 + 좌표 실측 (A0) | 6파일 +407/-0 |
-| 130 | `6a8e6e9a` | A1 통신 스모크 통과 — 타깃 aftereffects-26.0 실측, 파일쓰기 권한 벽 확인 | 4파일 +235/-0 |
-| 131 | `9beb91a5` | shortform.py: 포인트 갈래(--kind point) 추가 | 2파일 +247/-23 |
-| 132 | `d8fa6482` | 세이브 save/2026-08-31-1025 — zip 한글 엔트리 실패 → SL 11-4 v7·11-5 v5 영문명 재패키징(재렌더·내레이션 재컷 검증), 차12 1of4·4of4 재빌드, constraint·요청47 기록 | 4파일 +19/-2 |
-| 133 | `afffba7d` | 세이브 기록 save/2026-08-31-1025 | 5파일 +11/-3 |
-| 134 | `943d1e2f` | A3 통과 — 바닥 스틸 + 주석 17레이어를 AE 네이티브로 재현, 픽셀 대조로 검증 | 17파일 +1130/-80 |
-| 135 | `da5c857d` | A4 통과 — Essential Graphics 7개 노출, 색 컨트롤 하나가 선과 라벨판을 같이 몬다 | 3파일 +256/-33 |
-| 136 | `17b5a804` | 숏폼 세이프 에어리어(1080x937) 반영 — sl-11-4/5 padTop 23·padBottom 120, 배지 y 884, FX pool·DB 기록 | 4파일 +24/-3 |
-| 137 | `ce8b6528` | 세이브 save/2026-08-31-1132 — 숏폼 세이프 에어리어 실측 반영 — sl-11-4 v8·11-5 v6 재렌더·재납품(1301/1382 검증), FX pool·constraint·요청48 | 3파일 +8/-2 |
-| 138 | `49ad92e4` | 세이브 기록 save/2026-08-31-1132 | 5파일 +11/-3 |
-| 139 | `54025626` | A5 통과 — .mogrt 내보내기 성공, 컨트롤 7개가 A4 노출과 일치 | 12파일 +265/-89 |
-| 140 | `5c7d5434` | A6 확인 절차와 파일럿 범위 밖 항목 정리 | 1파일 +20/-0 |
-| 141 | `bc360945` | A6 통과 — 프리미어 실사용 확인, 실험 성공. 영역 채움 색까지 9개 노출 | 9파일 +70/-3 |
-| 142 | `1c3301c2` | 세이브 save/2026-08-31-1341 — 하단 여백 135px + FCP XML 시퀀스 납품 — tools/premiere_xml.py 신설, sl-11-4 v9·11-5 v7 | 8파일 +155/-12 |
-| 143 | `eaf92e5f` | 세이브 기록 save/2026-08-31-1341 | 5파일 +11/-3 |
-| 144 | `daa1b35e` | 세이브 save/2026-08-31-1607 — 차12 시퀀스 XML 납품 — FCP XML 경로 사용자 검증 완료, 갭 배치 22 clipitem | 4파일 +11/-1 |
-| 145 | `10594f27` | 세이브 기록 save/2026-08-31-1607 | 5파일 +11/-3 |
-| 146 | `a0a31b12` | shortform.py: brief 에 포인트 갈래 추가 | 1파일 +171/-4 |
-| 147 | `9799e896` | 보고서 §12 — 상단 배너 규칙과 SL #11-4·#11-5 문구 | 1파일 +89/-1 |
-| 148 | `6d956240` | 차12 정확.srt 재동기 — 인트로 포함 26컷 경계·타이밍 재산정, 배치표 v2, 정확판 srt 보관 | 9파일 +1166/-155 |
-| 149 | `1c409a22` | 세이브 save/2026-08-31-1828 — 차12 v2 — 정확.srt 재동기 26컷 재렌더·재납품, 배치표 v2·xml·zip4, 자막 진본 constraint | 4파일 +25/-3 |
-| 150 | `70e70011` | 세이브 기록 save/2026-08-31-1828 | 5파일 +11/-3 |
-| 151 | `49aa3f44` | 차12 v3: 미리보기 피드백 반영 — 가시성·우측 여백·상단 잘림·가속 완화 | 10파일 +147/-27 |
-| 152 | `683e6f0d` | 세이브 save/2026-08-31-2214 — 차12 v3 재납품 — 미리보기 피드백 4건 반영 (가시성·우측 여백·상단 잘림·가속), probe-labels 도구 신설 | 5파일 +36/-3 |
-| 153 | `e030d45a` | 세이브 기록 save/2026-08-31-2214 | 5파일 +11/-3 |
-| 154 | `e7416740` | 차12 인트로·훅 연속성 — 컷 경계에서 요소를 지우지 않는다 (조정 레이어 방식) | 3파일 +104/-138 |
-| 155 | `0a71c7f1` | 세이브 save/2026-09-01-1101 — 차12 인트로·훅 연속성(컷2 비움 반려) + 손실밴드 성장 개선 — introfix 납품 | 3파일 +3/-1 |
-| 156 | `915e399d` | 세이브 기록 save/2026-09-01-1101 | 5파일 +11/-3 |
-| 157 | `87e5db16` | 세이브 save/2026-09-01-1130 — 룰북 신설(brand/EDIT-RULEBOOK.md) — 인트로 피드백 라운드 기록, 요청 53·제약·next_step 29, 사용자=이정찬(팀원) | 7파일 +100/-5 |
-| 158 | `de225bb0` | 세이브 기록 save/2026-09-01-1130 | 5파일 +11/-3 |
-| 159 | `4df0cdb1` | 세이브 save/2026-09-01-1238 — 인트로+후킹 병합(컷1~6→intro-hook 클립 1개, 랠리 확대 +1007→-208) — 요청 54, 룰북 ⑬, 해석 확정, ch12r5 납품 | 15파일 +233/-425 |
-| 160 | `b89cf763` | 세이브 기록 save/2026-09-01-1238 | 5파일 +12/-5 |
-| 161 | `d18bdcae` | 세이브 save/2026-09-01-1301 — 룰북 ⑭(버튼 최상위 — 렌더러 강제) + 본편 전수 재검토(⑧ 경계이월 11곳·⑬ fail-combo 팬백 재작성) — r6 재렌더 진행 중 | 13파일 +140/-18 |
-| 162 | `36449b27` | 세이브 기록 save/2026-09-01-1301 | 5파일 +11/-3 |
-| 163 | `c4c82e16` | 세이브 save/2026-09-01-1315 — r6 전 클립 재렌더·납품(버튼 최상위+경계이월) + 숏폼 srt E 이관(srt_rules.py 14자 규칙, 매뉴얼 §8, 요청 55·56) | 9파일 +219/-23 |
-| 164 | `7cd22fe5` | 세이브 기록 save/2026-09-01-1315 | 5파일 +11/-3 |
-| 165 | `47525517` | 세이브 save/2026-09-01-1329 — D 인수인계(AE-LAB-MANUAL §8, render-cmg12-layers 병합 클립 갱신·5층 검증) + 요청 57, next_step 27 실전 전환 | 7파일 +108/-28 |
-| 166 | `c3ddf5d4` | 세이브 기록 save/2026-09-01-1329 | 5파일 +11/-3 |
-| 167 | `c887d27a` | shortform.py: 포인트 갈래(--kind point) 추가 | 2파일 +247/-23 |
-| 168 | `af14a56e` | shortform.py: brief 에 포인트 갈래 추가 | 1파일 +171/-4 |
-| 169 | `f2d9cc45` | 보고서 §12 — 상단 배너 규칙과 SL #11-4·#11-5 문구 | 1파일 +89/-1 |
-| 170 | `c2379947` | cutedit: 경로 이관 + check 단락평가 버그 + 약한 분리 벌점 | 4파일 +45/-12 |
-| 171 | `5d6db4ad` | srt_rules: 의존명사 검사 오탐 제거 | 1파일 +20/-6 |
-| 172 | `4b3d0aae` | 보고서 §13 — srt 이관 인수, 도구 버그 2건과 34편 재검사 | 1파일 +90/-1 |
-| 173 | `f26940d2` | local/script-lab 옛 갈래 흡수 — 본류 위로 리베이스한 결과가 이 트리다 | None파일 +None/-None |
-| 174 | `aa358615` | 세이브 save/2026-09-01-1457 — 차12 썸네일 6안 — thumb-ch12 씬 3종, config 차12 전환, thumbnail_rule 26~27 · issue 18~19 · runbook 18 · next_step 31 | 16파일 +368/-47 |
-| 175 | `be4409d0` | 세이브 기록 save/2026-09-01-1457 | 5파일 +11/-3 |
-| 176 | `1be14dfb` | chapters.py — 롱폼 자막 무음 텀으로 챕터 끊기 + 차명12 소제목 | 2파일 +173/-0 |
-| 177 | `ae635922` | 렌더러에 패스 스위치 — 레이어를 골라 그릴 수 있게 | 1파일 +25/-7 |
-| 178 | `57e1d6bc` | 레이어를 알파 클립으로 갈라 프리미어 트랙에 쌓는 길 (--split) | 4파일 +274/-2 |
-| 179 | `0662c198` | exp-drift 레이블 수정 — 0.5s 는 정지가 아니라 이미 선형 전진 중이다 | 1파일 +3/-3 |
-| 180 | `f699cb42` | prproj_titles.py — 소제목·챕터 범퍼 전수 실측, §14 재작성 | 2파일 +332/-42 |
-| 181 | `47c24f07` | --hold — 미는 대신 자르는 싱크 (드리프트 0) | 3파일 +29/-6 |
-| 182 | `48a75e5a` | 범퍼는 구조로 잡는다 — 커지기 짝 밑 텍스트, 차명11 기준으로 차명12 문구 재작성 | 2파일 +119/-82 |
-| 183 | `41acd1f6` | 세이브 save/2026-09-01-1832 — r7 — guide-rsi ①방향 유지·fail-combo 겹침 해소(폭 판정 보충), 요청 58, 룰북 ⑩보충2 | 7파일 +34/-6 |
-| 184 | `79a124be` | 세이브 기록 save/2026-09-01-1832 | 5파일 +11/-3 |
-| 185 | `ae6bfc2c` | 세이브 save/2026-09-01-1917 — 말 구간 브리지 2클립(cmgText·blurPx·종이+버튼) + 팀장 어휘 실측 카탈로그(룰북 §E), 요청 59 — 렌더 진행 중 | 10파일 +272/-4 |
-| 186 | `fa647233` | 세이브 기록 save/2026-09-01-1917 | 5파일 +14/-4 |
-| 187 | `8be5faad` | 보고서 §15 도구 목록 · §16 결정 대기 — Fable 인계용 정리 | 1파일 +57/-1 |
-| 188 | `f138a875` | 렌더러 → AE 좌표 내보내기 (프레임별 카메라) | 4파일 +193/-19 |
-| 189 | `5523ac41` | B1 — 차트 카메라 널 구조 검증 | 2파일 +138/-0 |
-| 190 | `5dd1d7e6` | B2 — 데이터가 모는 AE 컴포지션 빌더 (수평선·동그라미·화살표) | 7파일 +778/-2 |
-| 191 | `3842f9f2` | 11-4·11-5 풀버전 — 11컷 58레이어 전부 AE 컴포지션으로 | 11파일 +15293/-67 |
-| 192 | `49e0ec42` | 세이브 save/2026-09-02-1130 — 세이프 에어리어(룰북 ⑮, padTop216/padBottom162 전 씬) + z확장(동그라미·배지, ⑭) + recap 폰트 통일(⑯) + 브리지 버튼 정렬 — 요청 60, r8 렌더 중 | 15파일 +87/-38 |
-| 193 | `76d3a156` | 세이브 기록 save/2026-09-02-1130 | 5파일 +11/-3 |
-| 194 | `ed6cc823` | 세이브 save/2026-09-02-1152 — rightGap 5→0 전 씬(⑥ 보충 — 차트 오른쪽 끝까지) + 우측 끝 라벨 2건 보정 — r8 재렌더 중 | 12파일 +19/-13 |
-| 195 | `21811a92` | 세이브 기록 save/2026-09-02-1152 | 5파일 +11/-3 |
-| 196 | `9f079259` | 키를 줄여 사람이 만질 수 있게 — 알파는 이징, 카메라는 숨김 | 9파일 +9336/-13561 |
-| 197 | `6e473357` | Merge remote-tracking branch 'origin/claude/futures-youtube-video-edit-fhio4s' into local/ae-lab | 36파일 +2801/-667 |
-| 198 | `ec7a3086` | 포터블 꾸러미 — 어디에 풀어도 소스를 안 찾아 헤맨다 | 12파일 +2654/-2431 |
-| 199 | `87d91eb6` | 세이브 save/2026-09-02-1420 — 이월 요소 재등장 효과 제거 — layers.js isStill/enter(등장 창 32곳), 룰북 ⑧ 보충, 요청 61 — r9 렌더 중 | 6파일 +67/-33 |
-| 200 | `80487b28` | 세이브 기록 save/2026-09-02-1420 | 5파일 +11/-3 |
-| 201 | `5663048b` | 세이브 save/2026-09-02-1847 — 마감 정리 — r9 확정 기록, 요청 62, next_step 28·29 재편(D 후속·브리지 톤앤매너) | 5파일 +27/-17 |
-| 202 | `adbdbb28` | 세이브 기록 save/2026-09-02-1847 | 5파일 +11/-3 |
-| 203 | `adb6bc4e` | 세이브 save/2026-09-02-1903 — 브리지 r10 차명10 재스타일 — 렌더러(밴드·그림자·fill)+경기천년바탕+룰북 §E-2+DB, 렌더 진행 중 | 9파일 +147/-51 |
-| 204 | `f740e442` | 세이브 기록 save/2026-09-02-1903 | 5파일 +11/-3 |
-| 205 | `b70c2bd2` | 세이브 save/2026-09-02-2034 — 브리지 r10 납품 + 블러 80분 원인 수정 (오프스크린 1장 블러, 23배) | 5파일 +40/-7 |
-| 206 | `9757739f` | 세이브 기록 save/2026-09-02-2034 | 5파일 +11/-3 |
-| 207 | `c47ae309` | 세이브 save/2026-09-03-0052 — 브리지 r11 납품 — 박스 제목 전용·그림자는 텍스트만 (차명10 prproj 프리셋 직접 실측) + 텍스트 그림자 스크래치 블러 | 7파일 +137/-60 |
-| 208 | `2ba27ccc` | 세이브 기록 save/2026-09-03-0052 | 5파일 +11/-3 |
-| 209 | `38e2f357` | 세이브 save/2026-09-03-0932 — 브리지 r12 납품 — 기울임꼴 + 그림자 우하단 (r11 반려 2건 반영) | 7파일 +32/-11 |
-| 210 | `78f24f4c` | 세이브 기록 save/2026-09-03-0932 | 5파일 +11/-3 |
-| 211 | `730cd4d3` | 세이브 save/2026-09-03-1012 — 격자박스 도입 — 썸네일 좌상단 타이틀을 상자에 맞춰 17% 축소, 차12 6안 재빌드 (규칙 28·29, 요청 59) | 14파일 +167/-17 |
-| 212 | `f8d32585` | 세이브 기록 save/2026-09-03-1012 | 5파일 +11/-3 |
-| 213 | `aec77006` | 정렬·테두리·종료 — 픽셀이 잡아낸 셋 | 7파일 +245/-31 |
-| 214 | `c8c674bf` | 병합 — 원격 브리지 r7~r12 + 로컬 썸네일 격자박스 | 22파일 +820/-136 |
-| 215 | `1cb9051d` | 태그 광선 — 레이어 스타일이 막혀 효과로 돌아갔다 | 3파일 +147/-2 |
-| 216 | `8af3613b` | Merge remote-tracking branch 'origin/local/script-lab' into claude/futures-youtube-video-edit-fhio4s | 8파일 +1214/-43 |
-| 217 | `26bf1a1d` | Merge remote-tracking branch 'origin/local/ae-lab' into claude/futures-youtube-video-edit-fhio4s | 31파일 +2178/-0 |
-| 218 | `9410abc0` | 세이브 save/2026-09-03-1216 — r12 확정 정리 + E(script-lab)·D(ae-lab) 옆가지 병합 — 압축 준비 완료 | 6파일 +124/-64 |
-| 219 | `917e15af` | 세이브 기록 save/2026-09-03-1216 | 5파일 +11/-3 |
-| 220 | `099865da` | Merge remote-tracking branch 'origin/claude/futures-youtube-video-edit-fhio4s' into claude/futures-youtube-video-edit-fhio4s | 19파일 +595/-53 |
-| 221 | `3b582673` | 세이브 save/2026-09-03-1218 — B 썸네일 갈래 합류(요청 66·67, 총괄 정리는 68로 재배번) — 전 갈래 본류 합류 완료, 압축 준비 | 4파일 +58/-110 |
-| 222 | `1ef29130` | 세이브 기록 save/2026-09-03-1218 | 5파일 +11/-3 |
-| 223 | `01fc065c` | 검토 요청 — AE 글자가 3~5px 밀린다 (총괄용, 답 받으면 폴더째 지운다) | 3파일 +139/-0 |
-| 224 | `57a5d988` | 세이브 save/2026-09-03-1258 — D 검토 답변 — AE 글자 3~5px, 길 A 채택(함정 3 포함) · 세로 기준 전환 부결 — 요청 69 | 4파일 +25/-5 |
-| 225 | `4186373b` | 세이브 기록 save/2026-09-03-1258 | 5파일 +11/-3 |
-| 226 | `d449cd03` | Merge remote-tracking branch 'origin/claude/futures-youtube-video-edit-fhio4s' into local/ae-lab | 34파일 +2308/-252 |
-| 227 | `c917d805` | Merge remote-tracking branch 'origin/claude/futures-youtube-video-edit-fhio4s' into local/ae-lab | 6파일 +35/-7 |
-| 228 | `e95b2f8d` | 본류 병합 — 이월 요소는 등장 연출을 재생하지 않는다 | 6파일 +86/-158 |
-| 229 | `3ffcada6` | 동그라미가 글자를 갈랐다 — 레이어별 z 손잡이 | 5파일 +101/-5 |
-| 230 | `79a640c7` | 길 A — 글자 치수를 크로미움에서 재 온다 | 5파일 +406/-15 |
-| 231 | `c863a19d` | 세이브 save/2026-09-03-1626 — D 결재 2건 승인(z 손잡이·sl-11-4 컷③⑤) + 길 A 완료 접수 — 룰북 ⑭ 보충, 요청 70, ae-lab 병합 | 5파일 +87/-37 |
-| 232 | `dad07175` | 세이브 기록 save/2026-09-03-1626 | 5파일 +11/-3 |
-| 233 | `426ec3fd` | lab/ae/full 을 v6 로 갱신 — 저장소 사본이 09-02 판에 멈춰 있었다 | 4파일 +400/-36 |
-| 234 | `cf7bac82` | 세이브 save/2026-09-03-1644 — 시즌1 레드팀 준비 중간 — D v6 합류, REDTEAM-BRIEF 초안(효율성 렌즈), next_step 32 — 검증 워크플로 진행 중 | 5파일 +137/-2 |
-| 235 | `a08563b7` | 세이브 기록 save/2026-09-03-1644 | 5파일 +13/-4 |
-| 236 | `b081f551` | 레드팀 브리프 — 전수 스윕 반영(프리미어 랩 지도 편입·바이패스 보강·생성기 3종 정정) + CLAUDE.md 생성기 서술 실측 정정 | 2파일 +35/-12 |
-| 237 | `be9f0f95` | 세이브 save/2026-09-03-1709 — 시즌1 레드팀 준비 완료 — 취합 검증(에이전트 8)·REDTEAM-BRIEF 최종판·CLAUDE.md/DB 뷰 낡음 정정 — 요청 71, next_step 32 | 7파일 +135/-67 |
-| 238 | `278529ea` | 세이브 기록 save/2026-09-03-1709 | 5파일 +11/-3 |
-| 239 | `3076de91` | 세이브 save/2026-09-03-1738 — 브리프 §4 보강 — '로컬 검증 필요' 항목은 FINDINGS 별도 절로 (클라우드 리뷰 + 로컬 후속 확인 체계) | 4파일 +5/-2 |
-| 240 | `173877e3` | 세이브 기록 save/2026-09-03-1738 | 5파일 +11/-3 |
-| 241 | `c3fcce33` | 차12 r13: 실 NQ 시세 수급 도구·데이터 (야후 v8, 1m/5m/1d) | 5파일 +103/-0 |
-| 242 | `8a526925` | 차12 r13: makeCandles 실데이터 주입 가드 + loadBars/sliceBars 로더 | 2파일 +55/-0 |
-| 243 | `4ce6f247` | 차12 r13: 실사 문법 렌더 기반 — cmgMt5 프리셋·chart 옵트인 키·chart.phases | 3파일 +140/-18 |
-| 244 | `252b4fda` | 차12 r13: 실데이터 시나리오 스캐너 scan-nq.mjs | 1파일 +136/-0 |
-| 245 | `c8ea9580` | 차12 r13: loadBars 를 브라우저/Node 겸용 async 로 — 씬은 페이지에서 실행된다 | 1파일 +23/-13 |
-| 246 | `90cb3601` | 세이브 save/2026-09-03-1925 — 차12 r13 기법 실측 완료 — 최종본 10편 전수(시트·픽셀·YDIF) + prproj 11편 키프레임 전수 → brand/FX-WHITELIST.md 화이트리스트 확정 | 6파일 +1590/-2 |
-| 247 | `a4246fcc` | 세이브 기록 save/2026-09-03-1925 | 5파일 +14/-4 |
-| 248 | `b7238c4a` | 차12 r13: cmg12s 씬 8파일 23컷 — 정적·실데이터·화이트리스트 문법 | 8파일 +857/-0 |
-| 249 | `dc23c9cb` | 차12 r13: 배치표 r13·MT5 촬영지시서·정지 검증 도구 | 3파일 +115/-0 |
-| 250 | `5992b9f1` | 차12 r13: 등장 타이밍 프레임 재보정 — 영상 프레임 단위 실측 반영 | 7파일 +49/-44 |
-| 251 | `041fe692` | 차12 r13: 팀장 최종본 복붙 카피맵 + 참고스틸 16장 | 17파일 +101/-0 |
-| 252 | `7bbe1e8f` | 세이브 save/2026-09-03-2000 — 차12 r13 — 기법 프레임 실측 반영(등장 4f·디졸브 30f), DB r72·룰북 무동작 결정·카탈로그 6종 보정, 카피맵+참고스틸 납품 | 7파일 +130/-17 |
-| 253 | `24182323` | 세이브 기록 save/2026-09-03-2000 | 5파일 +11/-3 |
-| 254 | `bbde19ce` | 차12 r13.1: 캔들 배색 정정 — 차트명가 프리셋(상승 청록/하락 빨강)으로 | 5파일 +16/-15 |
-| 255 | `d7e9bbaf` | 세이브 save/2026-09-03-2155 — 차12 r13.1 — 캔들 배색 프리셋 정정(청록/빨강) 23클립 전량 재렌더·재납품 | 3파일 +3/-1 |
-| 256 | `551eabf1` | 세이브 기록 save/2026-09-03-2155 | 5파일 +11/-3 |
-| 257 | `28c86d72` | 컷편집 3종 — 원테이크에서 마지막 테이크 골라 시퀀스 XML·자막까지 | 3파일 +506/-0 |
-| 258 | `c44ab3de` | Add files via upload | 17파일 +489/-0 |
-| 259 | `b95e9def` | 진단 번들 정리 — 사무실 PC 데스크탑 앱 연결 끊김(2026-09-08) 17파일을 lab/diag/ 로 | 17파일 +0/-0 |
-| 260 | `326bb103` | 진단 결과 — 데스크탑 앱 연결 끊김은 네트워크가 아니라 로컬 세션 저장소 공백/디바이스 정체성 불일치 | 1파일 +50/-0 |
-| 261 | `6ebc3c5a` | 인수인계 프롬프트 3종 — 호스트 손실로 끊긴 E·B·D 로컬 세션 재생성용 | 1파일 +67/-0 |
-| 262 | `e66acdf3` | 컷 경계·자막 문구를 이정찬 수정본에 맞춰 재보정 (S015 실측) | 3파일 +330/-76 |
-| 263 | `a6542824` | S016 로 두 번째 편 돌리며 세 곳 일반화 | 4파일 +153/-10 |
-| 264 | `6bf5dfb4` | tools/theone — 더원트레이더 시리즈 전용 칸을 따로 만들었다 | 2파일 +250/-0 |
-| 265 | `9e2536e9` | tools/theone/stills.py — 카피맵은 자막이 아니라 화면을 보고 쓴다 | 2파일 +87/-0 |
-| 266 | `31161bdb` | 자막 나누기를 S016 수정본에 맞춰 보정 · 컷 경계는 그대로 둔다 | 2파일 +58/-20 |
-| 267 | `2443fa3b` | 배너 문구를 임베딩으로 재는 도구 — 쌍 corpus · KURE-v1 · Chroma | 2파일 +352/-0 |
-| 268 | `a58b5f9e` | 주석에서 나를 3인칭으로 부르던 것 정리 | 1파일 +1/-1 |
-| 269 | `34deeb0c` | corpus 구멍 메움 — 회차 폴더에 있는 자막도 읽는다 | 1파일 +15/-0 |
-| 270 | `19e230d8` | 배너 공식을 고쳐 씀 — 첫 문장을 쪼개 앞뒤를 뒤집는다 | 2파일 +51/-0 |
-| 271 | `830315c6` | theone/README — 확정된 수치와 일하는 방식을 한자리에 | 1파일 +108/-33 |
-| 272 | `8da3f71f` | 컷 값 셋은 롱폼에도 그대로 · 자막 길이만 화면 폭 따라 다시 | 2파일 +52/-27 |
-| 273 | `f5e145d7` | 새 채널 스타일 — 비전 판독·픽셀 실측 도구 (1단계) | 2파일 +128/-0 |
-| 274 | `99c340a6` | 새 채널 스타일 — 씬·틀 합성·판독 도구 (2~4단계) | 4파일 +350/-2 |
-| 275 | `7adb98c8` | 새 채널 스타일 — 푸터 30px (비전 QA 두 모델이 짚은 유일한 항목) | 1파일 +2/-1 |
-| 276 | `c64bd62c` | 새 채널 스타일 v2 — 브라우저 창 틀 + 도구 21종 총집합 (반려 반영) | 2파일 +283/-184 |
-| 277 | `42fd0399` | Merge remote-tracking branch 'origin/claude/futures-youtube-video-edit-fhio4s' into local/newch-style | 71파일 +4162/-68 |
-| 278 | `80d80dd6` | 새 채널 스타일 v3 — FX-WHITELIST §4 어휘만, r13 실데이터 차트 (저장소 실측 반영) | 2파일 +159/-96 |
-| 279 | `4452837f` | 세이브 save/2026-09-11-1111 — 최종본 #1~#10 실측 원자료를 lab/finalscan/ 에 등재 (로컬 영상 세션 전달용) | 113파일 +304262/-2 |
-| 280 | `4b5c9be4` | 세이브 기록 save/2026-09-11-1111 | 5파일 +11/-3 |
-| 281 | `7a3a3802` | Merge remote-tracking branch 'origin/claude/futures-youtube-video-edit-fhio4s' into local/newch-style | 114파일 +304272/-4 |
-| 282 | `2ae480f7` | 새 채널 스타일 v4 — 전편 공통 결(finalscan 10편) + 적당한 변형 | 2파일 +151/-128 |
-| 283 | `57fbe31b` | v4 — 우측 알약 겹침: 존 알약을 먼저 그리고 이평 알약 간격 52px | 1파일 +4/-4 |
-| 284 | `7bf00a08` | v4 — 존 라벨을 존 안쪽(57번 봉)으로, 오른끝 열은 이평 알약만 | 1파일 +3/-3 |
-| 285 | `4551edde` | 롱폼 L08 컷편집 — docx 대본 · 꼬리 붙임 · 자막 당김 · PD 화면 V2 | 8파일 +553/-65 |
-| 286 | `f69f3918` | 새 채널 스타일 v2 '병풍 위의 차트' — 전통 소재 씬·합성기 | 3파일 +498/-0 |
-| 287 | `9bebcf7e` | newch-trad: 글씨 깨짐·이평선 잘림 수정 | 4파일 +80/-30 |
-| 288 | `94358764` | newch-trad: 아웃트로 먹 캔들이 글자에 닿지 않게 내림 | 1파일 +1/-1 |
-| 289 | `99a2845c` | newch-trad: 요소를 층으로 쪼개 AE 컴포지션으로 (--split + c1_trad_build) | 3파일 +328/-134 |
-| 290 | `b02a889c` | 롱폼 L08 합본 — 캠 형광 줄 + PD 나레이션 소리 + 포인터 시연 화면 | 7파일 +454/-253 |
-| 291 | `7c2af1d6` | 롱폼 L08 합본 불량 고침 — XML 트랙 순서 · 자막 컷 밖 튐 · 프레임 자리 | 6파일 +140/-54 |
-| 292 | `06d86761` | 틀만 조립 완성본 — 가운데 뚫은 투명 PNG 2종 (브라우저창 · 병풍) | 1파일 +128/-0 |
-| 293 | `71c6f84f` | newch-trad: 실사 닥종이 바탕 + 애니메이션 소스 20개를 AE 컴포지션·mogrt 로 | 6파일 +703/-35 |
-| 294 | `78f8890a` | 세이브 save/2026-09-14-1211 — 시즌3 새 채널 — 전통 v2 '병풍 위의 차트' 스틸·틀만·AE 층 꾸러미·모션 20(aep/mogrt), 실사 닥종이 바탕, 프리미어 저장 종료, MCP 8개 설치·시험 (요청 73~79) | 6파일 +149/-20 |
-| 295 | `b3ee1071` | 세이브 기록 save/2026-09-14-1211 | 5파일 +11/-3 |
-| 296 | `bbff0259` | WIP newch-trad: 차11-4 손익비 모션을 전통 v2 로 (소스 합성기 · AE 빌드/검사/늘림 잡) | 6파일 +1019/-0 |
-| 297 | `471e33ba` | WIP newch-trad 손익비: mogrt 내보내기를 c5x 로 분리 (하나마다 aep 새로 열기) | 3파일 +125/-21 |
-| 298 | `bcc8f395` | WIP newch-trad 손익비: mogrt 를 프로젝트 폴더 밖으로 내보내기 (c5t 시험 근거) | 2파일 +126/-4 |
-| 299 | `97c375d1` | WIP newch-trad 손익비: mogrt 누락은 무작위 — 검사 후 실패분만 재내보내기(_only.txt) | 1파일 +19/-4 |
-| 300 | `6ad63af0` | 세이브 save/2026-09-14-1331 — 시즌3 새 채널 — 차11-4 손익비 모션 전통판(소스 컴포 12 + 전체, mogrt 13 · 문구 늘림 · 누락 검사 후 재내보내기) · 12:58 비정상 종료 뒤 무결성 확인하고 이어감 (요청 80) | 7파일 +150/-1 |
-| 301 | `fa7b19e7` | 세이브 기록 save/2026-09-14-1331 | 5파일 +11/-3 |
-| 302 | `96e52566` | 세이브 save/2026-09-14-1427 — 시즌3 새 채널 — 손익비 전통판 2차: 버튼→선 세트(익절선&박스·손절선&박스·진입선 + 지지선·저항선), 선·박스 화면 전체 폭 왼→오, 세트별 aep 5 · mogrt 12 (요청 81) | 12파일 +287/-120 |
-| 303 | `0246d2cc` | 세이브 기록 save/2026-09-14-1427 | 5파일 +11/-3 |
-| 304 | `f73d7644` | WIP newch-trad 손익비 3차: 선을 버튼과 같은 인주 질감·같은 색의 굵은 선(13px)으로 | 2파일 +40/-20 |
-| 305 | `41dd86a0` | 세이브 save/2026-09-14-1646 — 시즌3 새 채널 — 손익비 전통판 3차: 선을 버튼과 같은 인주 질감·같은 색의 굵은 선(13px), 버튼 뒤 비침 제거, 색 컨트롤 하나 · 프리미어 다이내믹 링크 AE 충돌 확인 후 정상 종료로 이어감 (요청 82) | 5파일 +28/-1 |
-| 306 | `020db2e0` | 세이브 기록 save/2026-09-14-1646 | 5파일 +11/-3 |
-| 307 | `f117249c` | WIP newch-trad 손익비 4차: 익절·손절 박스를 선명한 단색(기본 불투명)으로 + '박스 불투명도' 노출 | 2파일 +7/-3 |
-| 308 | `afc24a74` | frames_clean: B 병풍 한지만 틀 2종 (창호 띠 없음 · 한지 살짝 더 하얗게) — --variant clean | 1파일 +39/-9 |
-| 309 | `323244b3` | trad: 매도 낙관을 파랑 #1F60E0 으로 (매수:매도 = 빨강:파랑) · 팔레트에 '매도 파랑' | 1파일 +9/-7 |
-| 310 | `5263a821` | c10: trad_motion 템플릿 하나만 같은 이름으로 다시 내보내기 (낙관 매도 → 파랑) | 1파일 +63/-0 |
-| 311 | `ac93dc6e` | 세이브 save/2026-09-16-1043 — 시즌3 새 채널 — 틀만 한지 버전(기와 제외·한지 #F3EEE3) · 매도 버튼 파랑 #1F60E0(스틸·층 PNG·mogrt 재내보내기) · 박스권/볼린저 시안 보류 (요청 83~85) | 5파일 +203/-1 |
-| 312 | `bc42fa71` | 세이브 기록 save/2026-09-16-1043 | 5파일 +11/-3 |
-| 313 | `d22e19c1` | 채점 자료와 L08 판단값을 저장소로 — 임시폴더에만 있으면 다시 못 잰다 | 49파일 +49157/-0 |
-| 314 | `ebe0061d` | 세이브 save/2026-09-16-1314 — 작업실 경로 단일화 - C:/aelab 을 없애고 스스로 찾게 (labdir.py/.mjs/.ps1, config.labDir 자동) · c11 로 팩 5개 112개 푸티지 재연결 실측 (요청 86) | 38파일 +492/-188 |
-| 315 | `4a86090a` | 세이브 기록 save/2026-09-16-1314 | 5파일 +11/-3 |
-| 316 | `b1c9b474` | make_xml --source-root — 컷리스트에 박힌 원본 경로를 다른 PC 에서 갈아끼운다 | 3파일 +30/-9 |
-| 317 | `9af71908` | 세이브 save/2026-09-16-1329 — 포토샵 경로 단일화 — C:/cmgwork 을 박던 자리를 스스로 찾게 (labdir.ps1·_labdir.jsx, 규칙 30, 요청 87) | 13파일 +216/-40 |
-| 318 | `afc169f3` | 세이브 기록 save/2026-09-16-1329 | 5파일 +11/-3 |
-| 319 | `874a711e` | 세이브 save/2026-09-16-1333 — 더원 L08 프로젝트 경로 복구(끊김 10→0, .prproj 21개) · 프리미어 실험실 경로도 스스로 찾게 (_labdir.jsx/labdir.ps1, 잡 29개) (요청 88) | 38파일 +331/-155 |
-| 320 | `ad018f35` | 세이브 기록 save/2026-09-16-1333 | 5파일 +11/-3 |
-| 321 | `7cebc6e3` | prlinks — 폴더를 옮기기 전에 '누가 이 경로를 무는가'를 본다 | 3파일 +149/-0 |
-| 322 | `ab27be14` | 세이브 save/2026-09-16-1338 — 꾸러미 안 차트명가New 프리셋.prproj 경로 정정 (절대 끊김 6→0) · 요청 88 기록 보강 | 4파일 +5/-4 |
-| 323 | `d65a1ab5` | 세이브 기록 save/2026-09-16-1338 | 5파일 +11/-3 |
-| 324 | `22dabe73` | 세이브 save/2026-09-16-1340 — 차12 썸네일 건 닫음 — 회차 종료로 next_step 31 완료 처리 | 4파일 +10/-5 |
-| 325 | `dc80a1f1` | 세이브 기록 save/2026-09-16-1340 | 5파일 +11/-3 |
-| 326 | `84bba48f` | 이동 전 점검 3종 · 목적지 폴더도 검사 범위에 | 2파일 +8/-0 |
-| 327 | `1a6fc595` | 세이브 save/2026-09-16-1406 — 손익비 4차(박스 단색) 재생성 - aep·세트 aep 5·mogrt 12 · AE 꾸러미를 pack 한 벌로 단일화 (요청 89) | 4파일 +8/-1 |
-| 328 | `c32907b9` | 세이브 기록 save/2026-09-16-1406 | 5파일 +11/-3 |
-| 329 | `d0e4932e` | 차트명가 NEW 라이브화면구성.ai MVP — 트팩 2026v 양식에 전통 톤 | 8파일 +800/-0 |
-| 330 | `64ab170f` | 라이브화면 D 검수 반영 — 바깥만 병풍·편액은 이름만·낙관은 차트 밖 | 3파일 +84/-32 |
-| 331 | `d65b9a1b` | 총괄 문의서 회신 — 도구 회귀·배너 수치·L08·DB 등재 | 1파일 +161/-0 |
-| 332 | `15e7273f` | 회신 5-2 정정 — 결정 세 건은 이정찬이 내렸다 (차트명가New 로 넘어감 · 폴더 규칙은 E 영역 밖) | 1파일 +6/-5 |
-| 333 | `744b4b55` | 라이브화면 — 최종출력샘플 2종 추가 · 캡쳐는 원본 .ai 에서 복사 · 편액에 실제 로고 | 4파일 +310/-60 |
-| 334 | `d1eee17b` | 세이브 save/2026-09-16-1605 — 라이브 롤링 광고 차트명가 NEW 전통판 - 배너 11장(원본 좌표 실측·문구 그대로·톤만 교체) (요청 90) | 5파일 +325/-1 |
-| 335 | `45aa2b1f` | 세이브 기록 save/2026-09-16-1605 | 5파일 +11/-3 |
-| 336 | `1992e87b` | 세이브 save/2026-09-16-1611 — ExtendScript 함정 문서 - AE 쪽 3개(프리미어의 AE·mogrt dirty 저장·프리컴프 canAdd) 실측대로 보강 | 6파일 +228/-4 |
-| 337 | `e9685292` | 세이브 기록 save/2026-09-16-1611 | 5파일 +11/-3 |
-| 338 | `1bb3aa77` | 함정 문서 — '남이 실측한 것을 요약해 옮겨 적지 마라' 원칙 추가 | 1파일 +4/-0 |
-| 339 | `a1c448ae` | 세이브 save/2026-09-16-1618 — 롤링 광고 - CTA 화살표가 금테에 걸리는 것 고침 · 모서리 문양을 차트명가 로고에서 뽑은 3안(막대계단·처마·원)으로 교체, 처마 채택 | 5파일 +97/-21 |
-| 340 | `22d9e7d2` | 세이브 기록 save/2026-09-16-1618 | 5파일 +11/-3 |
-| 341 | `12e246e1` | 세이브 save/2026-09-16-1628 — 롤링 광고 모서리 문양 - 새로 그린 3안 반려, 차트명가 로고 심볼을 핑크 반투명으로 키워 쓰는 방식으로 교체 | 4파일 +35/-61 |
-| 342 | `9b526e40` | 세이브 기록 save/2026-09-16-1628 | 5파일 +11/-3 |
-| 343 | `f85a99c9` | 라이브화면 — OBS 용 8000x4500 내보내기 (export_obs.jsx) | 2파일 +77/-0 |
-| 344 | `c823ebe9` | OBS 내보내기 — matte 를 꺼야 투명이 산다 | 1파일 +6/-1 |
-| 345 | `11cc3427` | 세이브 save/2026-09-16-1633 — 롤링 광고 - 본문과 CTA 현판 사이 여백 확보(fit 바닥 0.34·틈 축소·여백 150) · 검사기 roll_ad_check 추가 | 5파일 +90/-22 |
-| 346 | `713f7930` | 세이브 기록 save/2026-09-16-1633 | 5파일 +11/-3 |
-| 347 | `818ffbaf` | 함정 문서 — PNG matte · '색만 보고 정체를 정하지 마라' 추가 | 1파일 +21/-6 |
-| 348 | `3bb297a3` | 세이브 save/2026-09-16-1638 — 롤링 광고 검사 - 16:28 판을 git 에서 되살려 대조, 라이브_a_2 는 실제로 붙어 있었음을 확인(B 보고가 맞음) · 기록 정정 | 4파일 +11/-1 |
-| 349 | `b082f603` | 함정 문서 — '모양 조건도 참을 거짓으로 만든다' 보강 | 1파일 +13/-4 |
-| 350 | `cdbb2f1d` | 세이브 기록 save/2026-09-16-1638 | 5파일 +11/-3 |
-| 351 | `b7ae8872` | 세이브 save/2026-09-16-1641 — a3_frame2 판정 정정 - saveFrameToPng 은 표기법이 아니라 타이밍 문제였다(디스크에 v1~v4 전부 존재) | 4파일 +17/-2 |
-| 352 | `ef4e1a80` | 세이브 기록 save/2026-09-16-1641 | 5파일 +11/-3 |
-| 353 | `7cf4c5a4` | 함정 문서 — ⑯ 쓰기 직후 확인은 거짓 실패를 만든다 · 원칙 둘 | 1파일 +34/-6 |
-| 354 | `fd47fc54` | 라이브화면 — 사용자 직접수정 반영 · 브랜드 팔레트 도입 · 기록 정리 | 7파일 +290/-37 |
-| 355 | `8b94a067` | 생성물 갱신 (worklog.db · WORKLOG.md · worklog.html · README) | 4파일 +11/-3 |
-| 356 | `ad605f3f` | 세이브 save/2026-09-16-1757 — 롤링 광고 옻칠판 추가 - 옻칠 편액을 띠 전체로(금테·흰 궁서·CTA 뒤집기) · 브랜드 팔레트 역할 반영, 대비 실측 · 한지판 11장 해시 불변 | 4파일 +84/-27 |
-| 357 | `b73a6027` | 세이브 기록 save/2026-09-16-1757 | 5파일 +11/-3 |
-| 358 | `64871ce5` | 라이브화면 — 롤링 광고를 옻칠판으로 | 1파일 +2/-2 |
-| 359 | `7486d32b` | 세이브 save/2026-09-17-1122 — 하이라이트 A_1·B_1 글자 크기를 짝 판(A_2 262 · B_2 238)에 맞춤 — 가운데 정렬, 한지·옻칠 각 2장만 바뀜(나머지 9장 해시 불변) | 4파일 +52/-12 |
-| 360 | `65421d32` | 세이브 기록 save/2026-09-17-1122 | 5파일 +11/-3 |
-| 361 | `6e4b3f98` | 롤링 광고 옻칠판 — 편집 가능한 .ai 원본 | 6파일 +560/-1 |
-| 362 | `ec4354c4` | 롤링 광고 — 옻칠판을 롤링광고/ 바로 아래로 (한지판 삭제) 경로 반영 | 2파일 +7/-4 |
-| 363 | `35164878` | 라이브화면 빌드 — 트팩 원본의 끊긴 링크 창에 멈추지 않게 | 2파일 +17/-1 |
-| 364 | `d0a1db5c` | log/inbox — B 가 총괄에게 넘기는 오류·비효율 기록 (2026-09-17) | 2파일 +362/-0 |
-| 365 | `3ac2f881` | log/inbox — D 가 총괄에게 넘기는 오류·비효율 기록 (2026-09-17) | 1파일 +4221/-0 |
-| 366 | `ed6b9356` | log/inbox — 이 PC 의 Claude Code 스킬 전체 목록 (플러그인 · claude.ai · 기본) | 1파일 +96/-0 |
-| 367 | `8890a35b` | 병합: local/script-lab (E 대본·컷편집·더원트레이더) — 겹침 0 | 63파일 +52087/-19 |
-| 368 | `1fceff75` | 세이브 save/2026-09-17-1517 — 병합 — newch-style(ff)·script-lab(3-way) 본류 합류, 겹침 0 | 3파일 +135/-101 |
-| 369 | `6b558610` | 세이브 기록 save/2026-09-17-1517 | 5파일 +11/-3 |
-| 370 | `bf76be29` | 세이브 save/2026-09-17-1537 — 자가발전 1차 — 인박스 등재·save.py 범위·레거시 격리·UTF-8 설정·ruff/pytest·git_guard(미연결)·radar·개선안 인박스 | 28파일 +1095/-41 |
-| 371 | `1f9b08ba` | 세이브 기록 save/2026-09-17-1537 | 5파일 +24/-4 |
-| 372 | `44efdf57` | D 개선안 반영 — 끊긴 경로·복붙 작업실 찾기·줄끝·ruff·git_guard 구멍 2개 | 25파일 +295/-221 |
-| 373 | `3f323896` | log/inbox — D 개선안 회신 (2026-09-17) | 1파일 +106/-0 |
-| 374 | `cf9a98e3` | 라이브화면 — 07~10 판 추가 · 고정댓글 현판 · 정보 글자 36pt | 2파일 +298/-10 |
-| 375 | `84367a57` | 라이브화면 07·09·10 이정찬 검토 반영 — 비율 배치 · 로고 띠 · 모서리 무늬 · 차트명가 문구 | 2파일 +207/-74 |
-| 376 | `8f5f9bba` | 세이브 save/2026-09-17-1656 — 개선안 §5 정정(이정찬 반박 반영) · decision 29 총괄→이정찬 피드백 규칙 | 6파일 +15/-6 |
-| 377 | `2b0c9b73` | 세이브 기록 save/2026-09-17-1656 | 5파일 +11/-3 |
-| 378 | `a75d1396` | 일러스트레이터 도구 — 총괄 개선안 B-1·B-2·D-6 | 3파일 +10/-6 |
-| 379 | `641f4dae` | log/inbox — B 개선안 회신 (2-A 채택·worktree-ps, B-1·B-2·B-3 적용, B-4 D 파일, D-6 반려·경고 정리) | 1파일 +53/-0 |
-| 380 | `76fd1be0` | 병합: worktree-ae (D 개선안 반영 — 경로·labdir 공용화·줄끝·guard 구멍 2개) | 26파일 +401/-221 |
-| 381 | `5ab0f8f0` | 병합: worktree-ps (B 개선안 반영 — 라이브화면 07~10·BOM·matte) | 7파일 +513/-35 |
-| 382 | `a8b46739` | 세이브 save/2026-09-17-1713 — B·D 회신 병합 — guard 경로한정·삭제·push 이름 강제(decision 31), 옆가지 worktree-*(30), issue 38·39, next_step 41 세션 시작 폴더(이정찬), 총괄 회신답 | 8파일 +163/-35 |
-| 383 | `78210a2f` | 세이브 기록 save/2026-09-17-1713 | 5파일 +11/-3 |
-| 384 | `ea36a4a2` | 컷편집 도구 — 총괄 개선안 E-1~E-6 · ruff F 5건 | 17파일 +179/-120 |
-| 385 | `a8728be8` | log/inbox — E 개선안 회신 (2-A worktree-script, E-1~E-7 적용, 회귀 45항목 같음) · SCRIPT-LAB 옛 경로 표시 | 2파일 +78/-2 |
-| 386 | `e6c16b83` | E 회신 §3 문구 정정 — 오류 둘 중 하나만 기존 기록에 있음 | 1파일 +1/-1 |
-| 387 | `d8ec535a` | 세이브 save/2026-09-17-1828 — E 회신 병합(ff) — E-1~E-7·textnorm·test_cutedit 8, guard 표식 문구(E-5), issue 40, next_step 40 완료, make_xml.pathurl 리눅스 보정 | 6파일 +37/-17 |
-| 388 | `3ca646ed` | 세이브 기록 save/2026-09-17-1828 | 5파일 +11/-3 |
-| 389 | `e334854e` | 세이브 save/2026-09-17-1840 — 세션 시작 폴더 확정 — worktree 이름 D_Video·B_Image·E_Script (runbook 24·25, decision 30 갱신, CLAUDE.md) | 6파일 +45/-8 |
-| 390 | `ec5bcb3c` | 세이브 기록 save/2026-09-17-1840 | 5파일 +11/-3 |
-| 391 | `561e8a48` | 세이브 save/2026-09-17-1841 — guard 시험 — 총괄 clone(ac.role) 에서도 도는 환경 고정 | 4파일 +4/-1 |
+| 1 | `3f323896` | log/inbox — D 개선안 회신 (2026-09-17) | 590파일 +426852/-0 |
+| 2 | `2b0c9b73` | 세이브 기록 save/2026-09-17-1656 | 588파일 +426689/-0 |
+| 3 | `a75d1396` | 일러스트레이터 도구 — 총괄 개선안 B-1·B-2·D-6 | 588파일 +427097/-0 |
+| 4 | `641f4dae` | log/inbox — B 개선안 회신 (2-A 채택·worktree-ps, B-1·B-2·B-3 적용, B-4 D 파일, D-6 반려·경고 정리) | 1파일 +53/-0 |
+| 5 | `76fd1be0` | 병합: worktree-ae (D 개선안 반영 — 경로·labdir 공용화·줄끝·guard 구멍 2개) | 26파일 +401/-221 |
+| 6 | `5ab0f8f0` | 병합: worktree-ps (B 개선안 반영 — 라이브화면 07~10·BOM·matte) | 7파일 +513/-35 |
+| 7 | `a8b46739` | 세이브 save/2026-09-17-1713 — B·D 회신 병합 — guard 경로한정·삭제·push 이름 강제(decision 31), 옆가지 worktree-*(30), issue 38·39, next_step 41 세션 시작 폴더(이정찬), 총괄 회신답 | 8파일 +163/-35 |
+| 8 | `78210a2f` | 세이브 기록 save/2026-09-17-1713 | 5파일 +11/-3 |
+| 9 | `ea36a4a2` | 컷편집 도구 — 총괄 개선안 E-1~E-6 · ruff F 5건 | 17파일 +179/-120 |
+| 10 | `a8728be8` | log/inbox — E 개선안 회신 (2-A worktree-script, E-1~E-7 적용, 회귀 45항목 같음) · SCRIPT-LAB 옛 경로 표시 | 2파일 +78/-2 |
+| 11 | `e6c16b83` | E 회신 §3 문구 정정 — 오류 둘 중 하나만 기존 기록에 있음 | 1파일 +1/-1 |
+| 12 | `d8ec535a` | 세이브 save/2026-09-17-1828 — E 회신 병합(ff) — E-1~E-7·textnorm·test_cutedit 8, guard 표식 문구(E-5), issue 40, next_step 40 완료, make_xml.pathurl 리눅스 보정 | 6파일 +37/-17 |
+| 13 | `3ca646ed` | 세이브 기록 save/2026-09-17-1828 | 5파일 +11/-3 |
+| 14 | `e334854e` | 세이브 save/2026-09-17-1840 — 세션 시작 폴더 확정 — worktree 이름 D_Video·B_Image·E_Script (runbook 24·25, decision 30 갱신, CLAUDE.md) | 6파일 +45/-8 |
+| 15 | `ec5bcb3c` | 세이브 기록 save/2026-09-17-1840 | 5파일 +11/-3 |
+| 16 | `561e8a48` | 세이브 save/2026-09-17-1841 — guard 시험 — 총괄 clone(ac.role) 에서도 도는 환경 고정 | 4파일 +4/-1 |
+| 17 | `f883ea30` | 세이브 기록 save/2026-09-17-1841 | 5파일 +11/-3 |
+| 18 | `519625bc` | 더원 상단배너 공식(2판) 문서를 저장소로 — 증거표 포함 | 2파일 +119/-2 |
+| 19 | `6bc572b4` | log/inbox — 세션 시작 폴더 확정 적용 (E_Script · worktree-E_Script) · pathurl 윈도우 회귀 확인 | 1파일 +37/-0 |
+| 20 | `5ac6ce2e` | log/inbox — D·B 에게 도구 공유 (yt-dlp·YouTube API·한국어 NLP·MCP 자가점검·함정) | 1파일 +80/-0 |
+| 21 | `1e00595d` | 세이브 기록 save/2026-09-18-1438 | 607파일 +428684/-0 |
+| 22 | `6bb8b0ea` | 이름 끝 공백·마침표 정리(safe_tail) + 왕복 시험 · MCP 자가점검 스크립트 | 3파일 +118/-2 |
+| 23 | `67537c1c` | 차12 더블 볼린저밴드 대본 뼈대 — 규격·구간 배분 실측 근거 포함 | 1파일 +121/-0 |
+| 24 | `ba7ecfd8` | 차12 더블 볼린저밴드 촬영용 대본 초안 (규격 채점 통과) | 1파일 +228/-0 |
+| 25 | `5ae3f254` | 차13 테스타 칼만 이평선 + ATR 촬영용 대본 초안 | 1파일 +238/-0 |
+| 26 | `b02a3442` | 차12 다시 씀 — 레퍼런스 사슬대로 흐름 재구성 · 기간값 21→20 정정 | 2파일 +183/-165 |
+| 27 | `2de85a62` | 차13 다시 씀 — 새 사슬(일정표→레퍼런스 자막→Pool 채우기→완성) 적용 | 1파일 +150/-141 |
+| 28 | `c6553f6b` | 차13 뼈대 + 대본 채점기를 저장소로 | 2파일 +157/-0 |
+| 29 | `36ce2b68` | 세이브 기록 save/2026-09-18-1740 | 619파일 +430086/-0 |
+| 30 | `f5aa4eb8` | 세이브 save/2026-09-18-1743 — 아스트라 인수인계 — 같은 PC 경로 지도·남은 일·실측 함정 11가지·팀장 기준 5가지 | 4파일 +82/-1 |
+| 31 | `9c09c67b` | 세이브 기록 save/2026-09-18-1743 | 5파일 +11/-3 |
+| 32 | `70d060d4` | log — 라이브화면·롤링광고 매뉴얼 (B 세션용) | 599파일 +428046/-0 |
+| 33 | `2e831ee1` | 병합: worktree-B_Image (09-18 저녁 — 경로 끝 가드 3벌·MT5 촬영·HyperFrames 실측·차12/13 대본·라이브화면 매뉴얼·아스트라 인수인계) | 3파일 +232/-30 |
+| 34 | `cad148ea` | 병합: worktree-E_Script (09-18 저녁 — 경로 끝 가드 3벌·MT5 촬영·HyperFrames 실측·차12/13 대본·라이브화면 매뉴얼·아스트라 인수인계) | 8파일 +889/-2 |
+| 35 | `7f2e3bd9` | 병합: worktree-D_Video (09-18 저녁 — 경로 끝 가드 3벌·MT5 촬영·HyperFrames 실측·차12/13 대본·라이브화면 매뉴얼·아스트라 인수인계) | 30파일 +2346/-0 |
+| 36 | `5d73d40a` | 세이브 save/2026-09-18-1750 — 09-18 저녁 병합 — 경로 끝 가드 3벌(56 정정)·MT5 촬영·HyperFrames·차12/13 초안·라이브화면 매뉴얼·아스트라 인수인계, AGENTS.md 신설, constraint 60·61, external_tool 11~13, next_step 45 | 8파일 +151/-20 |
+| 37 | `450e95eb` | 세이브 기록 save/2026-09-18-1750 | 5파일 +14/-4 |
+| 38 | `c2a0f609` | 세이브 save/2026-09-18-1928 — build_worklog_db git_commits — 커밋마다 git show 455회 → git log 한 번 (재빌드 6.2→3.2초, commit_log 동일) | 4파일 +12/-9 |
+| 39 | `a0b996df` | 세이브 기록 save/2026-09-18-1928 | 5파일 +11/-3 |
+| 40 | `b4b6ba74` | 세이브 save/2026-09-18-2027 — 완료 보고 양식 — 확인한 것/안 본 것 (decision 33), CLAUDE.md·AGENTS.md | 7파일 +33/-3 |
+| 41 | `bde0c1d6` | 세이브 기록 save/2026-09-18-2027 | 5파일 +11/-3 |
+| 42 | `88ebd8ff` | 세이브 save/2026-09-18-2041 — 공용 실행기 제안(next_step 46) — 모달·완료 판정·외부 앱 상태를 run.ps1 한 곳에 | 5파일 +34/-2 |
+| 43 | `cef88e9b` | 세이브 기록 save/2026-09-18-2041 | 5파일 +11/-3 |
+| 44 | `a00abd34` | 세이브 save/2026-09-18-2049 — 킴 지적 셋을 장치로 — save.py 범위 필수(총괄 외)·guard 4 heredoc 역슬래시·경로 리터럴 래칫 시험(decision 34), 월요일 전달묶음 | 9파일 +143/-5 |
+| 45 | `73b73fc8` | 세이브 기록 save/2026-09-18-2049 | 5파일 +11/-3 |
+| 46 | `08212cc1` | 세이브 save/2026-09-18-2302 — 월요일 묶음 — E: LLM 판정관 단계·팀장 선택 기록 (뜻의 거리 다음은 판단) | 4파일 +5/-1 |
+| 47 | `06a2eb33` | 세이브 기록 save/2026-09-18-2302 | 5파일 +11/-3 |
+| 48 | `a869ca1d` | 세이브 save/2026-09-21-1015 — E 방송본 대조 회신 — 판정관 보류·수동 수집(decision 35, next_step 47·48) | 5파일 +24/-3 |
+| 49 | `36c665b9` | 세이브 기록 save/2026-09-21-1015 | 5파일 +11/-3 |
+| 50 | `d8dbfcf5` | 차12·차13 초안 — Pool 에 없는 낱말을 Pool 에 있는 말로 교체 | 3파일 +39/-39 |
+| 51 | `b06ccc72` | constraint 56 — 일러스트레이터 saveAs 실측, 파이썬과 같다 (추정 줄 지워도 됨) | 3파일 +96/-4 |
+| 52 | `6e45fc8a` | 매뉴얼 — constraint 56 실측 결과와 새 함정 둘 반영 | 1파일 +12/-4 |
+| 53 | `61f6a3fb` | 병합: worktree-E_Script (09-21 — constraint 56 일러 실측·차12/13 Pool 교체) | 3파일 +39/-39 |
+| 54 | `016069ae` | 세이브 save/2026-09-21-1046 — B·E 병합(09-21) — constraint 56 일러 실측 반영·추정 삭제, TRAPS ⑨-4·⑨-5 → constraint 62, 공용실행기 캡처는 PrintWindow | 5파일 +16/-8 |
+| 55 | `fd419279` | 세이브 기록 save/2026-09-21-1046 | 5파일 +11/-3 |
+| 56 | `2af56d0d` | 세이브 save/2026-09-21-1056 — 공용 실행기 1단계 — tools/_com/run.ps1 (프리미어 떠 있으면 AE 중단·시간제한·판정 줄·실패 원자료), AE·프리미어 실행기를 그 위로 | 10파일 +294/-127 |
+| 57 | `4d01f36f` | 세이브 기록 save/2026-09-21-1056 | 5파일 +11/-3 |
+| 58 | `1e269479` | 병합: worktree-D_Video (09-21 — 공용 실행기 1단계 tools/_com/run.ps1, U-7) | 8파일 +282/-109 |
+| 59 | `e4eb2bf4` | 세이브 save/2026-09-21-1110 — D 공용 실행기 1단계 병합 — 판정 줄 래칫(decision 36)·PS BOM constraint 63·U-7 완료·next_step 46 2단계 | 7파일 +60/-10 |
+| 60 | `0712c764` | 세이브 기록 save/2026-09-21-1110 | 5파일 +11/-3 |
+| 61 | `87d9d142` | 세이브 save/2026-09-21-1111 — 판정 줄 래칫 기준선 정정 — 포토샵·일러 잡 포함 56 | 4파일 +3/-2 |
+| 62 | `da9598f2` | 세이브 기록 save/2026-09-21-1111 | 5파일 +11/-3 |
+| 63 | `f71529d7` | 차12·차13 — INTRO 를 줄이고 잘게 끊긴 문장을 합쳤다 | 2파일 +69/-106 |
+| 64 | `b69a306e` | 초안 .md 를 촬영용 스크립트 .docx 로 바꾸는 도구 | 1파일 +161/-0 |
+| 65 | `b127b853` | 세이브 save/2026-09-21-1132 — Jev 조사 — 판정관 자리 시험 제안(external_tool 14 pending, next_step 49) | 5파일 +48/-3 |
+| 66 | `e70effbc` | 세이브 기록 save/2026-09-21-1132 | 5파일 +11/-3 |
+| 67 | `0bb5b270` | Jev 제안 — 3순위 radar 오류 분류(Choice) 추가 | 1파일 +1/-0 |
+| 68 | `72fa7d95` | docx 표지 줄을 L<번호> 로 (이정찬 2026-09-21) | 1파일 +4/-2 |
+| 69 | `012e8b36` | 세이브 save/2026-09-21-1230 — Jev 시험 설계 D·B (next_step 50·51) | 5파일 +42/-2 |
+| 70 | `82829444` | 세이브 기록 save/2026-09-21-1230 | 5파일 +11/-3 |
+| 71 | `de51536d` | 세이브 save/2026-09-21-1238 — 공용 실행기 — 프리미어 잡 실제 실행·프리미어 떠 있을 때 AE 차단 실측, 실패 캡처를 창 단위(PrintWindow)로 | 6파일 +223/-26 |
+| 72 | `e2b32c1e` | 세이브 기록 save/2026-09-21-1238 | 5파일 +11/-3 |
+| 73 | `b044a625` | 병합: worktree-E_Script (09-21 낮 — 공용 실행기 남은 둘 실측·창 캡처 / 초안→docx 도구) | 3파일 +232/-106 |
+| 74 | `24b656eb` | 병합: worktree-D_Video (09-21 낮 — 공용 실행기 남은 둘 실측·창 캡처 / 초안→docx 도구) | 8파일 +233/-28 |
+| 75 | `b503c223` | 세이브 save/2026-09-21-1242 — D 남은 둘 실측 병합 — 프리미어 잡·AE 차단·창 캡처(constraint 64), E docx 도구, next_step 46 은 B 2단계만 | 5파일 +48/-28 |
+| 76 | `f7fcb07d` | 세이브 기록 save/2026-09-21-1242 | 5파일 +11/-3 |
+| 77 | `95f15c0e` | 세이브 save/2026-09-21-1247 — Jev 시험 준비 — 얇은 클라이언트, D-2 정답 자료(팀장 그림 14장 판독), constraint 제목 63줄 | 6파일 +391/-1 |
+| 78 | `1eb3c478` | 세이브 기록 save/2026-09-21-1247 | 5파일 +11/-3 |
+| 79 | `e8ec35d7` | Jev 시험 B-1 · B-3 정답 자료 준비 (아직 안 돌림 — E 한국어 시험이 먼저다) | 2파일 +85/-0 |
+| 80 | `604cc7c1` | 세이브 save/2026-09-21-1306 — Jev 시험 결과 — D-3 오류분류 11/12, D-2 는 분류 기준에 따라 뒤집힘, D-1 표본 편향 보고 | 8파일 +420/-1 |
+| 81 | `2ec5be4a` | 세이브 기록 save/2026-09-21-1306 | 5파일 +11/-3 |
+| 82 | `41ab3912` | Jev 판정관 시험 — 돌리고 결과를 총괄에게 회신 | 1파일 +77/-0 |
+| 83 | `f850ecbf` | 병합: worktree-E_Script (09-21 오후 — Jev 시험 결과·자료·클라이언트) | 1파일 +77/-0 |
+| 84 | `4829dc4a` | 병합: worktree-B_Image (09-21 오후 — Jev 시험 결과·자료·클라이언트) | 2파일 +85/-0 |
+| 85 | `fa3ebde7` | 병합: worktree-D_Video (09-21 오후 — Jev 시험 결과·자료·클라이언트) | 9파일 +821/-0 |
+| 86 | `c0c09f4d` | 세이브 save/2026-09-21-1311 — Jev 자리치우침 검사 — D 시험엔 없다(12/12·9/9 안정), E 발견은 쌍 비교 자리에만 | 6파일 +311/-2 |
+| 87 | `2ff9d56a` | 세이브 기록 save/2026-09-21-1311 | 5파일 +11/-3 |
+| 88 | `980ad926` | 세이브 save/2026-09-21-1312 — Jev 결정(decision 37) — 순위 판정관 안 함·거름망·분류 채택, radar --jev(D-3), constraint 65·66, next_step 49~52 | 7파일 +113/-6 |
+| 89 | `5b64e582` | 세이브 기록 save/2026-09-21-1312 | 5파일 +11/-3 |
+| 90 | `1a8dbb73` | 세이브 save/2026-09-21-1313 — Jev 결정 DB 등재 — external_tool 14 adopt(조건부), decision 37, constraint 65·66, next_step 49~52 | 4파일 +31/-15 |
+| 91 | `f2d2ccdd` | 세이브 기록 save/2026-09-21-1313 | 5파일 +11/-3 |
+| 92 | `09778521` | Jev 시험 B-1·B-2·B-3 — 셋 다 합격선 미달(5/6 · 9/11 · 14/20), 대신 우리 기록의 구멍 둘을 찾았다 | 6파일 +1301/-0 |
+| 93 | `5aa12b3e` | 병합: worktree-B_Image (09-21 — Jev 시험 B 셋·D 자리치우침 검사) | 6파일 +1301/-0 |
+| 94 | `6028433e` | 병합: worktree-D_Video (09-21 — Jev 시험 B 셋·D 자리치우침 검사) | 4파일 +316/-1 |
+| 95 | `dfdb8e3b` | 세이브 save/2026-09-21-1335 — Jev D-4 — 잡 로그 줄 판정은 맡기면 안 된다(17/20, 규칙 18/20). 수를 견주는 자리에서 confidence 0.9 로 틀림 | 6파일 +286/-4 |
+| 96 | `08f005ae` | 세이브 기록 save/2026-09-21-1335 | 5파일 +11/-3 |
+| 97 | `899c828c` | 세이브 save/2026-09-21-1336 — Jev 2차(B·D §6) — radar 선택지에 TRAPS, thumbnail_rule 22 정정, constraint 65 정정, decision 37 보강, next_step 46·51 | 8파일 +78/-23 |
+| 98 | `5ecfe45a` | 세이브 기록 save/2026-09-21-1336 | 5파일 +11/-3 |
+| 99 | `af79a7e7` | 병합: worktree-D_Video (09-21 — Jev D-4 잡 로그 줄 판정 시험, 안 붙임) | 4파일 +1334/-1046 |
+| 100 | `750e7a05` | 세이브 save/2026-09-21-1711 — Jev D-4 병합 — 실행기 판정에 안 붙임(decision 37 ⑩·constraint 67), next_step 50 완료, D 답 | 6파일 +37/-15 |
+| 101 | `31644a04` | 세이브 기록 save/2026-09-21-1711 | 5파일 +1061/-1053 |
+| 102 | `5a30524d` | 차12 7차 (팀장 피드백 반영) · 대조용 판 3개 · 차13 4차 | 5파일 +719/-130 |
+| 103 | `abb1a8d8` | 병합: worktree-E_Script (09-21 — 차12 7차·대조판 3·차13 4차) | 5파일 +719/-130 |
+| 104 | `beb72c34` | 세이브 save/2026-09-21-1726 — E 병합 — 차12 7차·대조판 3(피드백적용/워크플로우/이정찬)·차13 4차 등재, next_step 47 에 첫 쌍 자료 | 5파일 +23/-11 |
+| 105 | `750a16d5` | 세이브 기록 save/2026-09-21-1726 | 5파일 +11/-3 |
+| 106 | `953e0874` | 차13 뼈대를 회사 기본폼(.docx) 꼴로 — 팀장 검사용 | 2파일 +275/-0 |
+| 107 | `4bc9e172` | 공용 실행기 2단계 — 일러·포토샵을 얹고, 1단계 버그 셋을 고쳤다 (모달 문구 분류 문 0.8) | 15파일 +889/-189 |
+| 108 | `158e1e45` | 2단계 보고에 D 몫 인계 절을 넣었다 — 남은 셋은 bridge 갈래라 D 가 이어 받는다 | 1파일 +15/-4 |
+| 109 | `901ef797` | 차13 뼈대 7구간 — Pool 조각 49개를 기계로 대조 | 2파일 +411/-68 |
+| 110 | `cbcf0545` | 병합: worktree-B_Image (09-21 — 공용 실행기 2단계 일러·포토샵, 1단계 버그 셋, 모달 문구 분류) | 15파일 +900/-189 |
+| 111 | `28c2f622` | 회사 양식을 잘못 뜯었다 — 표는 한 줄, 대본은 줄글 란 | 2파일 +101/-38 |
+| 112 | `cf0125e3` | 세이브 save/2026-09-21-1810 — B 2단계 병합 — 공용 실행기 일러·포토샵, issue 42~45·constraint 68~70·62 정정, next_step 46 → D, B 답 | 5파일 +83/-10 |
+| 113 | `24732e8b` | 세이브 기록 save/2026-09-21-1810 | 5파일 +11/-3 |
+| 114 | `1fbc8904` | 세이브 save/2026-09-21-1812 — build_worklog_db repo_file 첫 일치 버그 고침(가장 긴 키 우선, issue 46) — 등재 항목이 표에 실제로 나오게 | 5파일 +224/-5 |
+| 115 | `e509c5ac` | 세이브 기록 save/2026-09-21-1812 | 5파일 +11/-3 |
+| 116 | `bd5dbea9` | 차13 줄글 대본 — 뼈대 조각 49개를 이어 회사 기본폼 .docx 로 | 2파일 +88/-18 |
+| 117 | `b11fbf63` | 세이브 save/2026-09-22-1103 — 공용 실행기 bridge 갈래 — FAIL TIMEOUT 가짜 통과 고침, 충돌 복구 창 실측, 프리미어 probe·save_quit | 6파일 +132/-27 |
+| 118 | `67a19345` | 세이브 기록 save/2026-09-22-1103 | 5파일 +11/-3 |
+| 119 | `b9981d4a` | constraint 후보 ② 를 낮춘다 — 일러 taskkill 뒤 재기동은 굳지 않았다(재현 1회) | 1파일 +40/-0 |
+| 120 | `a99f29fb` | 세이브 save/2026-09-22-1110 — 실행기 — 모달 못 찾으면 보이는 창 전부 찍기(B 제안), JOBERR 도 실패로 확인 | 7파일 +85/-4 |
+| 121 | `13a47ecb` | 세이브 기록 save/2026-09-22-1110 | 5파일 +11/-3 |
+| 122 | `fbf482dc` | 병합: worktree-B_Image (09-22) | 1파일 +40/-0 |
+| 123 | `692dbebb` | 병합: worktree-D_Video (09-22) | 10파일 +232/-30 |
+| 124 | `093540b4` | 병합: worktree-E_Script (09-22) | 4파일 +819/-68 |
+| 125 | `a98c9136` | 세이브 save/2026-09-22-1133 — B·D·E 09-22 병합 — 공용 실행기 완료(46), issue 47, constraint 69 낮춤·71, next_step 53, E 차13 도구 둘 등재 | 6파일 +114/-44 |
+| 126 | `de13d7b2` | 세이브 기록 save/2026-09-22-1133 | 5파일 +14/-4 |
+| 127 | `46d19cc8` | 세이브 save/2026-09-22-1311 — next_step 53 — AE 충돌 복구 창을 시작 전·대기 중 알아보고 바로 멈춤(15.5초/0.2초), 죽인 뒤 주의 줄 | 6파일 +121/-20 |
+| 128 | `ddac9883` | 세이브 기록 save/2026-09-22-1311 | 5파일 +11/-3 |
+| 129 | `6660178d` | 병합: worktree-D_Video (09-22 — next_step 53 AE 복구 창 멈춤) | 8파일 +131/-22 |
+| 130 | `43a6e5f0` | 세이브 save/2026-09-22-1502 — D 53 병합 — AE 복구 창 감지·멈춤 완료, constraint 71 판별법, next_step 53 닫음 | 5파일 +33/-28 |
+| 131 | `89778684` | 세이브 기록 save/2026-09-22-1502 | 5파일 +11/-3 |
+| 132 | `b3732785` | 세이브 save/2026-09-22-1503 — next_step 41~44 blocked_by 를 제목대로 완료로 — 열린 목록이 실제와 맞게 | 4파일 +11/-10 |
+| 133 | `ef0eceba` | 세이브 기록 save/2026-09-22-1503 | 5파일 +11/-3 |
+| 134 | `860f3502` | 세이브 save/2026-09-22-1553 — next_step 45 ① — 대본 한 편 12비트 일괄 촬영(batch_capture), 종목·주기 선택, Jev 보조, 지표 쉼표 잘림·자동 떼기·창 제목·톱니 점수 고침 | 9파일 +266/-9 |
+| 135 | `75c729b3` | 세이브 기록 save/2026-09-22-1553 | 5파일 +11/-3 |
+| 136 | `3de999eb` | 세이브 save/2026-09-22-1600 — next_step 45 ② — 콘티 한 장 + AE 프로젝트 세팅(d1_conti_build), 지지선·쓸림 전용 탐색, 차10 끝까지 | 7파일 +331/-2 |
+| 137 | `c1994b42` | 세이브 기록 save/2026-09-22-1600 | 5파일 +11/-3 |
+| 138 | `a58081b7` | 병합: worktree-D_Video (09-22 — next_step 45 ①② 일괄 촬영·콘티·AE 세팅) | 10파일 +1727/-1129 |
+| 139 | `88da5e2f` | 세이브 save/2026-09-22-1639 — D 45 ①② 병합 — 일괄 촬영·콘티·AE 세팅, constraint 60 ⑧⑨⑩, next_step 45 남은 ③④ | 5파일 +26/-14 |
+| 140 | `c86c2c13` | 세이브 기록 save/2026-09-22-1639 | 5파일 +1145/-1137 |
+| 141 | `45734eeb` | E 자료 정리 병합 — 워크플로우·팀장쌍·도구 코드·문서만 (원본 자막·Pool·docx 는 저장소 밖, 이정찬 결정 09-22) | 50파일 +4487/-0 |
+| 142 | `9d411be8` | 세이브 save/2026-09-22-1722 — E 자료 정리 — decision 38(public 유지·원자료 밖), issue 48, next_step 47 pairs.jsonl, .gitignore·ruff exclude, E 답 | 7파일 +97/-10 |
+| 143 | `614e13be` | 세이브 기록 save/2026-09-22-1722 | 5파일 +14/-4 |
+| 144 | `8c1dc2fa` | 세이브 save/2026-09-22-1757 — 장면 탐색 재발 방지(전용 함수·심은 시험·몰림 경고·읽히는 움직임) · 방향(Jev) · 차11 검증(번호 없는 대본·지표 읽기·주제 지표·이평선 장면 5·주기 치우침) · 창 폭 가드·탐색 캐시 | 11파일 +1771/-165 |
+| 145 | `da37bf5b` | 세이브 기록 save/2026-09-22-1757 | 5파일 +11/-3 |
+| 146 | `1eb06799` | 세이브 save/2026-09-23-1230 — E·이정찬 09-21~22 막힌 자리 일곱 피드백 — 답 문서 덧붙임, issue 49~51, next_step 54 | 6파일 +105/-8 |
+| 147 | `085baddc` | 세이브 기록 save/2026-09-23-1230 | 5파일 +11/-3 |
+| 148 | `64d2f242` | 세이브 save/2026-09-28-1103 — 장면 탐색 검수 반영 — 자리 붙잡기(Hold)로 엉뚱한 날짜 촬영 차단, 규칙을 Jev가 뒤집기(0.8), 박스권·누운이평·지지반등 고침, 검수에서 나온 모양 시험 | 8파일 +149/-8 |
+| 149 | `38a2e8c8` | 세이브 기록 save/2026-09-28-1103 | 5파일 +11/-3 |
+| 150 | `6b9036dc` | 세이브 save/2026-09-28-1105 — B 에게 넘길 최적화 정리 — 검증 원칙·래칫 시험·Jev 사용법·서브에이전트·속도·외부앱, 역할 분담 제안 | 4파일 +81/-1 |
+| 151 | `404b0ba9` | 세이브 기록 save/2026-09-28-1105 | 5파일 +11/-3 |
+| 152 | `85e3d3e5` | 세이브 save/2026-09-28-1112 — decision 39 — 차트명가New 는 김직선 카피캣(비주얼+말투), next_step 55 비주얼 기준 재실측, CLAUDE.md 한 줄 | 5파일 +175/-583 |
+| 153 | `d17e15fa` | 세이브 기록 save/2026-09-28-1112 | 5파일 +11/-3 |
+| 154 | `f49a098a` | 세이브 save/2026-09-28-1144 — 전송로 이중화(포토샵 막히면 일러) · 찍은 자리 확인 다음봉 기준·재시도·못쓰는장 표시 · shot_window --check | 8파일 +127/-30 |
+| 155 | `ca38ae67` | 세이브 기록 save/2026-09-28-1144 | 5파일 +11/-3 |
+| 156 | `1281ff29` | 세이브 save/2026-09-28-1750 — 검수 3건 반영 — 추세는 네 토막 고르게, 박스는 띠 채움·급락 거르기, 횡보 대본에 추세 장면이면 박스 계열에서 다시 고르기 | 7파일 +108/-11 |
+| 157 | `3ef81157` | 세이브 기록 save/2026-09-28-1750 | 5파일 +11/-3 |
+| 158 | `989944e5` | 세이브 save/2026-09-28-1801 — 횡보 대목 되돌리기 두 걸음(추세/횡보 먼저 판정 → 박스 셋에서 고르기), Jev 문을 부르는 쪽이 정하게 | 5파일 +61/-13 |
+| 159 | `33df6f88` | 세이브 기록 save/2026-09-28-1801 | 5파일 +11/-3 |
+| 160 | `ce6a82bb` | 세이브 save/2026-09-28-1818 — 검수 3차 반영 — 지표를 장면 확정 뒤에 붙임(4-4 MA20 소실), 누운이평 출렁임·이탈 상한, 박스 산모양 거르기, 추세 한 봉 쏠림, 횡보 문턱·대본 종목 따르기 | 7파일 +85/-13 |
+| 161 | `67f2f8b7` | 세이브 기록 save/2026-09-28-1818 | 5파일 +11/-3 |
+| 162 | `066271e3` | 세이브 save/2026-09-28-1827 — 지표가 덜 붙으면 한 번 더 붙이기(3-4 MA20 누락) | 4파일 +18/-3 |
+| 163 | `69817896` | 세이브 기록 save/2026-09-28-1827 | 5파일 +11/-3 |
+| 164 | `b895496f` | 세이브 save/2026-09-28-1837 — 이평선을 CMG_Shot 이 색 달리해 직접 그림(1-1 네 선 구분), 지표 나열 읽기(5일·20일·60일선), 박스 공통 조건(급락·끝 이탈), 추세 토막 하한 | 7파일 +146/-30 |
+| 165 | `e60ddd0e` | 세이브 기록 save/2026-09-28-1837 | 5파일 +11/-3 |
+| 166 | `a556a7e4` | 세이브 save/2026-09-28-1848 — 촬영 한 장을 통째로 다시 시도하는 구조(자리·지표 확인 후 재시도), 이력 미도착 때 다시 받기 | 5파일 +90/-102 |
+| 167 | `a99fcda1` | 세이브 기록 save/2026-09-28-1848 | 5파일 +11/-3 |
+| 168 | `5abc713e` | 병합: worktree-D_Video (09-22 저녁~09-28 — 45 ③ 차11 검증·재발 방지, 검수 3차, 자리 붙잡기, B 에게 최적화 정리) | 14파일 +3695/-1375 |
+| 169 | `6f874259` | E 09-22~23 얹음 — 차13 김직선 말투 조립·작업기록(.md·.py)·팀장 피드백 6절 (원문 txt·docx·pdf·json 은 저장소 밖, decision 38) | 17파일 +2002/-0 |
+| 170 | `14962019` | 세이브 save/2026-09-29-1527 — D 20·E 5 병합 — 45 ③ 완료, issue 52·53, constraint 72·73, 55 는 B 담당, E 는 md·py 만, 답 문서 | 7파일 +139/-26 |
+| 171 | `71b83ac3` | 세이브 기록 save/2026-09-29-1527 | 5파일 +1246/-1236 |
+| 172 | `9e0e9846` | 세이브 save/2026-09-29-1528 — test_scene_finders ma_flat_box 중복 키 하나로(F601), 답 문서에 적음 | 5파일 +5/-4 |
+| 173 | `9cd01550` | 세이브 기록 save/2026-09-29-1528 | 5파일 +11/-3 |
+| 174 | `6aa65d7b` | 세이브 save/2026-10-01-1528 — runbook 26 — 롱폼 컷편집 합본(XML+자막) 절차, 기록 위치 SCRIPT-LAB §17 | 4파일 +10/-2 |

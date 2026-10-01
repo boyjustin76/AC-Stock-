@@ -140,6 +140,10 @@ def main():
     ap.add_argument('--variant', choices=['all', 'clean'], default='all',
                     help="all = A 브라우저창 · B 병풍 (기존) / clean = B 병풍 한지만 2종만 (기존 파일은 안 건드린다)")
     a = ap.parse_args()
+    # 윈도우는 경로 끝의 공백·마침표를 조용히 떼어 낸다 — 만들 때 떼지 않으면
+    # 끝 공백은 그 뒤 파일 쓰기가 FileNotFoundError 로 터지고, 끝 마침표는
+    # 아무 소리 없이 다른 이름의 폴더에 쌓인다 (B·E 실측 + D 재현 2026-09-18).
+    a.out = a.out.rstrip(' .')
     os.makedirs(a.out, exist_ok=True)
     if a.variant == 'all':
         jobs = (('A_브라우저창', frame_browser, a.chart_v1, 'white', None),

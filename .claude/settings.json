@@ -1,7 +1,22 @@
 {
-  "_설명": "저장소에 커밋되는 Claude Code 프로젝트 설정 — 모든 세션(총괄·B·D·E)이 같이 받는다. 훅은 아직 안 건다(log/inbox 제안서 보고 로컬이 결정). 개인 것은 .claude/settings.local.json(gitignore).",
+  "_설명": "저장소에 커밋되는 Claude Code 프로젝트 설정 — 모든 세션(총괄·B·D·E)이 같이 받는다. 세션을 이 폴더에서 띄워야 걸린다(2026-09-17 총괄 확정). 개인 것은 .claude/settings.local.json(gitignore).",
   "env": {
     "PYTHONUTF8": "1",
     "PYTHONIOENCODING": "utf-8"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/git_guard.py"],
+            "timeout": 30
+          }
+        ]
+      }
+    ]
   }
 }

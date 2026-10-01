@@ -130,7 +130,48 @@ so.compatibility = Compatibility.ILLUSTRATOR24;   // ○ 현재 형식 (2026 판
 **처방** — 읽기만 할 원본은 여는 동안만 `UserInteractionLevel.DONTDISPLAYALERTS` 로 연다. 링크를 고치려고 원본을
 저장하지 않는다. (반대로 ⑨-2 처럼 **사람이 겪을 창을 확인하려는** 열기에서는 알림을 켠다 — 목적에 따라 갈린다.)
 창이 떠서 멈췄는지는 COM 이 답을 안 줄 때 화면을 찍어 보면 바로 안다. 이 창은 UI Automation 에 안 잡혀서
-키 입력(한글 IME 가 켜져 있으면 씹힌다) 대신 좌표 클릭으로 닫았다.
+키 입력(한글 IME 가 켜져 있으면 씹힌다) 대신 좌표 클릭으로 닫았다. **더 나은 방법은 ⑨-5 다.**
+
+### ⑨-4 `pdfCompatible = false` 로 저장하면 PDF 오류 창이 뜬다
+
+시험 스크립트에서 `IllustratorSaveOptions.pdfCompatible` 을 `false` 로 두고 `saveAs` 했더니 모달이 떴다
+(2026-09-21 실측, Illustrator 30.8.1):
+
+> Acrobat PDF 파일 포맷에 문제가 있습니다. The size of the passed callbacks struct is wrong.
+
+COM 이 그 앞에서 멈췄다 (CPU 20초 증분 0.41s = 사실상 0). **`pdfCompatible = true` 로 두면 안 뜬다** —
+`build_live.jsx`·`build_rollad.jsx` 가 원래 그렇게 하고 있었는데, 시험을 짜면서 "PDF 는 필요 없으니"
+꺼 버린 것이 원인이었다. 파일이 커지는 게 싫어도 끄지 마라.
+
+**다만 '끄면 반드시 뜬다' 는 아니다.** 같은 날 오후에 **새로 만든 200x200 빈 문서**로 똑같이 껐더니
+창 없이 3.1초에 저장됐다(같은 30.8.1). 무엇이 갈랐는지는 아직 모른다 — 문서 내용이나 앞선 상태일 것이다.
+재현용 잡을 `tools/illustrator/_trap_pdf_modal.jsx` 에 남겨 두었다(지금은 통과로 끝난다).
+그래서 **실행기 실패 경로를 재는 데는 이 함정 대신 `_trap_alert.jsx`(alert)** 를 쓴다 — 그건 늘 뜬다.
+
+### ⑨-5 모달 내용은 `PrintWindow` 로 떠서 읽는다 — 화면 캡처·UIA 보다 확실하다
+
+⑨-3 에서 쓴 두 방법은 각각 구멍이 있다. 화면 캡처는 **다른 창에 가려 있으면** 안 찍히고(2026-09-21 실제로
+겪었다 — 창은 `보임=True` 인데 화면에는 없었다), UI Automation 은 어도비 자작 그리기 창의 속을 못 읽는다
+(`FindAll(Descendants)` 가 `OS_ViewContainer` 하나만 준다).
+
+**처방** — 프로세스 id 로 최상위 창을 다 뒤져 클래스가 `#32770` 인 것을 찾고(그게 모달이다), 그 핸들에
+`PrintWindow(h, hdc, 2)` 를 걸어 비트맵으로 뜬다. 가려져 있어도 나오고, 사용자 화면을 건드리지 않는다.
+**모달인지 아닌지는 메인 창(`클래스=illustrator`)이 `IsWindowEnabled = False` 인지로 판별한다.**
+
+닫을 때도 좌표 클릭보다 `PostMessage(dlg, WM_KEYDOWN/UP, VK_RETURN)` 이 낫다 — 포커스를 뺏지 않아서
+사람이 다른 일을 하는 중에도 안전하다. 다만 **닫으려 애쓰기보다 죽이고 기록하는 편이 낫다**
+(공용 실행기 제안, next_step 46).
+
+**글자도 읽힌다 — 그림만 뜰 수 있는 게 아니다 (2026-09-21 오후 정정).** 위에 "UI Automation 이 속을 못
+읽는다" 고 적었는데, 그건 UIA 이야기지 Win32 이야기가 아니었다. `EnumChildWindows` + `GetWindowTextW` 로
+`#32770` 의 자식 창을 훑으면 제목과 본문이 그대로 나온다. 일러스트레이터 `alert()` 실측:
+
+    제목 "스크립트 경고" · 클래스 #32770 · 420x159 · 자식 2개
+    ["확인(&O)", "자동화 시험용 창입니다. …"]
+
+그래서 공용 실행기는 실패할 때 **글자(`<잡>_modal.json`)와 그림(`<잡>_fail.png`)을 같이** 남긴다.
+자식 창이 없는 창(어도비가 통째로 그린 것)도 있으니 글자가 비면 그림을 본다 — 둘 다 남기는 이유다.
+구현은 `tools/_com/modal_text.py` 한 벌.
 
 ### ⑩ mogrt 내보내기가 dirty 프로젝트를 디스크에 저장해 버린다
 

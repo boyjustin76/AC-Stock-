@@ -153,6 +153,10 @@ def main():
     ap.add_argument('--inner', type=float, default=0.5, help='내부 밴드 표준편차 (차명03 대본 0.5)')
     ap.add_argument('--outer', type=float, default=3.0, help='외부 밴드 표준편차 (차명03 대본 3)')
     a = ap.parse_args()
+    # 윈도우는 경로 끝의 공백·마침표를 조용히 떼어 낸다 — 만들 때 떼지 않으면
+    # 끝 공백은 그 뒤 파일 쓰기가 FileNotFoundError 로 터지고, 끝 마침표는
+    # 아무 소리 없이 다른 이름의 폴더에 쌓인다 (B·E 실측 + D 재현 2026-09-18).
+    a.out = a.out.rstrip(' .')
     os.makedirs(a.out, exist_ok=True)
     cam = T.Cam(json.load(io.open(a.cam, encoding='utf-8'))['cuts'][0]['cam'])
     bars = json.load(io.open(a.bars, encoding='utf-8'))['bars']

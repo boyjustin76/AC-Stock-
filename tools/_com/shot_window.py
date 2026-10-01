@@ -1,0 +1,185 @@
+"""앱 창 한 장을 그대로 찍는다 — 실패 원자료용.
+
+화면을 통째로 찍으면 **가려진 창**이 안 나온다. 모달이 다른 창 뒤에 있으면 원자료가 쓸모없다.
+`PrintWindow(PW_RENDERFULLCONTENT)` 는 가려져 있어도 창 내용을 그려 준다.
+
+프로세스 이름만 주면 그 프로세스가 가진 **보이는 최상위 창 중 가장 큰 것**을 고른다.
+`MainWindowHandle` 은 못 믿는다 — 일러스트레이터는 160x28 짜리 엉뚱한 창을 돌려줬다(실측 09-21).
+
+쓰기: python shot_window.py --proc AfterFX --out C:/…/a1_fail.png
+      python shot_window.py --title HedgeHood --out C:/…/mt5.png
+못 찾으면 종료코드 2 로 빠진다 — 부르는 쪽이 화면 전체로 물러서면 된다.
+"""
+import argparse
+import ctypes
+import ctypes.wintypes as w
+import sys
+
+from PIL import Image
+
+u = ctypes.windll.user32
+g = ctypes.windll.gdi32
+k = ctypes.windll.kernel32
+try:
+    ctypes.windll.shcore.SetProcessDpiAwareness(2)
+except Exception:
+    pass
+
+
+class BMIH(ctypes.Structure):
+    _fields_ = [('biSize', ctypes.c_uint32), ('biWidth', ctypes.c_int32), ('biHeight', ctypes.c_int32),
+                ('biPlanes', ctypes.c_uint16), ('biBitCount', ctypes.c_uint16),
+                ('biCompression', ctypes.c_uint32), ('biSizeImage', ctypes.c_uint32),
+                ('biXPelsPerMeter', ctypes.c_int32), ('biYPelsPerMeter', ctypes.c_int32),
+                ('biClrUsed', ctypes.c_uint32), ('biClrImportant', ctypes.c_uint32)]
+
+
+def _pid_name(pid):
+    """PID → 실행 파일 이름 (확장자 없이). 권한이 없으면 빈 문자열."""
+    h = k.OpenProcess(0x1000, False, pid)          # PROCESS_QUERY_LIMITED_INFORMATION
+    if not h:
+        return ''
+    try:
+        buf = ctypes.create_unicode_buffer(512)
+        size = w.DWORD(512)
+        if ctypes.windll.kernel32.QueryFullProcessImageNameW(h, 0, buf, ctypes.byref(size)):
+            return buf.value.rsplit('\\', 1)[-1].rsplit('.', 1)[0]
+        return ''
+    finally:
+        k.CloseHandle(h)
+
+
+def find_window(proc=None, title=None):
+    """조건에 맞는 보이는 최상위 창 중 **가장 큰 것**."""
+    found = []
+
+    @ctypes.WINFUNCTYPE(ctypes.c_bool, w.HWND, w.LPARAM)
+    def cb(h, _):
+        if not u.IsWindowVisible(h):
+            return True
+        r = w.RECT()
+        u.GetClientRect(h, ctypes.byref(r))
+        area = (r.right - r.left) * (r.bottom - r.top)
+        if area < 40000:                            # 200x200 미만은 도구창·팔레트다
+            return True
+        if title:
+            n = u.GetWindowTextLengthW(h)
+            b = ctypes.create_unicode_buffer(n + 1)
+            u.GetWindowTextW(h, b, n + 1)
+            if title.lower() not in b.value.lower():
+                return True
+        if proc:
+            pid = w.DWORD()
+            u.GetWindowThreadProcessId(h, ctypes.byref(pid))
+            if _pid_name(pid.value).lower() != proc.lower():
+                return True
+        found.append((area, h, r.right - r.left, r.bottom - r.top))
+        return True
+
+    u.EnumWindows(cb, 0)
+    if not found:
+        return None
+    found.sort(reverse=True)
+    return found[0][1:]
+
+
+def all_windows(proc):
+    """그 프로세스의 보이는 최상위 창 **전부** — 크기로 거르지 않는다. [(hwnd, 클래스, 폭, 높이)], 큰 것부터.
+
+    가장 큰 창 하나만 찍으면 옆에 뜬 작은 창(시작 화면 옆 대화상자 등)을 놓친다 —
+    B 가 09-21 '시작 화면에서 굳음' 을 복구 창인지 가리지 못한 이유다(09-22 B 제안).
+    """
+    found = []
+
+    @ctypes.WINFUNCTYPE(ctypes.c_bool, w.HWND, w.LPARAM)
+    def cb(h, _):
+        if not u.IsWindowVisible(h):
+            return True
+        pid = w.DWORD()
+        u.GetWindowThreadProcessId(h, ctypes.byref(pid))
+        if _pid_name(pid.value).lower() != proc.lower():
+            return True
+        r = w.RECT()
+        u.GetWindowRect(h, ctypes.byref(r))
+        cw, ch = r.right - r.left, r.bottom - r.top
+        if cw <= 0 or ch <= 0:
+            return True
+        b = ctypes.create_unicode_buffer(256)
+        u.GetClassNameW(h, b, 256)
+        found.append((cw * ch, h, b.value, cw, ch))
+        return True
+
+    u.EnumWindows(cb, 0)
+    found.sort(reverse=True)
+    return [f[1:] for f in found]
+
+
+def shoot(hwnd, cw, ch, out):
+    hdc = u.GetWindowDC(hwnd)
+    mdc = g.CreateCompatibleDC(hdc)
+    bmp = g.CreateCompatibleBitmap(hdc, cw, ch)
+    g.SelectObject(mdc, bmp)
+    ok = u.PrintWindow(hwnd, mdc, 2)                # 2 = PW_RENDERFULLCONTENT
+    bi = BMIH()
+    bi.biSize = ctypes.sizeof(BMIH)
+    bi.biWidth, bi.biHeight = cw, -ch
+    bi.biPlanes, bi.biBitCount, bi.biCompression = 1, 32, 0
+    buf = ctypes.create_string_buffer(cw * ch * 4)
+    g.GetDIBits(mdc, bmp, 0, ch, buf, ctypes.byref(bi), 0)
+    Image.frombuffer('RGB', (cw, ch), buf, 'raw', 'BGRX', 0, 1).save(out)
+    g.DeleteObject(bmp)
+    g.DeleteDC(mdc)
+    u.ReleaseDC(hwnd, hdc)
+    return ok
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--proc', help='프로세스 이름 (확장자 없이). 예 AfterFX')
+    ap.add_argument('--title', help='창 제목에 든 글자')
+    ap.add_argument('--out', help='찍을 자리 (.png). --check 면 없어도 된다')
+    ap.add_argument('--check', action='store_true',
+                    help='찍지 않고 창이 떴는지만 본다 — 종료코드 0 = 떴다 · 2 = 아직 (앱 시작 기다릴 때)')
+    ap.add_argument('--all', action='store_true',
+                    help='--proc 의 보이는 창을 전부 <out 이름>_1.png … 로 찍고 목록을 <out 이름>_windows.txt 에 쓴다')
+    a = ap.parse_args()
+    if not a.proc and not a.title:
+        ap.error('--proc 이나 --title 중 하나는 있어야 한다')
+    if a.check:
+        got = find_window(a.proc, a.title)
+        print(f'window={int(bool(got))}')
+        return 0 if got else 2
+    if not a.out:
+        ap.error('--out 이 있어야 한다 (또는 --check)')
+    if a.all:
+        if not a.proc:
+            ap.error('--all 은 --proc 과 같이 쓴다')
+        wins = all_windows(a.proc)
+        if not wins:
+            print('창을 못 찾았다', file=sys.stderr)
+            return 2
+        stem = a.out[:-4] if a.out.lower().endswith('.png') else a.out
+        rows = []
+        for i, (hwnd, cls, cw, ch) in enumerate(wins, 1):
+            p = f'{stem}_{i}.png'
+            try:
+                ok = shoot(hwnd, cw, ch, p)
+            except Exception as e:                  # 한 장이 안 찍혀도 나머지는 찍는다
+                ok, p = 0, f'(실패 {e})'
+            rows.append(f'{i}\t{cls}\t{cw}x{ch}\tPrintWindow={int(bool(ok))}\t{p}')
+        with open(f'{stem}_windows.txt', 'w', encoding='utf-8') as f:
+            f.write('\n'.join(rows) + '\n')
+        print(f'windows={len(wins)} -> {stem}_windows.txt')   # ASCII 만 (PS 5.1 cp949)
+        return 0
+    got = find_window(a.proc, a.title)
+    if not got:
+        print('창을 못 찾았다', file=sys.stderr)
+        return 2
+    hwnd, cw, ch = got
+    ok = shoot(hwnd, cw, ch, a.out)
+    print(f'PrintWindow={ok} {cw}x{ch} → {a.out}')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

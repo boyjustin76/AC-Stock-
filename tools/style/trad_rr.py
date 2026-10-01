@@ -114,6 +114,10 @@ def main():
     ap.add_argument('--bars', default='data/synth/newch-trad.json')
     ap.add_argument('--out', required=True)
     a = ap.parse_args()
+    # 윈도우는 경로 끝의 공백·마침표를 조용히 떼어 낸다 — 만들 때 떼지 않으면
+    # 끝 공백은 그 뒤 파일 쓰기가 FileNotFoundError 로 터지고, 끝 마침표는
+    # 아무 소리 없이 다른 이름의 폴더에 쌓인다 (B·E 실측 + D 재현 2026-09-18).
+    a.out = a.out.rstrip(' .')
     foot = os.path.join(a.out, 'footage'); os.makedirs(foot, exist_ok=True)
     for f in os.listdir(foot):
         if f.endswith('.png'): os.remove(os.path.join(foot, f))

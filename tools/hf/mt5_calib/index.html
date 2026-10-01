@@ -1,0 +1,65 @@
+<!doctype html>
+<!-- MT5 화면 그대로 + 차트명가 NEW 표시 — 자리는 calib.json(격자·가격축)으로 계산했다 (RMS 1.93px) -->
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #F3EEE3; }
+      #root { width: 100%; height: 100%; position: relative; }
+      img { position: absolute; display: block; }
+      #chart { left: 81px; top: 261.6px; width: 1758.0px; height: 556.7px; }
+      #frame { left: 0; top: 0; width: 1920px; height: 1080px; }
+      #logo  { left: 96px; bottom: 96px; width: 84px; height: 84px; opacity: 0; }
+      #badge {
+        position: absolute; left: 103px; top: 276px;
+        padding: 12px 22px; border-radius: 8px; background: #EF2767; color: #fff;
+        font: 700 34px "Malgun Gothic", sans-serif; letter-spacing: -1px; opacity: 0;
+      }
+      #zone {
+        position: absolute; left: 918px; top: 272px;
+        width: 820px; height: 361px;
+        border: 5px solid #0D9488; border-radius: 10px; background: rgba(13,148,136,0.10);
+        opacity: 0;
+      }
+      #drop {
+        position: absolute; left: 1508px; top: 290px;
+        color: #EF2767; font: 800 46px "Malgun Gothic", sans-serif; opacity: 0;
+        text-shadow: 0 2px 10px rgba(255,255,255,0.9);
+      }
+      #hiDot, #loDot {
+        position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px;
+        border-radius: 50%; border: 4px solid #EF2767; background: #fff; opacity: 0;
+      }
+      #hiDot { left: 925px; top: 272px; }
+      #loDot { left: 1731px; top: 633px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="4"
+         data-width="1920" data-height="1080" data-fps="60000/1001">
+      <img id="chart" class="clip" src="assets/mt5_chart.png" data-start="0" data-duration="4" data-track-index="0" />
+      <img id="frame" class="clip" src="assets/frame.png" data-start="0" data-duration="4" data-track-index="1" />
+      <div id="badge" class="clip" data-start="0" data-duration="4" data-track-index="2">US100 · 2분</div>
+      <div id="hiDot" class="clip" data-start="0" data-duration="4" data-track-index="3"></div>
+      <div id="loDot" class="clip" data-start="0" data-duration="4" data-track-index="4"></div>
+      <div id="zone"  class="clip" data-start="0" data-duration="4" data-track-index="5"></div>
+      <div id="drop"  class="clip" data-start="0" data-duration="4" data-track-index="6">-368pt</div>
+      <img id="logo" class="clip" src="assets/logo.png" data-start="0" data-duration="4" data-track-index="7" />
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#badge", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 0.2);
+      tl.fromTo("#hiDot", { opacity: 0, scale: 2.2 }, { opacity: 1, scale: 1, duration: 0.35, ease: "power2.out" }, 0.8);
+      tl.fromTo("#loDot", { opacity: 0, scale: 2.2 }, { opacity: 1, scale: 1, duration: 0.35, ease: "power2.out" }, 1.2);
+      tl.fromTo("#zone",  { opacity: 0, scaleY: 0.05, transformOrigin: "center top" },
+                          { opacity: 1, scaleY: 1, duration: 0.6, ease: "power2.out" }, 1.5);
+      tl.fromTo("#drop",  { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.1);
+      tl.fromTo("#logo",  { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "none" }, 2.5);
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

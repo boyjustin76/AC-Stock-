@@ -1,0 +1,114 @@
+<!doctype html>
+<!--
+  A/B 시험 B판 — scenes/nq-overlay.scenes.js 의 ov-pnl 컷을 HyperFrames 로 옮긴 것.
+  맞춘 값 (src/render/layers.js counter · src/render/theme.js 기본 테마):
+    평가 손익 $0→2960 (size 84, x96 y200, in 0.2/0.5, countFrom 0.4, dur 2.6, decimals 0, signed)
+    포인트    0→148   (size 54, x96 y376, in 0.4/0.5, countFrom 0.4, dur 2.6, decimals 2, signed, suffix ' pt')
+    up #22C55E · textDim rgba(233,240,255,0.55) · 패널 rgba(9,14,23,0.95) · 테두리 색@0.35
+    컷 전체 fadeIn 0.3 · fadeOut 0.4 · 5초 · 60fps · 배경 투명
+-->
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.2.8/index.css" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
+      #root { width: 100%; height: 100%; position: relative; }
+
+      .counter {
+        position: absolute;
+        background: rgba(9, 14, 23, 0.95);
+        border: 2px solid rgba(34, 197, 94, 0.35);
+        border-radius: 18px;
+        /* padX 36 · padTop 26 · padBottom 28 — 상자 크기는 내용이 정한다 */
+        padding: 26px 36px 28px 36px;
+        opacity: 0;
+      }
+      /* 왼쪽 강조 막대: x, y+10, 6x(boxH-20), 반지름 3 */
+      .counter::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 10px; bottom: 10px;
+        width: 6px; border-radius: 3px;
+        background: #22c55e;
+      }
+      .label {
+        font: 700 26px Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        letter-spacing: 3px;
+        color: rgba(233, 240, 255, 0.55);
+        line-height: 26px;
+        margin-bottom: 12px;        /* gap 12 */
+        white-space: nowrap;
+      }
+      .num {
+        font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+        font-weight: 800;
+        color: #22c55e;
+        text-shadow: 0 0 28px rgba(34, 197, 94, 0.45);
+        white-space: nowrap;
+      }
+      /* 숫자 칸 높이는 size*0.8 (캔버스판 boxH 계산과 같게) */
+      #c1 { left: 96px; top: 200px; }
+      #c1 .num { font-size: 84px; line-height: 67.2px; }
+      #c2 { left: 96px; top: 376px; }
+      #c2 .num { font-size: 54px; line-height: 43.2px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="5"
+         data-width="1920" data-height="1080" data-fps="60">
+      <div id="c1" class="counter clip" data-start="0" data-duration="5" data-track-index="0">
+        <div class="label">평가 손익</div>
+        <div class="num">+$0</div>
+      </div>
+      <div id="c2" class="counter clip" data-start="0" data-duration="5" data-track-index="1">
+        <div class="label">포인트</div>
+        <div class="num">+0.00 pt</div>
+      </div>
+    </div>
+
+    <script>
+      /* 캔버스판과 같은 이징: Ease.outExpo = p>=1 ? 1 : 1 - 2**(-10p) */
+      const outExpo = (p) => (p >= 1 ? 1 : 1 - Math.pow(2, -10 * p));
+      gsap.registerEase("cmgOutExpo", outExpo);
+
+      /* 캔버스판 cue(): in:[t0,dur] 은 선형 페이드 + (1-v)*18px 아래에서 올라오기 */
+      function cueIn(sel, at, dur) {
+        tl.fromTo(sel, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: dur, ease: "none" }, at);
+      }
+
+      /* 캔버스판 fmtNum: 천단위 쉼표 + 소수 자릿수 고정 */
+      const fmtNum = (v, dec) =>
+        Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+
+      const tl = gsap.timeline({ paused: true });
+
+      /* 컷 전체 페이드 (fadeIn 0.3 · fadeOut 0.4) */
+      tl.fromTo("#root", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "none" }, 0);
+      tl.to("#root", { opacity: 0, duration: 0.4, ease: "none" }, 5 - 0.4);
+
+      cueIn("#c1", 0.2, 0.5);
+      cueIn("#c2", 0.4, 0.5);
+
+      /* 숫자 세기 — countFrom 0.4 부터 2.6초, outExpo */
+      const money = { v: 0 };
+      tl.to(money, {
+        v: 2960, duration: 2.6, ease: "cmgOutExpo",
+        onUpdate: () => { document.querySelector("#c1 .num").textContent = "+$" + fmtNum(money.v, 0); },
+      }, 0.4);
+
+      const pt = { v: 0 };
+      tl.to(pt, {
+        v: 148, duration: 2.6, ease: "cmgOutExpo",
+        onUpdate: () => { document.querySelector("#c2 .num").textContent = "+" + fmtNum(pt.v, 2) + " pt"; },
+      }, 0.4);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
