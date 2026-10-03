@@ -2,11 +2,11 @@
 
 해외선물 유튜브 채널 **차트명가**(파가드AC)의 영상 제작 — 대본 → 컷편집·자막 → 차트 촬영·렌더 → 어도비 자동화 → 납품 — 을 **클로드 코드 세션 넷(클라우드 총괄 1 + 사무실 PC 3)이 한 저장소에서** 자동화한 기록입니다. 2026-08-26 렌더러 하나로 시작해 2026-09-17 부터 세션 넷 체계입니다.
 
-![세션](https://img.shields.io/badge/%EC%84%B8%EC%85%98-%EC%B4%9D%EA%B4%84%20%2B%20B%C2%B7D%C2%B7E-0B8C7F?style=flat-square) ![뚫은 벽](https://img.shields.io/badge/%EB%9A%AB%EC%9D%80%20%EB%B2%BD-80-555?style=flat-square) ![사고](https://img.shields.io/badge/%EC%82%AC%EA%B3%A0-57%20%28%EA%B3%A0%EC%B9%A8%2050%29-555?style=flat-square) ![결정](https://img.shields.io/badge/%EA%B2%B0%EC%A0%95-40-555?style=flat-square) ![시험](https://img.shields.io/badge/%EC%8B%9C%ED%97%98-85-555?style=flat-square) ![커밋](https://img.shields.io/badge/%EC%BB%A4%EB%B0%8B-631-555?style=flat-square)
+![세션](https://img.shields.io/badge/%EC%84%B8%EC%85%98-%EC%B4%9D%EA%B4%84%20%2B%20B%C2%B7D%C2%B7E-0B8C7F?style=flat-square) ![뚫은 벽](https://img.shields.io/badge/%EB%9A%AB%EC%9D%80%20%EB%B2%BD-80-555?style=flat-square) ![사고](https://img.shields.io/badge/%EC%82%AC%EA%B3%A0-57%20%28%EA%B3%A0%EC%B9%A8%2050%29-555?style=flat-square) ![결정](https://img.shields.io/badge/%EA%B2%B0%EC%A0%95-40-555?style=flat-square) ![시험](https://img.shields.io/badge/%EC%8B%9C%ED%97%98-85-555?style=flat-square) ![커밋](https://img.shields.io/badge/%EC%BB%A4%EB%B0%8B-632-555?style=flat-square)
 
 📊 **[작업 로그 대시보드](https://claude.ai/code/artifact/cfb762d2-2caf-4a18-8ec2-696b884ac0e1)** · [전체 기록 (WORKLOG)](log/WORKLOG.md) · [새 세션 안내 (CLAUDE.md)](CLAUDE.md) · [뚫은 벽 전부](log/WORKLOG.md#환경이-거는-제약) · [사고 전부](log/WORKLOG.md#문제와-해결) · [세션 간 보고서](log/inbox/)
 
-<sub>마지막 세이브 2026-10-03 17:14 KST · 이 문서는 `log/worklog.db` 에서 자동 생성 (`python3 log/build_readme.py`)</sub>
+<sub>마지막 세이브 2026-10-03 17:23 KST · 이 문서는 `log/worklog.db` 에서 자동 생성 (`python3 log/build_readme.py`)</sub>
 
 ---
 
@@ -20,7 +20,7 @@
 
 | 기간 | 세션 | 요청·대응 | 세션 간 보고서 | 사고 → 고침 | 뚫은 벽 | 결정 | 절차 | 시험 | 커밋 |
 |---|---|---|---|---|---|---|---|---|---|
-| 2026-08-26 ~ | 4 | 92 | 55 | 57 → 50 | 80 | 40 | 39 | 85 | 631 |
+| 2026-08-26 ~ | 4 | 92 | 55 | 57 → 50 | 80 | 40 | 39 | 85 | 632 |
 
 **납품된 것** — 차트명가 롱폼 차12 차트 컷씬 23컷(실데이터 렌더, 팀장 반려 r13 뒤 재작) · 숏폼 1:1 소스 차11-4·5 · 더원트레이더 L08 롱폼 컷편집 합본(49컷·자막 233큐) · 마이노 마01 캠 롱폼(69컷·자막 161큐) · 차10/차11 차트 장면 자동 촬영(12장·35장) + 콘티 + AE 프로젝트 · 차12·차13 대본(Pool 정보 + 김직선 말투 조립) · 썸네일·라이브 화면(포토샵·일러 자동 생성).
 
@@ -316,6 +316,7 @@ git restore --source=<해시> -- .              # 되돌리기 (그 뒤 다시 s
 
 | 시각 (KST) | 슬롯 | 커밋 | 어디까지 |
 |---|---|---|---|
+| 2026-10-03 17:23 | `save/2026-10-03-1723` | `310a0ca` | README 첫 화면을 포트폴리오용으로 — 누가 무엇을 했나(저자 표기 사실대로)·문제→해결 10·방법론·흐름도 둘·기술 스택, 운영 정보는 아래로 접음 |
 | 2026-10-03 17:14 | `save/2026-10-03-1714` | `662b9f6` | README·CLAUDE.md 전면 개정 — 세션 넷 체계 첫 화면(지금·누가·어떻게·뚫은 벽·장치), pipeline_stage·workflow 9·session 갱신, clo… |
 | 2026-10-01 18:36 | `save/2026-10-01-1836` | `3246176` | D 32·E 14 병합 — issue 54~57, constraint 74~80, decision 40(막혔을 때 순서·양식 원본과 맞댔나), next_step 56~58, ru… |
 | 2026-10-01 18:21 | `save/2026-10-01-1821` | `32adf14` | 마01 컷 — 이음매에서 같은 말 두 번 들리는 것 제거(숨틈이 다음 낱말 침범 금지 + 중복 낱말 떼기), 69컷 436.63초 |
@@ -323,7 +324,6 @@ git restore --source=<해시> -- .              # 되돌리기 (그 뒤 다시 s
 | 2026-10-01 17:27 | `save/2026-10-01-1727` | `14316f3` | 가져오기 검증 잡 — 자막(.srt) 넣기·캡션 트랙 만들기·시퀀스 열기까지 |
 | 2026-10-01 17:21 | `save/2026-10-01-1721` | `d2d6466` | 가져오기 검증 잡에 마커·꺼둔 클립 세는 줄 추가 (E 두 벌 검증) |
 | 2026-10-01 16:56 | `save/2026-10-01-1656` | `6a0f190` | 프리미어 XML 거부 해결 — 경로 표기를 프리미어 실측 꼴로(괄호 그대로·C%3a·소문자), L08 틀 생성기와 가져오기 검증 잡 |
-| 2026-10-01 15:28 | `save/2026-10-01-1528` | `6aa65d7` | runbook 26 — 롱폼 컷편집 합본(XML+자막) 절차, 기록 위치 SCRIPT-LAB §17 |
 
 </details>
 
