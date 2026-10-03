@@ -519,9 +519,10 @@ ORDER BY seq, kind;
 
 SESSION = (
     1, "2026-08-26", "boyjustin76/AC-Stock-", "claude/futures-youtube-video-edit-fhio4s",
-    "롱폼 제작 4단계 중 [3. 모션그래픽 및 소스 넣기] 를 코드로 자동화한다. "
-    "대본 작성(1)·성우 녹음(1.5)·컷편집과 자막(2) 은 사람이 하고 이 저장소는 손대지 않는다. 숏폼은 아직 범위 밖이다",
-    "Chromium+Playwright 프레임 캡처, ffmpeg-static 인코딩, Pretendard/Gmarket Sans/S-Core Dream/경기천년/나눔고딕",
+    "차트명가 영상 제작을 코드로 돕는다. 08-26 에는 롱폼 3단계(모션그래픽) 렌더러 하나였고, 09-17 부터 세션 넷(총괄 클라우드 + B·D·E 사무실 PC) 체계다 — "
+    "대본(E, Pool+김직선 말투 조립) · 컷편집·자막·프리미어 XML(E+D) · 썸네일·화면(B) · 차트 장면 촬영·어도비 자동화(D) · 렌더러·병합·기록(총괄). "
+    "09-28 부터 차트명가New 는 김직선 카피캣(decision 39)",
+    "총괄: Chromium+Playwright 프레임 캡처, ffmpeg-static, 폰트 5종, pytest·ruff. 로컬 PC: 포토샵·일러·AE·프리미어(COM/BridgeTalk), MT5(HedgeHood MCP), faster-whisper, PyAV, TypeSafe Jev. 키는 C:/Users/user/.secrets/ac_keys.env",
 )
 
 REQUESTS = [
@@ -2496,8 +2497,8 @@ WORKFLOW_STEPS = [
      "타임코드를 프레임으로 환산하고 cmg-20ma-runner.scenes.js 를 본떠 layers 를 채운다", "클로드", "ready", None),
     (7, "구도 확인", "--stills 로 스틸컷을 먼저 본다. 겹침은 여기서 잡는다", "클로드", "ready", None),
     (8, "렌더", "--all 순차로 충분하다 (2026-08-27 캡처 교체 후 병렬 이득 소멸)", "자동", "ready", "benchmark 15~17번 참고"),
-    (9, "프리미어 반입", "지금은 사용자가 직접 넣는다. 자동화하려면 사용자 PC 에 프리미어 MCP 설치 필요",
-     "사용자", "todo", "external_tool 1·2번 참고"),
+    (9, "프리미어 반입", "타임라인에 얹는 건 사람. 다만 XML 이 프리미어에 들어가는지는 D PC 의 공용 실행기 잡 x1_import_xml 로 자동 검증한다(BridgeTalk importFiles, 10-01). 프리미어 MCP 는 컨테이너에서 못 쓴다(constraint 17)",
+     "사용자", "partial", "검증 잡은 D PC 에서. external_tool 1·2번 · constraint 74 · runbook 26"),
 ]
 
 EXTERNAL_TOOLS = [
@@ -2675,16 +2676,16 @@ FORMATS = [
 PIPELINE = [
     # 롱폼
     (1, "롱폼", "1", "대본 만들기",
-     "기획서+스크립트 .docx 작성. 타이틀·메인·목차·섹션 6개·매매법 설정값까지 한 문서에 들어간다",
-     "사람", 0, "자료만",
-     "저장소에는 결과물 인덱스만 있다 (script_doc 15편 + script_fts 전문 검색). 작성 자체는 하지 않는다"),
+     "회사 기본폼(6단계 퍼널) .docx. 차12부터 E 세션이 쓴다 — Pool(회사 원고 173편)에서 정보를, 김직선 채널에서 말투를 가져와 레고처럼 조립하고(decision 39), pipeline.py 관문 12개로 채점한다",
+     "E 세션", 1, "진행중",
+     "도구 data/대본자료/도구(pipeline·pool_pieces·skeleton_docx·novel_words·cohesion), 기록 log/SCRIPT-LAB.md·log/차NN_*.md, 팀장 피드백은 deliver/script/차트명가New/팀장_피드백_모음.md. 지난 회차 인덱스는 script_doc + script_fts"),
     (2, "롱폼", "1.5", "성우 녹음",
      "대본을 성우에게 넘겨 녹음본을 받는다. 이 녹음이 타임코드의 기준이 된다",
      "외부", 0, "해당없음", "저장소가 관여하지 않는다"),
     (3, "롱폼", "2", "컷편집 및 자막 달기",
-     "프리미어에서 녹음본에 맞춰 컷을 자르고 자막을 얹는다. 여기서 나온 타임코드(.srt)가 3단계 입력이 된다",
-     "사람", 0, "해당없음",
-     "자막·타이틀·로고는 여기서 이미 들어가므로 3단계 렌더에는 넣지 않는다"),
+     "촬영본(캠·PD 설명·OBS)을 받아쓰기(whisper)로 대본에 정렬하고, 실측 무음 경계로 컷을 자르고, 자막을 낱말 타임스탬프로 얹어 프리미어 XML + .srt 로 낸다(L08 09-11 첫 성공, 마01 10-01). 컷 다듬기는 D 의 cam_tighten",
+     "E 세션 + D 세션", 1, "진행중",
+     "도구 tools/cutedit(assemble_longform·cam_all·make_xml·pdf_script·ko_clause), 검증은 D 의 tools/premiere/jobs/x1_import_xml.jsx. 절차 runbook 18(숏폼)·26(롱폼). 자막·타이틀·로고는 여기서 들어가므로 3단계 렌더에는 넣지 않는다"),
     (9, "롱폼", "2.5", "썸네일 제작",
      "템플릿 .psd 규격대로 차트·타이틀 2줄·틀·로고를 얹어 만든다. 회차당 여러 안을 뽑아 팀장이 고른다",
      "로컬 클로드 B", 0, "진행중",
@@ -2693,9 +2694,9 @@ PIPELINE = [
      "tools/thumbnail_png.py 는 scene 키 있는 안만 뽑을 수 있고 차12 config(전부 emphasis 안)는 "
      "처리 못 한다 — 규격은 thumbnail_rule 29개, 벽은 constraint_note"),
     (4, "롱폼", "3", "모션그래픽 및 소스 넣기",
-     "타임코드가 붙은 대본을 받아 차트 컷씬을 프레임 단위로 렌더해 납품한다. 프리미어에 얹는 것은 사람이 한다",
-     "이 저장소", 1, "진행중",
-     "workflow_step 테이블의 9단계가 이 단계의 내부 절차다"),
+     "두 길이 있다. ① 총괄 렌더러(src/render, scenes/*.scenes.js → 1920×1080·59.94fps 클립) ② D 의 MT5 실사 차트(대본 비트 → 장면 탐색 → batch_capture 촬영 → 콘티 → AE 프로젝트, 리플레이 도구로 전문가가 직접 진행). 팀장 반려(r13) 뒤 실제 차트 쪽으로 기울었고, 비주얼 기준은 김직선 영상에서 다시 잰다(next_step 55)",
+     "총괄 + D 세션", 1, "진행중",
+     "렌더러 절차는 workflow_step 9단계. MT5 쪽은 tools/mt5(batch_capture·conti_sheet·Replay_Tool_CMG)·tools/ae/jobs/d1_conti_build.jsx. 어도비 자동화는 tools/_com/run.ps1 공용 실행기"),
     # 숏폼
     (5, "숏폼", "1", "대본 만들기",
      "롱폼 챕터 하나를 골라 350~560자로 다시 쓴다. 규칙은 shortform_rule, 지시서 작성·검사는 "
@@ -3241,7 +3242,7 @@ def export_md(con):
     w = out.append
 
     ses = q("SELECT * FROM session")[0]
-    w("# 작업 로그 — 차트 컷씬 렌더러\n")
+    w("# 작업 로그 — 차트명가 제작 자동화 (세션 넷)\n")
     w(f"- 날짜: {ses[1]}")
     w(f"- 저장소: `{ses[2]}` / 브랜치 `{ses[3]}`")
     w(f"- 목표: {ses[4]}")

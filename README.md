@@ -1,73 +1,203 @@
-# 차트 컷씬 렌더러
+# 차트명가 제작 자동화
 
-해외선물 유튜브 채널 **차트명가** 영상에 쓸 차트 모션그래픽 소스 영상을 코드로 렌더합니다.
+해외선물 유튜브 채널 **차트명가**(파가드AC) 영상 제작을 코드로 돕습니다. 대본 → 컷편집·자막 → 차트 촬영·렌더 → 어도비 자동화 → 납품까지, **클로드 세션 넷이 한 저장소에서 일합니다.** 2026-08-26 렌더러 하나로 시작해 09-17 부터 세션 넷 체계입니다.
 
-![범위](https://img.shields.io/badge/%EB%B2%94%EC%9C%84-%EB%A1%B1%ED%8F%BC%203%EB%8B%A8%EA%B3%84%20%2B%20%EC%88%8F%ED%8F%BC%201%EB%8B%A8%EA%B3%84-0B8C7F?style=flat-square) ![규격](https://img.shields.io/badge/%EA%B7%9C%EA%B2%A9-1920x1080%20%C2%B7%2059.94fps-555?style=flat-square) ![렌더](https://img.shields.io/badge/%EB%A0%8C%EB%8D%94-16%EC%B4%88%20%ED%81%B4%EB%A6%BD%20%3D%2027%EC%B4%88-555?style=flat-square) ![대본 인덱스](https://img.shields.io/badge/%EB%8C%80%EB%B3%B8%20%EC%9D%B8%EB%8D%B1%EC%8A%A4-13%ED%8E%B8-555?style=flat-square) ![레이어](https://img.shields.io/badge/%EB%A0%88%EC%9D%B4%EC%96%B4-29%EC%A2%85-555?style=flat-square)
+![세션](https://img.shields.io/badge/%EC%84%B8%EC%85%98-%EC%B4%9D%EA%B4%84%20%2B%20B%C2%B7D%C2%B7E-0B8C7F?style=flat-square) ![뚫은 벽](https://img.shields.io/badge/%EB%9A%AB%EC%9D%80%20%EB%B2%BD-80-555?style=flat-square) ![사고](https://img.shields.io/badge/%EC%82%AC%EA%B3%A0-57%20%28%EA%B3%A0%EC%B9%A8%2050%29-555?style=flat-square) ![결정](https://img.shields.io/badge/%EA%B2%B0%EC%A0%95-40-555?style=flat-square) ![시험](https://img.shields.io/badge/%EC%8B%9C%ED%97%98-85-555?style=flat-square) ![커밋](https://img.shields.io/badge/%EC%BB%A4%EB%B0%8B-629-555?style=flat-square)
 
-📊 **[작업 로그 대시보드](https://claude.ai/code/artifact/cfb762d2-2caf-4a18-8ec2-696b884ac0e1)** · [전체 기록](log/WORKLOG.md) · [새 세션 안내](CLAUDE.md)
+📊 **[작업 로그 대시보드](https://claude.ai/code/artifact/cfb762d2-2caf-4a18-8ec2-696b884ac0e1)** · [전체 기록](log/WORKLOG.md) · [새 세션 안내](CLAUDE.md) · [뚫은 벽 전부](log/WORKLOG.md#환경이-거는-제약) · [사고 전부](log/WORKLOG.md#문제와-해결)
+
+<sub>마지막 세이브 2026-10-01 18:36 KST · 이 문서는 `log/worklog.db` 에서 자동 생성 (`python3 log/build_readme.py`) · 직접 고치지 말고 `log/build_worklog_db.py` 를 고치세요</sub>
 
 ---
 
-## 이 저장소가 맡는 곳
+## 지금 (2026-10-03)
 
-영상 한 편은 네 단계를 거칩니다. 이 저장소는 그중 **롱폼 3단계(모션그래픽)** 와
-**숏폼 1단계(대본)** 를 맡습니다. 나머지는 사람이 합니다.
+**차트명가New 는 김직선 카피캣입니다** (decision 39, 2026-09-28). 비주얼·디자인은 B 가 김직선 영상에서 규격을 재고, 대본은 E 가 회사 원고(Pool)에서 정보를·김직선에서 말투를 가져와 조립하고, 차트 장면은 D 가 MT5 에서 찍습니다. `brand/STYLE.md`·룰북·`thumbnail_rule` 은 **옛 차트명가** 실측이라 New 의 기준이 아닙니다.
+
+| 세션 | 어디서 | 브랜치 | 맡은 것 |
+|---|---|---|---|
+| **총괄** (클라우드 컨테이너) | 본류 clone | `claude/futures-youtube-video-edit-fhio4s` | 옆가지 병합 · `log/build_worklog_db.py` 유일 편집자 · 공용 코드 판정 · 렌더러 `src/render` · 이정찬에게도 피드백 |
+| **B** (사무실 PC) | `B_Image` | `worktree-B_Image` | 포토샵·일러스트레이터 — 썸네일, 라이브 화면, 김직선 비주얼 규격 실측(next_step 55) |
+| **D** (사무실 PC) | `D_Video` | `worktree-D_Video` | AE·프리미어·MT5 — 어도비 공용 실행기, 대본→차트 장면 촬영, 리플레이, XML 가져오기 검증 |
+| **E** (사무실 PC) | `E_Script` | `worktree-E_Script` | 대본(Pool+김직선 말투 조립)·컷편집·자막·프리미어 XML |
+
+**이정찬**(팀원·컷편집)이 세션 사이에서 인박스 파일(`log/inbox/`)을 나릅니다. 옆가지는 본류에 push 하지 않고 총괄이 병합합니다(runbook 23). 자격증명은 이정찬 터미널에서만 다룹니다(decision 32). 저장소는 public — 대본 원문·타 채널 자막·docx 는 저장소 밖입니다(decision 38).
+
+**열린 일** (`SELECT * FROM next_step WHERE seq >= 45;`)
+
+| # | 무엇 | 누가 |
+|---|---|---|
+| 45 | 대본→차트장면 파이프라인 — ①②③ 완료 (③ 09-22 오후: 차11 35비트 검증 — 지표 33/35·종목 23 팀장과 일치, 주기는 반만 · 방향은 Jev… | ④ 이정찬 · 주기 치우침은 D 가 손댈 때 |
+| 47 | 팀장 반려 문장 쌍 수동 수집 — E | 반려가 올 때마다 · 팀장 쌍이 섞이면 decision 35 재검토 |
+| 48 | 더블볼린저 편 방송 뒤 최종본 대조 — E | 방송 뒤 |
+| 52 | scenes.py 규칙 2 정정 — D | 팀장 기준 확인 → D |
+| 54 | E 대본 작업의 이정찬 몫 넷 — LibreOffice·판본 이름·완성본 동봉·피드백 범위 한 줄 (09-23) | 이정찬 |
+| 55 | 차트명가New 비주얼 기준 재실측 — 김직선 영상에서 (B 가 규격을 재고, 총괄·D 가 그 규격에 맞춘다 — decision 39) | B — 기준 회차 받으면 시작 · 총괄·D 는 B 의 JSON 뒤 |
+| 56 | E 컷편집 도구 — 마01 에서 배운 것을 L08 도구와 공용 함수에 되돌리기 | E — 손댈 때 |
+| 57 | E 옆가지 되돌리기 — 세 번째 요청 (09-22 답·09-29 답·10-01 답) | 이정찬 전달 → E |
+| 58 | README·CLAUDE·log 의 '…하지 않는다' 꼴 규칙 문장에 번호 붙이기 (총괄, E 질문 ①) | 총괄 — 손댈 때 |
+
+---
+
+## 어떻게 돌아가나
 
 ```mermaid
 flowchart LR
-  subgraph L ["롱폼 — 작업중"]
+  S["<b>대본</b> · E<br/><small>Pool 정보 + 김직선 말투 조립<br/>관문 12 (pipeline.py)</small>"]
+  R["<b>촬영</b> · 사람<br/><small>캠 · PD 설명 · OBS</small>"]
+  C["<b>컷편집·자막</b> · E + D<br/><small>whisper → 대본 정렬 → 무음 경계 컷<br/>→ 낱말 타임스탬프 자막 → 프리미어 XML</small>"]
+  M["<b>차트 장면</b> · D<br/><small>비트 → 장면 탐색 → MT5 촬영<br/>→ 콘티 → AE 프로젝트 · 리플레이</small>"]
+  V["<b>렌더러</b> · 총괄<br/><small>scenes/*.js → 1920×1080 · 59.94fps</small>"]
+  T["<b>썸네일·화면</b> · B<br/><small>포토샵 · 일러 COM</small>"]
+  A["<b>어도비 공용 실행기</b> · D<br/><small>run.ps1 — AE · 프리미어 · 일러 · 포토샵<br/>모달 읽기 · 판정 줄 · XML 가져오기 검증</small>"]
+  P[["프리미어 타임라인 · 납품"]]
+  S --> R --> C --> P
+  S --> M --> A --> P
+  S -.-> V --> P
+  T --> A
+  C --> A
+  subgraph G ["공용 장치"]
     direction LR
-    L1["1. 대본 만들기<br/><small>사람</small>"]
-    L15["1.5 성우 녹음<br/><small>외부</small>"]
-    L2["2. 컷편집 · 자막<br/><small>사람 · 프리미어</small>"]
-    L3["<b>3. 모션그래픽 · 소스</b><br/><small>이 저장소</small>"]
-    L1 --> L15 --> L2 --> L3
+    G1["worklog.db<br/><small>사고·벽·결정·절차</small>"]
+    G2["save.py<br/><small>세이브 = 재빌드+커밋+푸시</small>"]
+    G3["git_guard<br/><small>본류 push · add -A · 폴더 이동 · heredoc 차단</small>"]
+    G4["radar<br/><small>벽에 두 번째 부딪히면 기록부터</small>"]
+    G5["Jev<br/><small>뜻으로만 갈리는 판정 · 문 0.7/0.8</small>"]
   end
-  subgraph S ["숏폼"]
-    direction LR
-    S1["<b>1. 대본</b><br/><small>규칙·지시서·검사</small>"]
-    S1 --> S15["1.5 녹음"] --> S2["2. 컷편집 · 자막"] --> S3["3. 모션그래픽 · 소스"]
-  end
-  L1 -.->|챕터 하나를 다시 씀| S1
-  L3 -.->|납품| P[[프리미어 타임라인]]
-  classDef here fill:#0B8C7F,stroke:#0B8C7F,color:#fff,font-weight:bold
-  classDef human fill:#F2F2F2,stroke:#C9C9C9,color:#444
-  classDef idle fill:#FAFAFA,stroke:#E2E2E2,color:#9A9A9A,stroke-dasharray:3 3
-  class L3,S1 here
-  class L1,L15,L2,P human
-  class S15,S2,S3 idle
+  classDef e fill:#0B8C7F,stroke:#0B8C7F,color:#fff
+  classDef g fill:#F2F2F2,stroke:#C9C9C9,color:#444
+  class S,C,M,V,T,A e
+  class R,P,G1,G2,G3,G4,G5 g
 ```
 
-| 포맷 | 단계 | 담당 | 상태 | |
+| 묶음 | 어디 | 한 줄 |
+|---|---|---|
+| 대본 | `data/대본자료/도구` · `tools/theone` · `log/SCRIPT-LAB.md` | 뼈대의 조각 출처를 Pool 원문에 대고 기계로 대조(`pool_pieces`), 회사 기본폼 .docx(`skeleton_docx`), 관문 12개(`pipeline.py`) |
+| 컷편집·자막 | `tools/cutedit` · runbook 18·26 | L08(09-11)·마01(10-01) 롱폼 합본. 자막 큐는 형태소 태그로 가름(`ko_clause`), XML 은 프리미어 표기(`make_xml`) |
+| 차트 장면 | `tools/mt5` · `tools/ae/jobs/d1_conti_build.jsx` | 대본 한 편 → 12~35장 자동 촬영(`batch_capture`) → 콘티 → AE. 장면마다 전용 함수 + 심은 시험. 리플레이 도구로 전문가가 직접 진행 |
+| 렌더러 | `src/render` · `scenes/` · `brand/` | 차12 계열(`cmg12-*`)이 최신 문법. `--stills` 로 구도 먼저 |
+| 어도비 자동화 | `tools/_com/run.ps1` · `tools/{ae,premiere,illustrator,photoshop}` | 앱 넷을 표 한 줄로. 시간 초과면 모달 글자+그림을 먼저 찍고 죽인다. 성공은 잡이 쓴 `판정:` 줄 |
+| 판정 모델 | `tools/jev` · `tools/radar.py --jev` | TypeSafe Jev — 거르기·분류에 조건부 채택(decision 37). 셈·순위엔 안 쓴다 |
+
+---
+
+## 뚫어낸 벽
+
+80개 전부는 `SELECT * FROM constraint_note;` 와 [WORKLOG](log/WORKLOG.md#환경이-거는-제약). 아래는 **다음 사람이 또 밟을** 것들입니다. 전부 실측이고, 짐작으로 적은 건 없습니다.
+
+| # | 벽 | 뚫은 법 |
+|---|---|---|
+| 74 | 프리미어 FCP7 XML 의 pathurl 은 프리미어가 내보내는 표기 그대로여야 한다 — C%3a · 16진 소문자 · (… | make_xml.pathurl(safe="/()[]&~!$'*+,;=@_-." + 소문자) · pr_xml.py · src/render/split.mjs 같은 규칙. 가져오기 검증은 tools/p… |
+| 70 | 어도비 모달의 글자는 Win32 로 읽힌다 — UIA 가 못 읽는 것이지 EnumChildWindows+GetWindowTe… | tools/_com/modal_text.py 가 글자를, shot_window.py 가 그림을 — 둘 다 남긴다. 글자가 나오면 modal_class.py(표 → Jev 두 순서·문 0.8)로 한… |
+| 71 | AE 를 강제 종료하면 다음 기동 때 '충돌 복구 옵션' 창(534x365)이 뜨고 잡이 닿지 못한다 — 자동으로 누르지 않… | 실행기가 창을 누르게 하지 않는다(빗나가면 남의 앱이 뜬다 — 총괄 결정 09-22). 시작 전 검사에서 이 창(대상 앱 #32770 534x365, 주창 없음)을 보면 '충돌 복구 창 — 계속을… |
+| 56 | 윈도우는 경로 조각 끝의 공백·마침표를 조용히 떼어낸다 — 공백은 나중에 터지고, 마침표는 이름만 달라진다 (B 정리 → E… | 경로 조각을 만들 때 뗀다 — 파이썬 rstrip(' .') · ExtendScript name.replace(/[ .]+$/, ''). 반영 완료(이정찬 승인 09-18): E shortform… |
+| 60 | MT5 MCP — 인증·세션·캡처 함정 7 (D 실측 09-18) | 과거 장면은 ChartNavigate 로 옮긴 뒤 창을 PrintWindow 로 찍는다(tools/mt5/capture_scene.py). 키는 .secrets/ac_keys.env MT5_MCP… |
+| 73 | MT5 MCP 로 옮긴 차트가 장중에 최신 봉으로 되돌아간다 — 로그는 옮겼다는데 찍힌 그림은 다른 날짜 (D 실측 2026… | 자리 붙잡기(Hold): 화면 오른쪽 끝 봉 시각을 파일로 받아 목표와 같아질 때까지 기다렸다 찍고, 찍은 뒤 또 확인. 지표는 장면 확정 뒤에 붙이고 덜 붙으면 한 번 더. 이력 미도착이면 다시… |
+| 80 | MT5 CHART_SHIFT_SIZE 는 10~50% 만 받는다 — 리플레이 되감기에서 오른쪽 빈 칸을 절반 넘게 못 넓힌다… | 가림막 방식(데이터를 다 두고 '지금' 오른쪽을 배경색 사각형으로 덮음)이 화면 안 움직이고 한계 없음 — 09-30 완성해 기본으로(D 57150cd). 종가 끊김은 TFBarEndIndex 로… |
+| 75 | 프롬프터 대본 PDF 는 빈 줄 하나가 문단 끝이 아니다 — 1개=줄바꿈, 2개 이상=문단, 쪽 머리말 앞뒤는 0개 (E 실… | pdf_script.py: 빈 줄 개수로 가르고, 이어짐은 받아쓰기(cam_transcript)의 띄어쓰기 빈도로 가른다(12곳 전부 정확), 둘 다 없으면 사람에게. 새 PDF 양식은 먼저 빈 … |
+| 76 | 받아쓰기(whisper) 함정 셋 — 음량 −45dBFS 면 결과가 빈다 · small 모델은 긴 문장 뒤 절반을 흘린다 ·… | 0.9 피크로 정규화 뒤 받아쓰기 · 정렬이 못 붙은 문장이 있으면 그 구간만 medium 으로 다시 · 큐 끝과 컷 끝은 소리.json 무음으로 다듬되 0.35초 이상만(다 빼면 토막). 원문 … |
+| 77 | 자막 큐 시각을 글자 수 비례로 나누면 말 속도가 바뀌는 대목에서 밀린다 — 낱말 타임스탬프로 (E 실측 마01 2026-1… | 대본 문장과 받아쓴 말을 글자 단위로 맞춘 뒤 조각의 글자 자리를 낱말로 되짚는다 → 안 맞는 큐 0·겹침 중앙 0.76. 덜어낸 자리에 떨어진 큐는 버리지 말고 가장 가까운 컷 경계로. cut_… |
+| 65 | Jev 는 자리 치우침이 있다 — 같은 쌍을 A·B 바꿔 물으면 3/13 이 뒤집힌다 (E 실측 2026-09-21) | **선호 비교(둘 중 나은 것)** 에서 난다 — 자리를 바꿔 두 번 묻고 갈리면 사람에게. **분류(여럿 중 무엇)** 에서는 거의 없다: D 21문항 0 뒤집힘, B 37문항 2 뒤집힘(둘 다… |
+| 67 | Jev 는 수를 견줘야 답이 갈리는 자리에서 높은 confidence 로 틀린다 — confidence 문이 안 걸러진다 (… | 수를 견주는 일(같은가·늘었는가·0 인가)에는 안 쓴다 — 문서에 셈 못 한다고 명시돼 있고 실측이 그대로다. 뜻만으로 갈리는 자리(오류 분류 D-3, 모달 문구 B-1)에만. 잡의 성공/실패는 … |
+| 38 | Bash 도구 heredoc — 역슬래시·유니코드 이스케이프가 깨진다 (D 반복 08-28~09-17 · B 09-17 · … | **역슬래시 든 코드는 Write/Edit 도구로만 쓴다** (E 처방 09-17 — f-string 의 \n 이 진짜 줄바꿈으로 박혀 SyntaxError, ruff E9 가 잡음). Strin… |
+| 39 | Windows 콘솔 cp949 — 파이썬 출력·파일 읽기가 한글·특수문자(—, ⚠)에서 죽는다 (반복) | PYTHONUTF8=1 (PEP 540 — 이 PC 의 python3 shim 에 넣음) · 파일은 encoding='utf-8' 명시 · PowerShell 은 grep 'OK' 로만 판정. 원… |
+| 44 | 파이썬 subprocess 로 'python3' 을 부르면 WindowsApps 가짜가 잡혀 거짓 통과 | sys.executable 로 부른다. 원문 log/inbox/2026-09-17_D_오류·비효율.md B8 |
+| 43 | 세션이 붙잡은 폴더는 옮길 수 없다 · PowerShell 은 앞 줄 실패를 모르고 다음 줄을 돈다 | 세션을 닫고 옮긴다. PowerShell 여러 줄은 $ErrorActionPreference='Stop'. 원문 log/inbox/2026-09-17_D_오류·비효율.md B6 |
+| 61 | 렌더 색·속도 — ProRes 4444 는 YUV 라 1 어긋난다, 차트 컷씬은 우리 렌더러가 4.5배 빠르다 (D A/B … | 색을 보증해야 하면 PNG 시퀀스. HyperFrames 는 우리 레이어에 없는 모양을 새로 만들 때만. ffmpeg 는 06_실험실/hf_smoke/node_modules 것을 PATH 앞에. … |
+| 31 | 자막의 진본은 프리미어 프로젝트에서 방금 내보낸 .srt 뿐이다 | 롱폼 동기 작업 전에 사용자에게 '프로젝트에서 지금 내보낸 srt' 를 요청한다. 폴더에 있는 srt 는 만든 날짜가 컷편집 수정일보다 뒤인지부터 의심한다 |
+| 33 | 숏폼 1:1 소스의 실제 가시 영역은 1080x937 이다 | 씬 layout 에 padTop 23 · padBottom 135(가림 120+여유 15) 를 넣어 차트를 세이프 에어리어에 가둔다 — 그러면 프리미어 기본 배치(540,960)를 안 움직여도 된… |
+| 66 | 어도비 잡 로그는 생존 편향이 있다 — 실패한 잡은 로그를 안 남긴다 (D 09-21) | 판정 시험은 파일 단위가 아니라 줄 단위(한 로그 안의 ERR 줄과 true 줄, m5_frames2·a3_frame2)로. 공용 실행기가 _fail.txt 를 남기기 시작했으니 표본은 앞으로 쌓… |
+
+**사고에서 배운 절차** (decision 33·40)
+
+- 완료 보고에는 `확인한 것 / 안 본 것` 두 줄 — 사고 여덟 건이 '일부를 보고 전체를 판단' 이었다 (`log/inbox/_완료보고_양식.md`)
+- 막혔을 때: ① 입력 구조를 **세어서** 확인 ② 산출물은 **원본과 맞대야** 완료 ③ 안 되면 **성공본과 실패본을 맞댄다** ④ 재현은 자동화한다
+- 기록에 없는 결정은 추론하지 않고 이정찬에게 묻는다. 번호 없는 '…하지 않는다' 는 지시가 아니라 메모다 (issue 48)
+- 결과를 믿지 말고 다시 읽는다 — 지표 3개를 켜라 했는데 1개만 켜지고 오류가 없었다 (constraint 60 ⑧)
+
+---
+
+## 공용 장치
+
+| 장치 | 무엇 | 어디 |
+|---|---|---|
+| 세이브 | `python3 log/save.py "한 줄"` — DB·WORKLOG·README 재빌드 + 커밋 + 현재 브랜치 푸시. 옆가지는 `--only <경로>` 범위 필수 | `log/save.py` · runbook 23 |
+| 가드 | 본류 push(총괄만)·브랜치 없는 push·`git add -A`·작업 폴더 이동(`prlinks` 검사 뒤에만)·역슬래시 heredoc 을 막는다 | `.claude/hooks/git_guard.py` · `.claude/settings.json` |
+| 레이더 | 오류 문구 → 우리 기록(issue·constraint·TRAPS) → Stack Overflow → GitHub. `--jev` 면 우리 벽 중 상위 3 | `tools/radar.py` · `.claude/skills/radar` |
+| 래칫 시험 | 절대 경로 리터럴·판정 줄 없는 잡·장면 탐색 미끼·모달 표 — 늘어나면 깨진다 | `tests/` |
+| 인박스 | 세션 간 제안·회신·보고는 `log/inbox/YYYY-MM-DD_<누가>_<제목>.md`. 총괄이 등재하고 번호를 준다 | decision 24 |
+| 절차 | runbook 39개 — `SELECT * FROM runbook;` | DB |
+
+```bash
+git config ac.role 총괄            # 총괄 컨테이너 첫 명령 (옆가지는 안 함)
+python3 log/save.py "어디까지 했는지 한 줄"   # 세이브
+python3 log/save.py --list                    # 되돌릴 수 있는 시점
+python3 tools/radar.py "<오류 붙여넣기>" --jev  # 벽에 두 번째 부딪혔을 때
+python3 -m pytest -q && ruff check --select F,E9 .   # 병합 전 검사
+```
+
+---
+
+## 네 단계 중 어디를 코드가 하나
+
+| 포맷 | 단계 | 담당 | 상태 | 무엇 |
 |---|---|---|---|---|
-| 롱폼 | 1. 대본 만들기 | 사람 | 🔵 자료만 |  |
-| 롱폼 | 1.5 성우 녹음 | 외부 | ➖ 해당없음 |  |
-| 롱폼 | 2. 컷편집 및 자막 달기 | 사람 | ➖ 해당없음 |  |
-| 롱폼 | 2.5 썸네일 제작 | 로컬 클로드 B | 🟢 진행중 |  |
-| 롱폼 | 3. 모션그래픽 및 소스 넣기 | 이 저장소 | 🟢 진행중 | **← 여기** |
-| 숏폼 | 1. 대본 만들기 | E 세션 | 🟢 진행중 |  |
-| 숏폼 | 1.5 성우 녹음 | 외부 | ➖ 해당없음 |  |
-| 숏폼 | 2. 컷편집 및 자막 달기 | 이 저장소 + E 세션 | 🟢 진행중 | **← 여기** |
-| 숏폼 | 3. 모션그래픽 및 소스 넣기 | 이 저장소 | 🟢 진행중 | **← 여기** |
+| 롱폼 | 1. 대본 만들기 | E 세션 | 🟢 진행중 | 회사 기본폼(6단계 퍼널) .docx. 차12부터 E 세션이 쓴다 — Pool(회사 원고 173편)에서 정보를, 김직선 채널에서 말투를 가져와 레고처럼 조립하고(decision 39), pipel… |
+| 롱폼 | 1.5 성우 녹음 | 외부 | ➖ 해당없음 | 대본을 성우에게 넘겨 녹음본을 받는다. 이 녹음이 타임코드의 기준이 된다 |
+| 롱폼 | 2. 컷편집 및 자막 달기 | E 세션 + D 세션 | 🟢 진행중 | 촬영본(캠·PD 설명·OBS)을 받아쓰기(whisper)로 대본에 정렬하고, 실측 무음 경계로 컷을 자르고, 자막을 낱말 타임스탬프로 얹어 프리미어 XML + .srt 로 낸다(L08 09-11 … |
+| 롱폼 | 2.5 썸네일 제작 | 로컬 클로드 B | 🟢 진행중 | 템플릿 .psd 규격대로 차트·타이틀 2줄·틀·로고를 얹어 만든다. 회차당 여러 안을 뽑아 팀장이 고른다 |
+| 롱폼 | 3. 모션그래픽 및 소스 넣기 | 총괄 + D 세션 | 🟢 진행중 | 두 길이 있다. ① 총괄 렌더러(src/render, scenes/*.scenes.js → 1920×1080·59.94fps 클립) ② D 의 MT5 실사 차트(대본 비트 → 장면 탐색 → bat… |
+| 숏폼 | 1. 대본 만들기 | E 세션 | 🟢 진행중 | 롱폼 챕터 하나를 골라 350~560자로 다시 쓴다. 규칙은 shortform_rule, 지시서 작성·검사는 tools/shortform.py |
+| 숏폼 | 1.5 성우 녹음 | 외부 | ➖ 해당없음 | 롱폼과 같은 방식으로 보이나 확인 안 됨 |
+| 숏폼 | 2. 컷편집 및 자막 달기 | 이 저장소 + E 세션 | 🟢 진행중 | STT(faster-whisper)로 녹음을 전사해 무음 경계에서 컷을 자른다. 자막 .srt 는 큐 14자 규칙으로 뽑는다 |
+| 숏폼 | 3. 모션그래픽 및 소스 넣기 | 이 저장소 | 🟢 진행중 | 1:1 1080×1080 / 30fps 소스 클립. 씬은 scenes/sl-*.scenes.js, 실제 가시 영역은 1080×937 (constraint 33) |
 
 > 🟢 진행중 · 🔵 결과물만 저장소에 있음 · ⚪ 미착수 · ➖ 저장소가 관여 안 함
-
-**롱폼 3단계** — 받는 것은 타임코드가 붙은 대본(2단계 산출물), 내놓는 것은 차트만 있는 영상 클립입니다. 자막·타이틀·로고는 2단계에서 이미 들어가므로 렌더에 넣지 않습니다.
-
-**숏폼 1단계** — 롱폼 챕터 하나를 골라 350~560자로 다시 씁니다. 대본을 대신 쓰는 게 아니라 규칙·작성 지시서·검사를 제공합니다.
-
-## 롱폼과 숏폼
 
 | | 화면비 | 채널 최종본 | 우리가 납품 | 길이 | 톤앤매너 |
 |---|---|---|---|---|---|
 | **롱폼** | 16:9 | 1280x720 / 30fps (채널 최종본 실측) | 1920x1080 / 59.94fps (우리가 납품하는 컷씬 소스) | 10~20분 | 차분한 설명조. 기획서+스크립트 6천자 안팎, 섹션 6개(후킹·소개·본론1·문제제시·본론2·아웃트로) |
 | **숏폼** | 9:16 | 1080x1920 / 30fps (최종본 260703 실측) | 미정 (모션그래픽 단계 미착수) | 목표 45초. 나간 편 실측 중앙값 55.9초 (자막 13편) | 대본은 조사됨 — 훅·근거·본론·CTA 4단, 초당 6.6자, 한 편이 롱폼의 9%. 화면 톤앤매너는 아직 미조사 |
 
-숏폼은 세로 프레임이라 차트 레이아웃을 다시 잡아야 합니다. 렌더러는 그대로 쓰되 `layout`·`visibleBars` 부터 새로 정해야 하고, 그 전에 최종본 숏츠를 실측해 톤앤매너를 잡는 것이 먼저입니다.
+---
+
+## 렌더러 (롱폼 3단계 · 총괄)
+
+내부 절차 `███████████░` 8/9 자동화 · 최근 납품 20일선 눌림목 / 조기 익절 4컷 956프레임 · 렌더 실측 15.95초 클립 = 순차 26.8초 (`--preset medium` 24.1초)
+
+```bash
+npm install && npm run setup:fonts       # 리눅스만 폰트 등록
+npm run render -- --config scenes/cmg12-bridge.scenes.js --all --stills 5   # 구도 먼저
+npm run render -- --config scenes/cmg12-bridge.scenes.js --all              # 렌더. 순차면 충분
+```
+
+<details><summary>내부 절차 9단계 · 갖춰 놓은 것</summary>
+
+| 단계 | 방법 | 담당 |
+|---|---|---|
+| ✅ 1. 대본 수령 | 타임코드가 붙은 .srt 를 받는다 | 사용자 |
+| ✅ 2. 주제·소재·키워드 정리 | 대본에서 검색어가 될 키워드를 뽑는다 | 클로드 |
+| ✅ 3. 작업물 폴더 검색 | 이제 드라이브에 붙지 않아도 된다. script_fts 전문 검색과 script_keyword 역인덱스가 저장소 안에 있다 (2026-08-2… | 클로드 |
+| ✅ 4. 레퍼런스 확정 | script_keyword 로 키워드 일치율이 가장 높은 회차를 고른다. 그 회차의 최종 .prproj 는 episode_prproj 테이블에… | 클로드 |
+| ✅ 5. 레퍼런스 확인 | 그 회차의 .prproj 를 gunzip 해서 XML 을 직접 읽는다. 시퀀스·이펙트·키프레임·애셋 경로가 모두 평문으로 들어 있다. 영상 프… | 클로드 |
+| ✅ 6. 컷 설계 + scenes.js 작성 | 타임코드를 프레임으로 환산하고 cmg-20ma-runner.scenes.js 를 본떠 layers 를 채운다 | 클로드 |
+| ✅ 7. 구도 확인 | --stills 로 스틸컷을 먼저 본다. 겹침은 여기서 잡는다 | 클로드 |
+| ✅ 8. 렌더 | --all 순차로 충분하다 (2026-08-27 캡처 교체 후 병렬 이득 소멸) | 자동 |
+| 🟡 9. 프리미어 반입 | 타임라인에 얹는 건 사람. 다만 XML 이 프리미어에 들어가는지는 D PC 의 공용 실행기 잡 x1_import_xml 로 자동 검증한다(Br… | 사용자 |
+
+| 갖춰 놓은 것 | 수 | 쓰임 |
+|---|---:|---|
+| 대본 인덱스 | 13편 | 새 대본과 겹치는 회차를 전문 검색으로 (차명14·15 2편은 빈 템플릿) |
+| 회차 프리미어 파일 | 37건 | 레퍼런스 확인 (`.prproj` 를 gunzip 해 직접 읽는다) |
+| 브랜드 실측값 | 30건 | 옛 차트명가 색·크기 — New 기준은 next_step 55 에서 다시 잰다 |
+| 레이어 | 29종 | 컷을 짤 때 쓰는 재료 (`layer_catalog`) |
+| 회사 모션 문법 | 8종 | 최종본 키프레임에서 뽑은 프레임 수·이징 |
+
+</details>
 
 ---
 
-## 숏폼 대본을 뽑는 규칙
+<details><summary><b>숏폼 대본을 뽑는 규칙</b> (E · tools/shortform.py)</summary>
 
 나간 숏폼 25편과 원본 롱폼 13편을 맞춰 보고 역으로 구한 것입니다. 핵심은 **복붙이 아니라 다시 쓴다** — 10자 n-gram 겹침이 중앙값 2.2%뿐입니다.
 
@@ -82,9 +212,6 @@ flowchart LR
         ④ CTA   질문으로 넘김 + 고정 3줄      26자 / 2.7초   고정
                 → 이 질문이 다음 편의 주제가 된다
 ```
-
-**훅과 CTA 는 길이와 무관하게 거의 고정입니다. 줄일 때는 본문에서만 줄입니다.**
-나간 편들의 실제 길이는 중앙값 **55.9초** — 목표보다 24% 깁니다. 45초 밑은 13편 중 3편뿐입니다.
 
 | 등급 | 규칙 | 기존 |
 |---|---|---|
@@ -104,20 +231,7 @@ flowchart LR
 | 필수 | 작업 중에는 폴더·파일 맨 앞에 (중간) 을 붙인다 | — |
 | 필수 | 줄일 때는 본문에서만 줄인다 | — |
 
-등급은 기존 24편 중 몇 편이 지켰는지로 나눴습니다. 5개를 모두 지킨 편은 2편뿐이라 **경향에 가깝습니다 — 권장은 어겨도 됩니다.** 일정표에서 `숏폼(포)`로 표시된 편은 기획형이라 이 규칙 밖입니다.
-
-**`포인트_차` 갈래는 위 SL 규칙과 별도입니다** — 기준선부터 다릅니다(New 10편 실측 53.9초 · 362자 · 6.70자/초, SL 값 사용 금지). 규칙 6개는 `SELECT * FROM shortform_rule WHERE grp='포인트';`, 상세는 [log/SCRIPT-LAB.md](log/SCRIPT-LAB.md).
-
-**폴더·파일 이름**도 매뉴얼이 있습니다. 작업 중에는 둘 다 앞에 `(중간)` 을 붙입니다.
-
-```
-숏폼 폴더    YYMMDD_[SL_차XX_#X]숏폼제목
-         예) 260827_[SL_차11_#4]20일선 추세추종 매매법
-숏폼 파일    [SL]숏폼제목[롱폼제목#X].txt
-         예) [SL]20일선 추세추종 매매법[20일선의 비밀#4].txt
-작업 중     맨 앞에 (중간) 을 붙인다
-         예) (중간)260827_[SL_차11_#4]20일선 추세추종 매매법 / (중간)[SL]20일선 추세추종 매매법[20일선의 비밀#4].txt
-```
+5개를 모두 지킨 편은 2편뿐이라 **경향에 가깝습니다 — 권장은 어겨도 됩니다.** `포인트_차` 갈래는 별도(규칙 6개, `WHERE grp='포인트'`). 상세는 [log/SCRIPT-LAB.md](log/SCRIPT-LAB.md).
 
 ```bash
 python3 tools/shortform.py chapters 11                      # 롱폼 챕터 보기
@@ -126,76 +240,31 @@ python3 tools/shortform.py name 11 --no 4 --title '제목'      # 이름 짓기
 python3 tools/shortform.py check 초안.txt                    # 규칙 + 이름 검사
 ```
 
----
+</details>
 
-## 현황
+<details><summary><b>되돌리기</b> — 최근 세이브 슬롯</summary>
 
-**롱폼 3단계 내부 절차** `███████████░` 8/9 자동화
-
-| 단계 | 방법 | 담당 |
-|---|---|---|
-| ✅ 1. 대본 수령 | 타임코드가 붙은 .srt 를 받는다 | 사용자 |
-| ✅ 2. 주제·소재·키워드 정리 | 대본에서 검색어가 될 키워드를 뽑는다 | 클로드 |
-| ✅ 3. 작업물 폴더 검색 | 이제 드라이브에 붙지 않아도 된다. script_fts 전문 검색과 script_keyword 역인덱스가 저장소 안에 있다 (… | 클로드 |
-| ✅ 4. 레퍼런스 확정 | script_keyword 로 키워드 일치율이 가장 높은 회차를 고른다. 그 회차의 최종 .prproj 는 episode_pr… | 클로드 |
-| ✅ 5. 레퍼런스 확인 | 그 회차의 .prproj 를 gunzip 해서 XML 을 직접 읽는다. 시퀀스·이펙트·키프레임·애셋 경로가 모두 평문으로 들어… | 클로드 |
-| ✅ 6. 컷 설계 + scenes.js 작성 | 타임코드를 프레임으로 환산하고 cmg-20ma-runner.scenes.js 를 본떠 layers 를 채운다 | 클로드 |
-| ✅ 7. 구도 확인 | --stills 로 스틸컷을 먼저 본다. 겹침은 여기서 잡는다 | 클로드 |
-| ✅ 8. 렌더 | --all 순차로 충분하다 (2026-08-27 캡처 교체 후 병렬 이득 소멸) | 자동 |
-| ⬜ 9. 프리미어 반입 | 지금은 사용자가 직접 넣는다. 자동화하려면 사용자 PC 에 프리미어 MCP 설치 필요 | 사용자 |
-
-| 갖춰 놓은 것 | 수 | 쓰임 |
-|---|---:|---|
-| 대본 인덱스 | 13편 | 새 대본과 겹치는 회차를 전문 검색으로 찾는다 (차명14·15 2편은 아직 빈 템플릿) |
-| 회차 프리미어 파일 | 37건 | 레퍼런스 확인 (`.prproj` 를 직접 읽는다) |
-| 브랜드 실측값 | 30건 | 색·크기. 레퍼런스 프레임에서 픽셀 단위로 잰 값 |
-| 레이어 | 29종 | 컷을 짤 때 쓰는 재료 |
-| 회사 모션 문법 | 8종 | 최종본 키프레임에서 뽑은 프레임 수·이징 |
-
-**최근 납품** — 20일선 눌림목 / 조기 익절 4컷, 956프레임 · 1920×1080 · 59.94fps  
-**렌더 실측** — 15.95초 클립 기준 순차 26.8초 (`--preset medium` 24.1초). 캡처 교체(2026-08-27) 뒤로는 한 프로세스가 4코어를 포화시켜 컷별 병렬의 이득이 없다
-
----
-
-## 빠른 시작
+작업 한 덩어리마다 세이브 슬롯을 만듭니다. 태그 푸시는 403 이라 슬롯·해시 짝을 `log/data/checkpoints.json` 에 적습니다.
 
 ```bash
-npm install
-npm run setup:fonts                        # 리눅스만. 폰트 등록
-npm run render -- --config scenes/cmg-20ma-runner.scenes.js --all --stills 5
-npm run render -- --config scenes/cmg-20ma-runner.scenes.js --all
-```
-
-`--all` 순차면 충분합니다. 컷별 병렬은 캡처 교체 뒤 이득이 사라져 쓰지 않습니다.
-
-```bash
-npm run render -- --config ... --all --preset medium   # 급할 때. 파일 +2%
-npm run render -- --config ... --all --capture shot    # 예전 캡처 경로 (대조용)
-node src/tools/exp-capture.mjs                         # 환경이 바뀌면 재실측
-```
-
-## 되돌리기
-
-작업 한 덩어리마다 세이브 슬롯을 만듭니다. 슬롯 하나가 그 시점의 저장소 전체입니다.
-
-```bash
-python3 log/save.py "어디까지 했는지 한 줄"   # 세이브
 python3 log/save.py --list                    # 슬롯 목록
-git restore --source=<해시> -- .              # 되돌리기
+git restore --source=<해시> -- .              # 되돌리기 (그 뒤 다시 save)
 ```
 
 | 시각 (KST) | 슬롯 | 커밋 | 어디까지 |
 |---|---|---|---|
-| 2026-10-01 18:36 | `save/2026-10-01-1836` | `3246176` | D 32·E 14 병합 — issue 54~57, constraint 74~80, decision 40(막혔을 때 순서·양식 원본과 맞댔나), next_step 56~58, runbook 26 x1_import_xml, split.mjs pathurl 프리미어 꼴, E ruff 정리 |
+| 2026-10-01 18:36 | `save/2026-10-01-1836` | `3246176` | D 32·E 14 병합 — issue 54~57, constraint 74~80, decision 40(막혔을 때 순서·양식 원본과 맞댔나), next_step 56~58, ru… |
 | 2026-10-01 18:21 | `save/2026-10-01-1821` | `32adf14` | 마01 컷 — 이음매에서 같은 말 두 번 들리는 것 제거(숨틈이 다음 낱말 침범 금지 + 중복 낱말 떼기), 69컷 436.63초 |
 | 2026-10-01 18:05 | `save/2026-10-01-1805` | `f6bc476` | 마01 컷 다듬기 — 말에 붙여 경계 재설정(무음·박수·헛말·재촬영 제거), 피드백 11곳 전부 해소·대본 손실 0 |
 | 2026-10-01 17:27 | `save/2026-10-01-1727` | `14316f3` | 가져오기 검증 잡 — 자막(.srt) 넣기·캡션 트랙 만들기·시퀀스 열기까지 |
 | 2026-10-01 17:21 | `save/2026-10-01-1721` | `d2d6466` | 가져오기 검증 잡에 마커·꺼둔 클립 세는 줄 추가 (E 두 벌 검증) |
 | 2026-10-01 16:56 | `save/2026-10-01-1656` | `6a0f190` | 프리미어 XML 거부 해결 — 경로 표기를 프리미어 실측 꼴로(괄호 그대로·C%3a·소문자), L08 틀 생성기와 가져오기 검증 잡 |
+| 2026-10-01 15:28 | `save/2026-10-01-1528` | `6aa65d7` | runbook 26 — 롱폼 컷편집 합본(XML+자막) 절차, 기록 위치 SCRIPT-LAB §17 |
+| 2026-09-30 13:53 | `save/2026-09-30-1353` | `281746f` | 리플레이 — 조작판 숨김 제대로(바탕판까지), R 로 지금 시각까지 다시 받기 |
 
----
+</details>
 
-## 어디에 무엇이 있나
+<details><summary><b>어디에 무엇이 있나</b> — 251개 (`SELECT * FROM repo_file;`)</summary>
 
 | 경로 | 역할 |
 |---|---|
@@ -451,9 +520,11 @@ git restore --source=<해시> -- .              # 되돌리기
 | `tools/theone/상단배너_임베딩분석.md` | 더원 배너 임베딩 채점(KURE-v1·Chroma) — prproj 텍스트+srt 쌍 53개, 아랫줄이 대본 전체에 +0.051 더 가깝다, 아랫줄 띠 0.496~0.592(6편)·윗줄 0.403~0.685, 후보 채점 5개, 다시 돌리는 명령. 대본→인덱스→임베딩→로직 수치 원문. 09-18 총괄 등재 |
 | `tools/thumbnail_png.py` | 롱폼 썸네일을 .png 로 뽑는다 — 차트 한 장, 완성본 한 장 |
 
+</details>
+
 ## 컨텍스트가 날아갔을 때
 
-`log/worklog.db` 한 파일에 전부 들어 있습니다. 순서대로 읽으면 됩니다.
+`log/worklog.db` 한 파일에 전부 들어 있습니다. `CLAUDE.md` 를 먼저 읽고, 그다음 이 순서입니다.
 
 ```sql
 -- 0. 이 저장소가 맡는 범위
@@ -473,8 +544,10 @@ git restore --source=<해시> -- .              # 되돌리기
 -- 14. 썸네일 만드는 법
 SELECT * FROM v_start_here;   -- 이 순서대로
 SELECT * FROM v_scope;        -- 파이프라인 어디를 맡는가
+SELECT * FROM next_step WHERE seq >= 45;   -- 지금 열린 일
 SELECT * FROM runbook;        -- 명령어
 SELECT * FROM constraint_note;-- 이미 부딪혀 본 벽
+SELECT * FROM issue ORDER BY seq DESC;     -- 사고와 고친 법
 ```
 
-<sub>이 문서는 `log/worklog.db` 에서 자동 생성됩니다 — `python3 log/build_readme.py`. 직접 고치지 말고 DB 를 고치세요.</sub>
+<sub>이 문서는 `log/worklog.db` 에서 자동 생성됩니다 — `python3 log/build_readme.py`. 직접 고치지 말고 `log/build_worklog_db.py` 를 고치세요.</sub>
