@@ -2373,3 +2373,4 @@ python3 tools/cutedit/docx_script.py <촬영대본.docx>  →  transcribe.py · 
 | 627 | `022c704f` | E 09-30~10-01 얹음 — 마01 캠 롱폼 컷편집 도구(cam_*·pdf_script·ko_clause·pr_xml·obs_*·채점대), 시험 2, SCRIPT-LAB §18, 차12 새판, 오류 모음 (원문 txt 는 저장소 밖) | 29파일 +2919/-14 |
 | 628 | `32461769` | 세이브 save/2026-10-01-1836 — D 32·E 14 병합 — issue 54~57, constraint 74~80, decision 40(막혔을 때 순서·양식 원본과 맞댔나), next_step 56~58, runbook 26 x1_import_xml, split.mjs pathurl 프리미어 꼴, E ruff 정리 | 18파일 +231/-34 |
 | 629 | `5e45a354` | 세이브 기록 save/2026-10-01-1836 | 5파일 +1379/-1369 |
+| 630 | `662b9f67` | 세이브 save/2026-10-03-1714 — README·CLAUDE.md 전면 개정 — 세션 넷 체계 첫 화면(지금·누가·어떻게·뚫은 벽·장치), pipeline_stage·workflow 9·session 갱신, clone unshallow(커밋 629) | 7파일 +1087/-488 |

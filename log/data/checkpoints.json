@@ -1370,5 +1370,12 @@
   "utc": "2026-10-01 09:36",
   "sha": "3246176",
   "summary": "D 32·E 14 병합 — issue 54~57, constraint 74~80, decision 40(막혔을 때 순서·양식 원본과 맞댔나), next_step 56~58, runbook 26 x1_import_xml, split.mjs pathurl 프리미어 꼴, E ruff 정리"
+ },
+ {
+  "tag": "save/2026-10-03-1714",
+  "kst": "2026-10-03 17:14",
+  "utc": "2026-10-03 08:14",
+  "sha": "662b9f6",
+  "summary": "README·CLAUDE.md 전면 개정 — 세션 넷 체계 첫 화면(지금·누가·어떻게·뚫은 벽·장치), pipeline_stage·workflow 9·session 갱신, clone unshallow(커밋 629)"
  }
 ]
