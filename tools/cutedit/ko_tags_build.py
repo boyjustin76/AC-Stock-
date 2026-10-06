@@ -74,7 +74,8 @@ def 사전추리기(낱):
     낼것 = {}
     for 글, c in 낱.items():
         n = sum(c.values())
-        if n < 2: continue
+        if n < 1: continue   # 한 번만 나온 어절도 넣는다 — 짧은 용언꼴(·)이 사전에 없으면
+                             # 끝꼴 추측으로 넘어가고, 거기서 를 (연결어미)로 읽는 사고가 난다
         (첫, 끝), 수 = c.most_common(1)[0]
         낼것[글] = [첫, 끝, n]
     return 낼것

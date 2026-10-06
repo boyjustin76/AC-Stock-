@@ -1,59 +1,64 @@
 # -*- coding: utf-8 -*-
-"""이정찬이 손으로 나눈 자막과 내 가름을 맞댄다 — 경계가 몇 개나 같은가."""
-import io, os, re, sys
+"""사람이 손으로 나눈 자막과 내 가름을 맞댄다 — 경계가 몇 개나 같은가.
 
-레포 = r"C:/Users/user/Desktop/이정찬/스크립트_컷편집_통합/01_저장소/E_Script"
-sys.path.insert(0, os.path.join(레포, "tools", "cutedit"))
-import srt_rules, ko_clause
+**정밀**(내가 끊은 자리 가운데 사람도 끊은 비율)이 더 중요하다 — 글자 수를 기준에서 뺀 뒤로는
+적게 끊고 끊은 자리는 전부 사람이 받아들일 자리여야 한다 (이정찬 2026-10-02).
 
-사람길 = sys.argv[1] if len(sys.argv) > 1 else \
-    r"C:/Users/user/.claude/uploads/e1fa110c-f82d-4e3c-a7f3-2b7d8284ef16/937c78e7-_____________.txt"
-내길 = r"C:/Users/user/Desktop/이정찬/마이노_0930~/마01/마01_캠_컷.srt"
+    AC_CUT_DIR=<...>/마01 python3 tools/cutedit/grade/가름대조.py [자막.srt] [정답.txt]
+"""
+import difflib
+import io
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import 자리 as Z
+
+sys.path.insert(0, Z.도구)
+import ko_clause
+import srt_rules
+
 맨 = ko_clause.맨
+인자 = [a for a in sys.argv[1:] if not a.startswith("-")]
+회차 = Z.회차폴더()
+내길 = 인자[0] if len(인자) > 0 else os.path.join(회차, "%s_캠_컷.srt" % os.path.basename(회차))
+정답길 = 인자[1] if len(인자) > 1 else os.path.join(Z.정답자막, "마01_캠_이정찬_손수정본.txt")
 
-사람 = [l.strip() for l in io.open(사람길, encoding="utf-8-sig").read().split("\n") if l.strip()]
+사람 = [l.strip() for l in io.open(정답길, encoding="utf-8-sig").read().split("\n") if l.strip()]
 내것 = [c["t"].replace("\n", " ").strip() for c in srt_rules.read_srt(내길)]
 
 
-def 경계자리(줄들):
-    """이어 붙인 글에서 **줄이 끝나는 글자 자리**의 집합. 글 자체도 같이 돌려준다."""
-    글, 자리 = "", set()
+def 경계(줄들):
+    글, 자리들, 쌓 = "", set(), 0
     for l in 줄들:
         글 += 맨(l)
-        자리.add(len(글))
-    return 글, 자리
+        쌓 += len(맨(l))
+        자리들.add(쌓)
+    return 글, 자리들
 
 
-사람글, 사람자리 = 경계자리(사람)
-내글, 내자리 = 경계자리(내것)
-print("이정찬 %d줄 %d자 (평균 %.1f자) · 나 %d줄 %d자 (평균 %.1f자)"
+사람글, ㅅ = 경계(사람)
+내글, ㄴ = 경계(내것)
+print("정답 %d줄 %d자 (평균 %.1f자) · 나 %d줄 %d자 (평균 %.1f자)"
       % (len(사람), len(사람글), len(사람글) / len(사람), len(내것), len(내글), len(내글) / len(내것)))
 
-if 사람글 != 내글:
-    import difflib
-    sm = difflib.SequenceMatcher(None, 사람글, 내글, autojunk=False)
-    print("글이 다르다 — 닮음 %.4f. 겹치는 대목만 견준다" % sm.ratio())
-    # 사람 글자 자리 → 내 글자 자리
-    짝 = {}
-    for op, i1, i2, j1, j2 in sm.get_opcodes():
-        if op == "equal":
-            for d in range(i2 - i1 + 1):
-                if i1 + d <= len(사람글) and j1 + d <= len(내글): 짝[i1 + d] = j1 + d
-    공통 = [i for i in 사람자리 if i in 짝]
-    맞 = [i for i in 공통 if 짝[i] in 내자리]
-    print("견줄 수 있는 이정찬 경계 %d개 중 **내가 같은 자리에 끊은 것 %d개 (%.0f%%)**"
-          % (len(공통), len(맞), 100 * len(맞) / max(1, len(공통))))
-    안맞 = sorted(i for i in 공통 if 짝[i] not in 내자리)
-    print("\n이정찬은 끊었는데 나는 안 끊은 자리 %d곳" % len(안맞))
-    for i in 안맞[:25]:
-        print("   …%s | %s…" % (사람글[max(0, i - 14):i], 사람글[i:i + 14]))
-    # 반대 — 내가 끊었는데 이정찬은 안 끊은 자리
-    되짝 = {v: k for k, v in 짝.items()}
-    내공통 = [j for j in 내자리 if j in 되짝]
-    더끊음 = sorted(j for j in 내공통 if 되짝[j] not in 사람자리)
-    print("\n나는 끊었는데 이정찬은 안 끊은 자리 %d곳 (짧게 자른 쪽)" % len(더끊음))
-    for j in 더끊음[:25]:
-        print("   …%s | %s…" % (내글[max(0, j - 14):j], 내글[j:j + 14]))
-else:
-    맞 = 사람자리 & 내자리
-    print("글이 같다. 경계 %d / %d 일치" % (len(맞), len(사람자리)))
+sm = difflib.SequenceMatcher(None, 사람글, 내글, autojunk=False)
+짝 = {}
+for op, i1, i2, j1, j2 in sm.get_opcodes():
+    if op == "equal":
+        for d in range(i2 - i1 + 1):
+            짝[i1 + d] = j1 + d
+되짝 = {v: k for k, v in 짝.items()}
+공통 = [i for i in ㅅ if i in 짝]
+맞 = [i for i in 공통 if 짝[i] in ㄴ]
+내공통 = [j for j in ㄴ if j in 되짝]
+맞은내것 = [j for j in 내공통 if 되짝[j] in ㅅ]
+print("겹치는 대목 — 닮음 %.4f" % sm.ratio())
+print("  재현(정답 경계를 내가 맞춘 비율)   %3d/%3d = %.3f" % (len(맞), len(공통), len(맞) / max(1, len(공통))))
+print("  **정밀(내 경계가 정답과 같은 비율) %3d/%3d = %.3f**"
+      % (len(맞은내것), len(내공통), len(맞은내것) / max(1, len(내공통))))
+
+더끊음 = sorted(j for j in 내공통 if 되짝[j] not in ㅅ)
+print("\n내가 끊었는데 정답은 안 끊은 자리 %d곳 — **이것이 결함이다**" % len(더끊음))
+for j in 더끊음[:30]:
+    print("   …%s | %s…" % (내글[max(0, j - 14):j], 내글[j:j + 14]))
