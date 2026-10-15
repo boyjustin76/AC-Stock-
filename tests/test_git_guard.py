@@ -140,3 +140,41 @@ def test_quoted_heredoc_with_backslash_depends_on_platform(monkeypatch):
 def test_heredoc_without_backslash_allowed():
     assert chk("cat > a.md <<'EOF'\n# 제목\n본문\nEOF") is None
     assert chk("python3 - <<'PYEOF'\nprint(1)\nPYEOF") is None
+
+
+# 5. 본류 push 금지의 범위 — 이 저장소에서만 (B 2026-10-15)
+def test_mainline_push_allowed_in_another_repo():
+    """세션이 만든 다른 저장소에서는 main 이 그쪽 본류다 — 막을 까닭이 없다."""
+    assert chk("git push origin main", guarded_repo=False) is None
+    assert chk("git push -u origin main", guarded_repo=False) is None
+
+
+def test_mainline_push_still_blocked_here():
+    assert chk("git push origin main", guarded_repo=True)
+    assert chk("git push origin claude/futures-youtube-video-edit-fhio4s", guarded_repo=True)
+
+
+def test_push_without_branch_name_blocked_in_any_repo():
+    """브랜치 이름 없는 push 는 저장소를 안 가린다 — 명령이 제 뜻을 드러내야 한다."""
+    assert chk("git push", guarded_repo=False)
+    assert chk("git push origin HEAD", guarded_repo=False)
+
+
+def test_target_cwd_follows_cd_and_dash_C():
+    assert gg._target_cwd('cd "C:/a b/failloud" && git push origin main', ".") == "C:/a b/failloud"
+    assert gg._target_cwd("cd /tmp/x; git push origin main", ".") == "/tmp/x"
+    assert gg._target_cwd("git -C /tmp/y push origin main", ".") == "/tmp/y"
+    assert gg._target_cwd("git push origin main", "/session/cwd") == "/session/cwd"
+
+
+def test_unknown_repo_is_guarded(monkeypatch):
+    """origin 을 못 읽으면 막는 쪽으로 둔다 — 판단 못 할 때 푸는 가드는 가드가 아니다."""
+    monkeypatch.setattr(gg, "_origin_url", lambda cwd: "")
+    assert gg._is_guarded_repo("git push origin main", ".") is True
+
+
+def test_repo_matched_by_origin_url(monkeypatch):
+    monkeypatch.setattr(gg, "_origin_url", lambda cwd: "https://github.com/x/AC-Stock-.git")
+    assert gg._is_guarded_repo("git push origin main", ".") is True
+    monkeypatch.setattr(gg, "_origin_url", lambda cwd: "https://github.com/x/failloud.git")
+    assert gg._is_guarded_repo("git push origin main", ".") is False

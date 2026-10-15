@@ -10,8 +10,13 @@ D 가 로컬(~/.claude/hooks/hookify_reason.py)에서 쓰던 규칙 3개를 저�
   4. heredoc-backslash  본문에 역슬래시가 든 heredoc — 따옴표 없는 <<EOF 는 어디서나, <<'EOF' 는 Windows 에서 막는다.
                        Write/Edit 도구로 파일을 쓰고 명령은 그 파일을 부른다 (constraint_note 38).
   1. mainline-push     본류(claude/futures-…, main, master)로 push 금지.
-                       **브랜치 이름 없는 push(`git push`, `git push origin HEAD`)도 금지** — 어디로 가는지
+                       **이 저장소에서만** 건다 — origin 이 AC-Stock- 인 저장소. 세션이 만든 **다른 저장소**
+                       (포터블 공개 저장소 등)에서는 main 이 그 저장소의 본류라 막을 까닭이 없다
+                       (B 2026-10-15). 대상은 명령 안의 `cd …` 와 `git -C …` 로 찾고, 못 가리면 **막는 쪽**으로 둔다.
+                       이름을 더 보태려면 환경변수 AC_GUARD_REPOS="조각1 조각2".
+                       **브랜치 이름 없는 push(`git push`, `git push origin HEAD`)는 어디서나 금지** — 어디로 가는지
                        명령에서 안 보이면 막고 이름을 쓰게 한다 (D 제안 09-17, 단순한 쪽).
+                       이건 저장소를 안 가린다. 우리 규칙이 아니라 명령이 제 뜻을 드러내야 한다는 쪽이라서다.
                        총괄 clone 만 예외: `git config ac.role 총괄` 이 있으면 통과.
   2. whole-tree-stage  `git add -A` · `git add .` · `git commit -a` 금지 — 같은 작업트리를 나눠 쓰면
                        남의 파일이 딸려 간다(issue 24). `python3 log/save.py "…" --only <경로>` 를 쓴다.
@@ -57,6 +62,11 @@ RE_GIT_MV = re.compile(GIT + r"mv\b", re.M)
 RE_HEREDOC = re.compile(r"<<-?\s*(?P<q>['\"]?)(?P<d>[A-Za-z_][A-Za-z0-9_]*)(?P=q)[^\n]*\n(?P<body>.*?)\n\s*(?P=d)\s*(?:\n|$)", re.S)
 MARK = ".claude/prlinks_find.ok"
 MARK_TTL = 60 * 60
+# 본류 push 금지를 **어느 저장소에 걸 것인가.** origin 주소에 이 조각이 들어가면 건다.
+GUARDED_REPOS = ("AC-Stock-",)
+# 명령 안에서 대상 저장소를 찾는다 — `cd <경로> && git push …` 와 `git -C <경로> push …`.
+RE_CD = re.compile(r"(?:^|[;&|]\s*)cd\s+(?P<p>\"[^\"]+\"|'[^']+'|[^\s;&|]+)", re.M)
+RE_DASH_C = re.compile(r"git\s+(?:-c\s+\S+\s+)*-C\s+(?P<p>\"[^\"]+\"|'[^']+'|[^\s;&|]+)")
 
 
 def _role(cwd: str) -> str:
@@ -77,6 +87,41 @@ def _branch(cwd: str) -> str:
         return ""
 
 
+def _origin_url(cwd: str) -> str:
+    try:
+        r = subprocess.run(["git", "-C", cwd, "remote", "get-url", "origin"],
+                           capture_output=True, text=True, encoding="utf-8", timeout=5)
+        return r.stdout.strip()
+    except Exception:
+        return ""
+
+
+def _target_cwd(cmd: str, cwd: str) -> str:
+    """명령이 가리키는 저장소 폴더. `cd …` · `git -C …` 가 있으면 그쪽, 없으면 세션 폴더.
+
+    훅은 세션 작업 폴더만 받는다. 그런데 명령은 `cd 다른저장소 && git push` 일 수 있다 —
+    그걸 안 보면 남의 저장소에 우리 규칙을 걸게 된다 (B 2026-10-15 실측).
+    """
+    last = None
+    for m in RE_CD.finditer(cmd):
+        last = m.group("p")
+    m = RE_DASH_C.search(cmd)
+    if m:
+        last = m.group("p")
+    if not last:
+        return cwd
+    return last.strip("\"'") or cwd
+
+
+def _is_guarded_repo(cmd: str, cwd: str) -> bool:
+    """본류 push 금지를 걸 저장소인가. **가리지 못하면 건다**(막는 쪽이 안전하다)."""
+    names = GUARDED_REPOS + tuple(os.environ.get("AC_GUARD_REPOS", "").split())
+    url = _origin_url(_target_cwd(cmd, cwd))
+    if not url:                       # 저장소가 아니거나 origin 이 없다 — 판단 못 하면 건다
+        return True
+    return any(n.lower() in url.lower() for n in names)
+
+
 def _repo_root(cwd: str) -> str:
     try:
         r = subprocess.run(["git", "-C", cwd, "rev-parse", "--show-toplevel"],
@@ -87,7 +132,8 @@ def _repo_root(cwd: str) -> str:
 
 
 def check(command: str, cwd: str = ".", *, now: float | None = None,
-          role: str | None = None, branch: str | None = None, mark_mtime: float | None = None) -> str | None:
+          role: str | None = None, branch: str | None = None, mark_mtime: float | None = None,
+          guarded_repo: bool | None = None) -> str | None:
     """막아야 하면 이유(문자열), 아니면 None. 키워드 인자는 시험용 주입."""
     cmd = command or ""
 
@@ -98,6 +144,9 @@ def check(command: str, cwd: str = ".", *, now: float | None = None,
             rest = m.group("rest")
             target = next((b for b in MAINLINE if re.search(re.escape(b) + r"(?:\s|$|:)", rest)), None)
             no_branch_arg = not re.search(r"\s[^\s-][^\s]*\s+[^\s-]", rest)
+            # 본류 금지는 **이 저장소 규칙**이다. 남의 저장소에서는 main 이 그쪽 본류라 막지 않는다.
+            if target and (guarded_repo if guarded_repo is not None else _is_guarded_repo(cmd, cwd)) is False:
+                target = None
             if target:
                 return (f"본류 '{target}' 로의 push 는 총괄만 한다. 옆가지(worktree-…)로 올리고 총괄에게 병합을 요청한다. "
                         f"(총괄 clone 은 `git config ac.role 총괄`)")
