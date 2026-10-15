@@ -52,6 +52,25 @@ def test_push_after_cd_or_semicolon_still_seen():
     assert chk("echo a; git push")
 
 
+
+# 1-b. `git -C <다른 저장소>` 는 **그 저장소의** 역할을 읽는다 (2026-10-15)
+#      훅이 세션 폴더만 보던 탓에, 남의 저장소 main 푸시까지 이 저장소 규칙으로 막혔다.
+def test_dash_C_looks_at_the_target_repo():
+    assert gg._target_repo('git -C /x/other push origin main', '/here') == '/x/other'
+    assert gg._target_repo('git -C "C:/a b/repo" push origin main', '/here') == 'C:/a b/repo'
+    assert gg._target_repo("git -C 'C:/a b/repo' push origin main", '/here') == "C:/a b/repo"
+
+
+def test_dash_C_없으면_세션_폴더를_본다():
+    assert gg._target_repo('git push origin main', '/here') == '/here'
+    assert gg._target_repo('git -c core.x=1 push origin main', '/here') == '/here'
+
+
+def test_가리킨_저장소가_총괄이면_통과한다():
+    """역할 주입으로만 확인한다 — 실제 git 을 부르지 않는다."""
+    assert chk('git -C /x/other push origin main', role='총괄') is None
+    assert chk('git -C /x/other push origin main', role='') is not None
+
 # 2. 전체 스테이징
 def test_stage_all_blocked():
     assert chk("git add -A")

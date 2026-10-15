@@ -59,6 +59,23 @@ MARK = ".claude/prlinks_find.ok"
 MARK_TTL = 60 * 60
 
 
+#  `git -C <경로> …` 로 **다른 저장소**를 가리킨 명령. 그때는 역할도 그 저장소에서 읽는다.
+RE_DASH_C = re.compile(r"(?:^|[;&|(]\s*)git\s+-C\s+(?P<p>\"[^\"]+\"|'[^']+'|\S+)", re.M)
+
+
+def _target_repo(command: str, cwd: str) -> str:
+    """이 명령이 **실제로 건드리는** 저장소 폴더.
+
+    훅은 세션 작업 폴더만 보고 역할을 읽었다. 그래서 다른 저장소를 가리킨
+    `git -C <남의 저장소> push origin main` 도 이 저장소의 규칙으로 막혔다 (2026-10-15).
+    공용 저장소 가드는 그대로 두고, **가리킨 저장소가 있으면 그쪽 역할을 읽는다.**
+    """
+    m = RE_DASH_C.search(command or "")
+    if not m:
+        return cwd
+    return m.group("p").strip("\"'")
+
+
 def _role(cwd: str) -> str:
     try:
         r = subprocess.run(["git", "-C", cwd, "config", "--get", "ac.role"],
@@ -93,7 +110,7 @@ def check(command: str, cwd: str = ".", *, now: float | None = None,
 
     m = RE_PUSH.search(cmd)
     if m:
-        role = _role(cwd) if role is None else role
+        role = _role(_target_repo(cmd, cwd)) if role is None else role
         if role != "총괄":
             rest = m.group("rest")
             target = next((b for b in MAINLINE if re.search(re.escape(b) + r"(?:\s|$|:)", rest)), None)
